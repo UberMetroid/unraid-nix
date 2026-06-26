@@ -40,6 +40,7 @@ $store_path = isset($nix_cfg['NIX_STORE_PATH']) ? $nix_cfg['NIX_STORE_PATH'] : d
 $autostart = isset($nix_cfg['AUTOSTART_FLAKES']) ? $nix_cfg['AUTOSTART_FLAKES'] : 'yes';
 $enable_cli = isset($nix_cfg['ENABLE_CLI_INSTALL']) ? $nix_cfg['ENABLE_CLI_INSTALL'] : 'no';
 $show_in_nav = isset($nix_cfg['SHOW_IN_NAVIGATION']) ? $nix_cfg['SHOW_IN_NAVIGATION'] : 'yes';
+$enable_sandbox = isset($nix_cfg['ENABLE_STORAGE_SANDBOX']) ? $nix_cfg['ENABLE_STORAGE_SANDBOX'] : 'no';
 
 exec("/etc/rc.d/rc.nix-daemon status 2>/dev/null", $status_output, $status_code);
 $is_nix_running = ($status_code === 0);
@@ -91,6 +92,15 @@ $is_nix_running = ($status_code === 0);
         </div>
 
         <div class="nix-form-group">
+            <label for="settings-enable-sandbox">Enable Storage Sandboxing for Nix Services:</label>
+            <select id="settings-enable-sandbox">
+                <option value="no" <?php echo $enable_sandbox === 'no' ? 'selected' : ''; ?>>No (Native /mnt access)</option>
+                <option value="yes" <?php echo $enable_sandbox === 'yes' ? 'selected' : ''; ?>>Yes (Isolate /mnt to mapped paths)</option>
+            </select>
+            <div class="nix-field-help">When enabled, Nix services can only access directories that are explicitly mapped in their configuration (plus remote shares and unassigned devices). This protects your other Unraid disks and user shares.</div>
+        </div>
+
+        <div class="nix-form-group">
             <label for="settings-enable-cli">Show CLI Package Installation option in Flake Store:</label>
             <select id="settings-enable-cli">
                 <option value="no" <?php echo $enable_cli === 'no' ? 'selected' : ''; ?>>No (Services only)</option>
@@ -126,6 +136,7 @@ function saveSettings(e) {
     
     var path = $("#settings-store-path").val();
     var auto = $("#settings-autostart").val();
+    var enableSandbox = $("#settings-enable-sandbox").val();
     var enableCli = $("#settings-enable-cli").val();
     var showInNav = $("#settings-show-in-nav").val();
     
@@ -141,6 +152,7 @@ function saveSettings(e) {
         action: 'save-settings',
         store_path: path,
         autostart: auto,
+        enable_sandbox: enableSandbox,
         enable_cli: enableCli,
         show_in_nav: showInNav
     }, function(resp) {

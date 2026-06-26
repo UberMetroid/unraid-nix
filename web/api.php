@@ -338,6 +338,7 @@ if ($action === 'nix-sys-logs') {
 if ($action === 'save-settings') {
     $store_path = isset($_POST['store_path']) ? $_POST['store_path'] : '';
     $autostart = isset($_POST['autostart']) ? $_POST['autostart'] : 'yes';
+    $enable_sandbox = isset($_POST['enable_sandbox']) ? $_POST['enable_sandbox'] : 'no';
     $enable_cli = isset($_POST['enable_cli']) ? $_POST['enable_cli'] : 'no';
     $show_in_nav = isset($_POST['show_in_nav']) ? $_POST['show_in_nav'] : 'yes';
     
@@ -388,6 +389,7 @@ if ($action === 'save-settings') {
     
     $cfg_content = "NIX_STORE_PATH=\"" . addslashes($store_path) . "\"\n";
     $cfg_content .= "AUTOSTART_FLAKES=\"" . addslashes($autostart) . "\"\n";
+    $cfg_content .= "ENABLE_STORAGE_SANDBOX=\"" . addslashes($enable_sandbox) . "\"\n";
     $cfg_content .= "ENABLE_CLI_INSTALL=\"" . addslashes($enable_cli) . "\"\n";
     $cfg_content .= "SHOW_IN_NAVIGATION=\"" . addslashes($show_in_nav) . "\"\n";
     
