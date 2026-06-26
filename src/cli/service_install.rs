@@ -2,12 +2,17 @@ use crate::config;
 use crate::sandbox;
 use std::process::exit;
 
+/// Struct for parsing user-defined extra shared paths (from JSON formatted payloads).
 #[derive(serde::Deserialize, serde::Serialize, Debug, Clone)]
 struct ExtraBind {
     host: String,
     sandbox: String,
 }
 
+/// CLI handler command to install, generate, and configure background services.
+/// Parses configuration options, creates necessary host mount points,
+/// configures the process supervisor configuration, creates instance metadata,
+/// and reloads the active process-compose daemon.
 pub fn install_service(args: &[String]) {
     let mut uri = String::new();
     let mut appdata = String::new();
@@ -81,6 +86,7 @@ pub fn install_service(args: &[String]) {
         }
     }
 
+    // 1. Create the primary appdata directory with proper user ownership
     if !appdata.is_empty() {
         let path = std::path::Path::new(&appdata);
         if !path.exists() {
@@ -90,6 +96,7 @@ pub fn install_service(args: &[String]) {
         }
     }
 
+    // 2. Parse and create extra mount paths defined by the user
     let extra_binds: Vec<ExtraBind> = if !extra_binds_json.is_empty() {
         serde_json::from_str(&extra_binds_json).unwrap_or_default()
     } else {
@@ -108,6 +115,7 @@ pub fn install_service(args: &[String]) {
         }
     }
 
+    // 3. Extract the service name from URI (e.g. "nixpkgs#radarr" -> "radarr")
     let mut name = uri.replace("nixpkgs#", "");
     if let Some(pos) = name.rfind('/') { name = name[pos + 1..].to_string(); }
     if let Some(pos) = name.rfind(':') { name = name[pos + 1..].to_string(); }
@@ -123,6 +131,7 @@ pub fn install_service(args: &[String]) {
         }
     }
 
+    // 4. Load presets for known servers or fallback to custom sandbox builder
     let cmd = if ["radarr", "sonarr", "jellyfin", "syncthing"].contains(&name.to_lowercase().as_str()) {
         match config::get_service_command_preset(
             &name,
@@ -156,6 +165,7 @@ pub fn install_service(args: &[String]) {
         }
     };
 
+    // 5. Update the process supervisor configuration yml
     let mut cfg = config::load_config("/boot/config/plugins/nix/process-compose.yml").unwrap_or_else(|_| {
         config::ProcessComposeConfig {
             version: "0.5".to_string(),
@@ -189,6 +199,7 @@ pub fn install_service(args: &[String]) {
         exit(1);
     }
 
+    // 6. Write service metadata schema to configuration directory
     let metadata = serde_json::json!({
         "name": name,
         "uri": uri,
@@ -204,6 +215,7 @@ pub fn install_service(args: &[String]) {
     let _ = std::fs::create_dir_all(meta_dir);
     let _ = std::fs::write(format!("{}/{}.json", meta_dir, name), serde_json::to_string_pretty(&metadata).unwrap());
 
+    // 7. Restart supervisor daemon to load and start the new service definition
     if let Err(e) = super::supervisor::restart_nix_supervisor() {
         eprintln!("Error restarting supervisor: {}", e);
         exit(1);

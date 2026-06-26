@@ -1,6 +1,8 @@
 use std::collections::HashMap;
 use std::process::exit;
 
+/// Parses a simple ini-like configuration file into a key-value HashMap.
+/// Ignores empty lines and comments starting with ';' or '#'.
 pub fn parse_ini_file(path: &str) -> HashMap<String, String> {
     let mut map = HashMap::new();
     if let Ok(content) = std::fs::read_to_string(path) {
@@ -19,6 +21,9 @@ pub fn parse_ini_file(path: &str) -> HashMap<String, String> {
     map
 }
 
+/// Detects the default Nix store location on Unraid.
+/// Checks the system share configurations to locate the preferred cache pool,
+/// falling back to `/mnt/user/system/nix` if no cache pool is defined.
 pub fn detect_default_store_path() -> String {
     let system_cfg = parse_ini_file("/boot/config/shares/system.cfg");
     let mut pool = system_cfg.get("shareCachePool").cloned().unwrap_or_default();
@@ -41,6 +46,9 @@ pub fn detect_default_store_path() -> String {
     "".to_string()
 }
 
+/// Detects the Appdata directory root path on Unraid.
+/// Resolves pool-specific appdata paths (e.g. `/mnt/cache/appdata`)
+/// before falling back to the default `/mnt/user/appdata`.
 pub fn detect_appdata_root() -> String {
     let appdata_cfg = parse_ini_file("/boot/config/shares/appdata.cfg");
     let mut pool = appdata_cfg.get("shareCachePool").cloned().unwrap_or_default();
@@ -63,6 +71,7 @@ pub fn detect_appdata_root() -> String {
     "".to_string()
 }
 
+/// Checks if a directory exists and contains any files.
 fn has_files(dir: &str) -> bool {
     if let Ok(entries) = std::fs::read_dir(dir) {
         entries.count() > 0
@@ -71,6 +80,8 @@ fn has_files(dir: &str) -> bool {
     }
 }
 
+/// Saves the Nix plugin settings, handles the migration of /nix store paths
+/// using rsync, and updates the Unraid web interface navigation registry.
 pub fn save_settings(args: &[String]) {
     let mut store_path = String::new();
     let mut autostart = "yes".to_string();
@@ -121,11 +132,15 @@ pub fn save_settings(args: &[String]) {
     let clean_old_store_path = old_store_path.trim_end_matches('/').to_string();
 
     let mut migration_performed = false;
+    // Perform /nix store data migration if the user configured a new location
     if !clean_store_path.is_empty() && clean_store_path != clean_old_store_path {
         if std::path::Path::new(&clean_old_store_path).exists() && has_files(&clean_old_store_path) {
+            // Stop services and unmount store prior to migration
             let _ = std::process::Command::new("/usr/local/emhttp/plugins/nix/event/stopping_svcs").output();
             let _ = std::process::Command::new("umount").args(&["-l", "/nix"]).output();
             let _ = std::fs::create_dir_all(&clean_store_path);
+            
+            // Sync files recursively preserving all attributes, ACLs, and hard links
             let _ = std::process::Command::new("rsync")
                 .args(&["-aHAX", &format!("{}/", clean_old_store_path), &format!("{}/", clean_store_path)])
                 .output();
@@ -133,6 +148,7 @@ pub fn save_settings(args: &[String]) {
         }
     }
 
+    // Write settings to ini config
     let _ = std::fs::create_dir_all("/boot/config/plugins/nix");
     let cfg_content = format!(
         "NIX_STORE_PATH=\"{}\"\nAUTOSTART_FLAKES=\"{}\"\nENABLE_STORAGE_SANDBOX=\"{}\"\nENABLE_CLI_INSTALL=\"{}\"\nSHOW_IN_NAVIGATION=\"{}\"\n",
@@ -143,6 +159,7 @@ pub fn save_settings(args: &[String]) {
         exit(1);
     }
 
+    // Update Unraid side navigation config registry
     let nix_page_file = "/usr/local/emhttp/plugins/nix/Nix.page";
     let nix_launcher_file = "/usr/local/emhttp/plugins/nix/NixLauncher.page";
     if std::path::Path::new(nix_page_file).exists() {
@@ -163,6 +180,7 @@ pub fn save_settings(args: &[String]) {
         }
     }
 
+    // Start daemon environment back up if we migrated the store path
     if migration_performed {
         let _ = std::process::Command::new("/usr/local/emhttp/plugins/nix/event/disks_mounted").output();
     }
