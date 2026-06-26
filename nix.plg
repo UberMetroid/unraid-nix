@@ -2,7 +2,7 @@
 <!DOCTYPE PLUGIN [
   <!ENTITY name      "nix">
   <!ENTITY author    "UberMetroid">
-  <!ENTITY version   "2026.06.26.06">
+  <!ENTITY version   "2026.06.26.07">
   <!ENTITY launch    "Settings/nix">
   <!ENTITY plugdir   "/boot/config/plugins/&name;">
   <!ENTITY usrdir    "/usr/local/emhttp/plugins/&name;">
@@ -11,6 +11,8 @@
 
   <CHANGES>
     ## nix package manager plugin
+    ### 2026.06.26.07
+    - Removed redundant columns from the active flakes services table (Network, Container IP, Container Port).
     ### 2026.06.26.06
     - Fixed active flakes table header alignment and spacing. Overrode global sticky/floating header styles in Unraid WebGUI to keep table headers correctly aligned and contained.
     ### 2026.06.26.05

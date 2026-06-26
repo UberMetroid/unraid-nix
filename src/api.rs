@@ -82,9 +82,6 @@ pub fn render_services_table(api_port: u16) -> String {
                 <tr>
                     <th>Application</th>
                     <th>Version</th>
-                    <th>Network</th>
-                    <th>Container IP</th>
-                    <th>Container Port</th>
                     <th>LAN IP:Port</th>
                     <th>Volume Mappings (App to Host)</th>
                     <th>Autostart</th>
@@ -94,7 +91,7 @@ pub fn render_services_table(api_port: u16) -> String {
             <tbody>"#.to_string();
 
     if statuses.is_empty() {
-        html.push_str(r#"<tr><td colspan="9" class="text-center">No Nix Flake services configured. Go to the Flakes tab to install one.</td></tr>"#);
+        html.push_str(r#"<tr><td colspan="6" class="text-center">No Nix Flake services configured. Go to the Flakes tab to install one.</td></tr>"#);
     } else {
         for s in statuses {
             let is_running = s.status.to_lowercase() == "running";
@@ -116,13 +113,7 @@ pub fn render_services_table(api_port: u16) -> String {
             );
 
             let version_html = r#"<span style="color: #2ecc71; font-weight: 500;">up-to-date</span>"#;
-            let network_str = "host";
-            let container_ip_str = "host";
-
             let port_num = get_service_web_port(&s.name);
-            let port_str = port_num
-                .map(|p| format!("{}:TCP", p))
-                .unwrap_or_else(|| "-".to_string());
 
             let lan_ip_port_html = if let Some(port) = port_num {
                 if is_running {
@@ -183,9 +174,6 @@ pub fn render_services_table(api_port: u16) -> String {
                 r#"<tr>
                     <td>{}</td>
                     <td>{}</td>
-                    <td><code>{}</code></td>
-                    <td><code>{}</code></td>
-                    <td><code>{}</code></td>
                     <td>{}</td>
                     <td>{}</td>
                     <td>{}</td>
@@ -197,7 +185,7 @@ pub fn render_services_table(api_port: u16) -> String {
                         </div>
                     </td>
                 </tr>"#,
-                app_html, version_html, network_str, container_ip_str, port_str, lan_ip_port_html, volume_mappings_html, autostart_html, start_btn, stop_btn, logs_btn
+                app_html, version_html, lan_ip_port_html, volume_mappings_html, autostart_html, start_btn, stop_btn, logs_btn
             ));
         }
     }
