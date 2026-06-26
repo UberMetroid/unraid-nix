@@ -1,7 +1,7 @@
 <?xml version='1.0' standalone='yes'?>
 <!DOCTYPE PLUGIN [
   <!ENTITY name      "nix">
-  <!ENTITY author    "Antigravity">
+  <!ENTITY author    "UberMetroid">
   <!ENTITY version   "2026.06.25">
   <!ENTITY launch    "Settings/Nix">
   <!ENTITY plugdir   "/boot/config/plugins/&name;">
@@ -39,7 +39,7 @@
 
       # 3. Download and install WebGUI pages
       echo "Downloading WebGUI interface files..."
-      for file in nix.page nix_services.page nix_search.page nix_settings.page nix_dashboard.page api.php styles.css; do
+      for file in nix.page nix_services.page nix_search.page nix_settings.page nix_dashboard.page api.php styles.css nix.png nix.svg; do
           curl -sSf -L -o "&usrdir;/$file" "${GITHUB_RAW}/web/$file"
       done
 
