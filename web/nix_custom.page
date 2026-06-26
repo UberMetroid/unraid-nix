@@ -75,9 +75,9 @@ $(function() {
         $("#custom-appdata").fileTreeAttach();
     }
 
-    var urlParams = new URLSearchParams(window.location.search);
-    var uri = urlParams.get('uri');
+    var uri = sessionStorage.getItem('nix_install_uri');
     if (uri) {
+        sessionStorage.removeItem('nix_install_uri');
         $("#custom-uri").val(uri);
         $("#custom-type").val('service');
         toggleServiceOptions();

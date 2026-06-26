@@ -39,7 +39,8 @@ function installPackage(pkg) {
 }
 
 function showServiceModal(pkg) {
-    location.href = '/Settings/nix_custom?uri=' + encodeURIComponent(pkg);
+    sessionStorage.setItem('nix_install_uri', pkg);
+    location.href = '/Settings/nix_custom';
 }
 </script>
 
