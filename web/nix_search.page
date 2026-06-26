@@ -1,5 +1,5 @@
 Menu="nix:2"
-Title="Flakes Browser"
+Title="Flake Store"
 ---
 <link type="text/css" rel="stylesheet" href="/plugins/nix/styles.css">
 <div class="nix-section">
@@ -17,51 +17,6 @@ Title="Flakes Browser"
     </div>
 </div>
 
-<div class="nix-section" style="margin-top: 30px;">
-    <h3>Install Custom Flake / Preset</h3>
-    <p class="nix-subtext">Run or daemonize any custom flake from GitHub or a local directory.</p>
-    
-    <form id="nix-install-custom-form" onsubmit="installCustomFlake(event)">
-        <div class="nix-form-group">
-            <label for="custom-uri">Flake URI / Preset Name:</label>
-            <input type="text" id="custom-uri" placeholder="e.g. nixpkgs#radarr or github:user/repo#service-bin" required>
-        </div>
-        <div class="nix-form-group">
-            <label for="custom-type">Installation Type:</label>
-            <select id="custom-type" onchange="toggleServiceOptions()">
-                <option value="cli">CLI Tool (Global Profile)</option>
-                <option value="service">Background Service (process-compose)</option>
-            </select>
-        </div>
-        
-        <div id="nix-service-only-options" style="display: none; border-left: 3px solid #00a1ff; padding-left: 15px; margin-bottom: 15px;">
-            <div class="nix-form-group">
-                <label for="custom-appdata">Appdata Path:</label>
-                <input type="text" id="custom-appdata" placeholder="/mnt/user/appdata/service-name">
-            </div>
-            <div class="nix-form-group">
-                <label for="custom-media">Media Share Path (Optional):</label>
-                <input type="text" id="custom-media" placeholder="e.g. /mnt/user/media">
-            </div>
-            <div class="nix-form-row">
-                <div class="nix-form-group" style="flex: 1; margin-right: 10px;">
-                    <label for="custom-puid">PUID:</label>
-                    <input type="number" id="custom-puid" value="99">
-                </div>
-                <div class="nix-form-group" style="flex: 1;">
-                    <label for="custom-pgid">PGID:</label>
-                    <input type="number" id="custom-pgid" value="100">
-                </div>
-            </div>
-            <div class="nix-form-group">
-                <label><input type="checkbox" id="custom-gpu"> Enable GPU / HW Transcoding</label>
-            </div>
-        </div>
-
-        <button type="submit" class="nix-btn-primary">Install Flake</button>
-    </form>
-</div>
-
 <script>
 function executeSearch() {
     var query = $("#nix-search-input").val();
@@ -70,15 +25,6 @@ function executeSearch() {
     $.get('/plugins/nix/api.php?action=search&q=' + encodeURIComponent(query), function(html) {
         $("#nix-search-results").html(html);
     });
-}
-
-function toggleServiceOptions() {
-    var type = $("#custom-type").val();
-    if (type === 'service') {
-        $("#nix-service-only-options").slideDown();
-    } else {
-        $("#nix-service-only-options").slideUp();
-    }
 }
 
 function installPackage(pkg) {
@@ -91,40 +37,5 @@ function installPackage(pkg) {
         }
     }, 'json');
 }
-
-function installCustomFlake(e) {
-    e.preventDefault();
-    var uri = $("#custom-uri").val();
-    var type = $("#custom-type").val();
-    
-    var data = {
-        action: 'install-custom',
-        uri: uri,
-        type: type
-    };
-    
-    if (type === 'service') {
-        data.appdata = $("#custom-appdata").val();
-        data.media = $("#custom-media").val();
-        data.puid = $("#custom-puid").val();
-        data.pgid = $("#custom-pgid").val();
-        data.gpu = $("#custom-gpu").is(':checked') ? '1' : '0';
-        
-        if (!data.appdata) {
-            alert("Appdata path is required for services.");
-            return;
-        }
-    }
-    
-    $.post('/plugins/nix/api.php', data, function(resp) {
-        if (resp.success) {
-            alert("Successfully configured and installed " + uri);
-            if (type === 'service') {
-                location.href = '/Settings/nix';
-            }
-        } else {
-            alert("Installation failed: " + resp.error);
-        }
-    }, 'json');
-}
 </script>
+

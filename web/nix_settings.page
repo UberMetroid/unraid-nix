@@ -1,4 +1,4 @@
-Menu="nix:3"
+Menu="nix:5"
 Title="Settings"
 ---
 <link type="text/css" rel="stylesheet" href="/plugins/nix/styles.css">
@@ -10,25 +10,7 @@ if (file_exists($cfg_file)) {
 }
 
 function detect_default_store_path() {
-    if (is_dir('/mnt/cache/system')) {
-        return '/mnt/cache/system/nix';
-    }
-    $pools = glob('/mnt/*/system');
-    if (!empty($pools)) {
-        foreach ($pools as $pool) {
-            $pool_name = basename(dirname($pool));
-            if ($pool_name !== 'user' && $pool_name !== 'user0') {
-                return $pool . '/nix';
-            }
-        }
-    }
-    if (is_dir('/mnt/user/system')) {
-        return '/mnt/user/system/nix';
-    }
-    if (is_dir('/mnt/user')) {
-        return '/mnt/user/system/nix';
-    }
-    return '/mnt/disk1/system/nix';
+    return '/mnt/user/system/nix';
 }
 
 // Set defaults

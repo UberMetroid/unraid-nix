@@ -2,7 +2,7 @@
 <!DOCTYPE PLUGIN [
   <!ENTITY name      "nix">
   <!ENTITY author    "UberMetroid">
-  <!ENTITY version   "2026.06.25.23">
+  <!ENTITY version   "2026.06.25.24">
   <!ENTITY launch    "Settings/nix">
   <!ENTITY plugdir   "/boot/config/plugins/&name;">
   <!ENTITY usrdir    "/usr/local/emhttp/plugins/&name;">
@@ -11,6 +11,10 @@
 
   <CHANGES>
     ## nix package manager plugin
+    ### 2026.06.25.24
+    - Reorganized layout into 5 dedicated tabs: Services, Flake Store, Custom Flakes, Logs, Settings.
+    - Set the default Nix Store Path to /mnt/user/system/nix (next to Docker in the system share).
+    - Integrated standard Unraid file-browser path selector on Custom Flakes paths (Appdata and Media).
     ### 2026.06.25.23
     - Restored the store path settings field to a standard text input integrated with Dynamix's folder browser popup picker (acts like Docker/VM settings).
     - Added a control panel on the Services tab with running status and Start/Stop buttons for the Nix System Daemon/supervisor.
@@ -95,7 +99,7 @@
 
       # 3. Download and install WebGUI pages
       echo "--> Downloading Dynamix WebGUI pages and assets..."
-      for file in nix.page nix_services.page nix_search.page nix_settings.page nix_dashboard.page api.php styles.css nix.png nix.svg; do
+      for file in nix.page nix_services.page nix_search.page nix_custom.page nix_logs.page nix_settings.page nix_dashboard.page api.php styles.css nix.png nix.svg; do
           curl -sSf -L -o "&usrdir;/$file" "${GITHUB_RAW}/web/$file"
       done
       

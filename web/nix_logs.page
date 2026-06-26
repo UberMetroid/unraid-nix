@@ -1,0 +1,42 @@
+Menu="nix:4"
+Title="Logs"
+---
+<link type="text/css" rel="stylesheet" href="/plugins/nix/styles.css">
+<div class="nix-section">
+    <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 15px;">
+        <h3 style="margin: 0;">Nix System Logs</h3>
+        <div>
+            <label for="nix-log-select" style="margin-right: 10px; color: #eee; font-size: 13px;">Select Log:</label>
+            <select id="nix-log-select" onchange="loadLogs()" style="background: #141416; border: 1px solid #2d2d30; color: #fff; padding: 6px 12px; border-radius: 4px; width: auto; display: inline-block;">
+                <option value="daemon">Nix Daemon (/var/log/nix-daemon.log)</option>
+                <option value="compose">Process Compose Supervisor (/var/log/nix-process-compose.log)</option>
+            </select>
+            <button class="nix-btn" onclick="loadLogs()" style="margin-left: 10px; padding: 6px 12px; display: inline-block;"><i class="fa fa-refresh"></i> Refresh</button>
+        </div>
+    </div>
+    
+    <div style="background: #111; border: 1px solid #2d2d30; border-radius: 4px; padding: 15px; margin-top: 10px;">
+        <pre id="nix-log-content" style="margin: 0; color: #eee; font-family: monospace; font-size: 12px; white-space: pre-wrap; height: 500px; overflow-y: auto;"></pre>
+    </div>
+</div>
+
+<script>
+function loadLogs() {
+    var type = document.getElementById('nix-log-select').value;
+    var container = document.getElementById('nix-log-content');
+    container.innerHTML = 'Loading log entries...';
+    
+    $.get('/plugins/nix/api.php?action=nix-sys-logs&type=' + type, function(resp) {
+        if (resp.success) {
+            container.textContent = resp.content;
+            container.scrollTop = container.scrollHeight;
+        } else {
+            container.textContent = "Error loading logs: " + resp.error;
+        }
+    }, 'json');
+}
+
+$(function() {
+    loadLogs();
+});
+</script>

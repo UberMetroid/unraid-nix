@@ -5,28 +5,7 @@
 echo "Nix Event: disks_mounted triggered." | logger -t "nix-plugin"
 
 detect_default_store_path() {
-    if [ -d "/mnt/cache/system" ]; then
-        echo "/mnt/cache/system/nix"
-        return
-    fi
-    for d in /mnt/*/system; do
-        if [ -d "$d" ]; then
-            local pool_name=$(basename "$(dirname "$d")")
-            if [ "$pool_name" != "user" ] && [ "$pool_name" != "user0" ] && [ "$pool_name" != "*" ]; then
-                echo "${d}/nix"
-                return
-            fi
-        fi
-    done
-    if [ -d "/mnt/user/system" ]; then
-        echo "/mnt/user/system/nix"
-        return
-    fi
-    if [ -d "/mnt/user" ]; then
-        echo "/mnt/user/system/nix"
-        return
-    fi
-    echo "/mnt/disk1/system/nix"
+    echo "/mnt/user/system/nix"
 }
 
 CFG_FILE="/boot/config/plugins/nix/nix.cfg"

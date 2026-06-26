@@ -139,7 +139,33 @@ if ($action === 'nix-daemon-stop') {
     success();
 }
 
-// 7. Save Configuration Settings
+// 7. Fetch Nix Daemon / Process Compose system logs
+if ($action === 'nix-sys-logs') {
+    $log_type = isset($_GET['type']) ? $_GET['type'] : 'daemon';
+    $file = '';
+    if ($log_type === 'daemon') {
+        $file = '/var/log/nix-daemon.log';
+    } elseif ($log_type === 'compose') {
+        $file = '/var/log/nix-process-compose.log';
+    } else {
+        error("Invalid log type.");
+    }
+    
+    if (file_exists($file)) {
+        echo json_encode([
+            'success' => true, 
+            'content' => htmlspecialchars(shell_exec("tail -n 250 " . escapeshellarg($file)))
+        ]);
+    } else {
+        echo json_encode([
+            'success' => true, 
+            'content' => "Log file not found: $file\n(Note: The log file is created once the service starts.)"
+        ]);
+    }
+    exit;
+}
+
+// 8. Save Configuration Settings
 if ($action === 'save-settings') {
     $store_path = isset($_POST['store_path']) ? $_POST['store_path'] : '';
     $autostart = isset($_POST['autostart']) ? $_POST['autostart'] : 'yes';
