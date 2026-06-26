@@ -110,6 +110,17 @@ $host_ips = get_host_ips_php();
         <?php endif; ?>
         
         <div id="nix-service-only-options" style="display: <?php echo $enable_cli === 'yes' ? 'none' : 'block'; ?>; border-left: 3px solid #00a1ff; padding-left: 15px; margin-bottom: 15px;">
+            <div class="nix-form-row" style="margin-bottom: 15px;">
+                <div class="nix-form-group" style="flex: 1; margin-right: 10px;">
+                    <label for="custom-puid">PUID:</label>
+                    <input type="number" id="custom-puid" value="99">
+                </div>
+                <div class="nix-form-group" style="flex: 1;">
+                    <label for="custom-pgid">PGID:</label>
+                    <input type="number" id="custom-pgid" value="100">
+                </div>
+            </div>
+
             <div class="nix-form-group">
                 <label for="custom-appdata">Configuration Location:</label>
                 <div style="position: relative;">
@@ -126,7 +137,7 @@ $host_ips = get_host_ips_php();
                 <button type="button" class="nix-btn" style="margin: 0;" onclick="addBindRow()"><i class="fa fa-plus"></i> Add Path</button>
             </div>
 
-            <div class="nix-form-row">
+            <div class="nix-form-row" style="margin-bottom: 15px;">
                 <div class="nix-form-group" style="flex: 1; margin-right: 10px;">
                     <label for="custom-default-port">Default App Port:</label>
                     <input type="text" id="custom-default-port" readonly style="background: rgba(255,255,255,0.05); color: #888; border-color: rgba(255,255,255,0.1);" value="N/A">
@@ -145,16 +156,6 @@ $host_ips = get_host_ips_php();
                 </div>
             </div>
 
-            <div class="nix-form-row">
-                <div class="nix-form-group" style="flex: 1; margin-right: 10px;">
-                    <label for="custom-puid">PUID:</label>
-                    <input type="number" id="custom-puid" value="99">
-                </div>
-                <div class="nix-form-group" style="flex: 1;">
-                    <label for="custom-pgid">PGID:</label>
-                    <input type="number" id="custom-pgid" value="100">
-                </div>
-            </div>
             <div class="nix-form-group">
                 <label><input type="checkbox" id="custom-gpu"> Enable GPU</label>
             </div>
