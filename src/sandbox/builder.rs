@@ -1,76 +1,5 @@
-/// Nix Host Execution Runner Module
-///
-/// This module constructs the execution commands using 'unshare' and 'setpriv'
-/// to run processes in an isolated mount namespace on the host under the specified PUID/PGID,
-/// preventing access to sensitive directories like /boot, /root, and other services' appdata.
-#[derive(Debug, Clone, PartialEq)]
-pub struct PortMapping {
-    pub host: u16,
-    pub container: u16,
-}
+use crate::sandbox::{is_storage_sandbox_enabled, parse_ports, SandboxConfig};
 
-pub fn parse_ports(s: &str) -> Vec<PortMapping> {
-    let mut mappings = Vec::new();
-    if s.trim().is_empty() || s == "-" {
-        return mappings;
-    }
-    for part in s.split(',') {
-        let subparts: Vec<&str> = part.split(':').collect();
-        if subparts.len() == 2 {
-            if let (Ok(h), Ok(c)) = (subparts[0].parse::<u16>(), subparts[1].parse::<u16>()) {
-                mappings.push(PortMapping { host: h, container: c });
-            }
-        } else if subparts.len() == 1 {
-            if let Ok(p) = subparts[0].parse::<u16>() {
-                mappings.push(PortMapping { host: p, container: p });
-            }
-        }
-    }
-    mappings
-}
-
-#[allow(dead_code)]
-#[derive(Debug, Clone)]
-pub struct SandboxConfig {
-    pub name: String,
-    pub appdata_path: String,
-    pub media_path: Option<String>,
-    pub puid: u32,
-    pub pgid: u32,
-    pub enable_gpu: bool,
-    pub inner_command: String,
-    pub extra_binds: Vec<(String, String)>,
-    pub port: Option<String>,
-    pub bind_address: Option<String>,
-}
-
-/// Generates the full unshare mount namespace execution command string.
-///
-/// Wraps the inner command in a private mount namespace (unshare -m), hides sensitive
-/// host directories by mounting tmpfs over them, isolates the parent appdata path so only
-/// the service's own appdata is visible, mounts /config and /media targets, sets up any
-/// user-defined extra binds, and drops privileges to PUID:PGID before executing.
-pub fn is_storage_sandbox_enabled() -> bool {
-    if std::env::var("NIX_FORCE_STORAGE_SANDBOX").unwrap_or_default() == "1" {
-        return true;
-    }
-    if let Ok(content) = std::fs::read_to_string("/boot/config/plugins/nix/nix.cfg") {
-        for line in content.lines() {
-            if line.starts_with("ENABLE_STORAGE_SANDBOX=") {
-                let val = line.trim_start_matches("ENABLE_STORAGE_SANDBOX=").trim_matches('"');
-                return val == "yes";
-            }
-        }
-    }
-    false
-}
-
-/// Generates the full unshare mount namespace execution command string.
-///
-/// Wraps the inner command in a private mount namespace (unshare -m), hides sensitive
-/// host directories by mounting tmpfs over them, isolates the parent appdata path so only
-/// the service's own appdata is visible, mounts /config and /media targets, sets up any
-/// user-defined extra binds, and drops privileges to PUID:PGID before executing.
 pub fn build_bwrap_command(config: &SandboxConfig) -> Result<String, String> {
     if config.appdata_path.trim().is_empty() {
         return Err("Configuration Location must be specified for service execution.".to_string());
@@ -87,14 +16,11 @@ pub fn build_bwrap_command(config: &SandboxConfig) -> Result<String, String> {
 
     let mut mounts_cmd = Vec::new();
     
-    // 1. Hide sensitive host system directories
     mounts_cmd.push("mount -t tmpfs tmpfs /boot".to_string());
     mounts_cmd.push("mount -t tmpfs tmpfs /root".to_string());
     mounts_cmd.push("if [ -d /home ]; then mount -t tmpfs tmpfs /home; fi".to_string());
     
-    // 2. Isolate filesystem storage
     if is_storage_sandbox_enabled() {
-        // Collect all unique mapped host paths starting with "/mnt/"
         let mut allowed_mnt_paths = std::collections::BTreeSet::new();
         
         if appdata_canon.starts_with("/mnt/") {
@@ -111,13 +37,11 @@ pub fn build_bwrap_command(config: &SandboxConfig) -> Result<String, String> {
             }
         }
 
-        // Setup tmpfs over /mnt and selectively bind-mount allowed paths
         mounts_cmd.push("REAL_MNT_TEMP=\"/run/nix-real-mnt-$$\"".to_string());
         mounts_cmd.push("mkdir -p \"\\$REAL_MNT_TEMP\"".to_string());
         mounts_cmd.push("mount --rbind /mnt \"\\$REAL_MNT_TEMP\"".to_string());
         mounts_cmd.push("mount -t tmpfs tmpfs /mnt".to_string());
 
-        // Re-expose allowed paths
         for path in allowed_mnt_paths {
             if let Some(rel_path) = path.strip_prefix("/mnt/") {
                 mounts_cmd.push(format!("mkdir -p {}", path));
@@ -125,15 +49,12 @@ pub fn build_bwrap_command(config: &SandboxConfig) -> Result<String, String> {
             }
         }
 
-        // Re-expose /mnt/disks and /mnt/remotes if they exist on the host
         mounts_cmd.push("if [ -d \"\\$REAL_MNT_TEMP/disks\" ]; then mkdir -p /mnt/disks && mount --bind \"\\$REAL_MNT_TEMP/disks\" /mnt/disks; fi".to_string());
         mounts_cmd.push("if [ -d \"\\$REAL_MNT_TEMP/remotes\" ]; then mkdir -p /mnt/remotes && mount --bind \"\\$REAL_MNT_TEMP/remotes\" /mnt/remotes; fi".to_string());
 
-        // Cleanup temporary mount
         mounts_cmd.push("umount -l \"\\$REAL_MNT_TEMP\"".to_string());
         mounts_cmd.push("rmdir \"\\$REAL_MNT_TEMP\"".to_string());
     } else {
-        // Isolate appdata parent so other services' appdata folders are hidden
         mounts_cmd.push("mkdir -p /tmp/sandbox-appdata".to_string());
         mounts_cmd.push(format!("mount --bind {} /tmp/sandbox-appdata", appdata_canon));
         mounts_cmd.push(format!("mount -t tmpfs tmpfs {}", appdata_parent));
@@ -142,11 +63,9 @@ pub fn build_bwrap_command(config: &SandboxConfig) -> Result<String, String> {
         mounts_cmd.push("rmdir /tmp/sandbox-appdata".to_string());
     }
 
-    // 3. Bind `/config` to the resolved appdata directory
     mounts_cmd.push("mkdir -p /config".to_string());
     mounts_cmd.push(format!("mount --bind {} /config", appdata_canon));
 
-    // 4. Bind `/media` if a media path is configured
     if let Some(ref media) = config.media_path {
         if !media.trim().is_empty() {
             mounts_cmd.push("mkdir -p /media".to_string());
@@ -154,7 +73,6 @@ pub fn build_bwrap_command(config: &SandboxConfig) -> Result<String, String> {
         }
     }
 
-    // 5. Bind user-defined extra shared paths
     for (host, sandbox) in &config.extra_binds {
         if !host.trim().is_empty() && !sandbox.trim().is_empty() {
             mounts_cmd.push(format!("mkdir -p {}", sandbox));
@@ -179,9 +97,6 @@ pub fn build_bwrap_command(config: &SandboxConfig) -> Result<String, String> {
     }
     let env_str = env_vars.join(" && ");
 
-    // Format the command to execute via unshare and setpriv.
-    // We source the Nix daemon profile so that nix is in the PATH and NIX_REMOTE is set correctly.
-    // We run HOME=/config because Nix requires a writeable HOME directory owned by the user.
     let runuser_cmd = format!(
         "exec unshare -m sh -c \"mount --make-rprivate / && {} && exec setpriv --reuid={} --regid={} --init-groups sh -c \\\"{} && . /nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh && exec {}\\\"\"",
         mounts_str,

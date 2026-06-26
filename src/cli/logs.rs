@@ -1,0 +1,91 @@
+use serde_json::Value;
+use std::process::exit;
+
+pub fn view_logs(args: &[String]) {
+    if args.len() < 3 {
+        eprintln!("Error: Missing service name.");
+        exit(1);
+    }
+    let service = &args[2];
+    let log_file = format!("/var/log/nix-services/{}.log", service);
+    let mut rendered = false;
+    let mut output = String::new();
+
+    output.push_str(&format!("<h3>Active console output for: {}</h3>", html_escape(service)));
+
+    if std::path::Path::new(&log_file).exists() {
+        if let Ok(content) = run_tail(&log_file, 200) {
+            output.push_str("<pre style='white-space: pre-wrap; word-wrap: break-word;'>");
+            for line in content.lines() {
+                let line_trimmed = line.trim();
+                if line_trimmed.is_empty() { continue; }
+                if let Ok(v) = serde_json::from_str::<Value>(line_trimmed) {
+                    let time = v.get("time").and_then(|t| t.as_str()).unwrap_or("");
+                    let message = v.get("message").and_then(|m| m.as_str()).unwrap_or("");
+                    if !time.is_empty() {
+                        let time_display = if time.len() >= 19 {
+                            time[..19].replace('T', " ")
+                        } else {
+                            time.to_string()
+                        };
+                        output.push_str(&format!(
+                            "<span style='color:#888;'>[{}]</span> {}\n",
+                            html_escape(&time_display),
+                            html_escape(message)
+                        ));
+                    } else {
+                        output.push_str(&format!("{}\n", html_escape(message)));
+                    }
+                } else {
+                    output.push_str(&format!("{}\n", html_escape(line_trimmed)));
+                }
+            }
+            output.push_str("</pre>");
+            rendered = true;
+        }
+    }
+
+    if !rendered {
+        let url = format!("http://127.0.0.1:29704/process/logs/{}/0/200", service);
+        if let Ok(resp) = ureq::get(&url).timeout(std::time::Duration::from_secs(2)).call() {
+            if let Ok(Value::Object(map)) = resp.into_json::<Value>() {
+                if let Some(Value::Array(lines)) = map.get("logs") {
+                    output.push_str("<pre style='white-space: pre-wrap; word-wrap: break-word;'>");
+                    for line_val in lines {
+                        if let Some(line) = line_val.as_str() {
+                            output.push_str(&format!("{}\n", html_escape(line)));
+                        }
+                    }
+                    output.push_str("</pre>");
+                    rendered = true;
+                }
+            }
+        }
+    }
+
+    if !rendered {
+        output.push_str("<p class='text-muted'>No logs found. If the service just started, it might take a few seconds to populate.</p>");
+    }
+
+    println!("{}", output);
+}
+
+fn html_escape(s: &str) -> String {
+    s.replace('&', "&amp;")
+     .replace('<', "&lt;")
+     .replace('>', "&gt;")
+     .replace('"', "&quot;")
+     .replace('\'', "&#x27;")
+}
+
+fn run_tail(file: &str, lines: usize) -> Result<String, String> {
+    let output = std::process::Command::new("tail")
+        .args(&["-n", &lines.to_string(), file])
+        .output()
+        .map_err(|e| e.to_string())?;
+    if output.status.success() {
+        Ok(String::from_utf8_lossy(&output.stdout).to_string())
+    } else {
+        Err(String::from_utf8_lossy(&output.stderr).to_string())
+    }
+}

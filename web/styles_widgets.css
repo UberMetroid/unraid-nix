@@ -1,0 +1,189 @@
+/* unraid-nix Premium WebGUI Widgets Stylesheet */
+
+/* Resources Container */
+.nix-resources-container {
+    font-family: monospace;
+    font-size: 11px;
+    line-height: 1.45;
+    color: #ccc;
+    background: rgba(0, 0, 0, 0.15);
+    padding: 6px 8px;
+    border-radius: 4px;
+    border: 1px solid rgba(255, 255, 255, 0.03);
+}
+.nix-resources-container div {
+    display: flex;
+    justify-content: space-between;
+    gap: 15px;
+}
+.nix-resources-container strong {
+    color: #88888d;
+    font-weight: 500;
+}
+
+/* Search Bar */
+.nix-search-bar {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.nix-search-bar input[type="text"] {
+    flex: 1;
+    background: #141416;
+    border: 1px solid #2d2d30;
+    border-radius: 4px;
+    padding: 10px;
+    color: #fff;
+    font-size: 14px;
+}
+
+.nix-btn-primary {
+    background: #00a1ff;
+    border: none;
+    color: #fff;
+    padding: 10px 20px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: background-color 0.15s ease, transform 0.1s ease, box-shadow 0.15s ease;
+}
+
+.nix-btn-primary:hover {
+    background: #008be0;
+    box-shadow: 0 4px 10px rgba(0, 161, 255, 0.3);
+    transform: translateY(-1.5px);
+}
+
+.nix-btn-primary:active {
+    transform: translateY(0);
+    box-shadow: none;
+}
+
+.nix-btn-primary:disabled, .nix-btn-primary[disabled] {
+    background: #232326 !important;
+    color: #525256 !important;
+    cursor: not-allowed !important;
+    transform: none !important;
+    box-shadow: none !important;
+}
+
+/* Forms */
+.nix-form-group {
+    margin-bottom: 15px;
+}
+
+.nix-form-group label {
+    display: block;
+    margin-bottom: 5px;
+    color: #eee;
+    font-size: 13px;
+    font-weight: 500;
+}
+
+.nix-form-group input[type="text"],
+.nix-form-group input[type="number"],
+.nix-form-group select {
+    width: 100%;
+    background: #141416;
+    border: 1px solid #2d2d30;
+    border-radius: 4px;
+    padding: 8px 12px;
+    color: #fff;
+    box-sizing: border-box;
+}
+
+.nix-field-help {
+    font-size: 11px;
+    color: #a0a0a5;
+    margin-top: 4px;
+}
+.nix-form-row {
+    display: flex;
+}
+.nix-spinner {
+    padding: 20px;
+    text-align: center;
+    color: #a0a0a5;
+}
+
+/* Folder Picker Icons */
+.nix-folder-picker-btn {
+    transition: color 0.2s ease;
+}
+.nix-folder-picker-btn:hover {
+    color: #00a1ff !important;
+}
+
+/* Compact Table Action Buttons */
+.nix-services-table .nix-btn {
+    padding: 3px 6px !important;
+    font-size: 11px !important;
+    margin: 0 !important;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+.nix-services-table td:last-child {
+    text-align: center;
+}
+
+.nix-actions-wrapper {
+    display: inline-flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+}
+
+/* Switch container */
+.nix-switch {
+    position: relative;
+    display: inline-block;
+    width: 36px;
+    height: 20px;
+    vertical-align: middle;
+}
+
+/* Hide default HTML checkbox */
+.nix-switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+/* The slider */
+.nix-slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #232326;
+    transition: .2s;
+    border-radius: 20px;
+    border: 1px solid #3a3a3d;
+}
+
+.nix-slider:before {
+    position: absolute;
+    content: "";
+    height: 14px;
+    width: 14px;
+    left: 2px;
+    bottom: 2px;
+    background-color: #a0a0a5;
+    transition: .2s;
+    border-radius: 50%;
+}
+
+.nix-switch input:checked + .nix-slider {
+    background-color: rgba(46, 204, 113, 0.15);
+    border-color: #2ecc71;
+}
+
+.nix-switch input:checked + .nix-slider:before {
+    transform: translateX(16px);
+    background-color: #2ecc71;
+}

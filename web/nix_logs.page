@@ -1,7 +1,8 @@
 Menu="Nix:5"
 Title="Logs"
 ---
-<link type="text/css" rel="stylesheet" href="/plugins/nix/styles.css">
+<link type="text/css" rel="stylesheet" href="/plugins/nix/styles_layout.css">
+<link type="text/css" rel="stylesheet" href="/plugins/nix/styles_widgets.css">
 <script src="/plugins/nix/nix.js"></script>
 <div class="nix-section">
     <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 15px;">

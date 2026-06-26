@@ -1,7 +1,8 @@
 Menu="Nix:2"
 Title="Flake Store"
 ---
-<link type="text/css" rel="stylesheet" href="/plugins/nix/styles.css">
+<link type="text/css" rel="stylesheet" href="/plugins/nix/styles_layout.css">
+<link type="text/css" rel="stylesheet" href="/plugins/nix/styles_widgets.css">
 <script src="/plugins/nix/nix.js"></script>
 <div class="nix-section">
     <h3>Search Nixpkgs Registry</h3>

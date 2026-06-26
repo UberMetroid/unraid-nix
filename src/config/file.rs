@@ -1,0 +1,40 @@
+use crate::config::{ProcessComposeConfig, LogConfiguration};
+use std::fs;
+
+/// Loads the process-compose configuration from the specified file path.
+pub fn load_config(file_path: &str) -> Result<ProcessComposeConfig, String> {
+    if !fs::metadata(file_path).is_ok() {
+        return Ok(ProcessComposeConfig {
+            version: "0.5".to_string(),
+            environment: Some(vec!["NIX_REMOTE=daemon".to_string()]),
+            log_configuration: Some(LogConfiguration {
+                add_timestamp: Some(true),
+                fields_order: Some(vec![
+                    "time".to_string(),
+                    "level".to_string(),
+                    "message".to_string(),
+                ]),
+            }),
+            processes: std::collections::HashMap::new(),
+        });
+    }
+
+    let content = fs::read_to_string(file_path)
+        .map_err(|e| format!("Failed to read config file: {}", e))?;
+
+    let config: ProcessComposeConfig = serde_yaml::from_str(&content)
+        .map_err(|e| format!("Failed to parse YAML: {}", e))?;
+
+    Ok(config)
+}
+
+/// Saves the process-compose configuration back to the specified file path.
+pub fn save_config(config: &ProcessComposeConfig, file_path: &str) -> Result<(), String> {
+    let yaml = serde_yaml::to_string(config)
+        .map_err(|e| format!("Failed to serialize config to YAML: {}", e))?;
+
+    fs::write(file_path, yaml)
+        .map_err(|e| format!("Failed to write config file: {}", e))?;
+
+    Ok(())
+}
