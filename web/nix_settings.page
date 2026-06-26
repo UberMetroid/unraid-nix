@@ -8,9 +8,31 @@ $nix_cfg = [];
 if (file_exists($cfg_file)) {
     $nix_cfg = parse_ini_file($cfg_file);
 }
+
+function detect_default_store_path() {
+    if (is_dir('/mnt/cache/system')) {
+        return '/mnt/cache/system/nix';
+    }
+    $pools = glob('/mnt/*/system');
+    if (!empty($pools)) {
+        foreach ($pools as $pool) {
+            $pool_name = basename(dirname($pool));
+            if ($pool_name !== 'user' && $pool_name !== 'user0') {
+                return $pool . '/nix';
+            }
+        }
+    }
+    if (is_dir('/mnt/user/system')) {
+        return '/mnt/user/system/nix';
+    }
+    if (is_dir('/mnt/user')) {
+        return '/mnt/user/system/nix';
+    }
+    return '/mnt/disk1/system/nix';
+}
+
 // Set defaults
-$store_path = isset($nix_cfg['NIX_STORE_PATH']) ? $nix_cfg['NIX_STORE_PATH'] : '/mnt/cache/system/nix';
-$multi_user = isset($nix_cfg['MULTI_USER']) ? $nix_cfg['MULTI_USER'] : 'yes';
+$store_path = isset($nix_cfg['NIX_STORE_PATH']) ? $nix_cfg['NIX_STORE_PATH'] : detect_default_store_path();
 $autostart = isset($nix_cfg['AUTOSTART_FLAKES']) ? $nix_cfg['AUTOSTART_FLAKES'] : 'yes';
 ?>
 
@@ -23,14 +45,6 @@ $autostart = isset($nix_cfg['AUTOSTART_FLAKES']) ? $nix_cfg['AUTOSTART_FLAKES'] 
             <label for="settings-store-path">Nix Store Path (SSD Cache / ZFS Dataset Recommended):</label>
             <input type="text" id="settings-store-path" value="<?php echo htmlspecialchars($store_path); ?>" placeholder="/mnt/cache/system/nix" required>
             <div class="nix-field-help">This is where the persistent `/nix` directory will be bind-mounted. Do NOT use your USB boot drive `/boot`.</div>
-        </div>
-
-        <div class="nix-form-group">
-            <label for="settings-multi-user">Enable Multi-User (nix-daemon daemonized sandbox):</label>
-            <select id="settings-multi-user">
-                <option value="yes" <?php echo $multi_user === 'yes' ? 'selected' : ''; ?>>Yes (Recommended)</option>
-                <option value="no" <?php echo $multi_user === 'no' ? 'selected' : ''; ?>>No (Single User mode)</option>
-            </select>
         </div>
 
         <div class="nix-form-group">
@@ -49,7 +63,6 @@ $autostart = isset($nix_cfg['AUTOSTART_FLAKES']) ? $nix_cfg['AUTOSTART_FLAKES'] 
 function saveSettings(e) {
     e.preventDefault();
     var path = $("#settings-store-path").val();
-    var multi = $("#settings-multi-user").val();
     var auto = $("#settings-autostart").val();
     
     if (path.indexOf("/boot") === 0) {
@@ -60,7 +73,6 @@ function saveSettings(e) {
     $.post('/plugins/nix/api.php', {
         action: 'save-settings',
         store_path: path,
-        multi_user: multi,
         autostart: auto
     }, function(resp) {
         if (resp.success) {

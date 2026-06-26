@@ -121,7 +121,6 @@ if ($action === 'install-custom') {
 // 6. Save Configuration Settings
 if ($action === 'save-settings') {
     $store_path = isset($_POST['store_path']) ? $_POST['store_path'] : '';
-    $multi_user = isset($_POST['multi_user']) ? $_POST['multi_user'] : 'yes';
     $autostart = isset($_POST['autostart']) ? $_POST['autostart'] : 'yes';
     
     $cfg_dir = "/boot/config/plugins/nix";
@@ -130,7 +129,6 @@ if ($action === 'save-settings') {
     }
     
     $cfg_content = "NIX_STORE_PATH=\"" . addslashes($store_path) . "\"\n";
-    $cfg_content .= "MULTI_USER=\"" . addslashes($multi_user) . "\"\n";
     $cfg_content .= "AUTOSTART_FLAKES=\"" . addslashes($autostart) . "\"\n";
     
     if (file_put_contents($cfg_dir . "/nix.cfg", $cfg_content) === false) {

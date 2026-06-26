@@ -4,13 +4,39 @@
 
 echo "Nix Event: disks_mounted triggered." | logger -t "nix-plugin"
 
+detect_default_store_path() {
+    if [ -d "/mnt/cache/system" ]; then
+        echo "/mnt/cache/system/nix"
+        return
+    fi
+    for d in /mnt/*/system; do
+        if [ -d "$d" ]; then
+            local pool_name=$(basename "$(dirname "$d")")
+            if [ "$pool_name" != "user" ] && [ "$pool_name" != "user0" ] && [ "$pool_name" != "*" ]; then
+                echo "${d}/nix"
+                return
+            fi
+        fi
+    done
+    if [ -d "/mnt/user/system" ]; then
+        echo "/mnt/user/system/nix"
+        return
+    fi
+    if [ -d "/mnt/user" ]; then
+        echo "/mnt/user/system/nix"
+        return
+    fi
+    echo "/mnt/disk1/system/nix"
+}
+
 CFG_FILE="/boot/config/plugins/nix/nix.cfg"
-NIX_STORE_PATH="/mnt/cache/system/nix"
+DEFAULT_STORE_PATH=$(detect_default_store_path)
+NIX_STORE_PATH="$DEFAULT_STORE_PATH"
 AUTOSTART_FLAKES="yes"
 
 if [ -f "$CFG_FILE" ]; then
     # Parse simple INI properties
-    NIX_STORE_PATH=$(grep -oP 'NIX_STORE_PATH="\K[^"]+' "$CFG_FILE" || echo "/mnt/cache/system/nix")
+    NIX_STORE_PATH=$(grep -oP 'NIX_STORE_PATH="\K[^"]+' "$CFG_FILE" || echo "$DEFAULT_STORE_PATH")
     AUTOSTART_FLAKES=$(grep -oP 'AUTOSTART_FLAKES="\K[^"]+' "$CFG_FILE" || echo "yes")
 fi
 

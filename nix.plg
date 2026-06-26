@@ -2,7 +2,7 @@
 <!DOCTYPE PLUGIN [
   <!ENTITY name      "nix">
   <!ENTITY author    "UberMetroid">
-  <!ENTITY version   "2026.06.25.12">
+  <!ENTITY version   "2026.06.25.13">
   <!ENTITY launch    "Settings/nix_services">
   <!ENTITY plugdir   "/boot/config/plugins/&name;">
   <!ENTITY usrdir    "/usr/local/emhttp/plugins/&name;">
@@ -11,6 +11,9 @@
 
   <CHANGES>
     ## nix package manager plugin
+    ### 2026.06.25.13
+    - Removed unused Multi-User settings configuration group from the WebGUI.
+    - Implemented dynamic detection for the default Nix Store Path to locate /system/nix on any mounted cache pool, custom pool, or array share.
     ### 2026.06.25.12
     - Added premium flavor text and step indicators during plugin installation.
     ### 2026.06.25.11
