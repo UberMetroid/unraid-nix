@@ -93,6 +93,32 @@ if ($action === 'install-custom') {
         $gpu = isset($_POST['gpu']) ? $_POST['gpu'] : '0';
         $extra_binds = isset($_POST['extra_binds']) ? $_POST['extra_binds'] : '';
         
+        // 1. Create the primary Install Path (appdata) if it doesn't exist
+        if (!empty($appdata)) {
+            if (!file_exists($appdata)) {
+                mkdir($appdata, 0777, true);
+                @chown($appdata, intval($puid));
+                @chgrp($appdata, intval($pgid));
+            }
+        }
+
+        // 2. Create any additional host bind paths if they don't exist
+        if (!empty($extra_binds)) {
+            $binds_arr = json_decode($extra_binds, true);
+            if (is_array($binds_arr)) {
+                foreach ($binds_arr as $b) {
+                    $host = trim($b['host']);
+                    if (!empty($host)) {
+                        if (!file_exists($host)) {
+                            mkdir($host, 0777, true);
+                            @chown($host, intval($puid));
+                            @chgrp($host, intval($pgid));
+                        }
+                    }
+                }
+            }
+        }
+
         // Parse name from URI (e.g. nixpkgs#radarr -> radarr)
         $name = str_replace('nixpkgs#', '', $uri);
         $name = last(explode('/', $name));
@@ -133,6 +159,10 @@ if ($action === 'install-custom') {
         if ($code !== 0) {
             error(implode("\n", $output));
         }
+
+        // Restart supervisor to apply the new service definition and launch it
+        restart_nix_supervisor();
+
         success();
     }
 }
@@ -213,6 +243,42 @@ function last($arr) {
 function format_preset_cmd($name, $appdata, $media, $puid, $pgid, $gpu) {
     $media_arg = empty($media) ? "-" : $media;
     return "/usr/local/emhttp/plugins/nix/nix-helper preset " . escapeshellarg($name) . " " . escapeshellarg($appdata) . " " . escapeshellarg($media_arg) . " " . escapeshellarg($puid) . " " . escapeshellarg($pgid) . " " . escapeshellarg($gpu);
+}
+
+function restart_nix_supervisor() {
+    $pid_file = "/var/run/nix-process-compose.pid";
+    $cfg_file = "/boot/config/plugins/nix/process-compose.yml";
+    
+    // 1. Stop if running
+    if (file_exists($pid_file)) {
+        $pid = trim(file_get_contents($pid_file));
+        if (!empty($pid)) {
+            exec("kill -0 " . escapeshellarg($pid) . " 2>&1", $out, $code);
+            if ($code === 0) {
+                // Source environment and shutdown gracefully
+                shell_exec(". /nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh && nix run nixpkgs#process-compose -- -p 29704 -f " . escapeshellarg($cfg_file) . " shutdown >/dev/null 2>&1");
+                
+                // Wait up to 3 seconds for it to exit
+                for ($i = 0; $i < 30; $i++) {
+                    exec("kill -0 " . escapeshellarg($pid) . " 2>&1", $out2, $code2);
+                    if ($code2 !== 0) {
+                        break;
+                    }
+                    usleep(100000);
+                }
+                // Force kill if still running
+                exec("kill -9 " . escapeshellarg($pid) . " >/dev/null 2>&1");
+            }
+        }
+        @unlink($pid_file);
+    }
+    
+    // 2. Start it up
+    if (file_exists($cfg_file)) {
+        shell_exec("mkdir -p /var/log/nix-services");
+        $cmd = ". /nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh && nohup nix run nixpkgs#process-compose -- -p 29704 -f " . escapeshellarg($cfg_file) . " --tui=false > /var/log/nix-process-compose.log 2>&1 & echo \$! > " . escapeshellarg($pid_file);
+        shell_exec($cmd);
+    }
 }
 
 error("Unknown API action.");
