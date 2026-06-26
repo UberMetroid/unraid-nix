@@ -67,8 +67,10 @@ pub fn save_config(config: &ProcessComposeConfig, file_path: &str) -> Result<(),
     Ok(())
 }
 
+use crate::sandbox::{build_bwrap_command, SandboxConfig};
+
 /// Retrieves the command preset templates for common services.
-/// Customizes directory paths and applies bubblewrap wrapper parameters.
+/// Customizes directory paths and applies drop-privileges wrapper parameters.
 pub fn get_service_command_preset(
     name: &str,
     appdata: &str,
@@ -77,22 +79,28 @@ pub fn get_service_command_preset(
     pgid: u32,
     enable_gpu: bool,
 ) -> Result<String, String> {
-    let preset = match name.to_lowercase().as_str() {
-        "radarr" => format!(
-            "/usr/local/emhttp/plugins/nix/nix-helper sandbox --name radarr --appdata {} --media {} --puid {} --pgid {} --cmd \"HOME=/config nix run nixpkgs#radarr\"",
-            appdata, media, puid, pgid
-        ),
-        "sonarr" => format!(
-            "/usr/local/emhttp/plugins/nix/nix-helper sandbox --name sonarr --appdata {} --media {} --puid {} --pgid {} --cmd \"HOME=/config nix run nixpkgs#sonarr\"",
-            appdata, media, puid, pgid
-        ),
-        "jellyfin" => format!(
-            "/usr/local/emhttp/plugins/nix/nix-helper sandbox --name jellyfin --appdata {} --media {} --puid {} --pgid {} {} --cmd \"nix run nixpkgs#jellyfin -- --datadir /config/data --cachedir /config/cache --configdir /config/config\"",
-            appdata, media, puid, pgid, if enable_gpu { "--gpu" } else { "" }
-        ),
+    let media_path = if media.trim().is_empty() || media == "-" {
+        None
+    } else {
+        Some(media.to_string())
+    };
+
+    let inner_command = match name.to_lowercase().as_str() {
+        "radarr" => "HOME=/config nix run nixpkgs#radarr".to_string(),
+        "sonarr" => "HOME=/config nix run nixpkgs#sonarr".to_string(),
+        "jellyfin" => "nix run nixpkgs#jellyfin -- --datadir /config/data --cachedir /config/cache --configdir /config/config".to_string(),
         _ => return Err(format!("Unknown preset template: {}", name)),
     };
-    Ok(preset)
+
+    build_bwrap_command(&SandboxConfig {
+        name: name.to_string(),
+        appdata_path: appdata.to_string(),
+        media_path,
+        puid,
+        pgid,
+        enable_gpu,
+        inner_command,
+    })
 }
 
 #[cfg(test)]
@@ -133,10 +141,9 @@ mod tests {
     #[test]
     fn test_service_command_presets() {
         let cmd = get_service_command_preset("radarr", "/mnt/cache/appdata/radarr", "/mnt/user/media", 99, 100, false).unwrap();
-        assert!(cmd.contains("--appdata /mnt/cache/appdata/radarr"));
-        assert!(cmd.contains("--media /mnt/user/media"));
-        assert!(cmd.contains("--puid 99"));
-        assert!(cmd.contains("radarr"));
+        assert!(cmd.starts_with("runuser -u 99 -g 100 -- sh -c "));
+        assert!(cmd.contains("export HOME=/mnt/cache/appdata/radarr"));
+        assert!(cmd.contains("nix run nixpkgs#radarr"));
 
         let err = get_service_command_preset("invalid", "/tmp", "/tmp", 99, 100, false);
         assert!(err.is_err());

@@ -240,3 +240,13 @@
 .nix-folder-picker-btn:hover {
     color: #00a1ff !important;
 }
+
+/* Compact Table Action Buttons */
+.nix-services-table .nix-btn {
+    padding: 3px 6px;
+    font-size: 11px;
+    margin-right: 2px;
+}
+.nix-services-table td:last-child {
+    white-space: nowrap;
+}

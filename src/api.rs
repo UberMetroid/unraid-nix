@@ -6,6 +6,20 @@
 use crate::process::{get_services_status, is_supervisor_running};
 use crate::search::search_packages;
 
+/// Resolves default web interface ports for known services.
+fn get_service_web_port(name: &str) -> Option<u16> {
+    let name_lower = name.to_lowercase();
+    if name_lower.contains("sonarr") {
+        Some(8989)
+    } else if name_lower.contains("radarr") {
+        Some(7878)
+    } else if name_lower.contains("jellyfin") {
+        Some(8096)
+    } else {
+        None
+    }
+}
+
 /// Renders the services dashboard table as an HTML string.
 /// Mirrors the styling and visual cues of Unraid's native Docker container list.
 pub fn render_services_table(api_port: u16) -> String {
@@ -47,6 +61,15 @@ pub fn render_services_table(api_port: u16) -> String {
             let mem_str = s.memory.map(|m| format!("{} MB", m / 1024 / 1024)).unwrap_or_else(|| "-".to_string());
             let uptime_str = s.uptime();
 
+            let web_link_btn = if let Some(port) = get_service_web_port(&s.name) {
+                format!(
+                    r#"<button type="button" class="nix-btn" onclick="window.open('http://' + window.location.hostname + ':{}/', '_blank')" title="Open Web UI"><i class="fa fa-globe"></i></button>"#,
+                    port
+                )
+            } else {
+                "".to_string()
+            };
+
             html.push_str(&format!(
                 r#"<tr>
                     <td><strong>{}</strong></td>
@@ -59,9 +82,10 @@ pub fn render_services_table(api_port: u16) -> String {
                         <button type="button" class="nix-btn" onclick="serviceAction('{}', 'stop')"><i class="fa fa-stop"></i></button>
                         <button type="button" class="nix-btn" onclick="serviceAction('{}', 'restart')"><i class="fa fa-refresh"></i></button>
                         <button type="button" class="nix-btn" onclick="openLogs('{}')"><i class="fa fa-file-text-o"></i></button>
+                        {}
                     </td>
                 </tr>"#,
-                s.name, status_badge, uptime_str, cpu_str, mem_str, s.name, s.name, s.name, s.name
+                s.name, status_badge, uptime_str, cpu_str, mem_str, s.name, s.name, s.name, s.name, web_link_btn
             ));
         }
     }

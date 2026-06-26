@@ -60,28 +60,36 @@ pub fn is_port_in_use(port: u16) -> bool {
 ///
 /// Reads the pidfile /var/run/nix-process-compose.pid and verifies the process is alive.
 pub fn is_supervisor_running() -> bool {
-    let pid_path = "/var/run/nix-process-compose.pid";
-    if !fs::metadata(pid_path).is_ok() {
-        return false;
+    // Attempt a lightweight HTTP connection check on localhost port 29704
+    let url = "http://127.0.0.1:29704/processes";
+    match ureq::get(url).timeout(std::time::Duration::from_millis(150)).call() {
+        Ok(resp) => resp.status() == 200,
+        Err(_) => {
+            // Fallback: Check PID file in case API is temporarily unresponsive
+            let pid_path = "/var/run/nix-process-compose.pid";
+            if !fs::metadata(pid_path).is_ok() {
+                return false;
+            }
+
+            let pid_str = match fs::read_to_string(pid_path) {
+                Ok(s) => s.trim().to_string(),
+                Err(_) => return false,
+            };
+
+            let pid = match pid_str.parse::<i32>() {
+                Ok(p) => p,
+                Err(_) => return false,
+            };
+
+            // Run kill -0 <pid> to verify the process is alive
+            Command::new("kill")
+                .arg("-0")
+                .arg(pid.to_string())
+                .status()
+                .map(|s| s.success())
+                .unwrap_or(false)
+        }
     }
-
-    let pid_str = match fs::read_to_string(pid_path) {
-        Ok(s) => s.trim().to_string(),
-        Err(_) => return false,
-    };
-
-    let pid = match pid_str.parse::<i32>() {
-        Ok(p) => p,
-        Err(_) => return false,
-    };
-
-    // Run kill -0 <pid> to verify the process is alive
-    Command::new("kill")
-        .arg("-0")
-        .arg(pid.to_string())
-        .status()
-        .map(|s| s.success())
-        .unwrap_or(false)
 }
 
 /// Queries the process-compose daemon HTTP API for the status of all managed services.
