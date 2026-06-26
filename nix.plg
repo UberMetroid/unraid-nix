@@ -2,7 +2,7 @@
 <!DOCTYPE PLUGIN [
   <!ENTITY name      "nix">
   <!ENTITY author    "UberMetroid">
-  <!ENTITY version   "2026.06.26.09">
+  <!ENTITY version   "2026.06.26.10">
   <!ENTITY launch    "Settings/nix">
   <!ENTITY plugdir   "/boot/config/plugins/&name;">
   <!ENTITY usrdir    "/usr/local/emhttp/plugins/&name;">
@@ -11,6 +11,8 @@
 
   <CHANGES>
     ## nix package manager plugin
+    ### 2026.06.26.10
+    - Added multi-IP support to the LAN IP:Port column, querying all non-virtual interfaces (e.g. Ethernet, WiFi, Tailscale) and rendering them as clean vertical links with interface labels.
     ### 2026.06.26.09
     - Implemented toggle switch (On/Off checkbox slider) for the Autostart column, sending AJAX action to dynamically rewrite availability policy and hot-reload process-compose supervisor.
     ### 2026.06.26.08

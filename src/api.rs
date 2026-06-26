@@ -43,21 +43,59 @@ fn extract_home_path(command: &str) -> String {
 
 
 
-/// Resolves primary LAN IP on Unraid host.
-fn get_host_lan_ip() -> String {
-    let output = std::process::Command::new("sh")
-        .args(&["-c", "ip route get 1 2>/dev/null | awk '{print $7;exit}'"])
+#[derive(Debug, Clone)]
+struct HostAddr {
+    interface: String,
+    ip: String,
+}
+
+/// Resolves active IPv4 addresses on Unraid host interfaces (excluding loopback and virtual docker/veth interfaces).
+fn get_host_ips() -> Vec<HostAddr> {
+    let mut ips = Vec::new();
+    let output = std::process::Command::new("ip")
+        .args(&["-o", "-4", "addr", "show"])
         .output();
-    
+
     if let Ok(out) = output {
         if out.status.success() {
-            let ip = String::from_utf8_lossy(&out.stdout).trim().to_string();
-            if !ip.is_empty() {
-                return ip;
+            let stdout = String::from_utf8_lossy(&out.stdout);
+            for line in stdout.lines() {
+                let parts: Vec<&str> = line.split_whitespace().collect();
+                if parts.len() >= 4 {
+                    let iface = parts[1];
+                    let ip_net = parts[3];
+                    
+                    let iface_lower = iface.to_lowercase();
+                    if iface_lower == "lo" || 
+                       iface_lower.starts_with("veth") || 
+                       iface_lower.starts_with("docker") || 
+                       iface_lower.starts_with("br-") || 
+                       iface_lower.starts_with("virbr") ||
+                       iface_lower.starts_with("shim") {
+                        continue;
+                    }
+
+                    if let Some(pos) = ip_net.find('/') {
+                        let ip = &ip_net[..pos];
+                        if !ip.starts_with("127.") {
+                            ips.push(HostAddr {
+                                interface: iface.to_string(),
+                                ip: ip.to_string(),
+                            });
+                        }
+                    }
+                }
             }
         }
     }
-    "127.0.0.1".to_string()
+
+    if ips.is_empty() {
+        ips.push(HostAddr {
+            interface: "lo".to_string(),
+            ip: "127.0.0.1".to_string(),
+        });
+    }
+    ips
 }
 
 /// Renders the services dashboard table as an HTML string.
@@ -74,7 +112,7 @@ pub fn render_services_table(api_port: u16) -> String {
 
     let config_path = "/boot/config/plugins/nix/process-compose.yml";
     let config = crate::config::load_config(config_path).ok();
-    let host_ip = get_host_lan_ip();
+    let host_ips = get_host_ips();
 
     let mut html = r#"<div style="overflow-x: auto; width: 100%;">
         <table class="nix-services-table">
@@ -116,14 +154,27 @@ pub fn render_services_table(api_port: u16) -> String {
             let port_num = get_service_web_port(&s.name);
 
             let lan_ip_port_html = if let Some(port) = port_num {
-                if is_running {
-                    format!(
-                        r##"<a href="#" onclick="window.open('http://{}:{}/', '_blank'); return false;" style="color: #00a1ff; text-decoration: none;">{}:{} <i class="fa fa-external-link" style="font-size: 10px;"></i></a>"##,
-                        host_ip, port, host_ip, port
-                    )
-                } else {
-                    format!(r#"<span style="color: #888;">{}:{}</span>"#, host_ip, port)
+                let mut ip_links = Vec::new();
+                for addr in &host_ips {
+                    let label = match addr.interface.to_lowercase().as_str() {
+                        "tailscale0" | "tailscale" => "tailscale".to_string(),
+                        other => other.to_string(),
+                    };
+                    
+                    let link = if is_running {
+                        format!(
+                            r##"<div style="margin-bottom: 4px;"><a href="#" onclick="window.open('http://{}:{}/', '_blank'); return false;" style="color: #00a1ff; text-decoration: none; font-weight: 500;">{}:{} <i class="fa fa-external-link" style="font-size: 9px; margin-left: 1px;"></i></a> <span style="font-size: 10px; color: #777; font-family: monospace;">({})</span></div>"##,
+                            addr.ip, port, addr.ip, port, label
+                        )
+                    } else {
+                        format!(
+                            r##"<div style="margin-bottom: 4px;"><span style="color: #888;">{}:{}</span> <span style="font-size: 10px; color: #555; font-family: monospace;">({})</span></div>"##,
+                            addr.ip, port, label
+                        )
+                    };
+                    ip_links.push(link);
                 }
+                ip_links.join("")
             } else {
                 "-".to_string()
             };
