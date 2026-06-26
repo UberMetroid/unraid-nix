@@ -232,3 +232,11 @@
     text-align: center;
     color: #a0a0a5;
 }
+
+/* Folder Picker Icons */
+.nix-folder-picker-btn {
+    transition: color 0.2s ease;
+}
+.nix-folder-picker-btn:hover {
+    color: #00a1ff !important;
+}

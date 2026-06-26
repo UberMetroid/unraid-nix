@@ -2,7 +2,7 @@
 <!DOCTYPE PLUGIN [
   <!ENTITY name      "nix">
   <!ENTITY author    "UberMetroid">
-  <!ENTITY version   "2026.06.25.45">
+  <!ENTITY version   "2026.06.25.46">
   <!ENTITY launch    "Settings/nix">
   <!ENTITY plugdir   "/boot/config/plugins/&name;">
   <!ENTITY usrdir    "/usr/local/emhttp/plugins/&name;">
@@ -11,6 +11,10 @@
 
   <CHANGES>
     ## nix package manager plugin
+    ### 2026.06.25.46
+    - Configured service preset command definitions to call the absolute nix-helper path.
+    - Added a global /usr/local/bin/nix-helper symlink for clean CLI execution.
+    - Added folder browse icons on all path input fields for standard Unraid WebGUI file picker interaction.
     ### 2026.06.25.45
     - Fixed XML parsing error by replacing raw ampersand operator with nested if statements.
     ### 2026.06.25.44
@@ -147,6 +151,7 @@
       curl -sSf -L --create-dirs -o "&plugdir;/nix-helper" "${GITHUB_RAW}/nix-helper"
       cp "&plugdir;/nix-helper" "&usrdir;/nix-helper"
       chmod +x "&usrdir;/nix-helper"
+      ln -sf "&usrdir;/nix-helper" /usr/local/bin/nix-helper
 
       # 3. Download and install WebGUI pages
       echo "--> Downloading Dynamix WebGUI pages and assets..."
@@ -217,6 +222,7 @@
       rm -rf /usr/local/emhttp/plugins/Nix
       rm -f /etc/rc.d/rc.nix-daemon
       rm -f /etc/profile.d/nix.sh
+      rm -f /usr/local/bin/nix-helper
 
       # Note: Persistent configurations and /nix store folder are NOT deleted
       # to prevent user data loss. They are left intact under the configured paths.

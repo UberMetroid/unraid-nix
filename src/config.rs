@@ -79,15 +79,15 @@ pub fn get_service_command_preset(
 ) -> Result<String, String> {
     let preset = match name.to_lowercase().as_str() {
         "radarr" => format!(
-            "nix-helper sandbox --name radarr --appdata {} --media {} --puid {} --pgid {} --cmd \"HOME=/config nix run nixpkgs#radarr\"",
+            "/usr/local/emhttp/plugins/nix/nix-helper sandbox --name radarr --appdata {} --media {} --puid {} --pgid {} --cmd \"HOME=/config nix run nixpkgs#radarr\"",
             appdata, media, puid, pgid
         ),
         "sonarr" => format!(
-            "nix-helper sandbox --name sonarr --appdata {} --media {} --puid {} --pgid {} --cmd \"HOME=/config nix run nixpkgs#sonarr\"",
+            "/usr/local/emhttp/plugins/nix/nix-helper sandbox --name sonarr --appdata {} --media {} --puid {} --pgid {} --cmd \"HOME=/config nix run nixpkgs#sonarr\"",
             appdata, media, puid, pgid
         ),
         "jellyfin" => format!(
-            "nix-helper sandbox --name jellyfin --appdata {} --media {} --puid {} --pgid {} {} --cmd \"nix run nixpkgs#jellyfin -- --datadir /config/data --cachedir /config/cache --configdir /config/config\"",
+            "/usr/local/emhttp/plugins/nix/nix-helper sandbox --name jellyfin --appdata {} --media {} --puid {} --pgid {} {} --cmd \"nix run nixpkgs#jellyfin -- --datadir /config/data --cachedir /config/cache --configdir /config/config\"",
             appdata, media, puid, pgid, if enable_gpu { "--gpu" } else { "" }
         ),
         _ => return Err(format!("Unknown preset template: {}", name)),
