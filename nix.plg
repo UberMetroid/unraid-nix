@@ -2,7 +2,7 @@
 <!DOCTYPE PLUGIN [
   <!ENTITY name      "nix">
   <!ENTITY author    "UberMetroid">
-  <!ENTITY version   "2026.06.25.44">
+  <!ENTITY version   "2026.06.25.45">
   <!ENTITY launch    "Settings/nix">
   <!ENTITY plugdir   "/boot/config/plugins/&name;">
   <!ENTITY usrdir    "/usr/local/emhttp/plugins/&name;">
@@ -11,6 +11,8 @@
 
   <CHANGES>
     ## nix package manager plugin
+    ### 2026.06.25.45
+    - Fixed XML parsing error by replacing raw ampersand operator with nested if statements.
     ### 2026.06.25.44
     - Made post-installation array check more robust by verifying fsState="Started" inside var.ini.
     ### 2026.06.25.43
@@ -186,9 +188,11 @@
       chmod +x "&usrdir;/event/disks_mounted" "&usrdir;/event/stopping_svcs"
 
       # 7. Check if array is already started; trigger disks_mounted if yes
-      if [ -f "/var/local/emhttp/var.ini" ] && grep -q 'fsState="Started"' /var/local/emhttp/var.ini; then
-          echo "--> Storage Array is active. Starting Nix environment setup..."
-          &usrdir;/event/disks_mounted
+      if [ -f "/var/local/emhttp/var.ini" ]; then
+          if grep -q 'fsState="Started"' /var/local/emhttp/var.ini; then
+              echo "--> Storage Array is active. Starting Nix environment setup..."
+              &usrdir;/event/disks_mounted
+          fi
       fi
 
       echo "------------------------------------------------------------------"
