@@ -1,7 +1,7 @@
 use crate::process::{get_services_status, is_supervisor_running};
 use crate::api::utils::{
     get_host_ips, get_service_web_port, get_cached_version, get_package_link_url,
-    extract_home_path, extract_package_uri
+    get_service_appdata_path, extract_package_uri
 };
 
 /// Renders the services dashboard table as an HTML string.
@@ -125,7 +125,7 @@ pub fn render_services_table(api_port: u16) -> String {
             let home_path = config
                 .as_ref()
                 .and_then(|c| c.processes.get(&s.name))
-                .map(|p| extract_home_path(&p.command))
+                .map(|p| get_service_appdata_path(&s.name, &p.command))
                 .unwrap_or_else(|| "-".to_string());
 
             let volume_mappings_html = if home_path != "-" && !home_path.is_empty() {
