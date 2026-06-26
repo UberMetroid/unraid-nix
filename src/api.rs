@@ -120,14 +120,20 @@ pub fn render_search_results(query: &str) -> String {
                 )
             };
 
+            let short_name = r.package_name.replace("nixpkgs#", "");
+            let package_link = format!(
+                r#"<a href="https://search.nixos.org/packages?channel=unstable&query={}" target="_blank" style="color: #00a1ff; text-decoration: none;"><code>{}</code> <i class="fa fa-external-link" style="font-size: 10px; margin-left: 2px;"></i></a>"#,
+                short_name, r.package_name
+            );
+
             html.push_str(&format!(
                 r#"<tr>
-                    <td><code>{}</code></td>
+                    <td>{}</td>
                     <td>{}</td>
                     <td>{}</td>
                     <td>{}</td>
                 </tr>"#,
-                r.package_name, r.version, r.description, action_buttons
+                package_link, r.version, r.description, action_buttons
             ));
         }
     }
