@@ -43,4 +43,14 @@ function openLogs(name) {
     var top = (screen.height/2)-(h/2);
     window.open('/plugins/nix/api.php?action=logs&service=' + name, 'Service Logs: ' + name, 'toolbar=no, location=no, directories=no, status=no, menubar=no, scrollbars=yes, resizable=yes, copyhistory=no, width='+w+', height='+h+', top='+top+', left='+left);
 }
+
+function toggleAutostart(name, checked) {
+    $.post('/plugins/nix/api.php', { action: 'toggle-autostart', service: name, enabled: checked }, function(response) {
+        if (!response.success) {
+            alert("Failed to toggle autostart: " + response.error);
+            // Reload services list to revert toggle UI state on failure
+            $("#nix-services-list").load(location.href + " #nix-services-list > *");
+        }
+    }, 'json');
+}
 </script>

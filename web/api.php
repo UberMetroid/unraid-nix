@@ -112,6 +112,21 @@ if ($action === 'start' || $action === 'stop' || $action === 'restart') {
     success();
 }
 
+// 3b. Toggle Service Autostart (On/Off)
+if ($action === 'toggle-autostart') {
+    $service = isset($_POST['service']) ? $_POST['service'] : '';
+    $enabled = isset($_POST['enabled']) ? $_POST['enabled'] : 'false';
+    $toggle_val = ($enabled === 'true' || $enabled === '1') ? 'on' : 'off';
+    
+    $output = [];
+    $code = 0;
+    exec("/usr/local/emhttp/plugins/nix/nix-helper autostart " . escapeshellarg($service) . " " . escapeshellarg($toggle_val) . " 2>&1", $output, $code);
+    if ($code !== 0) {
+        error(implode("\n", $output));
+    }
+    success();
+}
+
 // 4. Install CLI Package
 if ($action === 'install-cli') {
     $package = isset($_POST['package']) ? $_POST['package'] : '';

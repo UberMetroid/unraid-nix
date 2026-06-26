@@ -150,11 +150,14 @@ pub fn render_services_table(api_port: u16) -> String {
                 .map(|a| a.restart.to_lowercase() == "always")
                 .unwrap_or(true);
 
-            let autostart_html = if autostart_enabled {
-                r#"<span style="color: #2ecc71; font-weight: 500;">On</span>"#
-            } else {
-                r#"<span style="color: #888;">Off</span>"#
-            };
+            let autostart_checked = if autostart_enabled { "checked" } else { "" };
+            let autostart_html = format!(
+                r#"<label class="nix-switch">
+                    <input type="checkbox" onchange="toggleAutostart('{}', this.checked)" {}>
+                    <span class="nix-slider"></span>
+                </label>"#,
+                s.name, autostart_checked
+            );
 
             let start_btn = if !is_running {
                 format!(r#"<button type="button" class="nix-btn" onclick="serviceAction('{}', 'start')" title="Start"><i class="fa fa-play"></i></button>"#, s.name)

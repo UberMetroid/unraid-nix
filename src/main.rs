@@ -21,6 +21,7 @@ fn print_usage() {
     println!("  render search <query>                  Outputs HTML packages search table");
     println!("  render dashboard                       Outputs HTML dashboard widget rows");
     println!("  service <start|stop|restart> <name>    Sends action triggers to process-compose");
+    println!("  autostart <name> <on|off>              Toggles the autostart setting for a service");
     println!("  install <package>                      Installs package to CLI profile");
     println!("  sandbox <options>                      Helper command to print bubblewrap script");
 }
@@ -181,6 +182,61 @@ fn main() {
                 std::process::exit(1);
             }
             println!("Service successfully added.");
+        }
+        "autostart" => {
+            if args.len() < 4 {
+                eprintln!("Error: Missing service name or toggle value (on/off).");
+                std::process::exit(1);
+            }
+            let name = &args[2];
+            let toggle = args[3].to_lowercase();
+            let restart_policy = if toggle == "on" || toggle == "true" || toggle == "1" {
+                "always".to_string()
+            } else {
+                "no".to_string()
+            };
+
+            let mut cfg = match config::load_config("/boot/config/plugins/nix/process-compose.yml") {
+                Ok(c) => c,
+                Err(e) => {
+                    eprintln!("Error loading config: {}", e);
+                    std::process::exit(1);
+                }
+            };
+
+            if let Some(p) = cfg.processes.get_mut(name) {
+                if let Some(ref mut a) = p.availability {
+                    a.restart = restart_policy;
+                } else {
+                    p.availability = Some(config::Availability {
+                        restart: restart_policy,
+                        backoff_seconds: Some(5),
+                        max_restarts: None,
+                    });
+                }
+
+                if let Err(e) = config::save_config(&cfg, "/boot/config/plugins/nix/process-compose.yml") {
+                    eprintln!("Error saving config: {}", e);
+                    std::process::exit(1);
+                }
+
+                // Trigger process-compose reload to apply changes dynamically without dropping running services
+                let reload_output = std::process::Command::new("sh")
+                    .args(&["-c", ". /nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh && nix run nixpkgs#process-compose -- -p 29704 reload 2>&1"])
+                    .output();
+                
+                if let Ok(out) = reload_output {
+                    if !out.status.success() {
+                        let err_msg = String::from_utf8_lossy(&out.stderr);
+                        let out_msg = String::from_utf8_lossy(&out.stdout);
+                        eprintln!("Warning: process-compose reload returned non-zero status. Output: {} {}", out_msg, err_msg);
+                    }
+                }
+                println!("Autostart updated successfully.");
+            } else {
+                eprintln!("Error: Service {} not found in configuration.", name);
+                std::process::exit(1);
+            }
         }
         _ => {
             print_usage();
