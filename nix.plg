@@ -2,15 +2,18 @@
 <!DOCTYPE PLUGIN [
   <!ENTITY name      "nix">
   <!ENTITY author    "UberMetroid">
-  <!ENTITY version   "2026.06.25.5">
+  <!ENTITY version   "2026.06.25.6">
   <!ENTITY launch    "Settings/Nix">
   <!ENTITY plugdir   "/boot/config/plugins/&name;">
   <!ENTITY usrdir    "/usr/local/emhttp/plugins/&name;">
 ]>
-<PLUGIN name="&name;" author="&author;" version="&version;" launch="&launch;" pluginURL="https://raw.githubusercontent.com/UberMetroid/unraid-nix/main/nix.plg">
+<PLUGIN name="Nix" author="&author;" version="&version;" launch="&launch;" pluginURL="https://raw.githubusercontent.com/UberMetroid/unraid-nix/main/nix.plg">
 
   <CHANGES>
     ## nix package manager plugin
+    ### 2026.06.25.6
+    - Capitalized display name to "Nix" on the Plugins page.
+    - Added README.md download to register the plugin description in the GUI.
     ### 2026.06.25.5
     - Fixed case-sensitivity for child tab Menu properties (pointing to lowercase nix) to successfully link them to the parent nix.page.
     ### 2026.06.25.4
@@ -53,6 +56,7 @@
       for file in nix.page nix_services.page nix_search.page nix_settings.page nix_dashboard.page api.php styles.css nix.png nix.svg; do
           curl -sSf -L -o "&usrdir;/$file" "${GITHUB_RAW}/web/$file"
       done
+      curl -sSf -L -o "&usrdir;/README.md" "${GITHUB_RAW}/README.md"
 
       # 4. Download and install integration scripts
       echo "Downloading OS integration scripts..."
