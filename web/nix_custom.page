@@ -28,6 +28,15 @@ Title="Install Flake"
                 <label for="custom-media">Media Share Path (Optional):</label>
                 <input type="text" id="custom-media" autocomplete="off" spellcheck="false" placeholder="e.g. /mnt/user/media" data-pickcloseonfile="true" data-pickfilter="HIDE_FILES_FILTER" data-pickroot="/mnt" data-pickfolders="true" pattern="^[^\\]*/$">
             </div>
+            
+            <div class="nix-form-group">
+                <label>Additional Shared Paths (Optional):</label>
+                <div id="nix-extra-binds-container" style="margin-bottom: 8px;">
+                    <!-- Dynamic rows go here -->
+                </div>
+                <button type="button" class="nix-btn" style="margin: 0;" onclick="addBindRow()"><i class="fa fa-plus"></i> Add Path</button>
+            </div>
+
             <div class="nix-form-row">
                 <div class="nix-form-group" style="flex: 1; margin-right: 10px;">
                     <label for="custom-puid">PUID:</label>
@@ -100,6 +109,16 @@ function installCustomFlake(e) {
             alert("Appdata path is required for services.");
             return;
         }
+
+        var extraBinds = [];
+        $(".nix-bind-row").each(function() {
+            var host = $(this).find(".nix-bind-host").val();
+            var sandbox = $(this).find(".nix-bind-sandbox").val();
+            if (host && sandbox) {
+                extraBinds.push({ host: host, sandbox: sandbox });
+            }
+        });
+        data.extra_binds = JSON.stringify(extraBinds);
     }
     
     $.post('/plugins/nix/api.php', data, function(resp) {
@@ -112,5 +131,36 @@ function installCustomFlake(e) {
             alert("Installation failed: " + resp.error);
         }
     }, 'json');
+}
+
+var bindRowIndex = 0;
+function addBindRow(hostVal, sandboxVal) {
+    hostVal = hostVal || '';
+    sandboxVal = sandboxVal || '';
+    var idx = bindRowIndex++;
+    
+    var html = `
+    <div class="nix-form-row nix-bind-row" id="bind-row-${idx}" style="margin-bottom: 8px; display: flex; gap: 8px; align-items: center;">
+        <div style="flex: 2; position: relative;">
+            <input type="text" class="nix-bind-host" id="bind-host-${idx}" value="${hostVal}" placeholder="Host Path (e.g. /mnt/user/downloads)" autocomplete="off" spellcheck="false" data-pickcloseonfile="true" data-pickfilter="HIDE_FILES_FILTER" data-pickroot="/mnt" data-pickfolders="true" pattern="^[^\\]*/$">
+        </div>
+        <div style="flex: 1;">
+            <input type="text" class="nix-bind-sandbox" placeholder="Sandbox Path (e.g. /downloads)" value="${sandboxVal}">
+        </div>
+        <div>
+            <button type="button" class="nix-btn" style="color: #e74c3c; border-color: #e74c3c; margin: 0; padding: 8px 12px;" onclick="removeBindRow(${idx})"><i class="fa fa-times"></i></button>
+        </div>
+    </div>
+    `;
+    
+    $("#nix-extra-binds-container").append(html);
+    
+    if (typeof $.fn.fileTreeAttach === 'function') {
+        $(`#bind-host-${idx}`).fileTreeAttach();
+    }
+}
+
+function removeBindRow(idx) {
+    $(`#bind-row-${idx}`).remove();
 }
 </script>

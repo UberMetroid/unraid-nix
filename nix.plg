@@ -2,7 +2,7 @@
 <!DOCTYPE PLUGIN [
   <!ENTITY name      "nix">
   <!ENTITY author    "UberMetroid">
-  <!ENTITY version   "2026.06.25.32">
+  <!ENTITY version   "2026.06.25.33">
   <!ENTITY launch    "Settings/nix">
   <!ENTITY plugdir   "/boot/config/plugins/&name;">
   <!ENTITY usrdir    "/usr/local/emhttp/plugins/&name;">
@@ -11,6 +11,8 @@
 
   <CHANGES>
     ## nix package manager plugin
+    ### 2026.06.25.33
+    - Added a "+" path-adder row in the Install Flake tab to configure unlimited custom bind mounts (with Unraid's folder explorer).
     ### 2026.06.25.32
     - Added explicit wordwrap and breaks to code blocks and anchor elements inside the package name column.
     ### 2026.06.25.31

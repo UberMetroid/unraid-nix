@@ -91,6 +91,7 @@ if ($action === 'install-custom') {
         $puid = isset($_POST['puid']) ? $_POST['puid'] : '99';
         $pgid = isset($_POST['pgid']) ? $_POST['pgid'] : '100';
         $gpu = isset($_POST['gpu']) ? $_POST['gpu'] : '0';
+        $extra_binds = isset($_POST['extra_binds']) ? $_POST['extra_binds'] : '';
         
         // Parse name from URI (e.g. nixpkgs#radarr -> radarr)
         $name = str_replace('nixpkgs#', '', $uri);
@@ -106,6 +107,24 @@ if ($action === 'install-custom') {
         } else {
             // Build custom bubblewrap command
             $cmd = shell_exec("/usr/local/emhttp/plugins/nix/nix-helper sandbox --name " . escapeshellarg($name) . " --appdata " . escapeshellarg($appdata) . " --media " . escapeshellarg($media) . " --puid " . escapeshellarg($puid) . " --pgid " . escapeshellarg($pgid) . " --cmd " . escapeshellarg("nix run " . $uri));
+        }
+
+        // Apply additional shared paths/bind mounts if provided
+        if (!empty($extra_binds)) {
+            $binds_arr = json_decode($extra_binds, true);
+            if (is_array($binds_arr)) {
+                $bind_args = "";
+                foreach ($binds_arr as $b) {
+                    $host = trim($b['host']);
+                    $sandbox = trim($b['sandbox']);
+                    if (!empty($host) && !empty($sandbox)) {
+                        $bind_args .= " --bind " . escapeshellarg($host) . " " . escapeshellarg($sandbox);
+                    }
+                }
+                if (!empty($bind_args)) {
+                    $cmd = str_replace(" --chdir", $bind_args . " --chdir", $cmd);
+                }
+            }
         }
         
         $output = [];
