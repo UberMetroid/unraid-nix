@@ -119,11 +119,9 @@ pub fn render_services_table(api_port: u16) -> String {
     let mut html = r#"<table class="nix-services-table">
         <thead>
             <tr>
-                <th>Service Name</th>
+                <th>Service</th>
                 <th>Status</th>
                 <th>Port(s)</th>
-                <th>Path(s)</th>
-                <th>Uptime</th>
                 <th>Resources</th>
                 <th>Actions</th>
             </tr>
@@ -131,7 +129,7 @@ pub fn render_services_table(api_port: u16) -> String {
         <tbody>"#.to_string();
 
     if statuses.is_empty() {
-        html.push_str(r#"<tr><td colspan="7" class="text-center">No Nix Flake services configured. Go to the Flakes tab to install one.</td></tr>"#);
+        html.push_str(r#"<tr><td colspan="5" class="text-center">No Nix Flake services configured. Go to the Flakes tab to install one.</td></tr>"#);
     } else {
         for s in statuses {
             let is_running = s.status.to_lowercase() == "running";
@@ -147,6 +145,23 @@ pub fn render_services_table(api_port: u16) -> String {
             let cpu_str = s.cpu.map(|c| format!("{:.1}%", c)).unwrap_or_else(|| "-".to_string());
             let mem_str = s.memory.map(|m| format!("{} MB", m / 1024 / 1024)).unwrap_or_else(|| "-".to_string());
             let uptime_str = s.uptime();
+
+            let status_html = if is_running {
+                format!(
+                    r#"<div style="display: flex; flex-direction: column; gap: 4px; align-items: flex-start;">
+                        {}
+                        <span style="font-size: 11px; color: #888;">{} uptime</span>
+                    </div>"#,
+                    status_badge, uptime_str
+                )
+            } else {
+                format!(
+                    r#"<div style="display: flex; flex-direction: column; gap: 4px; align-items: flex-start;">
+                        {}
+                    </div>"#,
+                    status_badge
+                )
+            };
 
             let port_str = if let Some(port) = get_service_web_port(&s.name) {
                 if is_running {
@@ -166,6 +181,18 @@ pub fn render_services_table(api_port: u16) -> String {
                 .and_then(|c| c.processes.get(&s.name))
                 .map(|p| extract_home_path(&p.command))
                 .unwrap_or_else(|| "-".to_string());
+
+            let service_html = if home_path != "-" && !home_path.is_empty() {
+                format!(
+                    r#"<div style="display: flex; flex-direction: column; gap: 4px;">
+                        <strong>{}</strong>
+                        <span style="font-size: 11px; color: #888; font-family: monospace; word-break: break-all;">{}</span>
+                    </div>"#,
+                    s.name, home_path
+                )
+            } else {
+                format!("<strong>{}</strong>", s.name)
+            };
 
             let disk_size_str = if home_path != "-" && !home_path.is_empty() {
                 let p = std::path::Path::new(&home_path);
@@ -200,7 +227,6 @@ pub fn render_services_table(api_port: u16) -> String {
                 }
                 res.push_str(&format!(
                     r#"<div><strong>Disk</strong> <span>{}</span></div>
-                       <div><strong>Net</strong> <span>Host Shared</span></div>
                     </div>"#,
                     disk_size_str
                 ));
@@ -230,10 +256,8 @@ pub fn render_services_table(api_port: u16) -> String {
 
             html.push_str(&format!(
                 r#"<tr>
-                    <td><strong>{}</strong></td>
                     <td>{}</td>
                     <td>{}</td>
-                    <td><code>{}</code></td>
                     <td>{}</td>
                     <td>{}</td>
                     <td>
@@ -244,7 +268,7 @@ pub fn render_services_table(api_port: u16) -> String {
                         </div>
                     </td>
                 </tr>"#,
-                s.name, status_badge, port_str, home_path, uptime_str, resources_html, start_btn, stop_btn, logs_btn
+                service_html, status_html, port_str, resources_html, start_btn, stop_btn, logs_btn
             ));
         }
     }

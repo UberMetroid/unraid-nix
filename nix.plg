@@ -2,7 +2,7 @@
 <!DOCTYPE PLUGIN [
   <!ENTITY name      "nix">
   <!ENTITY author    "UberMetroid">
-  <!ENTITY version   "2026.06.26.03">
+  <!ENTITY version   "2026.06.26.04">
   <!ENTITY launch    "Settings/nix">
   <!ENTITY plugdir   "/boot/config/plugins/&name;">
   <!ENTITY usrdir    "/usr/local/emhttp/plugins/&name;">
@@ -11,6 +11,11 @@
 
   <CHANGES>
     ## nix package manager plugin
+    ### 2026.06.26.04
+    - Consolidated layout into a high-density 5-column grid (Service, Status, Port(s), Resources, Actions).
+    - Merged Service Name and Path into a stacked block to completely prevent text overflow/overlap.
+    - Merged Status and Uptime into a single vertical column.
+    - Removed 'Net Host Shared' label from the resources display.
     ### 2026.06.26.03
     - Re-ordered active services table columns based on first principles.
     - Replaced the simple resource text with a structured resources dashboard container showing CPU, RAM, GPU (with nvidia-smi integration), Disk size, and Network info.
