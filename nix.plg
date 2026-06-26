@@ -2,7 +2,7 @@
 <!DOCTYPE PLUGIN [
   <!ENTITY name      "nix">
   <!ENTITY author    "UberMetroid">
-  <!ENTITY version   "2026.06.26.23">
+  <!ENTITY version   "2026.06.26.24">
   <!ENTITY launch    "Settings/Nix">
   <!ENTITY plugdir   "/boot/config/plugins/&name;">
   <!ENTITY usrdir    "/usr/local/emhttp/plugins/&name;">
@@ -11,6 +11,8 @@
 
   <CHANGES>
     ## nix package manager plugin
+    ### 2026.06.26.24
+    - **Nginx Routing Fix**: Resolved the 404 Not Found error on the Nix Install tab by dynamically prepending the capitalized route context (`/Nix` or `/Settings`) based on the active path structure.
     ### 2026.06.26.23
     - **Tab Navigation & URL Refinement**: Renamed the custom install page from `nix_custom.page` to `nix_install.page` to align with the active Dynamix URL mapping (`/Settings/nix_install`). Updated all redirection points and package downloader manifests.
     ### 2026.06.26.22

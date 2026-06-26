@@ -233,7 +233,12 @@ function installCustomFlake(e) {
         if (resp.success) {
             alert("Successfully configured and installed " + uri);
             if (type === 'service') {
-                var base = location.pathname.indexOf('/Settings') === 0 ? '/Settings' : '';
+                var base = '/Settings';
+                if (location.pathname.indexOf('/Nix') === 0) {
+                    base = '/Nix';
+                } else if (location.pathname.indexOf('/Settings') === 0) {
+                    base = '/Settings';
+                }
                 location.href = base + '/Nix';
             } else {
                 submitBtn.prop('disabled', false).text(originalBtnText);

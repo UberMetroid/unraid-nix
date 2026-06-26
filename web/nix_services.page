@@ -42,7 +42,12 @@ function editService(name) {
         if (response.success) {
             sessionStorage.setItem('nix_edit_metadata', JSON.stringify(response.metadata));
             // Redirect to the Install Flake tab
-            var base = location.pathname.indexOf('/Settings') === 0 ? '/Settings' : '';
+            var base = '/Settings';
+            if (location.pathname.indexOf('/Nix') === 0) {
+                base = '/Nix';
+            } else if (location.pathname.indexOf('/Settings') === 0) {
+                base = '/Settings';
+            }
             location.href = base + '/nix_install';
         } else {
             alert("Failed to retrieve service configuration: " + response.error);
