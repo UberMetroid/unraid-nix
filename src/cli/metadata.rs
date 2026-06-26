@@ -8,6 +8,10 @@ pub fn get_metadata(args: &[String]) {
         exit(1);
     }
     let name = &args[2];
+    if name.is_empty() || !name.chars().all(|c| c.is_alphanumeric() || c == '_' || c == '-') {
+        eprintln!("Error: Invalid service name.");
+        exit(1);
+    }
     println!("{}", get_metadata_json(name));
 }
 

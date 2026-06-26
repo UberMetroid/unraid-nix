@@ -7,6 +7,10 @@ pub fn view_logs(args: &[String]) {
         exit(1);
     }
     let service = &args[2];
+    if service.is_empty() || !service.chars().all(|c| c.is_alphanumeric() || c == '_' || c == '-') {
+        eprintln!("Error: Invalid service name.");
+        exit(1);
+    }
     let log_file = format!("/var/log/nix-services/{}.log", service);
     let mut rendered = false;
     let mut output = String::new();

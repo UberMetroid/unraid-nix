@@ -3,7 +3,13 @@ use crate::search;
 use crate::sandbox;
 use crate::config;
 use std::process::exit;
-use serde_json::Value;
+
+fn validate_name(name: &str) {
+    if name.is_empty() || !name.chars().all(|c| c.is_alphanumeric() || c == '_' || c == '-') {
+        eprintln!("Error: Invalid service name. Must be alphanumeric with dashes or underscores only.");
+        exit(1);
+    }
+}
 
 pub fn service_action(args: &[String]) {
     if args.len() < 4 {
@@ -12,6 +18,7 @@ pub fn service_action(args: &[String]) {
     }
     let action = &args[2];
     let name = &args[3];
+    validate_name(name);
     if let Err(e) = process::send_service_action(29704, name, action) {
         eprintln!("Service action failed: {}", e);
         exit(1);
@@ -25,6 +32,7 @@ pub fn autostart(args: &[String]) {
         exit(1);
     }
     let name = &args[2];
+    validate_name(name);
     let toggle = args[3].to_lowercase();
     let restart_policy = if toggle == "on" || toggle == "true" || toggle == "1" {
         "always".to_string()
@@ -72,6 +80,7 @@ pub fn remove_service(args: &[String]) {
         exit(1);
     }
     let name = &args[2];
+    validate_name(name);
 
     let mut cfg = match config::load_config("/boot/config/plugins/nix/process-compose.yml") {
         Ok(c) => c,
@@ -128,6 +137,7 @@ pub fn preset_cmd(args: &[String]) {
         exit(1);
     }
     let name = &args[2];
+    validate_name(name);
     let appdata = &args[3];
     let media = if args[4] == "-" { "" } else { &args[4] };
     let puid = args[5].parse::<u32>().unwrap_or(99);
@@ -164,6 +174,7 @@ pub fn add_service(args: &[String]) {
         exit(1);
     }
     let name = args[2].clone();
+    validate_name(&name);
     let cmd = args[3].clone();
     let restart = if args.len() >= 5 { args[4].clone() } else { "always".to_string() };
 
