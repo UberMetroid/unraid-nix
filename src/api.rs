@@ -338,6 +338,11 @@ pub fn render_services_table(api_port: u16) -> String {
 
             let logs_btn = format!(r#"<button type="button" class="nix-btn" onclick="openLogs('{}')" title="Logs"><i class="fa fa-file-text-o"></i></button>"#, s.name);
 
+            let remove_btn = format!(
+                r#"<button type="button" class="nix-btn" style="color: #e74c3c; border-color: #e74c3c;" onclick="removeService('{}')" title="Remove"><i class="fa fa-trash-o"></i></button>"#,
+                s.name
+            );
+
             html.push_str(&format!(
                 r#"<tr>
                     <td>{}</td>
@@ -350,10 +355,11 @@ pub fn render_services_table(api_port: u16) -> String {
                             {}
                             {}
                             {}
+                            {}
                         </div>
                     </td>
                 </tr>"#,
-                app_html, version_html, lan_ip_port_html, volume_mappings_html, autostart_html, start_btn, stop_btn, logs_btn
+                app_html, version_html, lan_ip_port_html, volume_mappings_html, autostart_html, start_btn, stop_btn, logs_btn, remove_btn
             ));
         }
     }

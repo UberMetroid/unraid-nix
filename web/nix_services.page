@@ -53,4 +53,15 @@ function toggleAutostart(name, checked) {
         }
     }, 'json');
 }
+
+function removeService(name) {
+    if (!confirm("Are you sure you want to remove service '" + name + "'?\nThis will delete the service from the supervisor list but keep its config directories intact.")) return;
+    $.post('/plugins/nix/api.php', { action: 'remove', service: name }, function(response) {
+        if (response.success) {
+            $("#nix-services-list").load(location.href + " #nix-services-list > *");
+        } else {
+            alert("Failed to remove service: " + response.error);
+        }
+    }, 'json');
+}
 </script>

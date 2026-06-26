@@ -22,6 +22,7 @@ fn print_usage() {
     println!("  render dashboard                       Outputs HTML dashboard widget rows");
     println!("  service <start|stop|restart> <name>    Sends action triggers to process-compose");
     println!("  autostart <name> <on|off>              Toggles the autostart setting for a service");
+    println!("  remove-service <name>                  Deletes a service definition from the config");
     println!("  install <package>                      Installs package to CLI profile");
     println!("  sandbox <options>                      Helper command to print bubblewrap script");
 }
@@ -233,6 +234,48 @@ fn main() {
                     }
                 }
                 println!("Autostart updated successfully.");
+            } else {
+                eprintln!("Error: Service {} not found in configuration.", name);
+                std::process::exit(1);
+            }
+        }
+        "remove-service" => {
+            if args.len() < 3 {
+                eprintln!("Error: Missing service name.");
+                std::process::exit(1);
+            }
+            let name = &args[2];
+
+            let mut cfg = match config::load_config("/boot/config/plugins/nix/process-compose.yml") {
+                Ok(c) => c,
+                Err(e) => {
+                    eprintln!("Error loading config: {}", e);
+                    std::process::exit(1);
+                }
+            };
+
+            if cfg.processes.remove(name).is_some() {
+                if let Err(e) = config::save_config(&cfg, "/boot/config/plugins/nix/process-compose.yml") {
+                    eprintln!("Error saving config: {}", e);
+                    std::process::exit(1);
+                }
+
+                // Stop the process if running (ignore errors if already stopped)
+                let _ = process::send_service_action(29704, name, "stop");
+
+                // Trigger process-compose reload to apply changes dynamically and remove the process
+                let reload_output = std::process::Command::new("sh")
+                    .args(&["-c", ". /nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh && nix run nixpkgs#process-compose -- -p 29704 reload 2>&1"])
+                    .output();
+                
+                if let Ok(out) = reload_output {
+                    if !out.status.success() {
+                        let err_msg = String::from_utf8_lossy(&out.stderr);
+                        let out_msg = String::from_utf8_lossy(&out.stdout);
+                        eprintln!("Warning: process-compose reload returned non-zero status. Output: {} {}", out_msg, err_msg);
+                    }
+                }
+                println!("Service {} successfully removed.", name);
             } else {
                 eprintln!("Error: Service {} not found in configuration.", name);
                 std::process::exit(1);

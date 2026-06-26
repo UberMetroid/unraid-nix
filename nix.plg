@@ -2,7 +2,7 @@
 <!DOCTYPE PLUGIN [
   <!ENTITY name      "nix">
   <!ENTITY author    "UberMetroid">
-  <!ENTITY version   "2026.06.26.12">
+  <!ENTITY version   "2026.06.26.13">
   <!ENTITY launch    "Settings/nix">
   <!ENTITY plugdir   "/boot/config/plugins/&name;">
   <!ENTITY usrdir    "/usr/local/emhttp/plugins/&name;">
@@ -11,6 +11,8 @@
 
   <CHANGES>
     ## nix package manager plugin
+    ### 2026.06.26.13
+    - Implemented a Remove button (trash icon) inside the Actions column, prompting the user and triggering remote backend removal and configuration update.
     ### 2026.06.26.12
     - Added dynamic package version resolution to the Version column (evaluating `.version` or `.name` attributes via Nix expressions) with a persistent cache to maintain instant page loading.
     ### 2026.06.26.11

@@ -127,6 +127,18 @@ if ($action === 'toggle-autostart') {
     success();
 }
 
+// 3c. Remove Service
+if ($action === 'remove') {
+    $service = isset($_POST['service']) ? $_POST['service'] : '';
+    $output = [];
+    $code = 0;
+    exec("/usr/local/emhttp/plugins/nix/nix-helper remove-service " . escapeshellarg($service) . " 2>&1", $output, $code);
+    if ($code !== 0) {
+        error(implode("\n", $output));
+    }
+    success();
+}
+
 // 4. Install CLI Package
 if ($action === 'install-cli') {
     $package = isset($_POST['package']) ? $_POST['package'] : '';
