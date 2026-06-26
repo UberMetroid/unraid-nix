@@ -2,7 +2,7 @@
 <!DOCTYPE PLUGIN [
   <!ENTITY name      "nix">
   <!ENTITY author    "UberMetroid">
-  <!ENTITY version   "2026.06.25.11">
+  <!ENTITY version   "2026.06.25.12">
   <!ENTITY launch    "Settings/nix_services">
   <!ENTITY plugdir   "/boot/config/plugins/&name;">
   <!ENTITY usrdir    "/usr/local/emhttp/plugins/&name;">
@@ -11,6 +11,8 @@
 
   <CHANGES>
     ## nix package manager plugin
+    ### 2026.06.25.12
+    - Added premium flavor text and step indicators during plugin installation.
     ### 2026.06.25.11
     - Wrote a minimal inline README.md for the Unraid Plugins GUI containing only the single-sentence overview.
     ### 2026.06.25.10
@@ -47,9 +49,12 @@
   <!-- INSTALL LIFE CYCLE -->
   <FILE Run="/bin/bash">
     <INLINE>
-      echo "Installing &name; plugin..."
+      echo "------------------------------------------------------------------"
+      echo " Installing Nix Package Manager Plugin (by &author;)"
+      echo "------------------------------------------------------------------"
 
       # 1. Clean runtime directory
+      echo "--> Initializing plugin runtime and directory configurations..."
       rm -rf "&usrdir;"
       mkdir -p "&usrdir;"
       mkdir -p "&plugdir;"
@@ -58,13 +63,13 @@
       GITHUB_RAW="https://raw.githubusercontent.com/UberMetroid/unraid-nix/main"
 
       # 2. Download and copy compiled Rust helper binary
-      echo "Downloading Rust helper binary..."
+      echo "--> Downloading compiled Rust helper binary (nix-helper)..."
       curl -sSf -L --create-dirs -o "&plugdir;/nix-helper" "${GITHUB_RAW}/nix-helper"
       cp "&plugdir;/nix-helper" "&usrdir;/nix-helper"
       chmod +x "&usrdir;/nix-helper"
 
       # 3. Download and install WebGUI pages
-      echo "Downloading WebGUI interface files..."
+      echo "--> Downloading Dynamix WebGUI pages and assets..."
       for file in nix.page nix_services.page nix_search.page nix_settings.page nix_dashboard.page api.php styles.css nix.png nix.svg; do
           curl -sSf -L -o "&usrdir;/$file" "${GITHUB_RAW}/web/$file"
       done
@@ -78,7 +83,7 @@
       ln -sf nix /usr/local/emhttp/plugins/Nix
 
       # 4. Download and install integration scripts
-      echo "Downloading OS integration scripts..."
+      echo "--> Downloading system integration scripts..."
       mkdir -p "&plugdir;/scripts"
       for script in rc.nix-daemon nix-profile.sh event_disks_mounted event_stopping_svcs; do
           curl -sSf -L -o "&plugdir;/scripts/$script" "${GITHUB_RAW}/scripts/$script"
@@ -86,11 +91,13 @@
       done
 
       # 5. Place configuration scripts in system directories
+      echo "--> Ingesting daemon control and profile scripts..."
       cp "&plugdir;/scripts/rc.nix-daemon" /etc/rc.d/rc.nix-daemon
       cp "&plugdir;/scripts/nix-profile.sh" /etc/profile.d/nix.sh
       chmod +x /etc/rc.d/rc.nix-daemon /etc/profile.d/nix.sh
 
       # 6. Place event hooks in emhttp directory
+      echo "--> Configuring Unraid system event hooks..."
       mkdir -p "&usrdir;/event"
       cp "&plugdir;/scripts/event_disks_mounted" "&usrdir;/event/disks_mounted"
       cp "&plugdir;/scripts/event_stopping_svcs" "&usrdir;/event/stopping_svcs"
@@ -98,11 +105,14 @@
 
       # 7. Check if array is already started; trigger disks_mounted if yes
       if [ -d "/mnt/user" ]; then
-          echo "Array is active. Running disks_mounted hook..."
+          echo "--> Storage Array is active. Starting Nix environment setup..."
           &usrdir;/event/disks_mounted
       fi
 
-      echo "Installation of &name; plugin completed successfully."
+      echo "------------------------------------------------------------------"
+      echo " Installation of Nix plugin completed successfully!"
+      echo " Natively run flakes with zero container or VM overhead."
+      echo "------------------------------------------------------------------"
     </INLINE>
   </FILE>
 
