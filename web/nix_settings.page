@@ -106,7 +106,7 @@ $is_nix_running = ($status_code === 0);
             </select>
         </div>
 
-        <button type="submit" class="nix-btn-primary">Apply Settings</button>
+        <button type="submit" id="nix-settings-submit-btn" class="nix-btn-primary">Apply Settings</button>
     </form>
 </div>
 
@@ -119,7 +119,7 @@ $(function() {
 
 function saveSettings(e) {
     e.preventDefault();
-    var submitBtn = $(".nix-btn-primary");
+    var submitBtn = $("#nix-settings-submit-btn");
     if (submitBtn.prop('disabled')) {
         return;
     }

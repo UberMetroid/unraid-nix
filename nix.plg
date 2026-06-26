@@ -2,7 +2,7 @@
 <!DOCTYPE PLUGIN [
   <!ENTITY name      "nix">
   <!ENTITY author    "UberMetroid">
-  <!ENTITY version   "2026.06.26.25">
+  <!ENTITY version   "2026.06.26.26">
   <!ENTITY launch    "Settings/Nix">
   <!ENTITY plugdir   "/boot/config/plugins/&name;">
   <!ENTITY usrdir    "/usr/local/emhttp/plugins/&name;">
@@ -11,6 +11,8 @@
 
   <CHANGES>
     ## nix package manager plugin
+    ### 2026.06.26.26
+    - **DOM Selector Scope Isolation**: Isolated jQuery class selectors in the Install Flake and Settings tabs by utilizing unique IDs (`#nix-install-section`, `#nix-settings-submit-btn`, etc.) to prevent settings headers and form buttons from overriding layout elements across other tabs.
     ### 2026.06.26.25
     - **UX/Navigation Optimization**: Converted tab redirections to use client-side tab switching via the DOM, maintaining tab bar visibility and eliminating full page reloads. Removed redundant back-navigation button from the Install Flake interface.
     ### 2026.06.26.24
