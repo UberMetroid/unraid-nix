@@ -221,16 +221,16 @@ fn main() {
                     std::process::exit(1);
                 }
 
-                // Trigger process-compose reload to apply changes dynamically without dropping running services
+                // Trigger process-compose project update to apply changes dynamically without dropping running services
                 let reload_output = std::process::Command::new("sh")
-                    .args(&["-c", ". /nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh && nix run nixpkgs#process-compose -- -p 29704 reload 2>&1"])
+                    .args(&["-c", ". /nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh && nix run nixpkgs#process-compose -- -p 29704 project update -f /boot/config/plugins/nix/process-compose.yml 2>&1"])
                     .output();
                 
                 if let Ok(out) = reload_output {
                     if !out.status.success() {
                         let err_msg = String::from_utf8_lossy(&out.stderr);
                         let out_msg = String::from_utf8_lossy(&out.stdout);
-                        eprintln!("Warning: process-compose reload returned non-zero status. Output: {} {}", out_msg, err_msg);
+                        eprintln!("Warning: process-compose project update returned non-zero status. Output: {} {}", out_msg, err_msg);
                     }
                 }
                 println!("Autostart updated successfully.");
@@ -263,16 +263,16 @@ fn main() {
                 // Stop the process if running (ignore errors if already stopped)
                 let _ = process::send_service_action(29704, name, "stop");
 
-                // Trigger process-compose reload to apply changes dynamically and remove the process
+                // Trigger process-compose project update to apply changes dynamically and remove the process
                 let reload_output = std::process::Command::new("sh")
-                    .args(&["-c", ". /nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh && nix run nixpkgs#process-compose -- -p 29704 reload 2>&1"])
+                    .args(&["-c", ". /nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh && nix run nixpkgs#process-compose -- -p 29704 project update -f /boot/config/plugins/nix/process-compose.yml 2>&1"])
                     .output();
                 
                 if let Ok(out) = reload_output {
                     if !out.status.success() {
                         let err_msg = String::from_utf8_lossy(&out.stderr);
                         let out_msg = String::from_utf8_lossy(&out.stdout);
-                        eprintln!("Warning: process-compose reload returned non-zero status. Output: {} {}", out_msg, err_msg);
+                        eprintln!("Warning: process-compose project update returned non-zero status. Output: {} {}", out_msg, err_msg);
                     }
                 }
                 println!("Service {} successfully removed.", name);

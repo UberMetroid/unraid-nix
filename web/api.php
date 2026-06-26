@@ -88,6 +88,14 @@ if ($action === 'search') {
     exit;
 }
 
+// 2b. Render services table (outputs HTML directly, bypasses JSON header)
+if ($action === 'render-services') {
+    header('Content-Type: text/html');
+    $html = shell_exec("/usr/local/emhttp/plugins/nix/nix-helper render services 2>&1");
+    echo $html;
+    exit;
+}
+
 // Helper function to return JSON error responses
 function error($msg) {
     echo json_encode(['success' => false, 'error' => $msg]);

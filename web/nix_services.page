@@ -29,7 +29,7 @@ function serviceAction(name, action) {
     $.post('/plugins/nix/api.php', { action: action, service: name }, function(response) {
         if (response.success) {
             // Reload services list on success
-            $("#nix-services-list").load(location.href + " #nix-services-list > *");
+            $("#nix-services-list").load('/plugins/nix/api.php?action=render-services');
         } else {
             alert("Action failed: " + response.error);
         }
@@ -49,7 +49,7 @@ function toggleAutostart(name, checked) {
         if (!response.success) {
             alert("Failed to toggle autostart: " + response.error);
             // Reload services list to revert toggle UI state on failure
-            $("#nix-services-list").load(location.href + " #nix-services-list > *");
+            $("#nix-services-list").load('/plugins/nix/api.php?action=render-services');
         }
     }, 'json');
 }
@@ -58,7 +58,7 @@ function removeService(name) {
     if (!confirm("Are you sure you want to remove service '" + name + "'?\nThis will delete the service from the supervisor list but keep its config directories intact.")) return;
     $.post('/plugins/nix/api.php', { action: 'remove', service: name }, function(response) {
         if (response.success) {
-            $("#nix-services-list").load(location.href + " #nix-services-list > *");
+            $("#nix-services-list").load('/plugins/nix/api.php?action=render-services');
         } else {
             alert("Failed to remove service: " + response.error);
         }
