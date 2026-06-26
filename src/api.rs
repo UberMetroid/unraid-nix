@@ -78,11 +78,13 @@ pub fn render_services_table(api_port: u16) -> String {
                     <td>{}</td>
                     <td>{}</td>
                     <td>
-                        <button type="button" class="nix-btn" onclick="serviceAction('{}', 'start')"><i class="fa fa-play"></i></button>
-                        <button type="button" class="nix-btn" onclick="serviceAction('{}', 'stop')"><i class="fa fa-stop"></i></button>
-                        <button type="button" class="nix-btn" onclick="serviceAction('{}', 'restart')"><i class="fa fa-refresh"></i></button>
-                        <button type="button" class="nix-btn" onclick="openLogs('{}')"><i class="fa fa-file-text-o"></i></button>
-                        {}
+                        <div class="nix-actions-wrapper">
+                            <button type="button" class="nix-btn" onclick="serviceAction('{}', 'start')" title="Start"><i class="fa fa-play"></i></button>
+                            <button type="button" class="nix-btn" onclick="serviceAction('{}', 'stop')" title="Stop"><i class="fa fa-stop"></i></button>
+                            <button type="button" class="nix-btn" onclick="serviceAction('{}', 'restart')" title="Restart"><i class="fa fa-refresh"></i></button>
+                            <button type="button" class="nix-btn" onclick="openLogs('{}')" title="Logs"><i class="fa fa-file-text-o"></i></button>
+                            {}
+                        </div>
                     </td>
                 </tr>"#,
                 s.name, status_badge, uptime_str, cpu_str, mem_str, s.name, s.name, s.name, s.name, web_link_btn

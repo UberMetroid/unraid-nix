@@ -88,12 +88,12 @@
 .nix-search-table th:nth-child(3), .nix-search-table td:nth-child(3) { width: 40%; white-space: normal; overflow-wrap: break-word; word-break: normal; }
 .nix-search-table th:nth-child(4), .nix-search-table td:nth-child(4) { width: 20%; text-align: center; }
 
-.nix-services-table th:nth-child(1), .nix-services-table td:nth-child(1) { width: 25%; word-break: break-all; }
+.nix-services-table th:nth-child(1), .nix-services-table td:nth-child(1) { width: 20%; word-break: break-all; }
 .nix-services-table th:nth-child(2), .nix-services-table td:nth-child(2) { width: 15%; }
 .nix-services-table th:nth-child(3), .nix-services-table td:nth-child(3) { width: 15%; }
-.nix-services-table th:nth-child(4), .nix-services-table td:nth-child(4) { width: 10%; }
-.nix-services-table th:nth-child(5), .nix-services-table td:nth-child(5) { width: 15%; }
-.nix-services-table th:nth-child(6), .nix-services-table td:nth-child(6) { width: 20%; text-align: center; }
+.nix-services-table th:nth-child(4), .nix-services-table td:nth-child(4) { width: 8%; }
+.nix-services-table th:nth-child(5), .nix-services-table td:nth-child(5) { width: 12%; }
+.nix-services-table th:nth-child(6), .nix-services-table td:nth-child(6) { width: 30%; text-align: center; }
 
 .nix-services-table th, .nix-search-table th {
     text-align: left;
@@ -243,10 +243,20 @@
 
 /* Compact Table Action Buttons */
 .nix-services-table .nix-btn {
-    padding: 3px 6px;
-    font-size: 11px;
-    margin-right: 2px;
+    padding: 3px 6px !important;
+    font-size: 11px !important;
+    margin: 0 !important;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
 }
 .nix-services-table td:last-child {
-    white-space: nowrap;
+    text-align: center;
+}
+
+.nix-actions-wrapper {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
 }
