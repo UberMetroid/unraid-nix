@@ -88,6 +88,11 @@ $(function() {
 
 function saveSettings(e) {
     e.preventDefault();
+    var submitBtn = $(".nix-btn-primary");
+    if (submitBtn.prop('disabled')) {
+        return;
+    }
+    
     var path = $("#settings-store-path").val();
     var auto = $("#settings-autostart").val();
     var enableCli = $("#settings-enable-cli").val();
@@ -96,6 +101,9 @@ function saveSettings(e) {
         alert("Error: The Nix Store cannot be stored on your USB flash drive (/boot). Choose a pool disk or array share.");
         return;
     }
+    
+    var originalBtnText = submitBtn.text();
+    submitBtn.prop('disabled', true).html('<i class="fa fa-spinner fa-spin"></i> Processing...');
     
     $.post('/plugins/nix/api.php', {
         action: 'save-settings',
@@ -108,8 +116,12 @@ function saveSettings(e) {
             location.reload();
         } else {
             alert("Failed to save settings: " + resp.error);
+            submitBtn.prop('disabled', false).text(originalBtnText);
         }
-    }, 'json');
+    }, 'json').fail(function() {
+        alert("Server returned an error.");
+        submitBtn.prop('disabled', false).text(originalBtnText);
+    });
 }
 
 function toggleNixDaemon(action) {

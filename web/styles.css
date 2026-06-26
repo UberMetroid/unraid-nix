@@ -291,6 +291,14 @@
     box-shadow: none;
 }
 
+.nix-btn-primary:disabled, .nix-btn-primary[disabled] {
+    background: #232326 !important;
+    color: #525256 !important;
+    cursor: not-allowed !important;
+    transform: none !important;
+    box-shadow: none !important;
+}
+
 /* Forms */
 .nix-form-group {
     margin-bottom: 15px;

@@ -146,6 +146,10 @@ function toggleServiceOptions() {
 
 function installCustomFlake(e) {
     e.preventDefault();
+    var submitBtn = $(".nix-btn-primary");
+    if (submitBtn.prop('disabled')) {
+        return;
+    }
     var uri = $("#custom-uri").val();
     var type = $("#custom-type").val();
     
@@ -178,16 +182,25 @@ function installCustomFlake(e) {
         data.extra_binds = JSON.stringify(extraBinds);
     }
     
+    var originalBtnText = submitBtn.text();
+    submitBtn.prop('disabled', true).html('<i class="fa fa-spinner fa-spin"></i> Processing...');
+    
     $.post('/plugins/nix/api.php', data, function(resp) {
         if (resp.success) {
             alert("Successfully configured and installed " + uri);
             if (type === 'service') {
                 location.href = '/Settings/nix';
+            } else {
+                submitBtn.prop('disabled', false).text(originalBtnText);
             }
         } else {
             alert("Installation failed: " + resp.error);
+            submitBtn.prop('disabled', false).text(originalBtnText);
         }
-    }, 'json');
+    }, 'json').fail(function() {
+        alert("Server returned an error.");
+        submitBtn.prop('disabled', false).text(originalBtnText);
+    });
 }
 
 var bindRowIndex = 0;

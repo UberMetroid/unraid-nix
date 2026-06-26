@@ -2,7 +2,7 @@
 <!DOCTYPE PLUGIN [
   <!ENTITY name      "nix">
   <!ENTITY author    "UberMetroid">
-  <!ENTITY version   "2026.06.26.17">
+  <!ENTITY version   "2026.06.26.18">
   <!ENTITY launch    "Settings/nix">
   <!ENTITY plugdir   "/boot/config/plugins/&name;">
   <!ENTITY usrdir    "/usr/local/emhttp/plugins/&name;">
@@ -11,6 +11,8 @@
 
   <CHANGES>
     ## nix package manager plugin
+    ### 2026.06.26.18
+    - Added processing animation and disabled state handling for the primary submit button in the Install/Edit Flake form to prevent accidental double-submits.
     ### 2026.06.26.17
     - Added an Edit Config button (pencil-and-paper icon) in the Actions column of the Active Flakes table.
     - Saves service configurations into metadata files (`/boot/config/plugins/nix/metadata/<service>.json`) on installation/update to allow persistent configuration editing.
