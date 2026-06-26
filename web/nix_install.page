@@ -30,6 +30,49 @@ function detect_appdata_root() {
     return '';
 }
 
+function get_host_ips_php() {
+    $ips = [];
+    $ips[] = ['ip' => '0.0.0.0', 'label' => 'All Interfaces (0.0.0.0)'];
+    $ips[] = ['ip' => '127.0.0.1', 'label' => 'Localhost (127.0.0.1)'];
+    
+    $output = shell_exec("ip -o -4 addr show 2>/dev/null");
+    if ($output) {
+        $lines = explode("\n", $output);
+        foreach ($lines as $line) {
+            $line = trim($line);
+            if (empty($line)) continue;
+            $parts = preg_split('/\s+/', $line);
+            if (count($parts) >= 4) {
+                $iface = $parts[1];
+                $ip_net = $parts[3];
+                
+                $iface_lower = strtolower($iface);
+                if ($iface_lower === 'lo' || 
+                    strpos($iface_lower, 'veth') === 0 || 
+                    strpos($iface_lower, 'docker') === 0 || 
+                    strpos($iface_lower, 'br-') === 0 || 
+                    strpos($iface_lower, 'virbr') === 0 ||
+                    strpos($iface_lower, 'shim') === 0) {
+                    continue;
+                }
+                
+                $ip_parts = explode('/', $ip_net);
+                $ip = $ip_parts[0];
+                if (strpos($ip, '127.') !== 0) {
+                    $label = $ip;
+                    if (strpos($iface_lower, 'tailscale') !== false || $iface_lower === 'tun0') {
+                        $label .= ' (Tailscale)';
+                    } else {
+                        $label .= ' (LAN - ' . $iface . ')';
+                    }
+                    $ips[] = ['ip' => $ip, 'label' => $label];
+                }
+            }
+        }
+    }
+    return $ips;
+}
+
 $cfg_file = "/boot/config/plugins/nix/nix.cfg";
 $enable_cli = 'no';
 if (file_exists($cfg_file)) {
@@ -39,6 +82,7 @@ if (file_exists($cfg_file)) {
     }
 }
 $appdata_root = detect_appdata_root();
+$host_ips = get_host_ips_php();
 ?>
 
 <div class="nix-section" id="nix-install-section">
@@ -89,7 +133,11 @@ $appdata_root = detect_appdata_root();
                 </div>
                 <div class="nix-form-group" style="flex: 1;">
                     <label for="custom-bind-address">Bind Address Override:</label>
-                    <input type="text" id="custom-bind-address" placeholder="e.g. 0.0.0.0" value="0.0.0.0">
+                    <select id="custom-bind-address" style="width: 100%;">
+                        <?php foreach ($host_ips as $item): ?>
+                            <option value="<?php echo htmlspecialchars($item['ip']); ?>"><?php echo htmlspecialchars($item['label']); ?></option>
+                        <?php endforeach; ?>
+                    </select>
                 </div>
             </div>
 
@@ -142,7 +190,14 @@ window.initInstallForm = function() {
             $("#custom-port").val(editData.port);
         }
         if (editData.bind_address) {
-            $("#custom-bind-address").val(editData.bind_address);
+            var select = $("#custom-bind-address");
+            if (select.find("option[value='" + editData.bind_address + "']").length === 0) {
+                select.append($("<option>", {
+                    value: editData.bind_address,
+                    text: editData.bind_address + " (Custom)"
+                }));
+            }
+            select.val(editData.bind_address);
         }
         
         if (editData.extra_binds) {
