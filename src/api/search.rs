@@ -28,7 +28,7 @@ pub fn render_search_results(query: &str) -> String {
             let action_buttons = if cli_enabled {
                 format!(
                     r#"<div style="display: flex; flex-direction: column; gap: 5px; align-items: center; justify-content: center;">
-                        <button type="button" class="nix-btn" style="width: 100px; margin: 0; padding: 4px 8px; font-size: 11px;" onclick="installPackage('{}')">Install CLI</button>
+                        <button type="button" class="nix-btn" style="width: 100px; margin: 0; padding: 4px 8px; font-size: 11px;" onclick="installPackage(this, '{}')">Install CLI</button>
                         <button type="button" class="nix-btn-install" style="width: 100px; margin: 0; padding: 4px 8px; font-size: 11px;" onclick="showServiceModal('{}')">Add Service</button>
                        </div>"#,
                     r.package_name, r.package_name

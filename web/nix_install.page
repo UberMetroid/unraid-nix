@@ -128,6 +128,7 @@ $host_ips = get_host_ips_php();
                     <input type="text" id="custom-appdata" autocomplete="off" spellcheck="false" placeholder="<?php echo !empty($appdata_root) ? htmlspecialchars($appdata_root) . '/service-name' : '/path/to/appdata/service-name'; ?>" data-pickcloseonfile="true" data-pickfilter="HIDE_FILES_FILTER" data-pickroot="/mnt" data-pickfolders="true" style="padding-right: 30px;">
                     <i class="fa fa-folder-open nix-folder-picker-btn" style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); cursor: pointer; color: #aaa;" onclick="$('#custom-appdata').trigger('click')"></i>
                 </div>
+                <div class="nix-field-help" style="color: #e74c3c;"><i class="fa fa-warning"></i> Do NOT use your USB boot drive (/boot) as it will wear out the flash storage.</div>
             </div>
             
             <div class="nix-form-group">
