@@ -2,7 +2,7 @@
 <!DOCTYPE PLUGIN [
   <!ENTITY name      "nix">
   <!ENTITY author    "UberMetroid">
-  <!ENTITY version   "2026.06.25.19">
+  <!ENTITY version   "2026.06.25.20">
   <!ENTITY launch    "Settings/nix_services">
   <!ENTITY plugdir   "/boot/config/plugins/&name;">
   <!ENTITY usrdir    "/usr/local/emhttp/plugins/&name;">
@@ -11,6 +11,8 @@
 
   <CHANGES>
     ## nix package manager plugin
+    ### 2026.06.25.20
+    - Fixed sub-tab rendering by isolating the /usr/local/emhttp/plugins/Nix directory to only contain icons and README, preventing Dynamix from scanning duplicate .page files.
     ### 2026.06.25.19
     - Switched from printf to safe echo statements for generating the local README.md description to bypass nested parser percent sign evaluations.
     ### 2026.06.25.18
@@ -95,10 +97,12 @@
       echo "" >> "&usrdir;/README.md"
       echo "A native, 100% Rust-backed plugin to run the Nix package manager and manage Nix Flakes natively on Unraid." >> "&usrdir;/README.md"
 
-      # Create case-sensitive symlinks for Unraid Plugin Manager when using display name "Nix"
-      ln -sf nix.png "&usrdir;/Nix.png"
-      ln -sf nix.svg "&usrdir;/Nix.svg"
-      ln -sf nix /usr/local/emhttp/plugins/Nix
+      # Create case-sensitive directory and symlinks for Unraid Plugin Manager icon/README lookup
+      rm -rf /usr/local/emhttp/plugins/Nix
+      mkdir -p /usr/local/emhttp/plugins/Nix
+      ln -sf /usr/local/emhttp/plugins/nix/nix.png /usr/local/emhttp/plugins/Nix/Nix.png
+      ln -sf /usr/local/emhttp/plugins/nix/nix.svg /usr/local/emhttp/plugins/Nix/Nix.svg
+      ln -sf /usr/local/emhttp/plugins/nix/README.md /usr/local/emhttp/plugins/Nix/README.md
 
       # 4. Download and install integration scripts
       echo "--> Downloading system integration scripts..."
@@ -146,7 +150,7 @@
 
       # 2. Remove runtime directories and scripts
       rm -rf "&usrdir;"
-      rm -f /usr/local/emhttp/plugins/Nix
+      rm -rf /usr/local/emhttp/plugins/Nix
       rm -f /etc/rc.d/rc.nix-daemon
       rm -f /etc/profile.d/nix.sh
 
