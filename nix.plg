@@ -2,7 +2,7 @@
 <!DOCTYPE PLUGIN [
   <!ENTITY name      "nix">
   <!ENTITY author    "UberMetroid">
-  <!ENTITY version   "2026.06.26.20">
+  <!ENTITY version   "2026.06.26.21">
   <!ENTITY launch    "Settings/Nix">
   <!ENTITY plugdir   "/boot/config/plugins/&name;">
   <!ENTITY usrdir    "/usr/local/emhttp/plugins/&name;">
@@ -11,6 +11,12 @@
 
   <CHANGES>
     ## nix package manager plugin
+    ### 2026.06.26.21
+    - **Custom Port & Bind Address Configuration**: Added new installation and editing fields allowing users to override the default application ports and interface bind addresses (Option C network isolation).
+      - Preset templates automatically inject port and bind overrides on startup.
+      - **Jellyfin**: Overridden natively via CLI arguments (`--port` and `--bind-to-address`).
+      - **Radarr/Sonarr**: Dynamically patches or creates the service configuration XML (`config.xml`) inside the isolated sandbox to match the chosen port and bind address overrides before startup.
+      - Active flakes table dynamically parses metadata to expose custom port links for direct WebGUI navigation.
     ### 2026.06.26.20
     - **Observability Framework & Dedicated Logging**: Implemented a comprehensive logging system routing all installation, mounting, and bootstrap milestones directly to `/var/log/nix-plugin.log` with standardized local-time timestamps.
     - **Storage Pool Health Monitoring**: Integrated automatic disk space checks for the persistent `/nix` storage pool upon array mounting, printing warnings to the log if pool capacity exceeds 90%.

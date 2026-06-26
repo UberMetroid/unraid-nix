@@ -190,6 +190,8 @@ if ($action === 'install-custom') {
         $pgid = isset($_POST['pgid']) ? $_POST['pgid'] : '100';
         $gpu = isset($_POST['gpu']) ? $_POST['gpu'] : '0';
         $extra_binds = isset($_POST['extra_binds']) ? $_POST['extra_binds'] : '';
+        $port = isset($_POST['port']) ? $_POST['port'] : '';
+        $bind_address = isset($_POST['bind_address']) ? $_POST['bind_address'] : '';
         
         // 1. Create the primary Configuration Location (appdata) if it doesn't exist
         if (!empty($appdata)) {
@@ -244,7 +246,7 @@ if ($action === 'install-custom') {
         // Fetch command string. Checks if it is a preset
         $cmd = "";
         if (in_array(strtolower($name), ['radarr', 'sonarr', 'jellyfin'])) {
-            $cmd = shell_exec(format_preset_cmd($name, $appdata, $media, $puid, $pgid, $gpu, $binds_arg));
+            $cmd = shell_exec(format_preset_cmd($name, $appdata, $media, $puid, $pgid, $gpu, $binds_arg, $port, $bind_address));
         } else {
             // Build custom bubblewrap command
             $cmd = shell_exec("/usr/local/emhttp/plugins/nix/nix-helper sandbox --name " . escapeshellarg($name) . " --appdata " . escapeshellarg($appdata) . " --media " . escapeshellarg($media) . " --puid " . escapeshellarg($puid) . " --pgid " . escapeshellarg($pgid) . " --cmd " . escapeshellarg("nix run " . $uri) . " --extra-binds " . escapeshellarg($binds_arg));
@@ -266,7 +268,9 @@ if ($action === 'install-custom') {
             'puid' => $puid,
             'pgid' => $pgid,
             'gpu' => $gpu,
-            'extra_binds' => $extra_binds
+            'extra_binds' => $extra_binds,
+            'port' => $port,
+            'bind_address' => $bind_address
         ];
         $meta_dir = "/boot/config/plugins/nix/metadata";
         if (!file_exists($meta_dir)) {
@@ -420,10 +424,12 @@ function last($arr) {
     return end($arr);
 }
 
-function format_preset_cmd($name, $appdata, $media, $puid, $pgid, $gpu, $extra_binds = '') {
+function format_preset_cmd($name, $appdata, $media, $puid, $pgid, $gpu, $extra_binds = '', $port = '', $bind_address = '') {
     $media_arg = empty($media) ? "-" : $media;
-    $extra_arg = empty($extra_binds) ? "" : " " . escapeshellarg($extra_binds);
-    return "/usr/local/emhttp/plugins/nix/nix-helper preset " . escapeshellarg($name) . " " . escapeshellarg($appdata) . " " . escapeshellarg($media_arg) . " " . escapeshellarg($puid) . " " . escapeshellarg($pgid) . " " . escapeshellarg($gpu) . $extra_arg;
+    $binds_arg = empty($extra_binds) ? "-" : $extra_binds;
+    $port_arg = empty($port) ? "-" : $port;
+    $addr_arg = empty($bind_address) ? "-" : $bind_address;
+    return "/usr/local/emhttp/plugins/nix/nix-helper preset " . escapeshellarg($name) . " " . escapeshellarg($appdata) . " " . escapeshellarg($media_arg) . " " . escapeshellarg($puid) . " " . escapeshellarg($pgid) . " " . escapeshellarg($gpu) . " " . escapeshellarg($binds_arg) . " " . escapeshellarg($port_arg) . " " . escapeshellarg($addr_arg);
 }
 
 function restart_nix_supervisor() {

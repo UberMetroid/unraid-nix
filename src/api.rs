@@ -9,6 +9,26 @@ use std::collections::HashMap;
 
 /// Resolves default web interface ports for known services.
 fn get_service_web_port(name: &str) -> Option<u16> {
+    let metadata_path = format!("/boot/config/plugins/nix/metadata/{}.json", name);
+    if std::path::Path::new(&metadata_path).exists() {
+        if let Ok(content) = std::fs::read_to_string(&metadata_path) {
+            if let Ok(val) = serde_json::from_str::<serde_json::Value>(&content) {
+                if let Some(port_val) = val.get("port") {
+                    if let Some(num) = port_val.as_u64() {
+                        if num > 0 {
+                            return Some(num as u16);
+                        }
+                    }
+                    if let Some(s) = port_val.as_str() {
+                        if let Ok(num) = s.parse::<u16>() {
+                            return Some(num);
+                        }
+                    }
+                }
+            }
+        }
+    }
+
     let name_lower = name.to_lowercase();
     if name_lower.contains("sonarr") {
         Some(8989)

@@ -118,7 +118,7 @@ fn main() {
         }
         "preset" => {
             if args.len() < 8 {
-                eprintln!("Error: Missing arguments: preset <name> <appdata> <media> <puid> <pgid> <gpu> [extra_binds]");
+                eprintln!("Error: Missing arguments: preset <name> <appdata> <media> <puid> <pgid> <gpu> [extra_binds] [port] [bind_address]");
                 std::process::exit(1);
             }
             let name = &args[2];
@@ -127,13 +127,23 @@ fn main() {
             let puid = args[5].parse::<u32>().unwrap_or(99);
             let pgid = args[6].parse::<u32>().unwrap_or(100);
             let gpu = args[7] == "1" || args[7] == "true";
-            let extra_binds = if args.len() >= 9 {
+            let extra_binds = if args.len() >= 9 && args[8] != "-" && !args[8].is_empty() {
                 parse_binds_string(&args[8]).unwrap_or_default()
             } else {
                 Vec::new()
             };
+            let port = if args.len() >= 10 && args[9] != "-" && !args[9].is_empty() {
+                args[9].parse::<u16>().ok()
+            } else {
+                None
+            };
+            let bind_address = if args.len() >= 11 && args[10] != "-" && !args[10].is_empty() {
+                Some(args[10].clone())
+            } else {
+                None
+            };
 
-            match config::get_service_command_preset(name, appdata, media, puid, pgid, gpu, extra_binds) {
+            match config::get_service_command_preset(name, appdata, media, puid, pgid, gpu, extra_binds, port, bind_address) {
                 Ok(cmd) => println!("{}", cmd),
                 Err(e) => {
                     eprintln!("Error: {}", e);
