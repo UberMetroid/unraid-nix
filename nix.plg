@@ -2,7 +2,7 @@
 <!DOCTYPE PLUGIN [
   <!ENTITY name      "nix">
   <!ENTITY author    "UberMetroid">
-  <!ENTITY version   "2026.06.26.13">
+  <!ENTITY version   "2026.06.26.14">
   <!ENTITY launch    "Settings/nix">
   <!ENTITY plugdir   "/boot/config/plugins/&name;">
   <!ENTITY usrdir    "/usr/local/emhttp/plugins/&name;">
@@ -11,6 +11,10 @@
 
   <CHANGES>
     ## nix package manager plugin
+    ### 2026.06.26.14
+    - Integrated clickable links directly into the dynamic version number in the active flakes table:
+      - Packages originating from the official Flake Store link directly to their search.nixos.org search details.
+      - Packages originating from custom GitHub flakes link to their source GitHub repository.
     ### 2026.06.26.13
     - Implemented a Remove button (trash icon) inside the Actions column, prompting the user and triggering remote backend removal and configuration update.
     ### 2026.06.26.12

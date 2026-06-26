@@ -132,6 +132,26 @@ fn get_cached_version(uri: &str) -> String {
     ver
 }
 
+/// Resolves a clickable URL for a package/flake URI (pointing to search.nixos.org or GitHub).
+fn get_package_link_url(uri: &str) -> Option<String> {
+    if uri.starts_with("nixpkgs#") {
+        let short_name = uri.replace("nixpkgs#", "");
+        return Some(format!(
+            "https://search.nixos.org/packages?channel=unstable&query={}",
+            short_name
+        ));
+    }
+    if uri.starts_with("github:") {
+        let clean_uri = uri.replace("github:", "");
+        let base_path = clean_uri.split('#').next().unwrap_or("");
+        let parts: Vec<&str> = base_path.split('/').collect();
+        if parts.len() >= 2 {
+            return Some(format!("https://github.com/{}/{}", parts[0], parts[1]));
+        }
+    }
+    None
+}
+
 
 
 #[derive(Debug, Clone)]
@@ -251,13 +271,23 @@ pub fn render_services_table(api_port: u16) -> String {
             let version = get_cached_version(&uri);
 
             let version_html = if version != "unknown" {
-                format!(
-                    r#"<div style="display: flex; flex-direction: column; gap: 2px;">
-                        <strong>{}</strong>
-                        <span style="color: #2ecc71; font-weight: 500; font-size: 11px;">up-to-date</span>
-                    </div>"#,
-                    version
-                )
+                if let Some(link_url) = get_package_link_url(&uri) {
+                    format!(
+                        r#"<div style="display: flex; flex-direction: column; gap: 2px;">
+                            <strong><a href="{}" target="_blank" style="color: #00a1ff; text-decoration: none;">{} <i class="fa fa-external-link" style="font-size: 9px; margin-left: 1px;"></i></a></strong>
+                            <span style="color: #2ecc71; font-weight: 500; font-size: 11px;">up-to-date</span>
+                        </div>"#,
+                        link_url, version
+                    )
+                } else {
+                    format!(
+                        r#"<div style="display: flex; flex-direction: column; gap: 2px;">
+                            <strong>{}</strong>
+                            <span style="color: #2ecc71; font-weight: 500; font-size: 11px;">up-to-date</span>
+                        </div>"#,
+                        version
+                    )
+                }
             } else {
                 r#"<div style="display: flex; flex-direction: column; gap: 2px;">
                     <strong>-</strong>
@@ -472,3 +502,29 @@ pub fn render_dashboard_widget(api_port: u16) -> String {
     }
     html
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_get_package_link_url() {
+        assert_eq!(
+            get_package_link_url("nixpkgs#sonarr"),
+            Some("https://search.nixos.org/packages?channel=unstable&query=sonarr".to_string())
+        );
+        assert_eq!(
+            get_package_link_url("github:numtide/blueprint#my-service"),
+            Some("https://github.com/numtide/blueprint".to_string())
+        );
+        assert_eq!(
+            get_package_link_url("github:numtide/blueprint"),
+            Some("https://github.com/numtide/blueprint".to_string())
+        );
+        assert_eq!(
+            get_package_link_url("/path/to/local/flake"),
+            None
+        );
+    }
+}
+
