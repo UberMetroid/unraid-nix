@@ -2,6 +2,18 @@ Menu="nix:3"
 Title="Install Flake"
 ---
 <link type="text/css" rel="stylesheet" href="/plugins/nix/styles.css">
+
+<?php
+$cfg_file = "/boot/config/plugins/nix/nix.cfg";
+$enable_cli = 'no';
+if (file_exists($cfg_file)) {
+    $nix_cfg = parse_ini_file($cfg_file);
+    if (isset($nix_cfg['ENABLE_CLI_INSTALL'])) {
+        $enable_cli = $nix_cfg['ENABLE_CLI_INSTALL'];
+    }
+}
+?>
+
 <div class="nix-section">
     <h3>Install Custom Flake / Preset</h3>
     <p class="nix-subtext">Run or daemonize any custom flake from GitHub or a local directory.</p>
@@ -11,22 +23,23 @@ Title="Install Flake"
             <label for="custom-uri">Flake URI / Preset Name:</label>
             <input type="text" id="custom-uri" placeholder="e.g. nixpkgs#radarr or github:user/repo#service-bin" required>
         </div>
-        <div class="nix-form-group">
-            <label for="custom-type">Installation Type:</label>
-            <select id="custom-type" onchange="toggleServiceOptions()">
-                <option value="cli">CLI Tool (Global Profile)</option>
-                <option value="service">Background Service (process-compose)</option>
-            </select>
-        </div>
         
-        <div id="nix-service-only-options" style="display: none; border-left: 3px solid #00a1ff; padding-left: 15px; margin-bottom: 15px;">
+        <?php if ($enable_cli === 'yes'): ?>
+            <div class="nix-form-group">
+                <label for="custom-type">Installation Type:</label>
+                <select id="custom-type" onchange="toggleServiceOptions()">
+                    <option value="service" selected>Background Service (process-compose)</option>
+                    <option value="cli">CLI Tool (Global Profile)</option>
+                </select>
+            </div>
+        <?php else: ?>
+            <input type="hidden" id="custom-type" value="service">
+        <?php endif; ?>
+        
+        <div id="nix-service-only-options" style="display: <?php echo $enable_cli === 'yes' ? 'none' : 'block'; ?>; border-left: 3px solid #00a1ff; padding-left: 15px; margin-bottom: 15px;">
             <div class="nix-form-group">
                 <label for="custom-appdata">Appdata Path:</label>
                 <input type="text" id="custom-appdata" autocomplete="off" spellcheck="false" placeholder="/mnt/user/appdata/service-name" data-pickcloseonfile="true" data-pickfilter="HIDE_FILES_FILTER" data-pickroot="/mnt" data-pickfolders="true" pattern="^[^\\]*/$">
-            </div>
-            <div class="nix-form-group">
-                <label for="custom-media">Media Share Path (Optional):</label>
-                <input type="text" id="custom-media" autocomplete="off" spellcheck="false" placeholder="e.g. /mnt/user/media" data-pickcloseonfile="true" data-pickfilter="HIDE_FILES_FILTER" data-pickroot="/mnt" data-pickfolders="true" pattern="^[^\\]*/$">
             </div>
             
             <div class="nix-form-group">
@@ -48,7 +61,7 @@ Title="Install Flake"
                 </div>
             </div>
             <div class="nix-form-group">
-                <label><input type="checkbox" id="custom-gpu"> Enable GPU / HW Transcoding</label>
+                <label><input type="checkbox" id="custom-gpu"> Enable GPU Access</label>
             </div>
         </div>
 
@@ -60,7 +73,6 @@ Title="Install Flake"
 $(function() {
     if (typeof $.fn.fileTreeAttach === 'function') {
         $("#custom-appdata").fileTreeAttach();
-        $("#custom-media").fileTreeAttach();
     }
 
     var urlParams = new URLSearchParams(window.location.search);
@@ -100,7 +112,7 @@ function installCustomFlake(e) {
     
     if (type === 'service') {
         data.appdata = $("#custom-appdata").val();
-        data.media = $("#custom-media").val();
+        data.media = '';
         data.puid = $("#custom-puid").val();
         data.pgid = $("#custom-pgid").val();
         data.gpu = $("#custom-gpu").is(':checked') ? '1' : '0';
