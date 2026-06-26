@@ -5,6 +5,7 @@
 
 use crate::process::{get_services_status, is_supervisor_running};
 use crate::search::search_packages;
+use std::collections::HashMap;
 
 /// Resolves default web interface ports for known services.
 fn get_service_web_port(name: &str) -> Option<u16> {
@@ -39,6 +40,96 @@ fn extract_home_path(command: &str) -> String {
         }
     }
     "-".to_string()
+}
+
+/// Extracts the package URI (e.g. nixpkgs#sonarr) from a command string.
+fn extract_package_uri(command: &str) -> Option<String> {
+    if let Some(pos) = command.find("nixpkgs#") {
+        let sub = &command[pos..];
+        let end = sub.find(|c: char| c == ' ' || c == '"' || c == '\'' || c == ';')
+            .unwrap_or(sub.len());
+        return Some(sub[..end].to_string());
+    }
+    
+    if let Some(pos) = command.find("nix run ") {
+        let sub = &command[pos + "nix run ".len()..];
+        let end = sub.find(|c: char| c == ' ' || c == '"' || c == '\'' || c == ';')
+            .unwrap_or(sub.len());
+        let uri = sub[..end].trim();
+        if !uri.is_empty() {
+            return Some(uri.to_string());
+        }
+    }
+    None
+}
+
+/// Evaluates the package version using nix eval.
+fn resolve_package_version(uri: &str) -> String {
+    let cmd = format!(
+        ". /nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh && nix eval --raw {}.version 2>/dev/null",
+        uri
+    );
+    let output = std::process::Command::new("sh")
+        .args(&["-c", &cmd])
+        .output();
+
+    if let Ok(out) = output {
+        if out.status.success() {
+            let ver = String::from_utf8_lossy(&out.stdout).trim().to_string();
+            if !ver.is_empty() {
+                return ver;
+            }
+        }
+    }
+
+    let cmd_name = format!(
+        ". /nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh && nix eval --raw {}.name 2>/dev/null",
+        uri
+    );
+    let output_name = std::process::Command::new("sh")
+        .args(&["-c", &cmd_name])
+        .output();
+        
+    if let Ok(out) = output_name {
+        if out.status.success() {
+            let name_ver = String::from_utf8_lossy(&out.stdout).trim().to_string();
+            if let Some(pos) = name_ver.rfind('-') {
+                let ver = &name_ver[pos + 1..];
+                if !ver.is_empty() && ver.chars().next().unwrap().is_digit(10) {
+                    return ver.to_string();
+                }
+            }
+            if !name_ver.is_empty() {
+                return name_ver;
+            }
+        }
+    }
+    
+    "unknown".to_string()
+}
+
+/// Retrieves a cached package version, evaluating it if missing or unknown.
+fn get_cached_version(uri: &str) -> String {
+    let cache_path = "/boot/config/plugins/nix/.version_cache.json";
+    let mut cache: HashMap<String, String> = std::fs::read_to_string(cache_path)
+        .ok()
+        .and_then(|content| serde_json::from_str(&content).ok())
+        .unwrap_or_default();
+
+    if let Some(ver) = cache.get(uri) {
+        if ver != "unknown" {
+            return ver.clone();
+        }
+    }
+
+    let ver = resolve_package_version(uri);
+    if ver != "unknown" {
+        cache.insert(uri.to_string(), ver.clone());
+        if let Ok(content) = serde_json::to_string(&cache) {
+            let _ = std::fs::write(cache_path, content);
+        }
+    }
+    ver
 }
 
 
@@ -150,7 +241,30 @@ pub fn render_services_table(api_port: u16) -> String {
                 s.name, status_subtext
             );
 
-            let version_html = r#"<span style="color: #2ecc71; font-weight: 500;">up-to-date</span>"#;
+            let cmd = config
+                .as_ref()
+                .and_then(|c| c.processes.get(&s.name))
+                .map(|p| p.command.as_str())
+                .unwrap_or("");
+            
+            let uri = extract_package_uri(cmd).unwrap_or_else(|| format!("nixpkgs#{}", s.name));
+            let version = get_cached_version(&uri);
+
+            let version_html = if version != "unknown" {
+                format!(
+                    r#"<div style="display: flex; flex-direction: column; gap: 2px;">
+                        <strong>{}</strong>
+                        <span style="color: #2ecc71; font-weight: 500; font-size: 11px;">up-to-date</span>
+                    </div>"#,
+                    version
+                )
+            } else {
+                r#"<div style="display: flex; flex-direction: column; gap: 2px;">
+                    <strong>-</strong>
+                    <span style="color: #2ecc71; font-weight: 500; font-size: 11px;">up-to-date</span>
+                </div>"#.to_string()
+            };
+
             let port_num = get_service_web_port(&s.name);
 
             let lan_ip_port_html = if let Some(port) = port_num {
