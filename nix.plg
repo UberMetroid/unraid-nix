@@ -2,8 +2,8 @@
 <!DOCTYPE PLUGIN [
   <!ENTITY name      "nix">
   <!ENTITY author    "UberMetroid">
-  <!ENTITY version   "2026.06.25.13">
-  <!ENTITY launch    "Settings/nix_services">
+  <!ENTITY version   "2026.06.25.14">
+  <!ENTITY launch    "Settings/nix">
   <!ENTITY plugdir   "/boot/config/plugins/&name;">
   <!ENTITY usrdir    "/usr/local/emhttp/plugins/&name;">
 ]>
@@ -11,6 +11,9 @@
 
   <CHANGES>
     ## nix package manager plugin
+    ### 2026.06.25.14
+    - Restored the parent route launch target to Settings/nix (previously Settings/nix_services) and removed the JavaScript redirect inside nix.page.
+    - This allows Dynamix to natively render and display the sub-tabs (Services, Flakes Browser, Settings) under the main Nix settings page.
     ### 2026.06.25.13
     - Removed unused Multi-User settings configuration group from the WebGUI.
     - Implemented dynamic detection for the default Nix Store Path to locate /system/nix on any mounted cache pool, custom pool, or array share.
