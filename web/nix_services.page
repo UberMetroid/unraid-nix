@@ -36,6 +36,18 @@ function serviceAction(name, action) {
     }, 'json');
 }
 
+function editService(name) {
+    $.getJSON('/plugins/nix/api.php?action=get-metadata&service=' + name, function(response) {
+        if (response.success) {
+            sessionStorage.setItem('nix_edit_metadata', JSON.stringify(response.metadata));
+            // Redirect to the Install Flake tab
+            location.href = '/Settings/nix_custom';
+        } else {
+            alert("Failed to retrieve service configuration: " + response.error);
+        }
+    });
+}
+
 function openLogs(name) {
     // Open a popup showing the service logs
     var w = 800, h = 600;

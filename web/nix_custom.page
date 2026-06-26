@@ -89,17 +89,46 @@ $(function() {
         $("#custom-appdata").fileTreeAttach();
     }
 
-    var uri = sessionStorage.getItem('nix_install_uri');
-    if (uri) {
-        sessionStorage.removeItem('nix_install_uri');
-        $("#custom-uri").val(uri);
-        $("#custom-type").val('service');
-        toggleServiceOptions();
+    var editDataStr = sessionStorage.getItem('nix_edit_metadata');
+    if (editDataStr) {
+        sessionStorage.removeItem('nix_edit_metadata');
+        var editData = JSON.parse(editDataStr);
+        
+        $("#custom-uri").val(editData.uri);
+        $("#custom-uri").prop('readonly', true);
+        $("#custom-appdata").val(editData.appdata);
+        $("#custom-puid").val(editData.puid);
+        $("#custom-pgid").val(editData.pgid);
+        $("#custom-gpu").prop('checked', editData.gpu === '1' || editData.gpu === 'true');
+        
+        if (editData.extra_binds) {
+            try {
+                var binds = typeof editData.extra_binds === 'string' ? JSON.parse(editData.extra_binds) : editData.extra_binds;
+                if (Array.isArray(binds)) {
+                    binds.forEach(function(b) {
+                        addBindRow(b.host, b.sandbox);
+                    });
+                }
+            } catch(e) {}
+        }
+        
+        $(".nix-section h3").text("Configure Flake: " + editData.name);
+        $(".nix-subtext").text("Modify paths, environment settings, and permissions for service: " + editData.name);
+        $(".nix-btn-primary").text("Apply Changes");
+        $(".nix-section a.nix-btn").attr('href', '/Settings/nix').html('<i class="fa fa-arrow-left"></i> Back to Active Flakes');
+    } else {
+        var uri = sessionStorage.getItem('nix_install_uri');
+        if (uri) {
+            sessionStorage.removeItem('nix_install_uri');
+            $("#custom-uri").val(uri);
+            $("#custom-type").val('service');
+            toggleServiceOptions();
 
-        var name = uri.replace('nixpkgs#', '');
-        name = name.split('/').pop().split(':').pop().split('#').pop().replace(/[^a-zA-Z0-9_-]/g, '');
-        if (name) {
-            $("#custom-appdata").val("/mnt/user/appdata/" + name);
+            var name = uri.replace('nixpkgs#', '');
+            name = name.split('/').pop().split(':').pop().split('#').pop().replace(/[^a-zA-Z0-9_-]/g, '');
+            if (name) {
+                $("#custom-appdata").val("/mnt/user/appdata/" + name);
+            }
         }
     }
     

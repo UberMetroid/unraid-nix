@@ -2,7 +2,7 @@
 <!DOCTYPE PLUGIN [
   <!ENTITY name      "nix">
   <!ENTITY author    "UberMetroid">
-  <!ENTITY version   "2026.06.26.16">
+  <!ENTITY version   "2026.06.26.17">
   <!ENTITY launch    "Settings/nix">
   <!ENTITY plugdir   "/boot/config/plugins/&name;">
   <!ENTITY usrdir    "/usr/local/emhttp/plugins/&name;">
@@ -11,6 +11,10 @@
 
   <CHANGES>
     ## nix package manager plugin
+    ### 2026.06.26.17
+    - Added an Edit Config button (pencil-and-paper icon) in the Actions column of the Active Flakes table.
+    - Saves service configurations into metadata files (`/boot/config/plugins/nix/metadata/<service>.json`) on installation/update to allow persistent configuration editing.
+    - When clicking Edit, redirects users to the Install Flake tab with all settings, paths, permissions, and custom binds pre-filled for immediate adjustment.
     ### 2026.06.26.16
     - Replaced the incorrect process-compose `reload` command with the proper `project update` subcommand inside the autostart and remove-service endpoints.
     - Implemented a targeted `render-services` AJAX endpoint to refresh the active flakes table dynamically without reloading the entire WebGUI settings page.

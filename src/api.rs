@@ -366,6 +366,11 @@ pub fn render_services_table(api_port: u16) -> String {
                 format!(r#"<button type="button" class="nix-btn" disabled title="Service is stopped"><i class="fa fa-stop"></i></button>"#)
             };
 
+            let edit_btn = format!(
+                r#"<button type="button" class="nix-btn" onclick="editService('{}')" title="Edit Config"><i class="fa fa-edit"></i></button>"#,
+                s.name
+            );
+
             let logs_btn = format!(r#"<button type="button" class="nix-btn" onclick="openLogs('{}')" title="Logs"><i class="fa fa-file-text-o"></i></button>"#, s.name);
 
             let remove_btn = format!(
@@ -386,10 +391,11 @@ pub fn render_services_table(api_port: u16) -> String {
                             {}
                             {}
                             {}
+                            {}
                         </div>
                     </td>
                 </tr>"#,
-                app_html, version_html, lan_ip_port_html, volume_mappings_html, autostart_html, start_btn, stop_btn, logs_btn, remove_btn
+                app_html, version_html, lan_ip_port_html, volume_mappings_html, autostart_html, start_btn, stop_btn, edit_btn, logs_btn, remove_btn
             ));
         }
     }

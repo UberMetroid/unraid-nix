@@ -96,6 +96,16 @@ if ($action === 'render-services') {
     exit;
 }
 
+// 2c. Get service metadata (JSON response)
+if ($action === 'get-metadata') {
+    $service = isset($_GET['service']) ? $_GET['service'] : '';
+    if (empty($service) || preg_match('/[^a-zA-Z0-9_-]/', $service)) {
+        error("Invalid or missing service name.");
+    }
+    echo json_encode(['success' => true, 'metadata' => get_service_metadata($service)]);
+    exit;
+}
+
 // Helper function to return JSON error responses
 function error($msg) {
     echo json_encode(['success' => false, 'error' => $msg]);
@@ -144,6 +154,7 @@ if ($action === 'remove') {
     if ($code !== 0) {
         error(implode("\n", $output));
     }
+    @unlink("/boot/config/plugins/nix/metadata/" . $service . ".json");
     success();
 }
 
@@ -242,6 +253,22 @@ if ($action === 'install-custom') {
         if ($code !== 0) {
             error(implode("\n", $output));
         }
+
+        // Save service metadata for editing
+        $metadata = [
+            'name' => $name,
+            'uri' => $uri,
+            'appdata' => $appdata,
+            'puid' => $puid,
+            'pgid' => $pgid,
+            'gpu' => $gpu,
+            'extra_binds' => $extra_binds
+        ];
+        $meta_dir = "/boot/config/plugins/nix/metadata";
+        if (!file_exists($meta_dir)) {
+            mkdir($meta_dir, 0777, true);
+        }
+        file_put_contents($meta_dir . "/" . $name . ".json", json_encode($metadata));
 
         // Restart supervisor to apply the new service definition and launch it
         restart_nix_supervisor();
@@ -408,6 +435,78 @@ function restart_nix_supervisor() {
         $cmd = ". /nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh && nohup nix run nixpkgs#process-compose -- -p 29704 -f " . escapeshellarg($cfg_file) . " --tui=false --keep-project > /var/log/nix-process-compose.log 2>&1 & echo \$! > " . escapeshellarg($pid_file);
         shell_exec($cmd);
     }
+}
+
+function get_service_metadata($name) {
+    $meta_file = "/boot/config/plugins/nix/metadata/" . $name . ".json";
+    if (file_exists($meta_file)) {
+        $data = json_decode(file_get_contents($meta_file), true);
+        if (is_array($data)) {
+            return $data;
+        }
+    }
+    
+    // Fallback: Parse from process-compose.yml
+    $cfg_file = "/boot/config/plugins/nix/process-compose.yml";
+    if (file_exists($cfg_file)) {
+        $content = file_get_contents($cfg_file);
+        $pattern = '/\s+' . preg_quote($name, '/') . ':\s*\n(\s+command:\s*(.*?)\n)?/s';
+        if (preg_match($pattern, $content, $matches)) {
+            $lines = explode("\n", $matches[0]);
+            $cmd = "";
+            foreach ($lines as $line) {
+                if (preg_match('/^\s+command:\s*(.*)/', $line, $cmd_match)) {
+                    $cmd = trim($cmd_match[1], " '\"");
+                    break;
+                }
+            }
+            
+            if (!empty($cmd)) {
+                $puid = '99';
+                $pgid = '100';
+                $appdata = '/mnt/user/appdata/' . $name;
+                $uri = 'nixpkgs#' . $name;
+                $gpu = '0';
+                
+                if (preg_match('/--reuid=(\d+)/', $cmd, $m)) {
+                    $puid = $m[1];
+                }
+                if (preg_match('/--regid=(\d+)/', $cmd, $m)) {
+                    $pgid = $m[1];
+                }
+                if (preg_match('/export HOME=([^\s&;"]+)/', $cmd, $m)) {
+                    $appdata = $m[1];
+                }
+                if (preg_match('/exec (nix run |nixpkgs#)([^\s"]+)/', $cmd, $m)) {
+                    if (strpos($m[2], '#') !== false || strpos($m[2], ':') !== false) {
+                        $uri = $m[2];
+                    } else {
+                        $uri = 'nixpkgs#' . $m[2];
+                    }
+                }
+                
+                return [
+                    'name' => $name,
+                    'uri' => $uri,
+                    'appdata' => $appdata,
+                    'puid' => $puid,
+                    'pgid' => $pgid,
+                    'gpu' => $gpu,
+                    'extra_binds' => '[]'
+                ];
+            }
+        }
+    }
+    
+    return [
+        'name' => $name,
+        'uri' => 'nixpkgs#' . $name,
+        'appdata' => '/mnt/user/appdata/' . $name,
+        'puid' => '99',
+        'pgid' => '100',
+        'gpu' => '0',
+        'extra_binds' => '[]'
+    ];
 }
 
 error("Unknown API action.");
