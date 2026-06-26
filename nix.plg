@@ -2,7 +2,7 @@
 <!DOCTYPE PLUGIN [
   <!ENTITY name      "nix">
   <!ENTITY author    "UberMetroid">
-  <!ENTITY version   "2026.06.26.01">
+  <!ENTITY version   "2026.06.26.02">
   <!ENTITY launch    "Settings/nix">
   <!ENTITY plugdir   "/boot/config/plugins/&name;">
   <!ENTITY usrdir    "/usr/local/emhttp/plugins/&name;">
@@ -11,6 +11,9 @@
 
   <CHANGES>
     ## nix package manager plugin
+    ### 2026.06.26.02
+    - Enabled global logging timestamps in process-compose.yml configuration files and per-service log destinations.
+    - Updated logs API to display logs directly from service log files with formatted timestamps (color-coded in gray), falling back to REST API if unavailable.
     ### 2026.06.26.01
     - Fixed logs JSON parsing logic to extract log array from the 'logs' key, restoring log contents in the popup window.
     - Renamed active flakes table column headers to 'Port(s)' and 'Path(s)'.

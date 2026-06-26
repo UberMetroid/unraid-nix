@@ -13,7 +13,18 @@ pub struct ProcessComposeConfig {
     pub version: String,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub environment: Option<Vec<String>>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub log_configuration: Option<LogConfiguration>,
     pub processes: HashMap<String, ProcessDefinition>,
+}
+
+/// Logger settings for process-compose.
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+pub struct LogConfiguration {
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub add_timestamp: Option<bool>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub fields_order: Option<Vec<String>>,
 }
 
 /// Defines a single process/service managed by process-compose.
@@ -24,6 +35,10 @@ pub struct ProcessDefinition {
     pub availability: Option<Availability>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub environment: Option<Vec<String>>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub log_location: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub log_configuration: Option<LogConfiguration>,
 }
 
 /// Restart and availability policies for the process supervisor.
@@ -43,6 +58,14 @@ pub fn load_config(file_path: &str) -> Result<ProcessComposeConfig, String> {
         return Ok(ProcessComposeConfig {
             version: "0.5".to_string(),
             environment: Some(vec!["NIX_REMOTE=daemon".to_string()]),
+            log_configuration: Some(LogConfiguration {
+                add_timestamp: Some(true),
+                fields_order: Some(vec![
+                    "time".to_string(),
+                    "level".to_string(),
+                    "message".to_string(),
+                ]),
+            }),
             processes: HashMap::new(),
         });
     }
@@ -120,12 +143,22 @@ mod tests {
                     max_restarts: None,
                 }),
                 environment: None,
+                log_location: None,
+                log_configuration: None,
             },
         );
 
         let config = ProcessComposeConfig {
             version: "0.5".to_string(),
             environment: Some(vec!["NIX_REMOTE=daemon".to_string()]),
+            log_configuration: Some(LogConfiguration {
+                add_timestamp: Some(true),
+                fields_order: Some(vec![
+                    "time".to_string(),
+                    "level".to_string(),
+                    "message".to_string(),
+                ]),
+            }),
             processes,
         };
 

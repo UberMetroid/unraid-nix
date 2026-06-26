@@ -16,30 +16,64 @@ if ($action === 'logs') {
         exit;
     }
 
-    // Fetch logs from process-compose API
-    $ch = curl_init("http://127.0.0.1:29704/process/logs/" . urlencode($service) . "/0/200");
-    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-    curl_setopt($ch, CURLOPT_TIMEOUT, 2);
-    $response = curl_exec($ch);
-    $http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-    curl_close($ch);
-
+    $log_file = "/var/log/nix-services/" . $service . ".log";
+    
     echo "<html><head><title>Logs: $service</title><style>body{background:#111;color:#eee;font-family:monospace;padding:15px;}</style></head><body>";
     echo "<h3>Active console output for: $service</h3>";
-    if ($http_code === 200 && $response) {
-        $data = json_decode($response, true);
-        if (is_array($data) && isset($data['logs']) && is_array($data['logs'])) {
-            $lines = $data['logs'];
+    
+    $rendered = false;
+    if (file_exists($log_file)) {
+        $content = shell_exec("tail -n 200 " . escapeshellarg($log_file));
+        if ($content !== null && trim($content) !== "") {
+            $lines = explode("\n", trim($content));
             echo "<pre style='white-space: pre-wrap; word-wrap: break-word;'>";
             foreach ($lines as $line) {
-                echo htmlspecialchars($line) . "\n";
+                $line = trim($line);
+                if (empty($line)) continue;
+                $data = json_decode($line, true);
+                if (is_array($data)) {
+                    $time = isset($data['time']) ? $data['time'] : '';
+                    $message = isset($data['message']) ? $data['message'] : '';
+                    if (!empty($time)) {
+                        $dt = date_create($time);
+                        $time_str = $dt ? date_format($dt, 'Y-m-d H:i:s') : str_replace('T', ' ', substr($time, 0, 19));
+                        echo "<span style='color:#888;'>[" . htmlspecialchars($time_str) . "]</span> " . htmlspecialchars($message) . "\n";
+                    } else {
+                        echo htmlspecialchars($message) . "\n";
+                    }
+                } else {
+                    echo htmlspecialchars($line) . "\n";
+                }
             }
             echo "</pre>";
-        } else {
-            echo "<p class='text-muted'>Error decoding logs JSON response.</p>";
+            $rendered = true;
         }
-    } else {
-        echo "<p class='text-muted'>No logs found. If the service just started, it might take a few seconds to populate.</p>";
+    }
+    
+    if (!$rendered) {
+        // Fallback to process-compose REST API
+        $ch = curl_init("http://127.0.0.1:29704/process/logs/" . urlencode($service) . "/0/200");
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_TIMEOUT, 2);
+        $response = curl_exec($ch);
+        $http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        curl_close($ch);
+        
+        if ($http_code === 200 && $response) {
+            $data = json_decode($response, true);
+            if (is_array($data) && isset($data['logs']) && is_array($data['logs'])) {
+                $lines = $data['logs'];
+                echo "<pre style='white-space: pre-wrap; word-wrap: break-word;'>";
+                foreach ($lines as $line) {
+                    echo htmlspecialchars($line) . "\n";
+                }
+                echo "</pre>";
+            } else {
+                echo "<p class='text-muted'>No logs found. If the service just started, it might take a few seconds to populate.</p>";
+            }
+        } else {
+            echo "<p class='text-muted'>No logs found. If the service just started, it might take a few seconds to populate.</p>";
+        }
     }
     echo "</body></html>";
     exit;

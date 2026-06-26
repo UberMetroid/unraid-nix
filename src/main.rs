@@ -151,6 +151,19 @@ fn main() {
                 }
             };
 
+            // Ensure global log configuration exists
+            if cfg.log_configuration.is_none() {
+                cfg.log_configuration = Some(config::LogConfiguration {
+                    add_timestamp: Some(true),
+                    fields_order: Some(vec![
+                        "time".to_string(),
+                        "level".to_string(),
+                        "message".to_string(),
+                    ]),
+                });
+            }
+
+            let log_location = Some(format!("/var/log/nix-services/{}.log", name));
             cfg.processes.insert(name, config::ProcessDefinition {
                 command: cmd,
                 availability: Some(config::Availability {
@@ -159,6 +172,8 @@ fn main() {
                     max_restarts: None,
                 }),
                 environment: None,
+                log_location,
+                log_configuration: None,
             });
 
             if let Err(e) = config::save_config(&cfg, "/boot/config/plugins/nix/process-compose.yml") {
