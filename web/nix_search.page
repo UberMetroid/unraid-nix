@@ -7,8 +7,8 @@ Title="Flake Store"
     <p class="nix-subtext">Search the official Nix repository containing over 100,000 native packages.</p>
     
     <div class="nix-search-bar">
-        <input type="text" id="nix-search-input" placeholder="Search packages (e.g. ripgrep, fd, jellyfin)..." onkeyup="if(event.keyCode==13) executeSearch()">
-        <button class="nix-btn-primary" onclick="executeSearch()"><i class="fa fa-search"></i> Search</button>
+        <input type="text" id="nix-search-input" placeholder="Search packages (e.g. ripgrep, fd, jellyfin)..." onkeydown="if(event.keyCode==13) { event.preventDefault(); executeSearch(); return false; }">
+        <button type="button" class="nix-btn-primary" onclick="executeSearch()"><i class="fa fa-search"></i> Search</button>
     </div>
 
     <div id="nix-search-results" class="nix-results-container">

@@ -55,10 +55,10 @@ pub fn render_services_table(api_port: u16) -> String {
                     <td>{}</td>
                     <td>{}</td>
                     <td>
-                        <button class="nix-btn" onclick="serviceAction('{}', 'start')"><i class="fa fa-play"></i></button>
-                        <button class="nix-btn" onclick="serviceAction('{}', 'stop')"><i class="fa fa-stop"></i></button>
-                        <button class="nix-btn" onclick="serviceAction('{}', 'restart')"><i class="fa fa-refresh"></i></button>
-                        <button class="nix-btn" onclick="openLogs('{}')"><i class="fa fa-file-text-o"></i></button>
+                        <button type="button" class="nix-btn" onclick="serviceAction('{}', 'start')"><i class="fa fa-play"></i></button>
+                        <button type="button" class="nix-btn" onclick="serviceAction('{}', 'stop')"><i class="fa fa-stop"></i></button>
+                        <button type="button" class="nix-btn" onclick="serviceAction('{}', 'restart')"><i class="fa fa-refresh"></i></button>
+                        <button type="button" class="nix-btn" onclick="openLogs('{}')"><i class="fa fa-file-text-o"></i></button>
                     </td>
                 </tr>"#,
                 s.name, status_badge, uptime_str, cpu_str, mem_str, s.name, s.name, s.name, s.name
@@ -108,14 +108,14 @@ pub fn render_search_results(query: &str) -> String {
             let action_buttons = if cli_enabled {
                 format!(
                     r#"<div style="display: flex; flex-direction: column; gap: 5px; align-items: center; justify-content: center;">
-                        <button class="nix-btn" style="width: 100px; margin: 0; padding: 4px 8px; font-size: 11px;" onclick="installPackage('{}')">Install CLI</button>
-                        <button class="nix-btn-install" style="width: 100px; margin: 0; padding: 4px 8px; font-size: 11px;" onclick="showServiceModal('{}')">Add Service</button>
+                        <button type="button" class="nix-btn" style="width: 100px; margin: 0; padding: 4px 8px; font-size: 11px;" onclick="installPackage('{}')">Install CLI</button>
+                        <button type="button" class="nix-btn-install" style="width: 100px; margin: 0; padding: 4px 8px; font-size: 11px;" onclick="showServiceModal('{}')">Add Service</button>
                        </div>"#,
                     r.package_name, r.package_name
                 )
             } else {
                 format!(
-                    r#"<button class="nix-btn-install" style="width: 100px; margin: 0; padding: 4px 8px; font-size: 11px;" onclick="showServiceModal('{}')">Add Service</button>"#,
+                    r#"<button type="button" class="nix-btn-install" style="width: 100px; margin: 0; padding: 4px 8px; font-size: 11px;" onclick="showServiceModal('{}')">Add Service</button>"#,
                     r.package_name
                 )
             };

@@ -2,7 +2,7 @@
 <!DOCTYPE PLUGIN [
   <!ENTITY name      "nix">
   <!ENTITY author    "UberMetroid">
-  <!ENTITY version   "2026.06.25.39">
+  <!ENTITY version   "2026.06.25.40">
   <!ENTITY launch    "Settings/nix">
   <!ENTITY plugdir   "/boot/config/plugins/&name;">
   <!ENTITY usrdir    "/usr/local/emhttp/plugins/&name;">
@@ -11,6 +11,8 @@
 
   <CHANGES>
     ## nix package manager plugin
+    ### 2026.06.25.40
+    - Fixed settings tabs disappearing during search by adding type="button" to buttons and preventing default form submission when hitting Enter.
     ### 2026.06.25.39
     - Renamed Appdata Path to Install Path, removed Optional from additional paths label, and renamed GPU checkbox to Enable GPU.
     - Added a Network Port information block showing Host Networking status and preset default ports.
