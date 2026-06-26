@@ -16,7 +16,33 @@ function detect_default_store_path() {
 // Set defaults
 $store_path = isset($nix_cfg['NIX_STORE_PATH']) ? $nix_cfg['NIX_STORE_PATH'] : detect_default_store_path();
 $autostart = isset($nix_cfg['AUTOSTART_FLAKES']) ? $nix_cfg['AUTOSTART_FLAKES'] : 'yes';
+
+exec("/etc/rc.d/rc.nix-daemon status 2>/dev/null", $status_output, $status_code);
+$is_nix_running = ($status_code === 0);
 ?>
+
+<div class="nix-section" style="margin-bottom: 20px;">
+    <div style="display: flex; align-items: center; justify-content: space-between;">
+        <div>
+            <h3 style="margin: 0 0 5px 0;">Nix System Daemon</h3>
+            <p class="nix-subtext" style="margin: 0;">
+                Daemon Status: 
+                <?php if ($is_nix_running): ?>
+                    <span class="status green">RUNNING</span>
+                <?php else: ?>
+                    <span class="status red">STOPPED</span>
+                <?php endif; ?>
+            </p>
+        </div>
+        <div id="nix-daemon-controls">
+            <?php if ($is_nix_running): ?>
+                <button class="nix-btn" onclick="toggleNixDaemon('stop')"><i class="fa fa-stop"></i> Stop Nix</button>
+            <?php else: ?>
+                <button class="nix-btn-install" onclick="toggleNixDaemon('start')"><i class="fa fa-play"></i> Start Nix</button>
+            <?php endif; ?>
+        </div>
+    </div>
+</div>
 
 <div class="nix-section">
     <h3>Nix Package Manager Settings</h3>
@@ -68,6 +94,20 @@ function saveSettings(e) {
             location.reload();
         } else {
             alert("Failed to save settings: " + resp.error);
+        }
+    }, 'json');
+}
+
+function toggleNixDaemon(action) {
+    var btnContainer = document.getElementById('nix-daemon-controls');
+    btnContainer.innerHTML = '<i class="fa fa-spinner fa-spin"></i> Processing...';
+    
+    $.post('/plugins/nix/api.php', { action: 'nix-daemon-' + action }, function(response) {
+        if (response.success) {
+            location.reload();
+        } else {
+            alert("Action failed: " + response.error);
+            location.reload();
         }
     }, 'json');
 }

@@ -2,7 +2,7 @@
 <!DOCTYPE PLUGIN [
   <!ENTITY name      "nix">
   <!ENTITY author    "UberMetroid">
-  <!ENTITY version   "2026.06.25.25">
+  <!ENTITY version   "2026.06.25.26">
   <!ENTITY launch    "Settings/nix">
   <!ENTITY plugdir   "/boot/config/plugins/&name;">
   <!ENTITY usrdir    "/usr/local/emhttp/plugins/&name;">
@@ -11,6 +11,8 @@
 
   <CHANGES>
     ## nix package manager plugin
+    ### 2026.06.25.26
+    - Moved the Nix System Daemon status control panel from Active Flakes tab to the Settings tab.
     ### 2026.06.25.25
     - Renamed the first tab from Services to Active Flakes to match vocabulary.
     ### 2026.06.25.24

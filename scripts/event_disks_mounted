@@ -26,7 +26,7 @@ fi
 if [ ! -d "/nix/store" ] || [ ! -x "/nix/var/nix/profiles/default/bin/nix-daemon" ]; then
     echo "Nix store not initialized. Bootstrapping Nix..." | logger -t "nix-plugin"
     curl --proto '=https' --tlsv1.2 -sSf -L https://install.determinate.systems/nix | \
-        sh -s -- install --init none --no-confirm 2>&1 | logger -t "nix-plugin"
+        sh -s -- install linux --init none --no-confirm --extra-conf "sandbox = false" 2>&1 | logger -t "nix-plugin"
 fi
 
 # 3. Expose environment paths globally
