@@ -2,7 +2,7 @@
 <!DOCTYPE PLUGIN [
   <!ENTITY name      "nix">
   <!ENTITY author    "UberMetroid">
-  <!ENTITY version   "2026.06.25.36">
+  <!ENTITY version   "2026.06.25.37">
   <!ENTITY launch    "Settings/nix">
   <!ENTITY plugdir   "/boot/config/plugins/&name;">
   <!ENTITY usrdir    "/usr/local/emhttp/plugins/&name;">
@@ -11,6 +11,9 @@
 
   <CHANGES>
     ## nix package manager plugin
+    ### 2026.06.25.37
+    - Added a "Back to Flake Store" button and preserved search queries using sessionStorage.
+    - Added a dynamic service preset banner displaying default host ports and homepage links.
     ### 2026.06.25.36
     - Switched tab redirection parameter pass to use sessionStorage instead of query strings, preventing Unraid settings tabs row from disappearing.
     ### 2026.06.25.35

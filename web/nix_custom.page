@@ -15,13 +15,16 @@ if (file_exists($cfg_file)) {
 ?>
 
 <div class="nix-section">
-    <h3>Install Flake</h3>
-    <p class="nix-subtext">Run or daemonize any custom flake from GitHub or a local directory.</p>
+    <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px;">
+        <h3 style="margin: 0;">Install Flake</h3>
+        <a href="/Settings/nix_search" class="nix-btn" style="text-decoration: none; margin: 0; display: inline-flex; align-items: center; gap: 6px;"><i class="fa fa-arrow-left"></i> Back to Flake Store</a>
+    </div>
+    <p class="nix-subtext" style="margin-top: -15px;">Run or daemonize any custom flake from GitHub or a local directory.</p>
     
     <form id="nix-install-custom-form" onsubmit="installCustomFlake(event)">
         <div class="nix-form-group">
             <label for="custom-uri">Flake URI / Preset Name:</label>
-            <input type="text" id="custom-uri" placeholder="e.g. nixpkgs#radarr or github:user/repo#service-bin" required>
+            <input type="text" id="custom-uri" placeholder="e.g. nixpkgs#radarr or github:user/repo#service-bin" required oninput="updatePresetInfo()">
         </div>
         
         <?php if ($enable_cli === 'yes'): ?>
@@ -88,6 +91,8 @@ $(function() {
             $("#custom-appdata").val("/mnt/user/appdata/" + name);
         }
     }
+    
+    updatePresetInfo();
 });
 
 function toggleServiceOptions() {
@@ -174,5 +179,38 @@ function addBindRow(hostVal, sandboxVal) {
 
 function removeBindRow(idx) {
     $(`#bind-row-${idx}`).remove();
+}
+
+function updatePresetInfo() {
+    var uri = $("#custom-uri").val() || "";
+    var name = uri.replace("nixpkgs#", "").toLowerCase().trim();
+    
+    var infoBox = $("#nix-preset-info-box");
+    if (!infoBox.length) {
+        $("#custom-uri").parent().after('<div id="nix-preset-info-box" style="margin-top: 10px; display: none;"></div>');
+        infoBox = $("#nix-preset-info-box");
+    }
+    
+    var presets = {
+        "radarr": { port: "7878", desc: "Radarr Movie Manager", url: "https://radarr.video/" },
+        "sonarr": { port: "8989", desc: "Sonarr TV Show Manager", url: "https://sonarr.tv/" },
+        "jellyfin": { port: "8096", desc: "Jellyfin Media Server", url: "https://jellyfin.org/" }
+    };
+    
+    var matched = presets[name];
+    if (matched) {
+        var html = `
+        <div style="background: rgba(0, 161, 255, 0.05); border: 1px solid #00a1ff; border-radius: 4px; padding: 12px; font-size: 12px; color: #eee; margin-bottom: 15px;">
+            <div style="font-weight: 600; color: #00a1ff; margin-bottom: 4px;"><i class="fa fa-info-circle"></i> Service Preset Detected: ${matched.desc}</div>
+            <ul style="margin: 0; padding-left: 15px; line-height: 1.6;">
+                <li><strong>Default Host Port:</strong> <code>${matched.port}</code> (Make sure this port is free on your Unraid host)</li>
+                <li><strong>Official Website:</strong> <a href="${matched.url}" target="_blank" style="color: #00a1ff; text-decoration: none;">${matched.url} <i class="fa fa-external-link" style="font-size: 10px;"></i></a></li>
+            </ul>
+        </div>
+        `;
+        infoBox.html(html).slideDown();
+    } else {
+        infoBox.slideUp().empty();
+    }
 }
 </script>

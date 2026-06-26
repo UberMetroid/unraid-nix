@@ -18,9 +18,18 @@ Title="Flake Store"
 </div>
 
 <script>
+$(function() {
+    var savedQuery = sessionStorage.getItem('nix_search_query');
+    if (savedQuery) {
+        $("#nix-search-input").val(savedQuery);
+        executeSearch();
+    }
+});
+
 function executeSearch() {
     var query = $("#nix-search-input").val();
     if (!query.trim()) return;
+    sessionStorage.setItem('nix_search_query', query);
     $("#nix-search-results").html('<div class="nix-spinner"><i class="fa fa-spinner fa-spin"></i> Searching Nix registry...</div>');
     $.get('/plugins/nix/api.php?action=search&q=' + encodeURIComponent(query), function(html) {
         $("#nix-search-results").html(html);
