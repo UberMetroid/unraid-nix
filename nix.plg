@@ -2,15 +2,20 @@
 <!DOCTYPE PLUGIN [
   <!ENTITY name      "nix">
   <!ENTITY author    "UberMetroid">
-  <!ENTITY version   "2026.06.25.7">
+  <!ENTITY version   "2026.06.25.9">
   <!ENTITY launch    "Settings/nix_services">
   <!ENTITY plugdir   "/boot/config/plugins/&name;">
   <!ENTITY usrdir    "/usr/local/emhttp/plugins/&name;">
 ]>
-<PLUGIN name="Nix" author="&author;" version="&version;" launch="&launch;" pluginURL="https://raw.githubusercontent.com/UberMetroid/unraid-nix/main/nix.plg">
+<PLUGIN name="Nix" author="&author;" version="&version;" launch="&launch;" icon="Nix.png" support="https://github.com/UberMetroid/unraid-nix/issues" pluginURL="https://raw.githubusercontent.com/UberMetroid/unraid-nix/main/nix.plg">
 
   <CHANGES>
     ## nix package manager plugin
+    ### 2026.06.25.9
+    - Fixed missing icon, overview description, and support link in Unraid Plugins page by adding case-sensitive directory and file symlinks.
+    - Updated icon attribute to point to the local Nix.png file.
+    ### 2026.06.25.8
+    - Added explicit icon and support URL attributes to the PLUGIN tag to restore logo and link to GitHub issues page.
     ### 2026.06.25.7
     - Set settings launch target directly to Settings/nix_services.
     - Added a JavaScript redirect inside nix.page to route Settings/Nix requests to the active sub-tab.
@@ -61,6 +66,11 @@
       done
       curl -sSf -L -o "&usrdir;/README.md" "${GITHUB_RAW}/README.md"
 
+      # Create case-sensitive symlinks for Unraid Plugin Manager when using display name "Nix"
+      ln -sf nix.png "&usrdir;/Nix.png"
+      ln -sf nix.svg "&usrdir;/Nix.svg"
+      ln -sf nix /usr/local/emhttp/plugins/Nix
+
       # 4. Download and install integration scripts
       echo "Downloading OS integration scripts..."
       mkdir -p "&plugdir;/scripts"
@@ -102,6 +112,7 @@
 
       # 2. Remove runtime directories and scripts
       rm -rf "&usrdir;"
+      rm -f /usr/local/emhttp/plugins/Nix
       rm -f /etc/rc.d/rc.nix-daemon
       rm -f /etc/profile.d/nix.sh
 
