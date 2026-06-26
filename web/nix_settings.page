@@ -34,6 +34,33 @@ function detect_default_store_path() {
 // Set defaults
 $store_path = isset($nix_cfg['NIX_STORE_PATH']) ? $nix_cfg['NIX_STORE_PATH'] : detect_default_store_path();
 $autostart = isset($nix_cfg['AUTOSTART_FLAKES']) ? $nix_cfg['AUTOSTART_FLAKES'] : 'yes';
+
+// Build pool/share options
+$options = [];
+
+// 1. Add Pools from disks.ini
+if (file_exists('/var/local/emhttp/disks.ini')) {
+    $disks_cfg = parse_ini_file('/var/local/emhttp/disks.ini', true);
+    if ($disks_cfg) {
+        foreach ($disks_cfg as $name => $disk) {
+            if (isset($disk['type']) && $disk['type'] === 'Cache' && isset($disk['fsStatus']) && $disk['fsStatus'] === 'Mounted') {
+                $mount = isset($disk['fsMountpoint']) ? $disk['fsMountpoint'] : "/mnt/$name";
+                $options[$mount . '/nix'] = "Pool: $name (" . $mount . "/nix)";
+            }
+        }
+    }
+}
+
+// 2. Add Shares from shares.ini
+if (file_exists('/var/local/emhttp/shares.ini')) {
+    $shares_cfg = parse_ini_file('/var/local/emhttp/shares.ini', true);
+    if ($shares_cfg) {
+        foreach ($shares_cfg as $name => $share) {
+            $path = "/mnt/user/$name/nix";
+            $options[$path] = "Share: $name (" . $path . ")";
+        }
+    }
+}
 ?>
 
 <div class="nix-section">
@@ -42,7 +69,25 @@ $autostart = isset($nix_cfg['AUTOSTART_FLAKES']) ? $nix_cfg['AUTOSTART_FLAKES'] 
     
     <form id="nix-settings-form" onsubmit="saveSettings(event)">
         <div class="nix-form-group">
-            <label for="settings-store-path">Nix Store Path (SSD Cache / ZFS Dataset Recommended):</label>
+            <label for="settings-store-path-select">Nix Store Path:</label>
+            <select id="settings-store-path-select" onchange="toggleCustomPath()">
+                <?php
+                $is_custom = true;
+                foreach ($options as $val => $label) {
+                    $selected = '';
+                    if ($store_path === $val) {
+                        $selected = 'selected';
+                        $is_custom = false;
+                    }
+                    echo '<option value="' . htmlspecialchars($val) . '" ' . $selected . '>' . htmlspecialchars($label) . '</option>';
+                }
+                ?>
+                <option value="custom" <?php echo $is_custom ? 'selected' : ''; ?>>Custom Path...</option>
+            </select>
+        </div>
+
+        <div class="nix-form-group" id="nix-custom-path-group" style="<?php echo $is_custom ? '' : 'display: none;'; ?>">
+            <label for="settings-store-path">Custom Nix Store Path (SSD Cache / ZFS Dataset Recommended):</label>
             <input type="text" id="settings-store-path" value="<?php echo htmlspecialchars($store_path); ?>" placeholder="/mnt/cache/system/nix" required>
             <div class="nix-field-help">This is where the persistent `/nix` directory will be bind-mounted. Do NOT use your USB boot drive `/boot`.</div>
         </div>
@@ -60,9 +105,23 @@ $autostart = isset($nix_cfg['AUTOSTART_FLAKES']) ? $nix_cfg['AUTOSTART_FLAKES'] 
 </div>
 
 <script>
+function toggleCustomPath() {
+    var select = document.getElementById('settings-store-path-select');
+    var group = document.getElementById('nix-custom-path-group');
+    var input = document.getElementById('settings-store-path');
+    
+    if (select.value === 'custom') {
+        group.style.display = '';
+    } else {
+        group.style.display = 'none';
+        input.value = select.value;
+    }
+}
+
 function saveSettings(e) {
     e.preventDefault();
-    var path = $("#settings-store-path").val();
+    var select = document.getElementById('settings-store-path-select');
+    var path = (select.value === 'custom') ? $("#settings-store-path").val() : select.value;
     var auto = $("#settings-autostart").val();
     
     if (path.indexOf("/boot") === 0) {

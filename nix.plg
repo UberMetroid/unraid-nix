@@ -2,7 +2,7 @@
 <!DOCTYPE PLUGIN [
   <!ENTITY name      "nix">
   <!ENTITY author    "UberMetroid">
-  <!ENTITY version   "2026.06.25.21">
+  <!ENTITY version   "2026.06.25.22">
   <!ENTITY launch    "Settings/nix">
   <!ENTITY plugdir   "/boot/config/plugins/&name;">
   <!ENTITY usrdir    "/usr/local/emhttp/plugins/&name;">
@@ -11,6 +11,8 @@
 
   <CHANGES>
     ## nix package manager plugin
+    ### 2026.06.25.22
+    - Replaced the text input field for Nix Store Path with a select dropdown populated dynamically from available Unraid Cache pools and user shares. Added support for toggleable custom path entry.
     ### 2026.06.25.21
     - Added Tabs="true" to nix.page and set the launch target to Settings/nix, allowing Dynamix to naturally render sub-tabs without redirection hacks.
     ### 2026.06.25.20
