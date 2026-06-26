@@ -2,7 +2,7 @@
 <!DOCTYPE PLUGIN [
   <!ENTITY name      "nix">
   <!ENTITY author    "UberMetroid">
-  <!ENTITY version   "2026.06.25.2">
+  <!ENTITY version   "2026.06.25.3">
   <!ENTITY launch    "Settings/Nix">
   <!ENTITY plugdir   "/boot/config/plugins/&name;">
   <!ENTITY usrdir    "/usr/local/emhttp/plugins/&name;">
@@ -11,9 +11,11 @@
 
   <CHANGES>
     ## nix package manager plugin
+    ### 2026.06.25.3
+    - Cleared manual HTML body from nix.page to allow Unraid Dynamix tab auto-generation.
+    - Replaced short PHP open tags in nix_settings.page with standard tags.
+    - Injected styles.css stylesheet loading links directly inside sub-tab page bodies.
     ### 2026.06.25.2
-    - Fixed Menu category mapping to Settings/Nix to resolve tab and sub-page loading.
-    ### 2026.06.25.1
     - Added UberMetroid branding and logo assets.
     - Updated repository references and release hooks.
     ### 2026.06.25

@@ -1,6 +1,7 @@
 Menu="Nix:1"
 Title="Services"
 ---
+<link type="text/css" rel="stylesheet" href="/plugins/nix/styles.css">
 <div class="nix-section">
     <h3>Active Nix Services</h3>
     <p class="nix-subtext">Natively running background processes managed by the nix process supervisor.</p>

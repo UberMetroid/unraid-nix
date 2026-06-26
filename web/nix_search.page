@@ -1,6 +1,7 @@
 Menu="Nix:2"
 Title="Flakes Browser"
 ---
+<link type="text/css" rel="stylesheet" href="/plugins/nix/styles.css">
 <div class="nix-section">
     <h3>Search Nixpkgs Registry</h3>
     <p class="nix-subtext">Search the official Nix repository containing over 100,000 native packages.</p>
