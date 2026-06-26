@@ -76,21 +76,22 @@ pub fn render_services_table(api_port: u16) -> String {
     let config = crate::config::load_config(config_path).ok();
     let host_ip = get_host_lan_ip();
 
-    let mut html = r#"<table class="nix-services-table">
-        <thead>
-            <tr>
-                <th>Application</th>
-                <th>Version</th>
-                <th>Network</th>
-                <th>Container IP</th>
-                <th>Container Port</th>
-                <th>LAN IP:Port</th>
-                <th>Volume Mappings (App to Host)</th>
-                <th>Autostart</th>
-                <th>Actions</th>
-            </tr>
-        </thead>
-        <tbody>"#.to_string();
+    let mut html = r#"<div style="overflow-x: auto; width: 100%;">
+        <table class="nix-services-table">
+            <thead>
+                <tr>
+                    <th>Application</th>
+                    <th>Version</th>
+                    <th>Network</th>
+                    <th>Container IP</th>
+                    <th>Container Port</th>
+                    <th>LAN IP:Port</th>
+                    <th>Volume Mappings (App to Host)</th>
+                    <th>Autostart</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>"#.to_string();
 
     if statuses.is_empty() {
         html.push_str(r#"<tr><td colspan="9" class="text-center">No Nix Flake services configured. Go to the Flakes tab to install one.</td></tr>"#);
@@ -201,7 +202,7 @@ pub fn render_services_table(api_port: u16) -> String {
         }
     }
 
-    html.push_str("</tbody></table>");
+    html.push_str("</tbody></table></div>");
     html
 }
 
@@ -224,16 +225,17 @@ pub fn render_search_results(query: &str) -> String {
         Err(e) => return format!(r#"<div class="alert alert-danger"><i class="fa fa-times"></i> Search failed: {}</div>"#, e),
     };
 
-    let mut html = r#"<table class="nix-search-table">
-        <thead>
-            <tr>
-                <th>Package Name</th>
-                <th>Version</th>
-                <th>Description</th>
-                <th>Action</th>
-            </tr>
-        </thead>
-        <tbody>"#.to_string();
+    let mut html = r#"<div style="overflow-x: auto; width: 100%;">
+        <table class="nix-search-table">
+            <thead>
+                <tr>
+                    <th>Package Name</th>
+                    <th>Version</th>
+                    <th>Description</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>"#.to_string();
 
     if results.is_empty() {
         html.push_str(r#"<tr><td colspan="4" class="text-center">No packages found matching your query.</td></tr>"#);
@@ -273,7 +275,7 @@ pub fn render_search_results(query: &str) -> String {
         }
     }
 
-    html.push_str("</tbody></table>");
+    html.push_str("</tbody></table></div>");
     html
 }
 

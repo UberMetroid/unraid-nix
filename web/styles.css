@@ -71,18 +71,50 @@
 
 .nix-services-table, .nix-search-table {
     width: 100%;
-    table-layout: fixed;
+    table-layout: auto;
     border-collapse: collapse;
     margin-top: 10px;
     background: #1c1c1f !important;
+    position: relative !important;
 }
 
 .nix-services-table {
-    width: 100%;
+    min-width: 950px;
 }
 
-.nix-services-table tr, .nix-search-table tr {
+.nix-search-table {
+    min-width: 700px;
+}
+
+.nix-services-table thead, .nix-search-table thead {
+    display: table-header-group !important;
+    position: static !important;
+    background: #141416 !important;
+}
+
+.nix-services-table tbody, .nix-search-table tbody {
+    display: table-row-group !important;
+}
+
+.nix-services-table td code, .nix-search-table td code {
+    white-space: pre-wrap !important;
+    word-break: break-all !important;
+}
+
+.nix-services-table td a, .nix-search-table td a {
+    word-break: break-all !important;
+}
+
+.nix-services-table tbody tr, .nix-search-table tbody tr {
     background: #1c1c1f !important;
+    display: table-row !important;
+    position: static !important;
+}
+
+.nix-services-table thead tr, .nix-search-table thead tr {
+    background: #141416 !important;
+    display: table-row !important;
+    position: static !important;
 }
 
 .nix-search-table th:nth-child(1), .nix-search-table td:nth-child(1) { width: 25%; word-break: break-all; white-space: normal !important; }
@@ -111,6 +143,11 @@
     text-transform: uppercase;
     font-weight: 600;
     border-bottom: 2px solid #2d2d30;
+    position: static !important;
+    top: auto !important;
+    z-index: auto !important;
+    transform: none !important;
+    display: table-cell !important;
 }
 
 .nix-services-table td, .nix-search-table td {
@@ -120,6 +157,8 @@
     font-size: 13px;
     vertical-align: middle;
     background: #1c1c1f !important;
+    display: table-cell !important;
+    position: static !important;
 }
 
 /* Status Badges */
