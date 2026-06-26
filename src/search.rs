@@ -15,6 +15,7 @@ pub struct SearchResult {
 }
 
 /// Represents the raw JSON structure returned by 'nix search --json'.
+#[allow(dead_code)]
 #[derive(Deserialize, Debug)]
 struct NixSearchRawItem {
     pub pname: Option<String>,

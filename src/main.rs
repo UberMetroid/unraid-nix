@@ -186,13 +186,41 @@ fn parse_sandbox_args(args: &[String]) -> Result<String, String> {
     let mut i = 2;
     while i < args.len() {
         match args[i].as_str() {
-            "--name" => { name = args[i+1].clone(); i += 2; }
-            "--appdata" => { appdata = args[i+1].clone(); i += 2; }
-            "--media" => { media = Some(args[i+1].clone()); i += 2; }
-            "--puid" => { puid = args[i+1].parse::<u32>().map_err(|_| "Invalid PUID")?; i += 2; }
-            "--pgid" => { pgid = args[i+1].parse::<u32>().map_err(|_| "Invalid PGID")?; i += 2; }
-            "--gpu" => { gpu = true; i += 1; }
-            "--cmd" => { cmd = args[i+1].clone(); i += 2; }
+            "--name" => {
+                if i + 1 >= args.len() { return Err("Missing value for --name".to_string()); }
+                name = args[i+1].clone();
+                i += 2;
+            }
+            "--appdata" => {
+                if i + 1 >= args.len() { return Err("Missing value for --appdata".to_string()); }
+                appdata = args[i+1].clone();
+                i += 2;
+            }
+            "--media" => {
+                if i + 1 >= args.len() { return Err("Missing value for --media".to_string()); }
+                let val = args[i+1].clone();
+                media = if val.trim().is_empty() || val == "-" { None } else { Some(val) };
+                i += 2;
+            }
+            "--puid" => {
+                if i + 1 >= args.len() { return Err("Missing value for --puid".to_string()); }
+                puid = args[i+1].parse::<u32>().map_err(|_| "Invalid PUID")?;
+                i += 2;
+            }
+            "--pgid" => {
+                if i + 1 >= args.len() { return Err("Missing value for --pgid".to_string()); }
+                pgid = args[i+1].parse::<u32>().map_err(|_| "Invalid PGID")?;
+                i += 2;
+            }
+            "--gpu" => {
+                gpu = true;
+                i += 1;
+            }
+            "--cmd" => {
+                if i + 1 >= args.len() { return Err("Missing value for --cmd".to_string()); }
+                cmd = args[i+1].clone();
+                i += 2;
+            }
             _ => return Err(format!("Unknown sandbox flag: {}", args[i])),
         }
     }

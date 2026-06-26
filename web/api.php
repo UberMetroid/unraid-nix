@@ -135,20 +135,16 @@ if ($action === 'install-custom') {
             $cmd = shell_exec("/usr/local/emhttp/plugins/nix/nix-helper sandbox --name " . escapeshellarg($name) . " --appdata " . escapeshellarg($appdata) . " --media " . escapeshellarg($media) . " --puid " . escapeshellarg($puid) . " --pgid " . escapeshellarg($pgid) . " --cmd " . escapeshellarg("nix run " . $uri));
         }
 
-        // Apply additional shared paths/bind mounts if provided
+        // Apply additional shared paths/bind mounts if provided (translate path references)
         if (!empty($extra_binds)) {
             $binds_arr = json_decode($extra_binds, true);
             if (is_array($binds_arr)) {
-                $bind_args = "";
                 foreach ($binds_arr as $b) {
                     $host = trim($b['host']);
                     $sandbox = trim($b['sandbox']);
                     if (!empty($host) && !empty($sandbox)) {
-                        $bind_args .= " --bind " . escapeshellarg($host) . " " . escapeshellarg($sandbox);
+                        $cmd = str_replace($sandbox, $host, $cmd);
                     }
-                }
-                if (!empty($bind_args)) {
-                    $cmd = str_replace(" --chdir", $bind_args . " --chdir", $cmd);
                 }
             }
         }

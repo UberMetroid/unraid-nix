@@ -2,7 +2,7 @@
 <!DOCTYPE PLUGIN [
   <!ENTITY name      "nix">
   <!ENTITY author    "UberMetroid">
-  <!ENTITY version   "2026.06.25.46">
+  <!ENTITY version   "2026.06.25.47">
   <!ENTITY launch    "Settings/nix">
   <!ENTITY plugdir   "/boot/config/plugins/&name;">
   <!ENTITY usrdir    "/usr/local/emhttp/plugins/&name;">
@@ -11,6 +11,10 @@
 
   <CHANGES>
     ## nix package manager plugin
+    ### 2026.06.25.47
+    - Replaced incompatible bubblewrap sandboxing with native host execution under target PUID/PGID, resolving the 'pivot_root: Invalid argument' crash on Unraid's RAM-based rootfs.
+    - Fixed file manager folder pickers to trigger on click event, restoring the drop-down directory browser popup.
+    - Made nix-helper argument parser robust to empty/missing parameters like optional media shares.
     ### 2026.06.25.46
     - Configured service preset command definitions to call the absolute nix-helper path.
     - Added a global /usr/local/bin/nix-helper symlink for clean CLI execution.

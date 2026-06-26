@@ -1,11 +1,10 @@
-/// Nix Sandbox Builder Module
+/// Nix Host Execution Runner Module
 ///
-/// This module constructs the bubblewrap (bwrap) sandbox commands
-/// to isolate Nix processes, control host filesystem access (shares),
-/// apply PUID/PGID spoofing, and optionally bind GPU rendering devices.
-use std::path::Path;
-
-/// Configuration options for building the bubblewrap sandbox.
+/// This module constructs the execution commands using 'runuser'
+/// to run processes natively on the host under the specified PUID/PGID,
+/// ensuring compatibility with Unraid's rootfs architecture.
+/// Configuration options for executing the sandboxed process.
+#[allow(dead_code)]
 #[derive(Debug, Clone)]
 pub struct SandboxConfig {
     pub name: String,
@@ -17,73 +16,38 @@ pub struct SandboxConfig {
     pub inner_command: String,
 }
 
-/// Generates the full bubblewrap execution command string.
+/// Generates the full runuser native execution command string.
 ///
-/// Builds a clean filesystem namespace, binding only the required host directories
-/// and remapping paths (e.g. appdata -> /config) to match Docker user expectations.
+/// Wraps the inner command in a runuser call that drops privileges to PUID:PGID,
+/// sets HOME to the appdata path (since Nix requires a writable HOME owned by the user),
+/// sources the Nix daemon profile, and translates sandboxed paths (/config and /media)
+/// to their host counterparts.
 pub fn build_bwrap_command(config: &SandboxConfig) -> Result<String, String> {
     if config.appdata_path.trim().is_empty() {
-        return Err("Appdata path must be specified for service sandboxing.".to_string());
+        return Err("Appdata/Install path must be specified for service execution.".to_string());
     }
 
-    let mut args = vec![
-        "bwrap".to_string(),
-        "--ro-bind /usr /usr".to_string(),
-        "--ro-bind /lib /lib".to_string(),
-        "--ro-bind /bin /bin".to_string(),
-        "--ro-bind /nix /nix".to_string(),
-        // Network configurations
-        "--ro-bind /etc/resolv.conf /etc/resolv.conf".to_string(),
-        "--ro-bind /etc/hosts /etc/hosts".to_string(),
-        "--ro-bind /etc/ssl /etc/ssl".to_string(),
-        // Vital system tables
-        "--ro-bind /etc/passwd /etc/passwd".to_string(),
-        "--ro-bind /etc/group /etc/group".to_string(),
-        // Devices and process table
-        "--dev /dev".to_string(),
-        "--proc /proc".to_string(),
-        // PUID / PGID Spoofing
-        format!("--uid {}", config.puid),
-        format!("--gid {}", config.pgid),
-    ];
-
-    // Check for lib64 which is present on 64-bit Slackware/Unraid
-    if Path::new("/lib64").exists() {
-        args.insert(3, "--ro-bind /lib64 /lib64".to_string());
-    }
-
-    // Bind Appdata share to /config
-    args.push(format!("--bind {} /config", config.appdata_path));
-
-    // Optionally bind Media share to /media
+    // Translate standard sandboxed paths inside the inner command
+    let mut inner_cmd = config.inner_command.clone();
+    inner_cmd = inner_cmd.replace("/config", &config.appdata_path);
     if let Some(ref media) = config.media_path {
         if !media.trim().is_empty() {
-            args.push(format!("--bind {} /media", media));
+            inner_cmd = inner_cmd.replace("/media", media);
         }
     }
 
-    // Expose GPU render nodes if hardware acceleration is enabled
-    if config.enable_gpu {
-        if Path::new("/dev/dri").exists() {
-            args.push("--dev-bind /dev/dri /dev/dri".to_string());
-        }
-        // Nvidia support bindings if they exist on the host
-        if Path::new("/dev/nvidia0").exists() {
-            args.push("--dev-bind /dev/nvidiactl /dev/nvidiactl".to_string());
-            args.push("--dev-bind /dev/nvidia0 /dev/nvidia0".to_string());
-            if Path::new("/usr/lib64/nvidia").exists() {
-                args.push("--ro-bind /usr/lib64/nvidia /usr/lib64/nvidia".to_string());
-            }
-        }
-    }
+    // Format the command to execute via runuser.
+    // We source the Nix daemon profile so that nix is in the PATH and NIX_REMOTE is set correctly.
+    // We set HOME to the appdata path, as Nix requires a writeable HOME directory owned by the user.
+    let runuser_cmd = format!(
+        "runuser -u {} -g {} -- sh -c \"export HOME={} && . /nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh && {}\"",
+        config.puid,
+        config.pgid,
+        config.appdata_path,
+        inner_cmd.replace("\"", "\\\"")
+    );
 
-    // Default working directory inside the sandbox
-    args.push("--chdir /".to_string());
-
-    // Execute the actual command via bash wrapper inside the sandbox
-    args.push(format!("sh -c \"{}\"", config.inner_command.replace("\"", "\\\"")));
-
-    Ok(args.join(" "))
+    Ok(runuser_cmd)
 }
 
 #[cfg(test)]
@@ -103,31 +67,9 @@ mod tests {
         };
 
         let cmd = build_bwrap_command(&config).unwrap();
-        assert!(cmd.starts_with("bwrap "));
-        assert!(cmd.contains("--uid 99"));
-        assert!(cmd.contains("--gid 100"));
-        assert!(cmd.contains("--bind /mnt/cache/appdata/test-app /config"));
-        assert!(cmd.contains("--bind /mnt/user/media /media"));
-        assert!(cmd.contains("sh -c \"nix run nixpkgs#hello\""));
-    }
-
-    #[test]
-    fn test_build_bwrap_command_gpu() {
-        let config = SandboxConfig {
-            name: "jellyfin".to_string(),
-            appdata_path: "/mnt/cache/appdata/jellyfin".to_string(),
-            media_path: None,
-            puid: 99,
-            pgid: 100,
-            enable_gpu: true,
-            inner_command: "jellyfin".to_string(),
-        };
-
-        let cmd = build_bwrap_command(&config).unwrap();
-        // Since GPU is requested, check that it generates standard binds
-        assert!(cmd.contains("--chdir /"));
-        // If /dev/dri exists on the test runner, it will be mapped. We can't guarantee that in test,
-        // but we verify the command still successfully builds without crashing.
+        assert!(cmd.starts_with("runuser -u 99 -g 100 -- sh -c "));
+        assert!(cmd.contains("export HOME=/mnt/cache/appdata/test-app"));
+        assert!(cmd.contains("nix run nixpkgs#hello"));
     }
 
     #[test]
