@@ -15,7 +15,7 @@ if (file_exists($cfg_file)) {
 ?>
 
 <div class="nix-section">
-    <h3>Install Custom Flake / Preset</h3>
+    <h3>Install Flake</h3>
     <p class="nix-subtext">Run or daemonize any custom flake from GitHub or a local directory.</p>
     
     <form id="nix-install-custom-form" onsubmit="installCustomFlake(event)">
