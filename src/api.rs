@@ -60,11 +60,11 @@ pub fn render_services_table(api_port: u16) -> String {
         <thead>
             <tr>
                 <th>Service Name</th>
-                <th>Port</th>
+                <th>Port(s)</th>
                 <th>Status</th>
                 <th>Uptime</th>
                 <th>Resources</th>
-                <th>Install Path (Host Access)</th>
+                <th>Path(s)</th>
                 <th>Actions</th>
             </tr>
         </thead>
@@ -125,26 +125,7 @@ pub fn render_services_table(api_port: u16) -> String {
                 "".to_string()
             };
 
-            let restart_btn = if is_running {
-                format!(r#"<button type="button" class="nix-btn" onclick="serviceAction('{}', 'restart')" title="Restart"><i class="fa fa-refresh"></i></button>"#, s.name)
-            } else {
-                "".to_string()
-            };
-
             let logs_btn = format!(r#"<button type="button" class="nix-btn" onclick="openLogs('{}')" title="Logs"><i class="fa fa-file-text-o"></i></button>"#, s.name);
-
-            let web_ui_btn = if let Some(port) = get_service_web_port(&s.name) {
-                if is_running {
-                    format!(
-                        r#"<button type="button" class="nix-btn" onclick="window.open('http://' + window.location.hostname + ':{}/', '_blank')" title="Open Web UI"><i class="fa fa-globe"></i></button>"#,
-                        port
-                    )
-                } else {
-                    "".to_string()
-                }
-            } else {
-                "".to_string()
-            };
 
             html.push_str(&format!(
                 r#"<tr>
@@ -153,18 +134,16 @@ pub fn render_services_table(api_port: u16) -> String {
                     <td>{}</td>
                     <td>{}</td>
                     <td>{}</td>
-                    <td><code>{}</code> <i class="fa fa-info-circle" style="color: #a0a0a5; cursor: help;" title="Runs natively on the host. Has full read/write access to all shares accessible to user 'nobody:users'"></i></td>
+                    <td><code>{}</code></td>
                     <td>
                         <div class="nix-actions-wrapper">
-                            {}
-                            {}
                             {}
                             {}
                             {}
                         </div>
                     </td>
                 </tr>"#,
-                s.name, port_str, status_badge, uptime_str, resources_str, home_path, start_btn, stop_btn, restart_btn, logs_btn, web_ui_btn
+                s.name, port_str, status_badge, uptime_str, resources_str, home_path, start_btn, stop_btn, logs_btn
             ));
         }
     }

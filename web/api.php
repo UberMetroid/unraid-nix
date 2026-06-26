@@ -27,8 +27,9 @@ if ($action === 'logs') {
     echo "<html><head><title>Logs: $service</title><style>body{background:#111;color:#eee;font-family:monospace;padding:15px;}</style></head><body>";
     echo "<h3>Active console output for: $service</h3>";
     if ($http_code === 200 && $response) {
-        $lines = json_decode($response, true);
-        if (is_array($lines)) {
+        $data = json_decode($response, true);
+        if (is_array($data) && isset($data['logs']) && is_array($data['logs'])) {
+            $lines = $data['logs'];
             echo "<pre style='white-space: pre-wrap; word-wrap: break-word;'>";
             foreach ($lines as $line) {
                 echo htmlspecialchars($line) . "\n";

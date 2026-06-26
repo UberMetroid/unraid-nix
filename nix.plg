@@ -2,7 +2,7 @@
 <!DOCTYPE PLUGIN [
   <!ENTITY name      "nix">
   <!ENTITY author    "UberMetroid">
-  <!ENTITY version   "2026.06.25.52">
+  <!ENTITY version   "2026.06.26.01">
   <!ENTITY launch    "Settings/nix">
   <!ENTITY plugdir   "/boot/config/plugins/&name;">
   <!ENTITY usrdir    "/usr/local/emhttp/plugins/&name;">
@@ -11,6 +11,11 @@
 
   <CHANGES>
     ## nix package manager plugin
+    ### 2026.06.26.01
+    - Fixed logs JSON parsing logic to extract log array from the 'logs' key, restoring log contents in the popup window.
+    - Renamed active flakes table column headers to 'Port(s)' and 'Path(s)'.
+    - Removed redundant Restart and Web UI (globe) buttons from Actions.
+    - Removed info tooltip icon from Path(s) column.
     ### 2026.06.25.52
     - Replaced runuser with setpriv wrapper for clean process group signal forwarding.
     - Updated active flakes table to display dedicated Port and Install Path columns.
