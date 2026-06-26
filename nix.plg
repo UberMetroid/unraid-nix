@@ -2,7 +2,7 @@
 <!DOCTYPE PLUGIN [
   <!ENTITY name      "nix">
   <!ENTITY author    "UberMetroid">
-  <!ENTITY version   "2026.06.25.16">
+  <!ENTITY version   "2026.06.25.17">
   <!ENTITY launch    "Settings/nix">
   <!ENTITY plugdir   "/boot/config/plugins/&name;">
   <!ENTITY usrdir    "/usr/local/emhttp/plugins/&name;">
@@ -11,6 +11,8 @@
 
   <CHANGES>
     ## nix package manager plugin
+    ### 2026.06.25.17
+    - Escaped percent sign in printf statement to prevent truncation of the plugin description.
     ### 2026.06.25.16
     - Fixed XML parse error during plugin installation by replacing bash heredoc angle brackets with printf.
     ### 2026.06.25.15
@@ -85,7 +87,7 @@
       done
       
       # Write a minimal README.md containing only the overview for the Unraid Plugins GUI screen
-      printf "**Nix**\n\nA native, 100% Rust-backed plugin to run the Nix package manager and manage Nix Flakes natively on Unraid.\n" > "&usrdir;/README.md"
+      printf "**Nix**\n\nA native, 100%% Rust-backed plugin to run the Nix package manager and manage Nix Flakes natively on Unraid.\n" > "&usrdir;/README.md"
 
       # Create case-sensitive symlinks for Unraid Plugin Manager when using display name "Nix"
       ln -sf nix.png "&usrdir;/Nix.png"
