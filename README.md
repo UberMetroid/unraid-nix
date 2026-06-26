@@ -1,6 +1,6 @@
 # unraid-nix
 
-A native, 100% Rust-backed plugin to run the Nix package manager and manage Nix Flakes natively on Unraid without Docker container or VM overhead.
+A native, 100% Rust-backed plugin to run the Nix package manager and manage Nix Flakes natively on Unraid.
 
 ---
 
