@@ -70,6 +70,18 @@ pub fn render_services_table(api_port: u16) -> String {
     html
 }
 
+fn is_cli_enabled() -> bool {
+    if let Ok(content) = std::fs::read_to_string("/boot/config/plugins/nix/nix.cfg") {
+        for line in content.lines() {
+            if line.starts_with("ENABLE_CLI_INSTALL=") {
+                let val = line.trim_start_matches("ENABLE_CLI_INSTALL=").trim_matches('"');
+                return val == "yes";
+            }
+        }
+    }
+    false
+}
+
 /// Renders search results from the Nixpkgs registry into an HTML table.
 pub fn render_search_results(query: &str) -> String {
     let results = match search_packages(query) {
@@ -91,18 +103,31 @@ pub fn render_search_results(query: &str) -> String {
     if results.is_empty() {
         html.push_str(r#"<tr><td colspan="4" class="text-center">No packages found matching your query.</td></tr>"#);
     } else {
+        let cli_enabled = is_cli_enabled();
         for r in results {
+            let action_buttons = if cli_enabled {
+                format!(
+                    r#"<div style="display: flex; flex-direction: column; gap: 5px; align-items: center; justify-content: center;">
+                        <button class="nix-btn" style="width: 100px; margin: 0; padding: 4px 8px; font-size: 11px;" onclick="installPackage('{}')">Install CLI</button>
+                        <button class="nix-btn-install" style="width: 100px; margin: 0; padding: 4px 8px; font-size: 11px;" onclick="showServiceModal('{}')">Add Service</button>
+                       </div>"#,
+                    r.package_name, r.package_name
+                )
+            } else {
+                format!(
+                    r#"<button class="nix-btn-install" style="width: 100px; margin: 0; padding: 4px 8px; font-size: 11px;" onclick="showServiceModal('{}')">Add Service</button>"#,
+                    r.package_name
+                )
+            };
+
             html.push_str(&format!(
                 r#"<tr>
                     <td><code>{}</code></td>
                     <td>{}</td>
                     <td>{}</td>
-                    <td>
-                        <button class="nix-btn-install" onclick="installPackage('{}')">Install CLI</button>
-                        <button class="nix-btn-install" onclick="showServiceModal('{}')">Add Service</button>
-                    </td>
+                    <td>{}</td>
                 </tr>"#,
-                r.package_name, r.version, r.description, r.package_name, r.package_name
+                r.package_name, r.version, r.description, action_buttons
             ));
         }
     }

@@ -169,6 +169,7 @@ if ($action === 'nix-sys-logs') {
 if ($action === 'save-settings') {
     $store_path = isset($_POST['store_path']) ? $_POST['store_path'] : '';
     $autostart = isset($_POST['autostart']) ? $_POST['autostart'] : 'yes';
+    $enable_cli = isset($_POST['enable_cli']) ? $_POST['enable_cli'] : 'no';
     
     $cfg_dir = "/boot/config/plugins/nix";
     if (!file_exists($cfg_dir)) {
@@ -177,6 +178,7 @@ if ($action === 'save-settings') {
     
     $cfg_content = "NIX_STORE_PATH=\"" . addslashes($store_path) . "\"\n";
     $cfg_content .= "AUTOSTART_FLAKES=\"" . addslashes($autostart) . "\"\n";
+    $cfg_content .= "ENABLE_CLI_INSTALL=\"" . addslashes($enable_cli) . "\"\n";
     
     if (file_put_contents($cfg_dir . "/nix.cfg", $cfg_content) === false) {
         error("Failed to write nix.cfg to flash drive.");

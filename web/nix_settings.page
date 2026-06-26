@@ -16,6 +16,7 @@ function detect_default_store_path() {
 // Set defaults
 $store_path = isset($nix_cfg['NIX_STORE_PATH']) ? $nix_cfg['NIX_STORE_PATH'] : detect_default_store_path();
 $autostart = isset($nix_cfg['AUTOSTART_FLAKES']) ? $nix_cfg['AUTOSTART_FLAKES'] : 'yes';
+$enable_cli = isset($nix_cfg['ENABLE_CLI_INSTALL']) ? $nix_cfg['ENABLE_CLI_INSTALL'] : 'no';
 
 exec("/etc/rc.d/rc.nix-daemon status 2>/dev/null", $status_output, $status_code);
 $is_nix_running = ($status_code === 0);
@@ -63,6 +64,14 @@ $is_nix_running = ($status_code === 0);
             </select>
         </div>
 
+        <div class="nix-form-group">
+            <label for="settings-enable-cli">Show CLI Package Installation option in Flake Store:</label>
+            <select id="settings-enable-cli">
+                <option value="no" <?php echo $enable_cli === 'no' ? 'selected' : ''; ?>>No (Services only)</option>
+                <option value="yes" <?php echo $enable_cli === 'yes' ? 'selected' : ''; ?>>Yes (Show CLI option)</option>
+            </select>
+        </div>
+
         <button type="submit" class="nix-btn-primary">Apply Settings</button>
     </form>
 </div>
@@ -78,6 +87,7 @@ function saveSettings(e) {
     e.preventDefault();
     var path = $("#settings-store-path").val();
     var auto = $("#settings-autostart").val();
+    var enableCli = $("#settings-enable-cli").val();
     
     if (path.indexOf("/boot") === 0) {
         alert("Error: The Nix Store cannot be stored on your USB flash drive (/boot). Choose a pool disk or array share.");
@@ -87,7 +97,8 @@ function saveSettings(e) {
     $.post('/plugins/nix/api.php', {
         action: 'save-settings',
         store_path: path,
-        autostart: auto
+        autostart: auto,
+        enable_cli: enableCli
     }, function(resp) {
         if (resp.success) {
             alert("Settings applied successfully! Restart the Nix services for the changes to take effect.");

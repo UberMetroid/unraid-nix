@@ -75,6 +75,11 @@
     table-layout: fixed;
     border-collapse: collapse;
     margin-top: 10px;
+    background: #1c1c1f !important;
+}
+
+.nix-services-table tr, .nix-search-table tr {
+    background: #1c1c1f !important;
 }
 
 .nix-search-table th:nth-child(1), .nix-search-table td:nth-child(1) { width: 25%; word-break: break-all; }
@@ -92,7 +97,7 @@
 .nix-services-table th, .nix-search-table th {
     text-align: left;
     padding: 12px;
-    background: #141416;
+    background: #141416 !important;
     color: #a0a0a5;
     font-size: 12px;
     text-transform: uppercase;
@@ -103,9 +108,10 @@
 .nix-services-table td, .nix-search-table td {
     padding: 12px;
     border-bottom: 1px solid #2d2d30;
-    color: #eee;
+    color: #eee !important;
     font-size: 13px;
     vertical-align: middle;
+    background: #1c1c1f !important;
 }
 
 /* Status Badges */
