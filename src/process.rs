@@ -18,13 +18,14 @@ pub struct ServiceStatus {
     #[serde(rename = "mem")]
     pub memory: Option<u64>,
     #[serde(rename = "age")]
-    pub uptime_seconds: Option<u64>,
+    pub uptime_nanoseconds: Option<u64>,
 }
 
 impl ServiceStatus {
     /// Formats the service age in seconds into a human-readable uptime string.
     pub fn uptime(&self) -> String {
-        if let Some(secs) = self.uptime_seconds {
+        if let Some(nanos) = self.uptime_nanoseconds {
+            let secs = nanos / 1_000_000_000;
             if secs < 60 {
                 format!("{}s", secs)
             } else if secs < 3600 {
@@ -163,7 +164,7 @@ mod tests {
                     "pid": 1234,
                     "cpu": 1.2,
                     "mem": 45000000,
-                    "age": 7440
+                    "age": 7440000000000
                 }
             ]
         }"#;

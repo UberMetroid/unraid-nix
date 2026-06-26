@@ -2,7 +2,7 @@
 <!DOCTYPE PLUGIN [
   <!ENTITY name      "nix">
   <!ENTITY author    "UberMetroid">
-  <!ENTITY version   "2026.06.25.48">
+  <!ENTITY version   "2026.06.25.49">
   <!ENTITY launch    "Settings/nix">
   <!ENTITY plugdir   "/boot/config/plugins/&name;">
   <!ENTITY usrdir    "/usr/local/emhttp/plugins/&name;">
@@ -11,6 +11,8 @@
 
   <CHANGES>
     ## nix package manager plugin
+    ### 2026.06.25.49
+    - Fixed service uptime duration calculation, converting the supervisor daemon's nanosecond age field to seconds.
     ### 2026.06.25.48
     - Fixed active services action buttons layout, wrapping them in a standard table-cell column container to prevent breaking out of table boundaries.
     ### 2026.06.25.47
