@@ -15,11 +15,28 @@ if ($action === 'logs') {
         echo "Invalid service name.";
         exit;
     }
-    $log_file = "/var/log/nix-services/" . $service . ".log";
+
+    // Fetch logs from process-compose API
+    $ch = curl_init("http://127.0.0.1:29704/process/logs/" . urlencode($service) . "/0/200");
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+    curl_setopt($ch, CURLOPT_TIMEOUT, 2);
+    $response = curl_exec($ch);
+    $http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    curl_close($ch);
+
     echo "<html><head><title>Logs: $service</title><style>body{background:#111;color:#eee;font-family:monospace;padding:15px;}</style></head><body>";
     echo "<h3>Active console output for: $service</h3>";
-    if (file_exists($log_file)) {
-        echo "<pre>" . htmlspecialchars(shell_exec("tail -n 200 " . escapeshellarg($log_file))) . "</pre>";
+    if ($http_code === 200 && $response) {
+        $lines = json_decode($response, true);
+        if (is_array($lines)) {
+            echo "<pre style='white-space: pre-wrap; word-wrap: break-word;'>";
+            foreach ($lines as $line) {
+                echo htmlspecialchars($line) . "\n";
+            }
+            echo "</pre>";
+        } else {
+            echo "<p class='text-muted'>Error decoding logs JSON response.</p>";
+        }
     } else {
         echo "<p class='text-muted'>No logs found. If the service just started, it might take a few seconds to populate.</p>";
     }
@@ -318,7 +335,7 @@ function restart_nix_supervisor() {
     // 2. Start it up
     if (file_exists($cfg_file)) {
         shell_exec("mkdir -p /var/log/nix-services");
-        $cmd = ". /nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh && nohup nix run nixpkgs#process-compose -- -p 29704 -f " . escapeshellarg($cfg_file) . " --tui=false > /var/log/nix-process-compose.log 2>&1 & echo \$! > " . escapeshellarg($pid_file);
+        $cmd = ". /nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh && nohup nix run nixpkgs#process-compose -- -p 29704 -f " . escapeshellarg($cfg_file) . " --tui=false --keep-project > /var/log/nix-process-compose.log 2>&1 & echo \$! > " . escapeshellarg($pid_file);
         shell_exec($cmd);
     }
 }

@@ -20,6 +20,27 @@ fn get_service_web_port(name: &str) -> Option<u16> {
     }
 }
 
+/// Extracts the HOME directory path from the runuser/setpriv command.
+fn extract_home_path(command: &str) -> String {
+    if let Some(pos) = command.find("export HOME=") {
+        let start = pos + "export HOME=".len();
+        let sub = &command[start..];
+        
+        let mut end = sub.len();
+        for (i, c) in sub.char_indices() {
+            if c == ' ' || c == ';' || c == '&' || c == '"' || c == '\'' {
+                end = i;
+                break;
+            }
+        }
+        let path = sub[..end].trim();
+        if !path.is_empty() {
+            return path.to_string();
+        }
+    }
+    "-".to_string()
+}
+
 /// Renders the services dashboard table as an HTML string.
 /// Mirrors the styling and visual cues of Unraid's native Docker container list.
 pub fn render_services_table(api_port: u16) -> String {
@@ -32,24 +53,30 @@ pub fn render_services_table(api_port: u16) -> String {
         Err(e) => return format!(r#"<div class="alert alert-danger"><i class="fa fa-times"></i> Error connecting to supervisor API: {}</div>"#, e),
     };
 
+    let config_path = "/boot/config/plugins/nix/process-compose.yml";
+    let config = crate::config::load_config(config_path).ok();
+
     let mut html = r#"<table class="nix-services-table">
         <thead>
             <tr>
                 <th>Service Name</th>
+                <th>Port</th>
                 <th>Status</th>
                 <th>Uptime</th>
-                <th>CPU</th>
-                <th>Memory</th>
+                <th>Resources</th>
+                <th>Install Path (Host Access)</th>
                 <th>Actions</th>
             </tr>
         </thead>
         <tbody>"#.to_string();
 
     if statuses.is_empty() {
-        html.push_str(r#"<tr><td colspan="6" class="text-center">No Nix Flake services configured. Go to the Flakes tab to install one.</td></tr>"#);
+        html.push_str(r#"<tr><td colspan="7" class="text-center">No Nix Flake services configured. Go to the Flakes tab to install one.</td></tr>"#);
     } else {
         for s in statuses {
-            let status_badge = if s.status.to_lowercase() == "running" {
+            let is_running = s.status.to_lowercase() == "running";
+
+            let status_badge = if is_running {
                 r#"<span class="status green">🟢 Running</span>"#
             } else if s.status.to_lowercase() == "stopped" {
                 r#"<span class="status red">🔴 Stopped</span>"#
@@ -59,13 +86,62 @@ pub fn render_services_table(api_port: u16) -> String {
 
             let cpu_str = s.cpu.map(|c| format!("{:.1}%", c)).unwrap_or_else(|| "-".to_string());
             let mem_str = s.memory.map(|m| format!("{} MB", m / 1024 / 1024)).unwrap_or_else(|| "-".to_string());
+            let resources_str = if is_running {
+                format!("{} / {}", cpu_str, mem_str)
+            } else {
+                "-".to_string()
+            };
+
             let uptime_str = s.uptime();
 
-            let web_link_btn = if let Some(port) = get_service_web_port(&s.name) {
-                format!(
-                    r#"<button type="button" class="nix-btn" onclick="window.open('http://' + window.location.hostname + ':{}/', '_blank')" title="Open Web UI"><i class="fa fa-globe"></i></button>"#,
-                    port
-                )
+            let port_str = if let Some(port) = get_service_web_port(&s.name) {
+                if is_running {
+                    format!(
+                        r##"<a href="#" onclick="window.open('http://' + window.location.hostname + ':{}/', '_blank'); return false;" style="color: #00a1ff; text-decoration: none;">{} <i class="fa fa-external-link" style="font-size: 10px;"></i></a>"##,
+                        port, port
+                    )
+                } else {
+                    port.to_string()
+                }
+            } else {
+                "-".to_string()
+            };
+
+            let home_path = config
+                .as_ref()
+                .and_then(|c| c.processes.get(&s.name))
+                .map(|p| extract_home_path(&p.command))
+                .unwrap_or_else(|| "-".to_string());
+
+            let start_btn = if !is_running {
+                format!(r#"<button type="button" class="nix-btn" onclick="serviceAction('{}', 'start')" title="Start"><i class="fa fa-play"></i></button>"#, s.name)
+            } else {
+                "".to_string()
+            };
+
+            let stop_btn = if is_running {
+                format!(r#"<button type="button" class="nix-btn" onclick="serviceAction('{}', 'stop')" title="Stop"><i class="fa fa-stop"></i></button>"#, s.name)
+            } else {
+                "".to_string()
+            };
+
+            let restart_btn = if is_running {
+                format!(r#"<button type="button" class="nix-btn" onclick="serviceAction('{}', 'restart')" title="Restart"><i class="fa fa-refresh"></i></button>"#, s.name)
+            } else {
+                "".to_string()
+            };
+
+            let logs_btn = format!(r#"<button type="button" class="nix-btn" onclick="openLogs('{}')" title="Logs"><i class="fa fa-file-text-o"></i></button>"#, s.name);
+
+            let web_ui_btn = if let Some(port) = get_service_web_port(&s.name) {
+                if is_running {
+                    format!(
+                        r#"<button type="button" class="nix-btn" onclick="window.open('http://' + window.location.hostname + ':{}/', '_blank')" title="Open Web UI"><i class="fa fa-globe"></i></button>"#,
+                        port
+                    )
+                } else {
+                    "".to_string()
+                }
             } else {
                 "".to_string()
             };
@@ -77,17 +153,18 @@ pub fn render_services_table(api_port: u16) -> String {
                     <td>{}</td>
                     <td>{}</td>
                     <td>{}</td>
+                    <td><code>{}</code> <i class="fa fa-info-circle" style="color: #a0a0a5; cursor: help;" title="Runs natively on the host. Has full read/write access to all shares accessible to user 'nobody:users'"></i></td>
                     <td>
                         <div class="nix-actions-wrapper">
-                            <button type="button" class="nix-btn" onclick="serviceAction('{}', 'start')" title="Start"><i class="fa fa-play"></i></button>
-                            <button type="button" class="nix-btn" onclick="serviceAction('{}', 'stop')" title="Stop"><i class="fa fa-stop"></i></button>
-                            <button type="button" class="nix-btn" onclick="serviceAction('{}', 'restart')" title="Restart"><i class="fa fa-refresh"></i></button>
-                            <button type="button" class="nix-btn" onclick="openLogs('{}')" title="Logs"><i class="fa fa-file-text-o"></i></button>
+                            {}
+                            {}
+                            {}
+                            {}
                             {}
                         </div>
                     </td>
                 </tr>"#,
-                s.name, status_badge, uptime_str, cpu_str, mem_str, s.name, s.name, s.name, s.name, web_link_btn
+                s.name, port_str, status_badge, uptime_str, resources_str, home_path, start_btn, stop_btn, restart_btn, logs_btn, web_ui_btn
             ));
         }
     }

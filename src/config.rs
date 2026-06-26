@@ -86,8 +86,8 @@ pub fn get_service_command_preset(
     };
 
     let inner_command = match name.to_lowercase().as_str() {
-        "radarr" => "HOME=/config nix run nixpkgs#radarr".to_string(),
-        "sonarr" => "HOME=/config nix run nixpkgs#sonarr".to_string(),
+        "radarr" => "nix run nixpkgs#radarr".to_string(),
+        "sonarr" => "nix run nixpkgs#sonarr".to_string(),
         "jellyfin" => "nix run nixpkgs#jellyfin -- --datadir /config/data --cachedir /config/cache --configdir /config/config".to_string(),
         _ => return Err(format!("Unknown preset template: {}", name)),
     };
@@ -141,7 +141,7 @@ mod tests {
     #[test]
     fn test_service_command_presets() {
         let cmd = get_service_command_preset("radarr", "/mnt/cache/appdata/radarr", "/mnt/user/media", 99, 100, false).unwrap();
-        assert!(cmd.starts_with("runuser -u 99 -g 100 -- sh -c "));
+        assert!(cmd.starts_with("exec setpriv --reuid=99 --regid=100 --init-groups sh -c "));
         assert!(cmd.contains("export HOME=/mnt/cache/appdata/radarr"));
         assert!(cmd.contains("nix run nixpkgs#radarr"));
 

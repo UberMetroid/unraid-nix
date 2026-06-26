@@ -117,15 +117,15 @@ pub fn send_service_action(api_port: u16, name: &str, action: &str) -> Result<()
     }
 
     // Translate user-friendly action terms to REST endpoints
-    let endpoint = match action.to_lowercase().as_str() {
-        "start" => format!("process/start/{}", name),
-        "stop" => format!("process/stop/{}", name),
-        "restart" => format!("process/restart/{}", name),
+    let (endpoint, method) = match action.to_lowercase().as_str() {
+        "start" => (format!("process/start/{}", name), "POST"),
+        "stop" => (format!("process/stop/{}", name), "PATCH"),
+        "restart" => (format!("process/restart/{}", name), "POST"),
         _ => return Err(format!("Unsupported service action: {}", action)),
     };
 
     let url = format!("http://127.0.0.1:{}/{}", api_port, endpoint);
-    let resp = ureq::post(&url)
+    let resp = ureq::request(method, &url)
         .call()
         .map_err(|e| format!("HTTP request failed: {}", e))?;
 

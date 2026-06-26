@@ -2,7 +2,7 @@
 <!DOCTYPE PLUGIN [
   <!ENTITY name      "nix">
   <!ENTITY author    "UberMetroid">
-  <!ENTITY version   "2026.06.25.51">
+  <!ENTITY version   "2026.06.25.52">
   <!ENTITY launch    "Settings/nix">
   <!ENTITY plugdir   "/boot/config/plugins/&name;">
   <!ENTITY usrdir    "/usr/local/emhttp/plugins/&name;">
@@ -11,6 +11,14 @@
 
   <CHANGES>
     ## nix package manager plugin
+    ### 2026.06.25.52
+    - Replaced runuser with setpriv wrapper for clean process group signal forwarding.
+    - Updated active flakes table to display dedicated Port and Install Path columns.
+    - Combined CPU & Memory columns into a single Resources column.
+    - Implemented dynamic state-aware action buttons (Start stops showing when running).
+    - Fixed API action routing for stop actions (using PATCH).
+    - Configured process-compose logs API dynamically for logs button.
+    - Added keep-project flag to prevent supervisor daemon from exiting when all services are stopped.
     ### 2026.06.25.51
     - Set max-width on the active flakes table to prevent columns from stretching excessively on widescreen monitors.
     ### 2026.06.25.50

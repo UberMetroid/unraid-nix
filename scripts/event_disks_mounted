@@ -46,6 +46,7 @@ if [ "$AUTOSTART_FLAKES" = "yes" ] && [ -f "/boot/config/plugins/nix/process-com
         -p 29704 \
         -f /boot/config/plugins/nix/process-compose.yml \
         --tui=false \
+        --keep-project \
         > /var/log/nix-process-compose.log 2>&1 &
         
     echo $! > /var/run/nix-process-compose.pid

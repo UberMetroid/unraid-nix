@@ -36,11 +36,11 @@ pub fn build_bwrap_command(config: &SandboxConfig) -> Result<String, String> {
         }
     }
 
-    // Format the command to execute via runuser.
+    // Format the command to execute via setpriv.
     // We source the Nix daemon profile so that nix is in the PATH and NIX_REMOTE is set correctly.
     // We set HOME to the appdata path, as Nix requires a writeable HOME directory owned by the user.
     let runuser_cmd = format!(
-        "runuser -u {} -g {} -- sh -c \"export HOME={} && . /nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh && {}\"",
+        "exec setpriv --reuid={} --regid={} --init-groups sh -c \"export HOME={} && . /nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh && exec {}\"",
         config.puid,
         config.pgid,
         config.appdata_path,
@@ -67,7 +67,7 @@ mod tests {
         };
 
         let cmd = build_bwrap_command(&config).unwrap();
-        assert!(cmd.starts_with("runuser -u 99 -g 100 -- sh -c "));
+        assert!(cmd.starts_with("exec setpriv --reuid=99 --regid=100 --init-groups sh -c "));
         assert!(cmd.contains("export HOME=/mnt/cache/appdata/test-app"));
         assert!(cmd.contains("nix run nixpkgs#hello"));
     }
