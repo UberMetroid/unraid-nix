@@ -128,10 +128,14 @@ $host_ips = get_host_ips_php();
 
             <div class="nix-form-row">
                 <div class="nix-form-group" style="flex: 1; margin-right: 10px;">
-                    <label for="custom-port">Host Port Override:</label>
-                    <input type="number" id="custom-port" placeholder="Default port" min="1" max="65535">
+                    <label for="custom-default-port">Default App Port:</label>
+                    <input type="text" id="custom-default-port" readonly style="background: rgba(255,255,255,0.05); color: #888; border-color: rgba(255,255,255,0.1);" value="N/A">
                 </div>
-                <div class="nix-form-group" style="flex: 1;">
+                <div class="nix-form-group" style="flex: 1; margin-right: 10px;">
+                    <label for="custom-port">Host Port Override:</label>
+                    <input type="number" id="custom-port" placeholder="e.g. 7878" min="1" max="65535">
+                </div>
+                <div class="nix-form-group" style="flex: 2;">
                     <label for="custom-bind-address">Bind Address Override:</label>
                     <select id="custom-bind-address" style="width: 100%;">
                         <?php foreach ($host_ips as $item): ?>
@@ -168,6 +172,7 @@ window.initInstallForm = function() {
     $("#custom-puid").val("99");
     $("#custom-pgid").val("100");
     $("#custom-gpu").prop('checked', false);
+    $("#custom-default-port").val("N/A");
     $("#custom-port").val("");
     $("#custom-bind-address").val("0.0.0.0");
     $("#nix-extra-binds-container").empty();
@@ -189,6 +194,8 @@ window.initInstallForm = function() {
         if (editData.port) {
             $("#custom-port").val(editData.port);
         }
+        var defaultPort = getDefaultPort(editData.uri);
+        $("#custom-default-port").val(defaultPort);
         if (editData.bind_address) {
             var select = $("#custom-bind-address");
             if (select.find("option[value='" + editData.bind_address + "']").length === 0) {
@@ -349,6 +356,17 @@ function removeBindRow(idx) {
     $(`#bind-row-${idx}`).remove();
 }
 
+function getDefaultPort(uri) {
+    if (!uri) return "N/A";
+    var name = uri.replace("nixpkgs#", "").toLowerCase().trim();
+    var presets = {
+        "radarr": 7878,
+        "sonarr": 8989,
+        "jellyfin": 8096
+    };
+    return presets[name] || "N/A";
+}
+
 function updatePresetInfo() {
     var uri = $("#custom-uri").val() || "";
     var name = uri.replace("nixpkgs#", "").toLowerCase().trim();
@@ -364,6 +382,9 @@ function updatePresetInfo() {
         "sonarr": { port: "8989", desc: "Sonarr TV Show Manager", url: "https://sonarr.tv/" },
         "jellyfin": { port: "8096", desc: "Jellyfin Media Server", url: "https://jellyfin.org/" }
     };
+    
+    var defaultPort = getDefaultPort(uri);
+    $("#custom-default-port").val(defaultPort);
     
     var matched = presets[name];
     if (matched) {

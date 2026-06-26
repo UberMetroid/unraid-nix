@@ -2,7 +2,7 @@
 <!DOCTYPE PLUGIN [
   <!ENTITY name      "nix">
   <!ENTITY author    "UberMetroid">
-  <!ENTITY version   "2026.06.26.28">
+  <!ENTITY version   "2026.06.26.29">
   <!ENTITY launch    "Settings/Nix">
   <!ENTITY plugdir   "/boot/config/plugins/&name;">
   <!ENTITY usrdir    "/usr/local/emhttp/plugins/&name;">
@@ -11,6 +11,8 @@
 
   <CHANGES>
     ## nix package manager plugin
+    ### 2026.06.26.29
+    - **Port Mapping Clarification**: Separated the single Host Port Override input field in the Install/Edit forms into two distinct fields: a read-only **Default App Port** (displaying the default service socket, e.g., `7878` for Radarr) and an editable **Host Port Override** input, clarifying how ports map from service to host.
     ### 2026.06.26.28
     - **Host IP Bind Address Selector**: Converted the Bind Address Override free-text field in the Install/Edit Flake forms into a dynamic dropdown select menu listing all active host IP interfaces (LAN interfaces, Tailscale IP, Localhost) with custom fallback parsing.
     ### 2026.06.26.27
