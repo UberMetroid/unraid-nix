@@ -118,7 +118,28 @@ if ($action === 'install-custom') {
     }
 }
 
-// 6. Save Configuration Settings
+// 6. Nix system daemon control (Start/Stop environment)
+if ($action === 'nix-daemon-start') {
+    $output = [];
+    $code = 0;
+    exec("/usr/local/emhttp/plugins/nix/event/disks_mounted 2>&1", $output, $code);
+    if ($code !== 0) {
+        error(implode("\n", $output));
+    }
+    success();
+}
+
+if ($action === 'nix-daemon-stop') {
+    $output = [];
+    $code = 0;
+    exec("/usr/local/emhttp/plugins/nix/event/stopping_svcs 2>&1", $output, $code);
+    if ($code !== 0) {
+        error(implode("\n", $output));
+    }
+    success();
+}
+
+// 7. Save Configuration Settings
 if ($action === 'save-settings') {
     $store_path = isset($_POST['store_path']) ? $_POST['store_path'] : '';
     $autostart = isset($_POST['autostart']) ? $_POST['autostart'] : 'yes';

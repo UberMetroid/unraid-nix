@@ -2,19 +2,66 @@ Menu="nix:1"
 Title="Services"
 ---
 <link type="text/css" rel="stylesheet" href="/plugins/nix/styles.css">
+
+<?php
+exec("/etc/rc.d/rc.nix-daemon status 2>/dev/null", $status_output, $status_code);
+$is_nix_running = ($status_code === 0);
+?>
+
+<div class="nix-section" style="margin-bottom: 20px;">
+    <div style="display: flex; align-items: center; justify-content: space-between;">
+        <div>
+            <h3 style="margin: 0 0 5px 0;">Nix System Daemon</h3>
+            <p class="nix-subtext" style="margin: 0;">
+                Daemon Status: 
+                <?php if ($is_nix_running): ?>
+                    <span class="status green">RUNNING</span>
+                <?php else: ?>
+                    <span class="status red">STOPPED</span>
+                <?php endif; ?>
+            </p>
+        </div>
+        <div id="nix-daemon-controls">
+            <?php if ($is_nix_running): ?>
+                <button class="nix-btn" onclick="toggleNixDaemon('stop')"><i class="fa fa-stop"></i> Stop Nix</button>
+            <?php else: ?>
+                <button class="nix-btn-install" onclick="toggleNixDaemon('start')"><i class="fa fa-play"></i> Start Nix</button>
+            <?php endif; ?>
+        </div>
+    </div>
+</div>
+
 <div class="nix-section">
     <h3>Active Nix Services</h3>
     <p class="nix-subtext">Natively running background processes managed by the nix process supervisor.</p>
     
     <div id="nix-services-list">
         <?php
-        $services_html = shell_exec("/usr/local/emhttp/plugins/nix/nix-helper render services 2>&1");
-        echo $services_html;
+        if ($is_nix_running) {
+            $services_html = shell_exec("/usr/local/emhttp/plugins/nix/nix-helper render services 2>&1");
+            echo $services_html;
+        } else {
+            echo '<div class="text-center text-muted" style="padding: 20px;">Nix system daemon is stopped. Start the Nix daemon to manage active background services.</div>';
+        }
         ?>
     </div>
 </div>
 
 <script>
+function toggleNixDaemon(action) {
+    var btnContainer = document.getElementById('nix-daemon-controls');
+    btnContainer.innerHTML = '<i class="fa fa-spinner fa-spin"></i> Processing...';
+    
+    $.post('/plugins/nix/api.php', { action: 'nix-daemon-' + action }, function(response) {
+        if (response.success) {
+            location.reload();
+        } else {
+            alert("Action failed: " + response.error);
+            location.reload();
+        }
+    }, 'json');
+}
+
 function serviceAction(name, action) {
     $.post('/plugins/nix/api.php', { action: action, service: name }, function(response) {
         if (response.success) {
