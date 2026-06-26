@@ -138,15 +138,7 @@ $host_ips = get_host_ips_php();
             </div>
 
             <div class="nix-form-row" style="margin-bottom: 15px;">
-                <div class="nix-form-group" style="flex: 1; margin-right: 10px;">
-                    <label for="custom-default-port">Default App Port:</label>
-                    <input type="text" id="custom-default-port" readonly style="background: rgba(255,255,255,0.05); color: #888; border-color: rgba(255,255,255,0.1);" value="N/A">
-                </div>
-                <div class="nix-form-group" style="flex: 1; margin-right: 10px;">
-                    <label for="custom-port">Host Port Override:</label>
-                    <input type="number" id="custom-port" placeholder="e.g. 7878" min="1" max="65535">
-                </div>
-                <div class="nix-form-group" style="flex: 2;">
+                <div class="nix-form-group" style="flex: 1;">
                     <label for="custom-bind-address">Bind Address Override:</label>
                     <select id="custom-bind-address" style="width: 100%;">
                         <?php foreach ($host_ips as $item): ?>
@@ -154,6 +146,14 @@ $host_ips = get_host_ips_php();
                         <?php endforeach; ?>
                     </select>
                 </div>
+            </div>
+
+            <div class="nix-form-group">
+                <label>Port Overrides:</label>
+                <div id="nix-ports-container" style="margin-bottom: 8px;">
+                    <!-- Dynamic port rows go here -->
+                </div>
+                <button type="button" class="nix-btn" style="margin: 0;" onclick="handleOverridePortClick()"><i class="fa fa-plus"></i> Override Port</button>
             </div>
 
             <div class="nix-form-group">
@@ -173,8 +173,7 @@ window.initInstallForm = function() {
     $("#custom-puid").val("99");
     $("#custom-pgid").val("100");
     $("#custom-gpu").prop('checked', false);
-    $("#custom-default-port").val("N/A");
-    $("#custom-port").val("");
+    $("#nix-ports-container").empty();
     $("#custom-bind-address").val("0.0.0.0");
     $("#nix-extra-binds-container").empty();
     $("#nix-install-section h3").text("Install Flake");
@@ -192,11 +191,10 @@ window.initInstallForm = function() {
         $("#custom-puid").val(editData.puid);
         $("#custom-pgid").val(editData.pgid);
         $("#custom-gpu").prop('checked', editData.gpu === '1' || editData.gpu === 'true');
-        if (editData.port) {
-            $("#custom-port").val(editData.port);
-        }
-        var defaultPort = getDefaultPort(editData.uri);
-        $("#custom-default-port").val(defaultPort);
+        
+        var presetName = editData.uri.replace("nixpkgs#", "").toLowerCase().trim();
+        populatePortRows(editData.port || '', presetName);
+
         if (editData.bind_address) {
             var select = $("#custom-bind-address");
             if (select.find("option[value='" + editData.bind_address + "']").length === 0) {
@@ -239,6 +237,7 @@ window.initInstallForm = function() {
                 } else {
                     $("#custom-appdata").val("");
                 }
+                populatePortRows('', name);
             }
         }
     }
@@ -283,7 +282,15 @@ function installCustomFlake(e) {
         data.puid = $("#custom-puid").val();
         data.pgid = $("#custom-pgid").val();
         data.gpu = $("#custom-gpu").is(':checked') ? '1' : '0';
-        data.port = $("#custom-port").val();
+        var ports = [];
+        $(".nix-port-row").each(function() {
+            var host = $(this).find(".nix-port-host").val();
+            var container = $(this).find(".nix-port-container").val();
+            if (host && container) {
+                ports.push(host + ":" + container);
+            }
+        });
+        data.port = ports.join(',');
         data.bind_address = $("#custom-bind-address").val();
         
         if (!data.appdata) {
@@ -357,17 +364,93 @@ function removeBindRow(idx) {
     $(`#bind-row-${idx}`).remove();
 }
 
-function getDefaultPort(uri) {
-    if (!uri) return "N/A";
-    var name = uri.replace("nixpkgs#", "").toLowerCase().trim();
-    var presets = {
-        "radarr": 7878,
-        "sonarr": 8989,
-        "jellyfin": 8096
-    };
-    return presets[name] || "N/A";
+var portRowIndex = 0;
+function addPortRow(hostVal, containerVal, labelVal, isPresetPort) {
+    hostVal = hostVal || '';
+    containerVal = containerVal || '';
+    labelVal = labelVal || '';
+    isPresetPort = isPresetPort || false;
+    var idx = portRowIndex++;
+    
+    var readonlyContainer = isPresetPort ? 'readonly style="background: rgba(255,255,255,0.05); color: #888;"' : '';
+    var deleteBtn = `<button type="button" class="nix-btn" style="color: #e74c3c; border-color: #e74c3c; margin: 0; padding: 8px 12px;" onclick="removePortRow(${idx})"><i class="fa fa-times"></i></button>`;
+        
+    var labelHtml = labelVal ? `<span style="font-size: 11px; color: #888; margin-left: 5px;">(${labelVal})</span>` : '';
+
+    var html = `
+    <div class="nix-form-row nix-port-row" id="port-row-${idx}" style="margin-bottom: 8px; display: flex; gap: 8px; align-items: center;">
+        <div style="flex: 1;">
+            <label style="font-size: 11px; margin-bottom: 4px; display: block;">Host Port</label>
+            <input type="number" class="nix-port-host" id="port-host-${idx}" value="${hostVal}" placeholder="e.g. 8096" min="1" max="65535" required>
+        </div>
+        <div style="display: flex; align-items: center; justify-content: center; padding-top: 15px;">
+            <i class="fa fa-arrow-right" style="color: #888;"></i>
+        </div>
+        <div style="flex: 1;">
+            <label style="font-size: 11px; margin-bottom: 4px; display: block;">Container Port ${labelHtml}</label>
+            <input type="number" class="nix-port-container" id="port-container-${idx}" value="${containerVal}" placeholder="e.g. 8096" min="1" max="65535" ${readonlyContainer} required>
+        </div>
+        <div style="padding-top: 15px;">
+            ${deleteBtn}
+        </div>
+    </div>
+    `;
+    
+    $("#nix-ports-container").append(html);
 }
 
+function removePortRow(idx) {
+    $(`#port-row-${idx}`).remove();
+}
+
+function handleOverridePortClick() {
+    addPortRow('', '', '', false);
+}
+
+function populatePortRows(portStr, presetName) {
+    $("#nix-ports-container").empty();
+    if (!portStr) {
+        return;
+    }
+    
+    var parts = portStr.split(',');
+    parts.forEach(function(part) {
+        part = part.trim();
+        if (!part) return;
+        var subparts = part.split(':');
+        var host = subparts[0];
+        var container = subparts.length > 1 ? subparts[1] : subparts[0];
+        
+        var label = '';
+        if (presetName === 'radarr' && container === '7878') {
+            label = 'HTTP';
+        } else if (presetName === 'sonarr' && container === '8989') {
+            label = 'HTTP';
+        } else if (presetName === 'jellyfin') {
+            if (container === '8096') {
+                label = 'HTTP';
+            } else if (container === '8920') {
+                label = 'HTTPS';
+            } else if (container === '1900') {
+                label = 'DLNA (UDP)';
+            } else if (container === '7359') {
+                label = 'Discovery (UDP)';
+            }
+        } else if (presetName === 'syncthing') {
+            if (container === '8384') {
+                label = 'Web GUI';
+            } else if (container === '22000') {
+                label = 'Sync Protocol';
+            } else if (container === '21027') {
+                label = 'Local Discovery (UDP)';
+            }
+        }
+        
+        addPortRow(host, container, label, false);
+    });
+}
+
+var currentPreset = '';
 function updatePresetInfo() {
     var uri = $("#custom-uri").val() || "";
     var name = uri.replace("nixpkgs#", "").toLowerCase().trim();
@@ -381,11 +464,9 @@ function updatePresetInfo() {
     var presets = {
         "radarr": { port: "7878", desc: "Radarr Movie Manager", url: "https://radarr.video/" },
         "sonarr": { port: "8989", desc: "Sonarr TV Show Manager", url: "https://sonarr.tv/" },
-        "jellyfin": { port: "8096", desc: "Jellyfin Media Server", url: "https://jellyfin.org/" }
+        "jellyfin": { port: "8096, 8920", desc: "Jellyfin Media Server", url: "https://jellyfin.org/" },
+        "syncthing": { port: "8384, 22000, 21027", desc: "Syncthing File Synchronization", url: "https://syncthing.net/" }
     };
-    
-    var defaultPort = getDefaultPort(uri);
-    $("#custom-default-port").val(defaultPort);
     
     var matched = presets[name];
     if (matched) {
@@ -393,17 +474,29 @@ function updatePresetInfo() {
         <div style="background: rgba(0, 161, 255, 0.05); border: 1px solid #00a1ff; border-radius: 4px; padding: 12px; font-size: 12px; color: #eee; margin-bottom: 15px;">
             <div style="font-weight: 600; color: #00a1ff; margin-bottom: 4px;"><i class="fa fa-info-circle"></i> Service Preset Detected: ${matched.desc}</div>
             <ul style="margin: 0; padding-left: 15px; line-height: 1.6;">
-                <li><strong>Default Host Port:</strong> <code>${matched.port}</code> (Make sure this port is free on your Unraid host)</li>
+                <li><strong>Default Host Ports:</strong> <code>${matched.port}</code> (Make sure these ports are free on your Unraid host)</li>
                 <li><strong>Official Website:</strong> <a href="${matched.url}" target="_blank" style="color: #00a1ff; text-decoration: none;">${matched.url} <i class="fa fa-external-link" style="font-size: 10px;"></i></a></li>
             </ul>
         </div>
         `;
         infoBox.html(html).slideDown();
-        if (!$("#custom-port").val()) {
-            $("#custom-port").val(matched.port);
+        
+        if (window.currentPreset !== name) {
+            window.currentPreset = name;
+            var isEditMode = $("#custom-uri").prop('readonly');
+            if (!isEditMode) {
+                $("#nix-ports-container").empty();
+            }
         }
     } else {
         infoBox.slideUp().empty();
+        if (window.currentPreset !== '') {
+            window.currentPreset = '';
+            var isEditMode = $("#custom-uri").prop('readonly');
+            if (!isEditMode) {
+                $("#nix-ports-container").empty();
+            }
+        }
     }
 }
 </script>

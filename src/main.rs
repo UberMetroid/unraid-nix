@@ -133,7 +133,7 @@ fn main() {
                 Vec::new()
             };
             let port = if args.len() >= 10 && args[9] != "-" && !args[9].is_empty() {
-                args[9].parse::<u16>().ok()
+                Some(args[9].clone())
             } else {
                 None
             };
@@ -360,7 +360,7 @@ fn parse_sandbox_args(args: &[String]) -> Result<String, String> {
             }
             "--port" => {
                 if i + 1 >= args.len() { return Err("Missing value for --port".to_string()); }
-                port = Some(args[i+1].parse::<u16>().map_err(|_| "Invalid port")?);
+                port = Some(args[i+1].clone());
                 i += 2;
             }
             "--bind-address" => {

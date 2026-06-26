@@ -3,6 +3,32 @@
 /// This module constructs the execution commands using 'unshare' and 'setpriv'
 /// to run processes in an isolated mount namespace on the host under the specified PUID/PGID,
 /// preventing access to sensitive directories like /boot, /root, and other services' appdata.
+#[derive(Debug, Clone, PartialEq)]
+pub struct PortMapping {
+    pub host: u16,
+    pub container: u16,
+}
+
+pub fn parse_ports(s: &str) -> Vec<PortMapping> {
+    let mut mappings = Vec::new();
+    if s.trim().is_empty() || s == "-" {
+        return mappings;
+    }
+    for part in s.split(',') {
+        let subparts: Vec<&str> = part.split(':').collect();
+        if subparts.len() == 2 {
+            if let (Ok(h), Ok(c)) = (subparts[0].parse::<u16>(), subparts[1].parse::<u16>()) {
+                mappings.push(PortMapping { host: h, container: c });
+            }
+        } else if subparts.len() == 1 {
+            if let Ok(p) = subparts[0].parse::<u16>() {
+                mappings.push(PortMapping { host: p, container: p });
+            }
+        }
+    }
+    mappings
+}
+
 #[allow(dead_code)]
 #[derive(Debug, Clone)]
 pub struct SandboxConfig {
@@ -14,7 +40,7 @@ pub struct SandboxConfig {
     pub enable_gpu: bool,
     pub inner_command: String,
     pub extra_binds: Vec<(String, String)>,
-    pub port: Option<u16>,
+    pub port: Option<String>,
     pub bind_address: Option<String>,
 }
 
@@ -139,8 +165,11 @@ pub fn build_bwrap_command(config: &SandboxConfig) -> Result<String, String> {
     let mounts_str = mounts_cmd.join(" && ").replace("\"", "\\\"");
 
     let mut env_vars = vec!["export HOME=/config".to_string()];
-    if let Some(p) = config.port {
-        env_vars.push(format!("export PORT={}", p));
+    if let Some(ref p_str) = config.port {
+        let mappings = parse_ports(p_str);
+        if let Some(first) = mappings.first() {
+            env_vars.push(format!("export PORT={}", first.host));
+        }
     }
     if let Some(ref addr) = config.bind_address {
         if !addr.trim().is_empty() {
@@ -180,7 +209,7 @@ mod tests {
             enable_gpu: false,
             inner_command: "nix run nixpkgs#hello".to_string(),
             extra_binds: vec![("/mnt/user/downloads".to_string(), "/downloads".to_string())],
-            port: Some(8080),
+            port: Some("8080".to_string()),
             bind_address: Some("127.0.0.1".to_string()),
         };
 
@@ -227,7 +256,7 @@ mod tests {
             enable_gpu: false,
             inner_command: "nix run nixpkgs#hello".to_string(),
             extra_binds: vec![("/mnt/user/downloads".to_string(), "/downloads".to_string())],
-            port: Some(8080),
+            port: Some("8080".to_string()),
             bind_address: Some("127.0.0.1".to_string()),
         };
 

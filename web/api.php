@@ -245,7 +245,7 @@ if ($action === 'install-custom') {
 
         // Fetch command string. Checks if it is a preset
         $cmd = "";
-        if (in_array(strtolower($name), ['radarr', 'sonarr', 'jellyfin'])) {
+        if (in_array(strtolower($name), ['radarr', 'sonarr', 'jellyfin', 'syncthing'])) {
             $cmd = shell_exec(format_preset_cmd($name, $appdata, $media, $puid, $pgid, $gpu, $binds_arg, $port, $bind_address));
         } else {
             // Build custom bubblewrap command

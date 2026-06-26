@@ -23,6 +23,20 @@ fn get_service_web_port(name: &str) -> Option<u16> {
                         if let Ok(num) = s.parse::<u16>() {
                             return Some(num);
                         }
+                        let mappings = crate::sandbox::parse_ports(s);
+                        if !mappings.is_empty() {
+                            let name_lower = name.to_lowercase();
+                            if name_lower.contains("jellyfin") {
+                                if let Some(m) = mappings.iter().find(|m| m.container == 8096) {
+                                    return Some(m.host);
+                                }
+                            } else if name_lower.contains("syncthing") {
+                                if let Some(m) = mappings.iter().find(|m| m.container == 8384) {
+                                    return Some(m.host);
+                                }
+                            }
+                            return Some(mappings[0].host);
+                        }
                     }
                 }
             }
@@ -36,6 +50,8 @@ fn get_service_web_port(name: &str) -> Option<u16> {
         Some(7878)
     } else if name_lower.contains("jellyfin") {
         Some(8096)
+    } else if name_lower.contains("syncthing") {
+        Some(8384)
     } else {
         None
     }
@@ -479,10 +495,38 @@ pub fn render_search_results(query: &str) -> String {
                 )
             };
 
+            let mut meta_links = Vec::new();
+            if let Some(ref lic) = r.license {
+                if !lic.trim().is_empty() {
+                    meta_links.push(format!(r#"<span><i class="fa fa-certificate" style="margin-right: 3px;"></i>{}</span>"#, lic));
+                }
+            }
+            if let Some(ref hp) = r.homepage {
+                if !hp.trim().is_empty() {
+                    meta_links.push(format!(r#"<a href="{}" target="_blank" style="color: #00a1ff; text-decoration: none;"><i class="fa fa-globe" style="margin-right: 3px;"></i>Homepage</a>"#, hp));
+                }
+            }
+            if let Some(ref pos) = r.position {
+                if !pos.trim().is_empty() {
+                    meta_links.push(format!(r#"<a href="{}" target="_blank" style="color: #00a1ff; text-decoration: none;"><i class="fa fa-code" style="margin-right: 3px;"></i>Source</a>"#, pos));
+                }
+            }
+
+            let meta_html = if meta_links.is_empty() {
+                "".to_string()
+            } else {
+                format!(
+                    r#"<div style="margin-top: 6px; font-size: 11px; display: flex; gap: 12px; flex-wrap: wrap; align-items: center; color: #888;">{}</div>"#,
+                    meta_links.join(r#"<span style="color: #444;">|</span>"#)
+                )
+            };
+
+            let description_cell = format!("<div>{}</div>{}", r.description, meta_html);
+
             let short_name = r.package_name.replace("nixpkgs#", "");
             let package_link = format!(
                 r#"<a href="https://search.nixos.org/packages?channel=unstable&query={}" target="_blank" style="color: #00a1ff; text-decoration: none;"><code>{}</code> <i class="fa fa-external-link" style="font-size: 10px; margin-left: 2px;"></i></a>"#,
-                short_name, r.package_name
+                short_name, short_name
             );
 
             html.push_str(&format!(
@@ -492,7 +536,7 @@ pub fn render_search_results(query: &str) -> String {
                     <td>{}</td>
                     <td>{}</td>
                 </tr>"#,
-                package_link, r.version, r.description, action_buttons
+                package_link, r.version, description_cell, action_buttons
             ));
         }
     }
