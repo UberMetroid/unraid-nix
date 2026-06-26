@@ -14,11 +14,34 @@ pub struct ServiceStatus {
     pub name: String,
     pub status: String,
     pub pid: Option<i32>,
-    #[serde(rename = "cpu_percent")]
     pub cpu: Option<f32>,
-    #[serde(rename = "memory_bytes")]
+    #[serde(rename = "mem")]
     pub memory: Option<u64>,
-    pub uptime: Option<String>,
+    #[serde(rename = "age")]
+    pub uptime_seconds: Option<u64>,
+}
+
+impl ServiceStatus {
+    /// Formats the service age in seconds into a human-readable uptime string.
+    pub fn uptime(&self) -> String {
+        if let Some(secs) = self.uptime_seconds {
+            if secs < 60 {
+                format!("{}s", secs)
+            } else if secs < 3600 {
+                format!("{}m", secs / 60)
+            } else {
+                format!("{}h{}m", secs / 3600, (secs % 3600) / 60)
+            }
+        } else {
+            "-".to_string()
+        }
+    }
+}
+
+/// Wrapper for the process-compose JSON status response.
+#[derive(Debug, Deserialize)]
+pub struct ProcessComposeResponse {
+    pub data: Vec<ServiceStatus>,
 }
 
 /// Checks if a port is already bound on the host loopback or LAN interface.
@@ -72,10 +95,10 @@ pub fn get_services_status(api_port: u16) -> Result<Vec<ServiceStatus>, String> 
         .call()
         .map_err(|e| format!("Failed to connect to process-compose API: {}", e))?;
 
-    let statuses: Vec<ServiceStatus> = resp.into_json()
+    let wrapper: ProcessComposeResponse = resp.into_json()
         .map_err(|e| format!("Failed to parse status JSON: {}", e))?;
 
-    Ok(statuses)
+    Ok(wrapper.data)
 }
 
 /// Sends a lifecycle action (start, stop, restart) for a specific service to the API.
@@ -124,24 +147,26 @@ mod tests {
 
     #[test]
     fn test_parse_mock_service_status() {
-        let mock_json = r#"[
-            {
-                "name": "radarr",
-                "status": "Running",
-                "pid": 1234,
-                "cpu_percent": 1.2,
-                "memory_bytes": 45000000,
-                "uptime": "2h4m"
-            }
-        ]"#;
+        let mock_json = r#"{
+            "data": [
+                {
+                    "name": "radarr",
+                    "status": "Running",
+                    "pid": 1234,
+                    "cpu": 1.2,
+                    "mem": 45000000,
+                    "age": 7440
+                }
+            ]
+        }"#;
 
-        let parsed: Vec<ServiceStatus> = serde_json::from_str(mock_json).unwrap();
-        assert_eq!(parsed.len(), 1);
-        assert_eq!(parsed[0].name, "radarr");
-        assert_eq!(parsed[0].status, "Running");
-        assert_eq!(parsed[0].pid, Some(1234));
-        assert_eq!(parsed[0].cpu, Some(1.2));
-        assert_eq!(parsed[0].memory, Some(45000000));
-        assert_eq!(parsed[0].uptime, Some("2h4m".to_string()));
+        let parsed: ProcessComposeResponse = serde_json::from_str(mock_json).unwrap();
+        assert_eq!(parsed.data.len(), 1);
+        assert_eq!(parsed.data[0].name, "radarr");
+        assert_eq!(parsed.data[0].status, "Running");
+        assert_eq!(parsed.data[0].pid, Some(1234));
+        assert_eq!(parsed.data[0].cpu, Some(1.2));
+        assert_eq!(parsed.data[0].memory, Some(45000000));
+        assert_eq!(parsed.data[0].uptime(), "2h4m");
     }
 }

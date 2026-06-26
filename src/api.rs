@@ -45,7 +45,7 @@ pub fn render_services_table(api_port: u16) -> String {
 
             let cpu_str = s.cpu.map(|c| format!("{:.1}%", c)).unwrap_or_else(|| "-".to_string());
             let mem_str = s.memory.map(|m| format!("{} MB", m / 1024 / 1024)).unwrap_or_else(|| "-".to_string());
-            let uptime_str = s.uptime.unwrap_or_else(|| "-".to_string());
+            let uptime_str = s.uptime();
 
             html.push_str(&format!(
                 r#"<tr>
