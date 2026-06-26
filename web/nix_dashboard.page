@@ -1,0 +1,22 @@
+Menu="Dashboard:30"
+Title="Nix Services"
+---
+<table class="dashboard-table">
+  <thead>
+    <tr>
+      <th>Service</th>
+      <th>CPU</th>
+      <th>Memory</th>
+    </tr>
+  </thead>
+  <tbody id="nix-dashboard-rows">
+    <?php
+    $rows_html = shell_exec("/usr/local/emhttp/plugins/nix/nix-helper render dashboard 2>/dev/null");
+    if (empty(trim($rows_html))) {
+        echo '<tr><td colspan="3" class="text-center text-muted">No active services.</td></tr>';
+    } else {
+        echo $rows_html;
+    }
+    ?>
+  </tbody>
+</table>

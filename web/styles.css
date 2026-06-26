@@ -1,0 +1,213 @@
+/* unraid-nix Premium WebGUI Stylesheet */
+
+.nix-tab-container {
+    background: #1c1c1f;
+    border-radius: 8px;
+    padding: 20px;
+    margin-bottom: 20px;
+    border: 1px solid #2d2d30;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.nix-header h2 {
+    margin: 0 0 5px 0;
+    color: #00a1ff;
+    font-weight: 600;
+}
+
+.nix-header p {
+    margin: 0;
+    color: #a0a0a5;
+    font-size: 13px;
+}
+
+.nix-tabs {
+    margin-top: 15px;
+    display: flex;
+    gap: 10px;
+    border-bottom: 1px solid #2d2d30;
+    padding-bottom: 10px;
+}
+
+.nix-tab-btn {
+    text-decoration: none;
+    color: #a0a0a5;
+    padding: 8px 16px;
+    border-radius: 4px;
+    font-size: 14px;
+    font-weight: 500;
+    transition: all 0.2s ease;
+}
+
+.nix-tab-btn:hover {
+    color: #fff;
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.nix-tab-btn.active {
+    color: #fff;
+    background: #00a1ff;
+}
+
+.nix-section {
+    background: #1c1c1f;
+    border: 1px solid #2d2d30;
+    border-radius: 8px;
+    padding: 20px;
+    margin-bottom: 20px;
+}
+
+.nix-section h3 {
+    margin: 0 0 5px 0;
+    font-size: 16px;
+    color: #fff;
+}
+
+.nix-subtext {
+    margin: 0 0 20px 0;
+    color: #a0a0a5;
+    font-size: 12px;
+}
+
+/* Services and Search Tables */
+.nix-services-table, .nix-search-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 10px;
+}
+
+.nix-services-table th, .nix-search-table th {
+    text-align: left;
+    padding: 12px;
+    background: #141416;
+    color: #a0a0a5;
+    font-size: 12px;
+    text-transform: uppercase;
+    font-weight: 600;
+    border-bottom: 2px solid #2d2d30;
+}
+
+.nix-services-table td, .nix-search-table td {
+    padding: 12px;
+    border-bottom: 1px solid #2d2d30;
+    color: #eee;
+    font-size: 13px;
+}
+
+/* Status Badges */
+.status {
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 11px;
+    font-weight: 600;
+}
+.status.green { background: rgba(46, 204, 113, 0.15); color: #2ecc71; }
+.status.red { background: rgba(231, 76, 60, 0.15); color: #e74c3c; }
+.status.yellow { background: rgba(241, 196, 15, 0.15); color: #f1c40f; }
+
+/* Control Buttons */
+.nix-btn {
+    background: #2d2d30;
+    border: 1px solid #3d3d40;
+    color: #eee;
+    padding: 6px 10px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 12px;
+    margin-right: 5px;
+    transition: all 0.2s ease;
+}
+
+.nix-btn:hover {
+    background: #00a1ff;
+    border-color: #00a1ff;
+    color: #fff;
+}
+
+.nix-btn-install {
+    background: #00a1ff;
+    border: none;
+    color: #fff;
+    padding: 6px 12px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: 500;
+    font-size: 12px;
+    margin-right: 5px;
+    transition: background 0.2s ease;
+}
+
+.nix-btn-install:hover {
+    background: #008be0;
+}
+
+/* Search Bar */
+.nix-search-bar {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.nix-search-bar input[type="text"] {
+    flex: 1;
+    background: #141416;
+    border: 1px solid #2d2d30;
+    border-radius: 4px;
+    padding: 10px;
+    color: #fff;
+    font-size: 14px;
+}
+
+.nix-btn-primary {
+    background: #00a1ff;
+    border: none;
+    color: #fff;
+    padding: 10px 20px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: background 0.2s ease;
+}
+
+.nix-btn-primary:hover {
+    background: #008be0;
+}
+
+/* Forms */
+.nix-form-group {
+    margin-bottom: 15px;
+}
+
+.nix-form-group label {
+    display: block;
+    margin-bottom: 5px;
+    color: #eee;
+    font-size: 13px;
+    font-weight: 500;
+}
+
+.nix-form-group input[type="text"],
+.nix-form-group input[type="number"],
+.nix-form-group select {
+    width: 100%;
+    background: #141416;
+    border: 1px solid #2d2d30;
+    border-radius: 4px;
+    padding: 8px 12px;
+    color: #fff;
+    box-sizing: border-box;
+}
+
+.nix-field-help {
+    font-size: 11px;
+    color: #a0a0a5;
+    margin-top: 4px;
+}
+.nix-form-row {
+    display: flex;
+}
+.nix-spinner {
+    padding: 20px;
+    text-align: center;
+    color: #a0a0a5;
+}

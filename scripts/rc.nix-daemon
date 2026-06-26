@@ -1,0 +1,66 @@
+#!/bin/bash
+# /etc/rc.d/rc.nix-daemon
+# Control script for the Nix daemon on Slackware/Unraid.
+
+DAEMON="/nix/var/nix/profiles/default/bin/nix-daemon"
+PIDFILE="/var/run/nix-daemon.pid"
+
+start() {
+    if [ -f "$PIDFILE" ] && kill -0 $(cat "$PIDFILE") 2>/dev/null; then
+        echo "nix-daemon is already running."
+        return
+    fi
+    
+    if [ ! -x "$DAEMON" ]; then
+        echo "nix-daemon executable not found. Is Nix installed?"
+        return 1
+    fi
+
+    echo "Starting nix-daemon..."
+    # Execute the daemon in the background
+    $DAEMON >/var/log/nix-daemon.log 2>&1 &
+    echo $! > "$PIDFILE"
+    echo "nix-daemon started."
+}
+
+stop() {
+    if [ -f "$PIDFILE" ]; then
+        echo "Stopping nix-daemon..."
+        PID=$(cat "$PIDFILE")
+        kill "$PID" >/dev/null 2>&1
+        rm -f "$PIDFILE"
+        echo "nix-daemon stopped."
+    else
+        echo "nix-daemon is not running."
+    fi
+}
+
+status() {
+    if [ -f "$PIDFILE" ] && kill -0 $(cat "$PIDFILE") 2>/dev/null; then
+        echo "nix-daemon is running (pid $(cat $PIDFILE))."
+        return 0
+    else
+        echo "nix-daemon is stopped."
+        return 3
+    fi
+}
+
+case "$1" in
+    start)
+        start
+        ;;
+    stop)
+        stop
+        ;;
+    status)
+        status
+        ;;
+    restart)
+        stop
+        sleep 1
+        start
+        ;;
+    *)
+        echo "Usage: $0 {start|stop|status|restart}"
+        exit 1
+esac

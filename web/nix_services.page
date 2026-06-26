@@ -1,0 +1,35 @@
+Menu="Nix:1"
+Title="Services"
+---
+<div class="nix-section">
+    <h3>Active Nix Services</h3>
+    <p class="nix-subtext">Natively running background processes managed by the nix process supervisor.</p>
+    
+    <div id="nix-services-list">
+        <?php
+        $services_html = shell_exec("/usr/local/emhttp/plugins/nix/nix-helper render services 2>&1");
+        echo $services_html;
+        ?>
+    </div>
+</div>
+
+<script>
+function serviceAction(name, action) {
+    $.post('/plugins/nix/api.php', { action: action, service: name }, function(response) {
+        if (response.success) {
+            // Reload services list on success
+            $("#nix-services-list").load(location.href + " #nix-services-list > *");
+        } else {
+            alert("Action failed: " + response.error);
+        }
+    }, 'json');
+}
+
+function openLogs(name) {
+    // Open a popup showing the service logs
+    var w = 800, h = 600;
+    var left = (screen.width/2)-(w/2);
+    var top = (screen.height/2)-(h/2);
+    window.open('/plugins/nix/api.php?action=logs&service=' + name, 'Service Logs: ' + name, 'toolbar=no, location=no, directories=no, status=no, menubar=no, scrollbars=yes, resizable=yes, copyhistory=no, width='+w+', height='+h+', top='+top+', left='+left);
+}
+</script>

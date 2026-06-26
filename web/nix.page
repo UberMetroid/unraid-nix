@@ -1,0 +1,15 @@
+Menu="Navigation"
+Title="Nix"
+Icon="nix.png"
+---
+<div class="nix-tab-container">
+    <div class="nix-header">
+        <h2>Nix Package Manager</h2>
+        <p>Declarative, zero-overhead host package and services orchestration.</p>
+    </div>
+    <div class="nix-tabs">
+        <a href="/Settings/nix_services" class="nix-tab-btn active">Services</a>
+        <a href="/Settings/nix_search" class="nix-tab-btn">Flakes Browser</a>
+        <a href="/Settings/nix_settings" class="nix-tab-btn">Settings</a>
+    </div>
+</div>

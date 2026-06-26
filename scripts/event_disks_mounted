@@ -1,0 +1,47 @@
+#!/bin/bash
+# /usr/local/emhttp/plugins/nix/event/disks_mounted
+# Executed automatically when the Unraid storage array is mounted.
+
+echo "Nix Event: disks_mounted triggered." | logger -t "nix-plugin"
+
+CFG_FILE="/boot/config/plugins/nix/nix.cfg"
+NIX_STORE_PATH="/mnt/cache/system/nix"
+AUTOSTART_FLAKES="yes"
+
+if [ -f "$CFG_FILE" ]; then
+    # Parse simple INI properties
+    NIX_STORE_PATH=$(grep -oP 'NIX_STORE_PATH="\K[^"]+' "$CFG_FILE" || echo "/mnt/cache/system/nix")
+    AUTOSTART_FLAKES=$(grep -oP 'AUTOSTART_FLAKES="\K[^"]+' "$CFG_FILE" || echo "yes")
+fi
+
+# 1. Setup persistent directory and mount /nix
+/usr/local/emhttp/plugins/nix/nix-helper setup-store "$NIX_STORE_PATH" 2>&1 | logger -t "nix-plugin"
+
+# 2. Check if Nix binary is present; download and install if missing
+if [ ! -d "/nix/store" ] || [ ! -x "/nix/var/nix/profiles/default/bin/nix-daemon" ]; then
+    echo "Nix store not initialized. Bootstrapping Nix..." | logger -t "nix-plugin"
+    curl --proto '=https' --tlsv1.2 -sSf -L https://install.determinate.systems/nix | \
+        sh -s -- install --init none --no-confirm 2>&1 | logger -t "nix-plugin"
+fi
+
+# 3. Expose environment paths globally
+if [ -f "/nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh" ]; then
+    source /nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh
+fi
+
+# 4. Spin up nix-daemon
+/etc/rc.d/rc.nix-daemon start 2>&1 | logger -t "nix-plugin"
+
+# 5. Start persistent Nix Flakes background services
+if [ "$AUTOSTART_FLAKES" = "yes" ] && [ -f "/boot/config/plugins/nix/process-compose.yml" ]; then
+    echo "Starting Flake services via process-compose..." | logger -t "nix-plugin"
+    mkdir -p /var/log/nix-services
+    
+    nohup nix run nixpkgs#process-compose -- \
+        -p 29704 \
+        -f /boot/config/plugins/nix/process-compose.yml \
+        --tui=false \
+        > /var/log/nix-process-compose.log 2>&1 &
+        
+    echo $! > /var/run/nix-process-compose.pid
+fi

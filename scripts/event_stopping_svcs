@@ -1,0 +1,32 @@
+#!/bin/bash
+# /usr/local/emhttp/plugins/nix/event/stopping_svcs
+# Executed automatically when the Unraid storage array is stopping.
+
+echo "Nix Event: stopping_svcs triggered." | logger -t "nix-plugin"
+
+# 1. Gracefully shut down process-compose supervisor and active flakes
+if [ -f "/var/run/nix-process-compose.pid" ]; then
+    PID=$(cat /var/run/nix-process-compose.pid)
+    
+    if [ -f "/nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh" ]; then
+        source /nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh
+    fi
+    
+    echo "Stopping Nix services..." | logger -t "nix-plugin"
+    nix run nixpkgs#process-compose -- \
+        -p 29704 \
+        -f /boot/config/plugins/nix/process-compose.yml \
+        shutdown >/dev/null 2>&1
+        
+    kill "$PID" >/dev/null 2>&1
+    rm -f /var/run/nix-process-compose.pid
+fi
+
+# 2. Shut down the background nix-daemon
+/etc/rc.d/rc.nix-daemon stop 2>&1 | logger -t "nix-plugin"
+
+# 3. Terminate any stray builder processes
+pkill -u nixbld >/dev/null 2>&1
+
+# 4. Cleanly unmount /nix to prevent locked filesystems
+/usr/local/emhttp/plugins/nix/nix-helper teardown-store 2>&1 | logger -t "nix-plugin"
