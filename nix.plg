@@ -2,7 +2,7 @@
 <!DOCTYPE PLUGIN [
   <!ENTITY name      "nix">
   <!ENTITY author    "UberMetroid">
-  <!ENTITY version   "2026.06.25.37">
+  <!ENTITY version   "2026.06.25.38">
   <!ENTITY launch    "Settings/nix">
   <!ENTITY plugdir   "/boot/config/plugins/&name;">
   <!ENTITY usrdir    "/usr/local/emhttp/plugins/&name;">
@@ -11,6 +11,8 @@
 
   <CHANGES>
     ## nix package manager plugin
+    ### 2026.06.25.38
+    - Removed pattern validation constraints from Nix Store Path and dynamic bind host path inputs to allow paths without a trailing slash.
     ### 2026.06.25.37
     - Added a "Back to Flake Store" button and preserved search queries using sessionStorage.
     - Added a dynamic service preset banner displaying default host ports and homepage links.

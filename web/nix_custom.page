@@ -42,7 +42,7 @@ if (file_exists($cfg_file)) {
         <div id="nix-service-only-options" style="display: <?php echo $enable_cli === 'yes' ? 'none' : 'block'; ?>; border-left: 3px solid #00a1ff; padding-left: 15px; margin-bottom: 15px;">
             <div class="nix-form-group">
                 <label for="custom-appdata">Appdata Path:</label>
-                <input type="text" id="custom-appdata" autocomplete="off" spellcheck="false" placeholder="/mnt/user/appdata/service-name" data-pickcloseonfile="true" data-pickfilter="HIDE_FILES_FILTER" data-pickroot="/mnt" data-pickfolders="true" pattern="^[^\\]*/$">
+                <input type="text" id="custom-appdata" autocomplete="off" spellcheck="false" placeholder="/mnt/user/appdata/service-name" data-pickcloseonfile="true" data-pickfilter="HIDE_FILES_FILTER" data-pickroot="/mnt" data-pickfolders="true">
             </div>
             
             <div class="nix-form-group">
@@ -159,7 +159,7 @@ function addBindRow(hostVal, sandboxVal) {
     var html = `
     <div class="nix-form-row nix-bind-row" id="bind-row-${idx}" style="margin-bottom: 8px; display: flex; gap: 8px; align-items: center;">
         <div style="flex: 2; position: relative;">
-            <input type="text" class="nix-bind-host" id="bind-host-${idx}" value="${hostVal}" placeholder="Host Path (e.g. /mnt/user/downloads)" autocomplete="off" spellcheck="false" data-pickcloseonfile="true" data-pickfilter="HIDE_FILES_FILTER" data-pickroot="/mnt" data-pickfolders="true" pattern="^[^\\]*/$">
+            <input type="text" class="nix-bind-host" id="bind-host-${idx}" value="${hostVal}" placeholder="Host Path (e.g. /mnt/user/downloads)" autocomplete="off" spellcheck="false" data-pickcloseonfile="true" data-pickfilter="HIDE_FILES_FILTER" data-pickroot="/mnt" data-pickfolders="true">
         </div>
         <div style="flex: 1;">
             <input type="text" class="nix-bind-sandbox" placeholder="Sandbox Path (e.g. /downloads)" value="${sandboxVal}">
