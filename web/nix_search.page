@@ -1,7 +1,8 @@
-Menu="nix:2"
+Menu="Nix:2"
 Title="Flake Store"
 ---
 <link type="text/css" rel="stylesheet" href="/plugins/nix/styles.css">
+<script src="/plugins/nix/nix.js"></script>
 <div class="nix-section">
     <h3>Search Nixpkgs Registry</h3>
     <p class="nix-subtext">Search the official Nix repository containing over 100,000 native packages.</p>
@@ -18,18 +19,9 @@ Title="Flake Store"
 </div>
 
 <script>
-$(function() {
-    var savedQuery = sessionStorage.getItem('nix_search_query');
-    if (savedQuery) {
-        $("#nix-search-input").val(savedQuery);
-        executeSearch();
-    }
-});
-
 function executeSearch() {
     var query = $("#nix-search-input").val();
     if (!query.trim()) return;
-    sessionStorage.setItem('nix_search_query', query);
     $("#nix-search-results").html('<div class="nix-spinner"><i class="fa fa-spinner fa-spin"></i> Searching Nix registry...</div>');
     $.get('/plugins/nix/api.php?action=search&q=' + encodeURIComponent(query), function(html) {
         $("#nix-search-results").html(html);
@@ -49,7 +41,8 @@ function installPackage(pkg) {
 
 function showServiceModal(pkg) {
     sessionStorage.setItem('nix_install_uri', pkg);
-    location.href = '/Settings/nix_custom';
+    var base = location.pathname.indexOf('/Settings') === 0 ? '/Settings' : '';
+    location.href = base + '/nix_custom';
 }
 </script>
 

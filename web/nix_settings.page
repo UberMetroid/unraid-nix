@@ -1,7 +1,8 @@
-Menu="nix:5"
+Menu="Nix:4"
 Title="Settings"
 ---
 <link type="text/css" rel="stylesheet" href="/plugins/nix/styles.css">
+<script src="/plugins/nix/nix.js"></script>
 <?php
 $cfg_file = "/boot/config/plugins/nix/nix.cfg";
 $nix_cfg = [];
@@ -10,13 +11,35 @@ if (file_exists($cfg_file)) {
 }
 
 function detect_default_store_path() {
-    return '/mnt/user/system/nix';
+    $cfg_file = '/boot/config/shares/system.cfg';
+    if (file_exists($cfg_file)) {
+        $share_cfg = parse_ini_file($cfg_file);
+        if ($share_cfg !== false) {
+            $pool = isset($share_cfg['shareCachePool']) ? trim($share_cfg['shareCachePool'], '"') : '';
+            if (empty($pool) && isset($share_cfg['shareUseCache'])) {
+                $use_cache = trim($share_cfg['shareUseCache'], '"');
+                if (in_array($use_cache, ['yes', 'prefer', 'only'])) {
+                    $pool = 'cache';
+                }
+            }
+            if (!empty($pool) && is_dir("/mnt/" . $pool . "/system")) {
+                return "/mnt/" . $pool . "/system/nix";
+            }
+        }
+    }
+    
+    if (is_dir('/mnt/user/system')) {
+        return '/mnt/user/system/nix';
+    }
+
+    return '';
 }
 
 // Set defaults
 $store_path = isset($nix_cfg['NIX_STORE_PATH']) ? $nix_cfg['NIX_STORE_PATH'] : detect_default_store_path();
 $autostart = isset($nix_cfg['AUTOSTART_FLAKES']) ? $nix_cfg['AUTOSTART_FLAKES'] : 'yes';
 $enable_cli = isset($nix_cfg['ENABLE_CLI_INSTALL']) ? $nix_cfg['ENABLE_CLI_INSTALL'] : 'no';
+$show_in_nav = isset($nix_cfg['SHOW_IN_NAVIGATION']) ? $nix_cfg['SHOW_IN_NAVIGATION'] : 'yes';
 
 exec("/etc/rc.d/rc.nix-daemon status 2>/dev/null", $status_output, $status_code);
 $is_nix_running = ($status_code === 0);
@@ -51,7 +74,7 @@ $is_nix_running = ($status_code === 0);
     
     <form id="nix-settings-form" onsubmit="saveSettings(event)">
         <div class="nix-form-group">
-            <label for="settings-store-path">Nix Store Path (SSD Cache / ZFS Dataset Recommended):</label>
+            <label for="settings-store-path">Nix Configuration Location:</label>
             <div style="position: relative;">
                 <input type="text" id="settings-store-path" autocomplete="off" spellcheck="false" value="<?php echo htmlspecialchars($store_path); ?>" placeholder="/mnt/cache/system/nix" data-pickcloseonfile="true" data-pickfilter="HIDE_FILES_FILTER" data-pickroot="/mnt" data-pickfolders="true" required style="padding-right: 30px;">
                 <i class="fa fa-folder-open nix-folder-picker-btn" style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); cursor: pointer; color: #aaa;" onclick="$('#settings-store-path').trigger('click')"></i>
@@ -72,6 +95,14 @@ $is_nix_running = ($status_code === 0);
             <select id="settings-enable-cli">
                 <option value="no" <?php echo $enable_cli === 'no' ? 'selected' : ''; ?>>No (Services only)</option>
                 <option value="yes" <?php echo $enable_cli === 'yes' ? 'selected' : ''; ?>>Yes (Show CLI option)</option>
+            </select>
+        </div>
+
+        <div class="nix-form-group">
+            <label for="settings-show-in-nav">Show Nix tab in Main Navigation Menu:</label>
+            <select id="settings-show-in-nav">
+                <option value="no" <?php echo $show_in_nav === 'no' ? 'selected' : ''; ?>>No (Show in Settings)</option>
+                <option value="yes" <?php echo $show_in_nav === 'yes' ? 'selected' : ''; ?>>Yes (Show in Top Navigation)</option>
             </select>
         </div>
 
@@ -96,6 +127,7 @@ function saveSettings(e) {
     var path = $("#settings-store-path").val();
     var auto = $("#settings-autostart").val();
     var enableCli = $("#settings-enable-cli").val();
+    var showInNav = $("#settings-show-in-nav").val();
     
     if (path.indexOf("/boot") === 0) {
         alert("Error: The Nix Store cannot be stored on your USB flash drive (/boot). Choose a pool disk or array share.");
@@ -109,11 +141,16 @@ function saveSettings(e) {
         action: 'save-settings',
         store_path: path,
         autostart: auto,
-        enable_cli: enableCli
+        enable_cli: enableCli,
+        show_in_nav: showInNav
     }, function(resp) {
         if (resp.success) {
             alert("Settings applied successfully! Restart the Nix services for the changes to take effect.");
-            location.reload();
+            if (showInNav === 'yes') {
+                location.href = '/Nix';
+            } else {
+                location.href = '/Settings/Nix';
+            }
         } else {
             alert("Failed to save settings: " + resp.error);
             submitBtn.prop('disabled', false).text(originalBtnText);

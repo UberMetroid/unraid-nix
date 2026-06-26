@@ -9,6 +9,23 @@
 use std::fs;
 use std::os::unix::fs::symlink;
 use std::process::Command;
+use chrono::Local;
+
+pub fn log_event(level: &str, msg: &str) {
+    let log_path = "/var/log/nix-plugin.log";
+    let now = Local::now().format("%Y-%m-%d %H:%M:%S");
+    let line = format!("{} [{}] {}\n", now, level, msg);
+    
+    if let Ok(mut file) = std::fs::OpenOptions::new()
+        .create(true)
+        .append(true)
+        .open(log_path) {
+            use std::io::Write;
+            let _ = file.write_all(line.as_bytes());
+        }
+    
+    eprintln!("[{}] {}", level, msg);
+}
 
 /// Validation check for the persistent store path.
 ///
@@ -42,27 +59,45 @@ pub fn get_user_add_commands() -> Vec<String> {
 
 /// Creates the static nixbld builder users and groups on the host.
 pub fn create_builder_accounts() -> Result<(), String> {
+    log_event("INFO", "Creating static nixbld builder users and group (UID/GID 30000+)...");
     for cmd in get_user_add_commands() {
         let status = Command::new("sh")
             .arg("-c")
             .arg(&cmd)
             .status()
-            .map_err(|e| format!("Failed to execute command: {}", e))?;
+            .map_err(|e| {
+                let err_msg = format!("Failed to execute builder user/group command: {}", e);
+                log_event("ERROR", &err_msg);
+                err_msg
+            })?;
         if !status.success() {
             // Ignore failures if group/user already exists
             continue;
         }
     }
+    log_event("INFO", "Nix builder accounts verified/created.");
     Ok(())
 }
 
 /// Binds the configured host persistent path directly to the root /nix directory.
 pub fn mount_nix_store(persistent_path: &str) -> Result<(), String> {
-    validate_store_path(persistent_path)?;
+    log_event("INFO", &format!("Attempting to mount Nix store. Persistent path: {}", persistent_path));
+    if let Err(e) = validate_store_path(persistent_path) {
+        log_event("ERROR", &format!("Validation failed for persistent path '{}': {}", persistent_path, e));
+        return Err(e);
+    }
 
     // Create mountpoint
-    fs::create_dir_all("/nix").map_err(|e| format!("Failed to create /nix: {}", e))?;
-    fs::create_dir_all(persistent_path).map_err(|e| format!("Failed to create persistent path: {}", e))?;
+    if let Err(e) = fs::create_dir_all("/nix") {
+        let err_msg = format!("Failed to create /nix: {}", e);
+        log_event("ERROR", &err_msg);
+        return Err(err_msg);
+    }
+    if let Err(e) = fs::create_dir_all(persistent_path) {
+        let err_msg = format!("Failed to create persistent path {}: {}", persistent_path, e);
+        log_event("ERROR", &err_msg);
+        return Err(err_msg);
+    }
 
     // Check if already mounted
     let is_mounted = Command::new("mountpoint")
@@ -73,22 +108,33 @@ pub fn mount_nix_store(persistent_path: &str) -> Result<(), String> {
         .unwrap_or(false);
 
     if !is_mounted {
+        log_event("INFO", &format!("Mounting {} to /nix via bind-mount...", persistent_path));
         let status = Command::new("mount")
             .arg("--bind")
             .arg(persistent_path)
             .arg("/nix")
             .status()
-            .map_err(|e| format!("Failed to execute mount command: {}", e))?;
+            .map_err(|e| {
+                let err_msg = format!("Failed to execute mount command: {}", e);
+                log_event("ERROR", &err_msg);
+                err_msg
+            })?;
 
         if !status.success() {
-            return Err(format!("Mount failed for path {}", persistent_path));
+            let err_msg = format!("Mount failed for path {}", persistent_path);
+            log_event("ERROR", &err_msg);
+            return Err(err_msg);
         }
+        log_event("INFO", "Nix store bind-mount completed successfully.");
+    } else {
+        log_event("INFO", "Nix store is already mounted at /nix.");
     }
     Ok(())
 }
 
 /// Unmounts /nix cleanly during array stopping procedures.
 pub fn unmount_nix_store() -> Result<(), String> {
+    log_event("INFO", "Attempting to unmount Nix store from /nix...");
     let is_mounted = Command::new("mountpoint")
         .arg("-q")
         .arg("/nix")
@@ -97,37 +143,61 @@ pub fn unmount_nix_store() -> Result<(), String> {
         .unwrap_or(false);
 
     if is_mounted {
+        log_event("INFO", "Unmounting /nix cleanly...");
         let status = Command::new("umount")
             .arg("-l")
             .arg("/nix")
             .status()
-            .map_err(|e| format!("Failed to execute umount command: {}", e))?;
+            .map_err(|e| {
+                let err_msg = format!("Failed to execute umount command: {}", e);
+                log_event("ERROR", &err_msg);
+                err_msg
+            })?;
 
         if !status.success() {
-            return Err("Unmount failed for /nix".to_string());
+            let err_msg = "Unmount failed for /nix".to_string();
+            log_event("ERROR", &err_msg);
+            return Err(err_msg);
         }
+        log_event("INFO", "Nix store cleanly unmounted from /nix.");
+    } else {
+        log_event("INFO", "/nix is not mounted. No unmount needed.");
     }
     Ok(())
 }
 
 /// Sets up persistent /etc/nix directory via symlinks.
 pub fn setup_nix_conf() -> Result<(), String> {
+    log_event("INFO", "Setting up persistent nix.conf...");
     let target_dir = "/nix/etc/nix";
-    fs::create_dir_all(target_dir).map_err(|e| format!("Failed to create {}: {}", target_dir, e))?;
+    if let Err(e) = fs::create_dir_all(target_dir) {
+        let err_msg = format!("Failed to create {}: {}", target_dir, e);
+        log_event("ERROR", &err_msg);
+        return Err(err_msg);
+    }
 
     // Symlink /etc/nix to /nix/etc/nix if /etc/nix doesn't exist
     if !fs::metadata("/etc/nix").is_ok() {
-        symlink(target_dir, "/etc/nix")
-            .map_err(|e| format!("Failed to create symlink /etc/nix -> {}: {}", target_dir, e))?;
+        log_event("INFO", "Creating symlink /etc/nix -> /nix/etc/nix...");
+        if let Err(e) = symlink(target_dir, "/etc/nix") {
+            let err_msg = format!("Failed to create symlink /etc/nix -> {}: {}", target_dir, e);
+            log_event("ERROR", &err_msg);
+            return Err(err_msg);
+        }
     }
 
     // Default configuration to enable flakes
     let conf_path = "/nix/etc/nix/nix.conf";
     if !fs::metadata(conf_path).is_ok() {
+        log_event("INFO", "Writing default nix.conf to enable flakes...");
         let default_conf = "experimental-features = nix-command flakes\nmax-jobs = auto\n";
-        fs::write(conf_path, default_conf)
-            .map_err(|e| format!("Failed to write default nix.conf: {}", e))?;
+        if let Err(e) = fs::write(conf_path, default_conf) {
+            let err_msg = format!("Failed to write default nix.conf: {}", e);
+            log_event("ERROR", &err_msg);
+            return Err(err_msg);
+        }
     }
+    log_event("INFO", "Nix configuration setup complete.");
     Ok(())
 }
 

@@ -1,7 +1,8 @@
-Menu="nix:1"
+Menu="Nix:1"
 Title="Active Flakes"
 ---
 <link type="text/css" rel="stylesheet" href="/plugins/nix/styles.css">
+<script src="/plugins/nix/nix.js"></script>
 
 <?php
 exec("/etc/rc.d/rc.nix-daemon status 2>/dev/null", $status_output, $status_code);
@@ -41,7 +42,8 @@ function editService(name) {
         if (response.success) {
             sessionStorage.setItem('nix_edit_metadata', JSON.stringify(response.metadata));
             // Redirect to the Install Flake tab
-            location.href = '/Settings/nix_custom';
+            var base = location.pathname.indexOf('/Settings') === 0 ? '/Settings' : '';
+            location.href = base + '/nix_custom';
         } else {
             alert("Failed to retrieve service configuration: " + response.error);
         }

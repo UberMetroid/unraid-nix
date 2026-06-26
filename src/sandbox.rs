@@ -24,7 +24,7 @@ pub struct SandboxConfig {
 /// user-defined extra binds, and drops privileges to PUID:PGID before executing.
 pub fn build_bwrap_command(config: &SandboxConfig) -> Result<String, String> {
     if config.appdata_path.trim().is_empty() {
-        return Err("Appdata/Install path must be specified for service execution.".to_string());
+        return Err("Configuration Location must be specified for service execution.".to_string());
     }
 
     let appdata_canon = std::fs::canonicalize(&config.appdata_path)

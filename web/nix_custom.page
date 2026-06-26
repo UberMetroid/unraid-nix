@@ -1,9 +1,35 @@
-Menu="nix:3"
+Menu="Nix:3"
 Title="Install Flake"
 ---
 <link type="text/css" rel="stylesheet" href="/plugins/nix/styles.css">
+<script src="/plugins/nix/nix.js"></script>
 
 <?php
+function detect_appdata_root() {
+    $cfg_file = '/boot/config/shares/appdata.cfg';
+    if (file_exists($cfg_file)) {
+        $share_cfg = parse_ini_file($cfg_file);
+        if ($share_cfg !== false) {
+            $pool = isset($share_cfg['shareCachePool']) ? trim($share_cfg['shareCachePool'], '"') : '';
+            if (empty($pool) && isset($share_cfg['shareUseCache'])) {
+                $use_cache = trim($share_cfg['shareUseCache'], '"');
+                if (in_array($use_cache, ['yes', 'prefer', 'only'])) {
+                    $pool = 'cache';
+                }
+            }
+            if (!empty($pool) && is_dir("/mnt/" . $pool . "/appdata")) {
+                return "/mnt/" . $pool . "/appdata";
+            }
+        }
+    }
+    
+    if (is_dir('/mnt/user/appdata')) {
+        return '/mnt/user/appdata';
+    }
+
+    return '';
+}
+
 $cfg_file = "/boot/config/plugins/nix/nix.cfg";
 $enable_cli = 'no';
 if (file_exists($cfg_file)) {
@@ -12,6 +38,7 @@ if (file_exists($cfg_file)) {
         $enable_cli = $nix_cfg['ENABLE_CLI_INSTALL'];
     }
 }
+$appdata_root = detect_appdata_root();
 ?>
 
 <div class="nix-section">
@@ -41,9 +68,9 @@ if (file_exists($cfg_file)) {
         
         <div id="nix-service-only-options" style="display: <?php echo $enable_cli === 'yes' ? 'none' : 'block'; ?>; border-left: 3px solid #00a1ff; padding-left: 15px; margin-bottom: 15px;">
             <div class="nix-form-group">
-                <label for="custom-appdata">Install Path:</label>
+                <label for="custom-appdata">Configuration Location:</label>
                 <div style="position: relative;">
-                    <input type="text" id="custom-appdata" autocomplete="off" spellcheck="false" placeholder="/mnt/user/appdata/service-name" data-pickcloseonfile="true" data-pickfilter="HIDE_FILES_FILTER" data-pickroot="/mnt" data-pickfolders="true" style="padding-right: 30px;">
+                    <input type="text" id="custom-appdata" autocomplete="off" spellcheck="false" placeholder="<?php echo !empty($appdata_root) ? htmlspecialchars($appdata_root) . '/service-name' : '/path/to/appdata/service-name'; ?>" data-pickcloseonfile="true" data-pickfilter="HIDE_FILES_FILTER" data-pickroot="/mnt" data-pickfolders="true" style="padding-right: 30px;">
                     <i class="fa fa-folder-open nix-folder-picker-btn" style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); cursor: pointer; color: #aaa;" onclick="$('#custom-appdata').trigger('click')"></i>
                 </div>
             </div>
@@ -115,7 +142,8 @@ $(function() {
         $(".nix-section h3").text("Configure Flake: " + editData.name);
         $(".nix-subtext").text("Modify paths, environment settings, and permissions for service: " + editData.name);
         $(".nix-btn-primary").text("Apply Changes");
-        $(".nix-section a.nix-btn").attr('href', '/Settings/nix').html('<i class="fa fa-arrow-left"></i> Back to Active Flakes');
+        var base = location.pathname.indexOf('/Settings') === 0 ? '/Settings' : '';
+        $(".nix-section a.nix-btn").attr('href', base + '/Nix').html('<i class="fa fa-arrow-left"></i> Back to Active Flakes');
     } else {
         var uri = sessionStorage.getItem('nix_install_uri');
         if (uri) {
@@ -127,7 +155,12 @@ $(function() {
             var name = uri.replace('nixpkgs#', '');
             name = name.split('/').pop().split(':').pop().split('#').pop().replace(/[^a-zA-Z0-9_-]/g, '');
             if (name) {
-                $("#custom-appdata").val("/mnt/user/appdata/" + name);
+                var appdataRoot = <?php echo json_encode($appdata_root); ?>;
+                if (appdataRoot) {
+                    $("#custom-appdata").val(appdataRoot + "/" + name);
+                } else {
+                    $("#custom-appdata").val("");
+                }
             }
         }
     }
@@ -167,7 +200,7 @@ function installCustomFlake(e) {
         data.gpu = $("#custom-gpu").is(':checked') ? '1' : '0';
         
         if (!data.appdata) {
-            alert("Install path is required for services.");
+            alert("Configuration Location is required for services.");
             return;
         }
 
@@ -189,7 +222,8 @@ function installCustomFlake(e) {
         if (resp.success) {
             alert("Successfully configured and installed " + uri);
             if (type === 'service') {
-                location.href = '/Settings/nix';
+                var base = location.pathname.indexOf('/Settings') === 0 ? '/Settings' : '';
+                location.href = base + '/Nix';
             } else {
                 submitBtn.prop('disabled', false).text(originalBtnText);
             }

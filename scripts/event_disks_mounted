@@ -2,10 +2,48 @@
 # /usr/local/emhttp/plugins/nix/event/disks_mounted
 # Executed automatically when the Unraid storage array is mounted.
 
-echo "Nix Event: disks_mounted triggered." | logger -t "nix-plugin"
+log_event() {
+    local level="$1"
+    local msg="$2"
+    local log_file="/var/log/nix-plugin.log"
+    local now
+    now=$(date +"%Y-%m-%d %H:%M:%S")
+    echo "$now [$level] $msg" >> "$log_file"
+    echo "[$level] $msg" | logger -t "nix-plugin"
+}
+
+log_pipe() {
+    local level="$1"
+    while read -r line; do
+        log_event "$level" "$line"
+    done
+}
+
+log_event "INFO" "Nix Event: disks_mounted triggered."
 
 detect_default_store_path() {
-    echo "/mnt/user/system/nix"
+    CFG_SHARE="/boot/config/shares/system.cfg"
+    if [ -f "$CFG_SHARE" ]; then
+        # Parse pool name
+        POOL=$(grep -oP '^shareCachePool="\K[^"]+' "$CFG_SHARE" || grep -oP '^shareCachePool=\K[^\s]+' "$CFG_SHARE" | tr -d '"')
+        if [ -z "$POOL" ]; then
+            USE_CACHE=$(grep -oP '^shareUseCache="\K[^"]+' "$CFG_SHARE" || grep -oP '^shareUseCache=\K[^\s]+' "$CFG_SHARE" | tr -d '"')
+            if [[ "$USE_CACHE" == "yes" || "$USE_CACHE" == "prefer" || "$USE_CACHE" == "only" ]]; then
+                POOL="cache"
+            fi
+        fi
+        if [ -n "$POOL" ] && [ -d "/mnt/$POOL/system" ]; then
+            echo "/mnt/$POOL/system/nix"
+            return
+        fi
+    fi
+
+    if [ -d "/mnt/user/system" ]; then
+        echo "/mnt/user/system/nix"
+        return
+    fi
+
+    echo ""
 }
 
 CFG_FILE="/boot/config/plugins/nix/nix.cfg"
@@ -19,27 +57,49 @@ if [ -f "$CFG_FILE" ]; then
     AUTOSTART_FLAKES=$(grep -oP 'AUTOSTART_FLAKES="\K[^"]+' "$CFG_FILE" || echo "yes")
 fi
 
+if [ -z "$NIX_STORE_PATH" ]; then
+    log_event "ERROR" "Nix Store Path is not configured and system share could not be detected. Please configure it in the WebGUI Settings."
+    exit 1
+fi
+
 # 1. Setup persistent directory and mount /nix
 /usr/local/emhttp/plugins/nix/nix-helper setup-store "$NIX_STORE_PATH" 2>&1 | logger -t "nix-plugin"
 
-# 2. Check if Nix binary is present; download and install if missing
-if [ ! -d "/nix/store" ] || [ ! -x "/nix/var/nix/profiles/default/bin/nix-daemon" ]; then
-    echo "Nix store not initialized. Bootstrapping Nix..." | logger -t "nix-plugin"
-    curl --proto '=https' --tlsv1.2 -sSf -L https://install.determinate.systems/nix | \
-        sh -s -- install linux --init none --no-confirm --extra-conf "sandbox = false" 2>&1 | logger -t "nix-plugin"
+# 2. Check disk space on /nix mount
+if mountpoint -q /nix; then
+    USAGE=$(df -P /nix | tail -n 1 | awk '{print $5}' | tr -d '%')
+    if [[ "$USAGE" =~ ^[0-9]+$ ]]; then
+        if [ "$USAGE" -gt 90 ]; then
+            log_event "WARN" "Storage pool hosting /nix is over 90% full (current usage: ${USAGE}%)."
+        else
+            log_event "INFO" "Storage pool disk space usage for /nix is healthy at ${USAGE}%."
+        fi
+    else
+        log_event "WARN" "Could not parse disk usage for /nix. Output: $(df -P /nix)"
+    fi
+else
+    log_event "ERROR" "/nix mount check failed: mount point /nix is not active."
 fi
 
-# 3. Expose environment paths globally
+# 3. Check if Nix binary is present; download and install if missing
+if [ ! -d "/nix/store" ] || [ ! -x "/nix/var/nix/profiles/default/bin/nix-daemon" ]; then
+    log_event "INFO" "Nix store not initialized. Bootstrapping Nix..."
+    curl --proto '=https' --tlsv1.2 -sSf -L https://install.determinate.systems/nix | \
+        sh -s -- install linux --init none --no-confirm --extra-conf "sandbox = false" 2>&1 | log_pipe "INFO"
+fi
+
+# 4. Expose environment paths globally
 if [ -f "/nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh" ]; then
     source /nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh
 fi
 
-# 4. Spin up nix-daemon
-/etc/rc.d/rc.nix-daemon start 2>&1 | logger -t "nix-plugin"
+# 5. Spin up nix-daemon
+log_event "INFO" "Starting background nix-daemon..."
+/etc/rc.d/rc.nix-daemon start 2>&1 | log_pipe "INFO"
 
-# 5. Start persistent Nix Flakes background services
+# 6. Start persistent Nix Flakes background services
 if [ "$AUTOSTART_FLAKES" = "yes" ] && [ -f "/boot/config/plugins/nix/process-compose.yml" ]; then
-    echo "Starting Flake services via process-compose..." | logger -t "nix-plugin"
+    log_event "INFO" "Starting Flake services via process-compose..."
     mkdir -p /var/log/nix-services
     
     nohup nix run nixpkgs#process-compose -- \
@@ -50,4 +110,5 @@ if [ "$AUTOSTART_FLAKES" = "yes" ] && [ -f "/boot/config/plugins/nix/process-com
         > /var/log/nix-process-compose.log 2>&1 &
         
     echo $! > /var/run/nix-process-compose.pid
+    log_event "INFO" "process-compose daemon started with PID $(cat /var/run/nix-process-compose.pid)"
 fi

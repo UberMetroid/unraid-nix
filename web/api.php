@@ -191,7 +191,7 @@ if ($action === 'install-custom') {
         $gpu = isset($_POST['gpu']) ? $_POST['gpu'] : '0';
         $extra_binds = isset($_POST['extra_binds']) ? $_POST['extra_binds'] : '';
         
-        // 1. Create the primary Install Path (appdata) if it doesn't exist
+        // 1. Create the primary Configuration Location (appdata) if it doesn't exist
         if (!empty($appdata)) {
             if (!file_exists($appdata)) {
                 mkdir($appdata, 0777, true);
@@ -333,6 +333,7 @@ if ($action === 'save-settings') {
     $store_path = isset($_POST['store_path']) ? $_POST['store_path'] : '';
     $autostart = isset($_POST['autostart']) ? $_POST['autostart'] : 'yes';
     $enable_cli = isset($_POST['enable_cli']) ? $_POST['enable_cli'] : 'no';
+    $show_in_nav = isset($_POST['show_in_nav']) ? $_POST['show_in_nav'] : 'yes';
     
     // Read old config to check if the store path has changed
     $old_store_path = '';
@@ -344,7 +345,7 @@ if ($action === 'save-settings') {
         }
     }
     if (empty($old_store_path)) {
-        $old_store_path = '/mnt/user/system/nix'; // default
+        $old_store_path = detect_default_store_path(); // default
     }
 
     $store_path = rtrim($store_path, '/');
@@ -382,9 +383,28 @@ if ($action === 'save-settings') {
     $cfg_content = "NIX_STORE_PATH=\"" . addslashes($store_path) . "\"\n";
     $cfg_content .= "AUTOSTART_FLAKES=\"" . addslashes($autostart) . "\"\n";
     $cfg_content .= "ENABLE_CLI_INSTALL=\"" . addslashes($enable_cli) . "\"\n";
+    $cfg_content .= "SHOW_IN_NAVIGATION=\"" . addslashes($show_in_nav) . "\"\n";
     
     if (file_put_contents($cfg_dir . "/nix.cfg", $cfg_content) === false) {
         error("Failed to write nix.cfg to flash drive.");
+    }
+
+    // Dynamically update active Nix.page menu registry
+    $nix_page_file = "/usr/local/emhttp/plugins/nix/Nix.page";
+    $nix_launcher_file = "/usr/local/emhttp/plugins/nix/NixLauncher.page";
+    if (file_exists($nix_page_file)) {
+        $nix_page_content = file_get_contents($nix_page_file);
+        if ($show_in_nav === 'yes') {
+            $nix_page_content = preg_replace('/^Menu="[^"]*"/m', 'Menu="Tasks:95"', $nix_page_content);
+            $launcher_content = "Menu=\"Utilities\"\nTitle=\"Nix\"\nIcon=\"nix.png\"\n---\n<script>window.location.href = '/Settings/Nix';</script>\n";
+            file_put_contents($nix_launcher_file, $launcher_content);
+        } else {
+            $nix_page_content = preg_replace('/^Menu="[^"]*"/m', 'Menu="Utilities"', $nix_page_content);
+            if (file_exists($nix_launcher_file)) {
+                unlink($nix_launcher_file);
+            }
+        }
+        file_put_contents($nix_page_file, $nix_page_content);
     }
 
     if ($migration_performed) {
@@ -450,6 +470,56 @@ function restart_nix_supervisor() {
     }
 }
 
+function detect_default_store_path() {
+    $cfg_file = '/boot/config/shares/system.cfg';
+    if (file_exists($cfg_file)) {
+        $share_cfg = parse_ini_file($cfg_file);
+        if ($share_cfg !== false) {
+            $pool = isset($share_cfg['shareCachePool']) ? trim($share_cfg['shareCachePool'], '"') : '';
+            if (empty($pool) && isset($share_cfg['shareUseCache'])) {
+                $use_cache = trim($share_cfg['shareUseCache'], '"');
+                if (in_array($use_cache, ['yes', 'prefer', 'only'])) {
+                    $pool = 'cache';
+                }
+            }
+            if (!empty($pool) && is_dir("/mnt/" . $pool . "/system")) {
+                return "/mnt/" . $pool . "/system/nix";
+            }
+        }
+    }
+    
+    if (is_dir('/mnt/user/system')) {
+        return '/mnt/user/system/nix';
+    }
+
+    return '';
+}
+
+function detect_appdata_root() {
+    $cfg_file = '/boot/config/shares/appdata.cfg';
+    if (file_exists($cfg_file)) {
+        $share_cfg = parse_ini_file($cfg_file);
+        if ($share_cfg !== false) {
+            $pool = isset($share_cfg['shareCachePool']) ? trim($share_cfg['shareCachePool'], '"') : '';
+            if (empty($pool) && isset($share_cfg['shareUseCache'])) {
+                $use_cache = trim($share_cfg['shareUseCache'], '"');
+                if (in_array($use_cache, ['yes', 'prefer', 'only'])) {
+                    $pool = 'cache';
+                }
+            }
+            if (!empty($pool) && is_dir("/mnt/" . $pool . "/appdata")) {
+                return "/mnt/" . $pool . "/appdata";
+            }
+        }
+    }
+    
+    if (is_dir('/mnt/user/appdata')) {
+        return '/mnt/user/appdata';
+    }
+
+    return '';
+}
+
 function get_service_metadata($name) {
     $meta_file = "/boot/config/plugins/nix/metadata/" . $name . ".json";
     if (file_exists($meta_file)) {
@@ -459,6 +529,9 @@ function get_service_metadata($name) {
         }
     }
     
+    $detected_root = detect_appdata_root();
+    $fallback_appdata_root = !empty($detected_root) ? $detected_root : '/mnt/user/appdata';
+
     // Fallback: Parse from process-compose.yml
     $cfg_file = "/boot/config/plugins/nix/process-compose.yml";
     if (file_exists($cfg_file)) {
@@ -477,7 +550,7 @@ function get_service_metadata($name) {
             if (!empty($cmd)) {
                 $puid = '99';
                 $pgid = '100';
-                $appdata = '/mnt/user/appdata/' . $name;
+                $appdata = $fallback_appdata_root . '/' . $name;
                 $uri = 'nixpkgs#' . $name;
                 $gpu = '0';
                 
@@ -514,7 +587,7 @@ function get_service_metadata($name) {
     return [
         'name' => $name,
         'uri' => 'nixpkgs#' . $name,
-        'appdata' => '/mnt/user/appdata/' . $name,
+        'appdata' => $fallback_appdata_root . '/' . $name,
         'puid' => '99',
         'pgid' => '100',
         'gpu' => '0',

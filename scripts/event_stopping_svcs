@@ -2,28 +2,51 @@
 # /usr/local/emhttp/plugins/nix/event/stopping_svcs
 # Executed automatically when the Unraid storage array is stopping.
 
-echo "Nix Event: stopping_svcs triggered." | logger -t "nix-plugin"
+log_event() {
+    local level="$1"
+    local msg="$2"
+    local log_file="/var/log/nix-plugin.log"
+    local now
+    now=$(date +"%Y-%m-%d %H:%M:%S")
+    echo "$now [$level] $msg" >> "$log_file"
+    echo "[$level] $msg" | logger -t "nix-plugin"
+}
+
+log_pipe() {
+    local level="$1"
+    while read -r line; do
+        log_event "$level" "$line"
+    done
+}
+
+log_event "INFO" "Nix Event: stopping_svcs triggered."
 
 # 1. Gracefully shut down process-compose supervisor and active flakes
 if [ -f "/nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh" ]; then
     source /nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh
 fi
 
-echo "Stopping Nix services..." | logger -t "nix-plugin"
-nix run nixpkgs#process-compose -- \
-    -p 29704 \
-    down >/dev/null 2>&1
-    
-if fuser 29704/tcp >/dev/null 2>&1; then
-    echo "Force stopping Nix services..." | logger -t "nix-plugin"
-    fuser -k -9 29704/tcp >/dev/null 2>&1
+if [ -f "/var/run/nix-process-compose.pid" ]; then
+    log_event "INFO" "Stopping Nix services via process-compose..."
+    nix run nixpkgs#process-compose -- \
+        -p 29704 \
+        down 2>&1 | log_pipe "INFO"
+        
+    if fuser 29704/tcp >/dev/null 2>&1; then
+        log_event "WARN" "Force stopping Nix services..."
+        fuser -k -9 29704/tcp 2>&1 | log_pipe "WARN"
+    fi
+    rm -f /var/run/nix-process-compose.pid
+else
+    log_event "INFO" "No nix-process-compose pidfile found. Services may not be running."
 fi
-rm -f /var/run/nix-process-compose.pid
 
 # 2. Shut down the background nix-daemon
-/etc/rc.d/rc.nix-daemon stop 2>&1 | logger -t "nix-plugin"
+log_event "INFO" "Stopping background nix-daemon..."
+/etc/rc.d/rc.nix-daemon stop 2>&1 | log_pipe "INFO"
 
 # 3. Terminate any stray builder processes
+log_event "INFO" "Terminating any stray nixbld builder processes..."
 pkill -u nixbld >/dev/null 2>&1
 
 # 4. Cleanly unmount /nix to prevent locked filesystems
