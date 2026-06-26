@@ -53,6 +53,20 @@ $(function() {
         $("#custom-appdata").fileTreeAttach();
         $("#custom-media").fileTreeAttach();
     }
+
+    var urlParams = new URLSearchParams(window.location.search);
+    var uri = urlParams.get('uri');
+    if (uri) {
+        $("#custom-uri").val(uri);
+        $("#custom-type").val('service');
+        toggleServiceOptions();
+
+        var name = uri.replace('nixpkgs#', '');
+        name = name.split('/').pop().split(':').pop().split('#').pop().replace(/[^a-zA-Z0-9_-]/g, '');
+        if (name) {
+            $("#custom-appdata").val("/mnt/user/appdata/" + name);
+        }
+    }
 });
 
 function toggleServiceOptions() {

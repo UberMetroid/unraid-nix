@@ -54,7 +54,7 @@ pub fn search_packages(query: &str) -> Result<Vec<SearchResult>, String> {
         return Ok(Vec::new());
     }
 
-    let output = Command::new("nix")
+    let output = Command::new("/nix/var/nix/profiles/default/bin/nix")
         .arg("search")
         .arg("--json")
         .arg("nixpkgs")
@@ -73,7 +73,7 @@ pub fn search_packages(query: &str) -> Result<Vec<SearchResult>, String> {
 
 /// Installs a package (CLI tool) into the user profile permanently.
 pub fn install_package(package_name: &str) -> Result<(), String> {
-    let status = Command::new("nix")
+    let status = Command::new("/nix/var/nix/profiles/default/bin/nix")
         .arg("profile")
         .arg("install")
         .arg(package_name)
