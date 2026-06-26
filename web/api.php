@@ -220,6 +220,46 @@ if ($action === 'save-settings') {
     $autostart = isset($_POST['autostart']) ? $_POST['autostart'] : 'yes';
     $enable_cli = isset($_POST['enable_cli']) ? $_POST['enable_cli'] : 'no';
     
+    // Read old config to check if the store path has changed
+    $old_store_path = '';
+    $cfg_file = "/boot/config/plugins/nix/nix.cfg";
+    if (file_exists($cfg_file)) {
+        $old_cfg = parse_ini_file($cfg_file);
+        if (isset($old_cfg['NIX_STORE_PATH'])) {
+            $old_store_path = $old_cfg['NIX_STORE_PATH'];
+        }
+    }
+    if (empty($old_store_path)) {
+        $old_store_path = '/mnt/user/system/nix'; // default
+    }
+
+    $store_path = rtrim($store_path, '/');
+    $old_store_path = rtrim($old_store_path, '/');
+
+    // If path changed and the old path is populated, migrate the data!
+    $migration_performed = false;
+    if (!empty($store_path) && $store_path !== $old_store_path) {
+        // If old store exists and contains files, we should migrate
+        if (file_exists($old_store_path) && count(glob("$old_store_path/*")) > 0) {
+            // 1. Stop services and Nix daemon
+            shell_exec("/usr/local/emhttp/plugins/nix/event/stopping_svcs >/dev/null 2>&1");
+            
+            // 2. Double check /nix is unmounted
+            shell_exec("umount -l /nix >/dev/null 2>&1");
+            
+            // 3. Create new directory
+            if (!file_exists($store_path)) {
+                mkdir($store_path, 0777, true);
+            }
+            
+            // 4. Sync files to the new location
+            shell_exec("rsync -aHAX " . escapeshellarg($old_store_path . "/") . " " . escapeshellarg($store_path . "/") . " >/dev/null 2>&1");
+            
+            // Mark migration performed so we restart daemon and services
+            $migration_performed = true;
+        }
+    }
+
     $cfg_dir = "/boot/config/plugins/nix";
     if (!file_exists($cfg_dir)) {
         mkdir($cfg_dir, 0777, true);
@@ -232,6 +272,12 @@ if ($action === 'save-settings') {
     if (file_put_contents($cfg_dir . "/nix.cfg", $cfg_content) === false) {
         error("Failed to write nix.cfg to flash drive.");
     }
+
+    if ($migration_performed) {
+        // Start services back up using the updated config
+        shell_exec("/usr/local/emhttp/plugins/nix/event/disks_mounted >/dev/null 2>&1");
+    }
+    
     success();
 }
 

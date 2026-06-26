@@ -2,7 +2,7 @@
 <!DOCTYPE PLUGIN [
   <!ENTITY name      "nix">
   <!ENTITY author    "UberMetroid">
-  <!ENTITY version   "2026.06.25.42">
+  <!ENTITY version   "2026.06.25.43">
   <!ENTITY launch    "Settings/nix">
   <!ENTITY plugdir   "/boot/config/plugins/&name;">
   <!ENTITY usrdir    "/usr/local/emhttp/plugins/&name;">
@@ -11,6 +11,8 @@
 
   <CHANGES>
     ## nix package manager plugin
+    ### 2026.06.25.43
+    - Implemented automated data migration (using rsync with permissions) in Settings when changing the Nix Store Path.
     ### 2026.06.25.42
     - Fixed process-compose v1.110.0 JSON response parsing mismatch in nix-helper.
     ### 2026.06.25.41
