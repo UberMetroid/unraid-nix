@@ -2,8 +2,8 @@
 <!DOCTYPE PLUGIN [
   <!ENTITY name      "nix">
   <!ENTITY author    "UberMetroid">
-  <!ENTITY version   "2026.06.25.6">
-  <!ENTITY launch    "Settings/Nix">
+  <!ENTITY version   "2026.06.25.7">
+  <!ENTITY launch    "Settings/nix_services">
   <!ENTITY plugdir   "/boot/config/plugins/&name;">
   <!ENTITY usrdir    "/usr/local/emhttp/plugins/&name;">
 ]>
@@ -11,6 +11,9 @@
 
   <CHANGES>
     ## nix package manager plugin
+    ### 2026.06.25.7
+    - Set settings launch target directly to Settings/nix_services.
+    - Added a JavaScript redirect inside nix.page to route Settings/Nix requests to the active sub-tab.
     ### 2026.06.25.6
     - Capitalized display name to "Nix" on the Plugins page.
     - Added README.md download to register the plugin description in the GUI.

@@ -2,3 +2,6 @@ Menu="Utilities"
 Title="Nix"
 Icon="nix.png"
 ---
+<script>
+window.location.href = "/Settings/nix_services";
+</script>
