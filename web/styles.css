@@ -82,7 +82,8 @@
     background: #1c1c1f !important;
 }
 
-.nix-search-table th:nth-child(1), .nix-search-table td:nth-child(1) { width: 25%; word-break: break-all; }
+.nix-search-table th:nth-child(1), .nix-search-table td:nth-child(1) { width: 25%; word-break: break-all; white-space: normal !important; }
+.nix-search-table td:nth-child(1) a, .nix-search-table td:nth-child(1) code { white-space: normal !important; word-break: break-all !important; overflow-wrap: break-word !important; }
 .nix-search-table th:nth-child(2), .nix-search-table td:nth-child(2) { width: 15%; word-break: break-all; }
 .nix-search-table th:nth-child(3), .nix-search-table td:nth-child(3) { width: 40%; white-space: normal; overflow-wrap: break-word; word-break: normal; }
 .nix-search-table th:nth-child(4), .nix-search-table td:nth-child(4) { width: 20%; text-align: center; }
