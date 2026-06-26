@@ -19,6 +19,7 @@ pub struct ServiceStatus {
     pub memory: Option<u64>,
     #[serde(rename = "age")]
     pub uptime_nanoseconds: Option<u64>,
+    pub exit_code: Option<i32>,
 }
 
 impl ServiceStatus {

@@ -244,10 +244,14 @@ pub fn render_services_table(api_port: u16) -> String {
     } else {
         for s in statuses {
             let is_running = s.status.to_lowercase() == "running";
+            let status_lower = s.status.to_lowercase();
+            let is_stopped = status_lower == "stopped"
+                || status_lower == "completed"
+                || status_lower == "terminating";
 
             let status_subtext = if is_running {
                 r#"<span style="color: #2ecc71;">●</span> started"#
-            } else if s.status.to_lowercase() == "stopped" {
+            } else if is_stopped && s.exit_code.unwrap_or(0) == 0 {
                 r#"<span style="color: #e74c3c;">●</span> stopped"#
             } else {
                 r#"<span style="color: #f1c40f;">●</span> failed"#
