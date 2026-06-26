@@ -118,7 +118,7 @@ fn main() {
         }
         "preset" => {
             if args.len() < 8 {
-                eprintln!("Error: Missing arguments: preset <name> <appdata> <media> <puid> <pgid> <gpu>");
+                eprintln!("Error: Missing arguments: preset <name> <appdata> <media> <puid> <pgid> <gpu> [extra_binds]");
                 std::process::exit(1);
             }
             let name = &args[2];
@@ -127,8 +127,13 @@ fn main() {
             let puid = args[5].parse::<u32>().unwrap_or(99);
             let pgid = args[6].parse::<u32>().unwrap_or(100);
             let gpu = args[7] == "1" || args[7] == "true";
+            let extra_binds = if args.len() >= 9 {
+                parse_binds_string(&args[8]).unwrap_or_default()
+            } else {
+                Vec::new()
+            };
 
-            match config::get_service_command_preset(name, appdata, media, puid, pgid, gpu) {
+            match config::get_service_command_preset(name, appdata, media, puid, pgid, gpu, extra_binds) {
                 Ok(cmd) => println!("{}", cmd),
                 Err(e) => {
                     eprintln!("Error: {}", e);
@@ -296,6 +301,7 @@ fn parse_sandbox_args(args: &[String]) -> Result<String, String> {
     let mut pgid = 100;
     let mut gpu = false;
     let mut cmd = String::new();
+    let mut extra_binds = Vec::new();
 
     let mut i = 2;
     while i < args.len() {
@@ -335,6 +341,11 @@ fn parse_sandbox_args(args: &[String]) -> Result<String, String> {
                 cmd = args[i+1].clone();
                 i += 2;
             }
+            "--extra-binds" => {
+                if i + 1 >= args.len() { return Err("Missing value for --extra-binds".to_string()); }
+                extra_binds = parse_binds_string(&args[i+1])?;
+                i += 2;
+            }
             _ => return Err(format!("Unknown sandbox flag: {}", args[i])),
         }
     }
@@ -347,5 +358,21 @@ fn parse_sandbox_args(args: &[String]) -> Result<String, String> {
         pgid,
         enable_gpu: gpu,
         inner_command: cmd,
+        extra_binds,
     })
+}
+
+fn parse_binds_string(s: &str) -> Result<Vec<(String, String)>, String> {
+    let mut binds = Vec::new();
+    if s.trim().is_empty() {
+        return Ok(binds);
+    }
+    for part in s.split(',') {
+        let subparts: Vec<&str> = part.split(':').collect();
+        if subparts.len() != 2 {
+            return Err(format!("Invalid extra bind format: '{}'. Expected 'host:sandbox'.", part));
+        }
+        binds.push((subparts[0].to_string(), subparts[1].to_string()));
+    }
+    Ok(binds)
 }

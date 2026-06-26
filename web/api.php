@@ -224,29 +224,33 @@ if ($action === 'install-custom') {
         $name = last(explode('#', $name));
         $name = preg_replace('/[^a-zA-Z0-9_-]/', '', $name);
 
-        // Fetch command string. Checks if it is a preset
-        $cmd = "";
-        if (in_array(strtolower($name), ['radarr', 'sonarr', 'jellyfin'])) {
-            $cmd = shell_exec(format_preset_cmd($name, $appdata, $media, $puid, $pgid, $gpu));
-        } else {
-            // Build custom bubblewrap command
-            $cmd = shell_exec("/usr/local/emhttp/plugins/nix/nix-helper sandbox --name " . escapeshellarg($name) . " --appdata " . escapeshellarg($appdata) . " --media " . escapeshellarg($media) . " --puid " . escapeshellarg($puid) . " --pgid " . escapeshellarg($pgid) . " --cmd " . escapeshellarg("nix run " . $uri));
-        }
-
-        // Apply additional shared paths/bind mounts if provided (translate path references)
+        // Format extra binds as host:sandbox comma-separated string
+        $binds_arg = "";
         if (!empty($extra_binds)) {
             $binds_arr = json_decode($extra_binds, true);
             if (is_array($binds_arr)) {
+                $parts = [];
                 foreach ($binds_arr as $b) {
                     $host = trim($b['host']);
                     $sandbox = trim($b['sandbox']);
                     if (!empty($host) && !empty($sandbox)) {
-                        $cmd = str_replace($sandbox, $host, $cmd);
+                        $parts[] = $host . ":" . $sandbox;
                     }
                 }
+                $binds_arg = implode(",", $parts);
             }
         }
-        
+
+        // Fetch command string. Checks if it is a preset
+        $cmd = "";
+        if (in_array(strtolower($name), ['radarr', 'sonarr', 'jellyfin'])) {
+            $cmd = shell_exec(format_preset_cmd($name, $appdata, $media, $puid, $pgid, $gpu, $binds_arg));
+        } else {
+            // Build custom bubblewrap command
+            $cmd = shell_exec("/usr/local/emhttp/plugins/nix/nix-helper sandbox --name " . escapeshellarg($name) . " --appdata " . escapeshellarg($appdata) . " --media " . escapeshellarg($media) . " --puid " . escapeshellarg($puid) . " --pgid " . escapeshellarg($pgid) . " --cmd " . escapeshellarg("nix run " . $uri) . " --extra-binds " . escapeshellarg($binds_arg));
+        }
+
+
         $output = [];
         $code = 0;
         exec("/usr/local/emhttp/plugins/nix/nix-helper add-service " . escapeshellarg($name) . " " . escapeshellarg(trim($cmd)) . " 2>&1", $output, $code);
@@ -396,9 +400,10 @@ function last($arr) {
     return end($arr);
 }
 
-function format_preset_cmd($name, $appdata, $media, $puid, $pgid, $gpu) {
+function format_preset_cmd($name, $appdata, $media, $puid, $pgid, $gpu, $extra_binds = '') {
     $media_arg = empty($media) ? "-" : $media;
-    return "/usr/local/emhttp/plugins/nix/nix-helper preset " . escapeshellarg($name) . " " . escapeshellarg($appdata) . " " . escapeshellarg($media_arg) . " " . escapeshellarg($puid) . " " . escapeshellarg($pgid) . " " . escapeshellarg($gpu);
+    $extra_arg = empty($extra_binds) ? "" : " " . escapeshellarg($extra_binds);
+    return "/usr/local/emhttp/plugins/nix/nix-helper preset " . escapeshellarg($name) . " " . escapeshellarg($appdata) . " " . escapeshellarg($media_arg) . " " . escapeshellarg($puid) . " " . escapeshellarg($pgid) . " " . escapeshellarg($gpu) . $extra_arg;
 }
 
 function restart_nix_supervisor() {

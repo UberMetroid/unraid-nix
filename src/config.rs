@@ -101,6 +101,7 @@ pub fn get_service_command_preset(
     puid: u32,
     pgid: u32,
     enable_gpu: bool,
+    extra_binds: Vec<(String, String)>,
 ) -> Result<String, String> {
     let media_path = if media.trim().is_empty() || media == "-" {
         None
@@ -123,6 +124,7 @@ pub fn get_service_command_preset(
         pgid,
         enable_gpu,
         inner_command,
+        extra_binds,
     })
 }
 
@@ -173,12 +175,14 @@ mod tests {
 
     #[test]
     fn test_service_command_presets() {
-        let cmd = get_service_command_preset("radarr", "/mnt/cache/appdata/radarr", "/mnt/user/media", 99, 100, false).unwrap();
-        assert!(cmd.starts_with("exec setpriv --reuid=99 --regid=100 --init-groups sh -c "));
-        assert!(cmd.contains("export HOME=/mnt/cache/appdata/radarr"));
+        let cmd = get_service_command_preset("radarr", "/mnt/cache/appdata/radarr", "/mnt/user/media", 99, 100, false, Vec::new()).unwrap();
+        assert!(cmd.starts_with("exec unshare -m sh -c "));
+        assert!(cmd.contains("mount -t tmpfs tmpfs /boot"));
+        assert!(cmd.contains("mount --bind /mnt/cache/appdata/radarr /config"));
+        assert!(cmd.contains("exec setpriv --reuid=99 --regid=100"));
         assert!(cmd.contains("nix run nixpkgs#radarr"));
 
-        let err = get_service_command_preset("invalid", "/tmp", "/tmp", 99, 100, false);
+        let err = get_service_command_preset("invalid", "/tmp", "/tmp", 99, 100, false, Vec::new());
         assert!(err.is_err());
     }
 }
