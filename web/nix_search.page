@@ -120,7 +120,7 @@ function installCustomFlake(e) {
         if (resp.success) {
             alert("Successfully configured and installed " + uri);
             if (type === 'service') {
-                location.href = '/Settings/nix';
+                location.href = '/Settings/nix_services';
             }
         } else {
             alert("Installation failed: " + resp.error);
