@@ -42,11 +42,10 @@ $appdata_root = detect_appdata_root();
 ?>
 
 <div class="nix-section">
-    <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px;">
+    <div style="margin-bottom: 20px;">
         <h3 style="margin: 0;">Install Flake</h3>
-        <a href="/Settings/nix_search" class="nix-btn" style="text-decoration: none; margin: 0; display: inline-flex; align-items: center; gap: 6px;"><i class="fa fa-arrow-left"></i> Back to Flake Store</a>
     </div>
-    <p class="nix-subtext" style="margin-top: -15px;">Run or daemonize any custom flake from GitHub or a local directory.</p>
+    <p class="nix-subtext" style="margin-top: -10px;">Run or daemonize any custom flake from GitHub or a local directory.</p>
     
     <form id="nix-install-custom-form" onsubmit="installCustomFlake(event)">
         <div class="nix-form-group">
@@ -114,10 +113,19 @@ $appdata_root = detect_appdata_root();
 </div>
 
 <script>
-$(function() {
-    if (typeof $.fn.fileTreeAttach === 'function') {
-        $("#custom-appdata").fileTreeAttach();
-    }
+window.initInstallForm = function() {
+    // Reset form to defaults
+    $("#custom-uri").val("").prop('readonly', false);
+    $("#custom-appdata").val("");
+    $("#custom-puid").val("99");
+    $("#custom-pgid").val("100");
+    $("#custom-gpu").prop('checked', false);
+    $("#custom-port").val("");
+    $("#custom-bind-address").val("0.0.0.0");
+    $("#nix-extra-binds-container").empty();
+    $(".nix-section h3").text("Install Flake");
+    $(".nix-subtext").text("Run or daemonize any custom flake from GitHub or a local directory.");
+    $(".nix-btn-primary").text("Install Flake");
 
     var editDataStr = sessionStorage.getItem('nix_edit_metadata');
     if (editDataStr) {
@@ -151,8 +159,6 @@ $(function() {
         $(".nix-section h3").text("Configure Flake: " + editData.name);
         $(".nix-subtext").text("Modify paths, environment settings, and permissions for service: " + editData.name);
         $(".nix-btn-primary").text("Apply Changes");
-        var base = location.pathname.indexOf('/Settings') === 0 ? '/Settings' : '';
-        $(".nix-section a.nix-btn").attr('href', base + '/Nix').html('<i class="fa fa-arrow-left"></i> Back to Active Flakes');
     } else {
         var uri = sessionStorage.getItem('nix_install_uri');
         if (uri) {
@@ -175,6 +181,13 @@ $(function() {
     }
     
     updatePresetInfo();
+};
+
+$(function() {
+    if (typeof $.fn.fileTreeAttach === 'function') {
+        $("#custom-appdata").fileTreeAttach();
+    }
+    window.initInstallForm();
 });
 
 function toggleServiceOptions() {
@@ -233,13 +246,9 @@ function installCustomFlake(e) {
         if (resp.success) {
             alert("Successfully configured and installed " + uri);
             if (type === 'service') {
-                var base = '/Settings';
-                if (location.pathname.indexOf('/Nix') === 0) {
-                    base = '/Nix';
-                } else if (location.pathname.indexOf('/Settings') === 0) {
-                    base = '/Settings';
-                }
-                location.href = base + '/Nix';
+                // Click the Active Flakes tab to return to the list
+                $('#tab1').trigger('click');
+                submitBtn.prop('disabled', false).text(originalBtnText);
             } else {
                 submitBtn.prop('disabled', false).text(originalBtnText);
             }

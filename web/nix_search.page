@@ -41,13 +41,10 @@ function installPackage(pkg) {
 
 function showServiceModal(pkg) {
     sessionStorage.setItem('nix_install_uri', pkg);
-    var base = '/Settings';
-    if (location.pathname.indexOf('/Nix') === 0) {
-        base = '/Nix';
-    } else if (location.pathname.indexOf('/Settings') === 0) {
-        base = '/Settings';
+    if (window.initInstallForm) {
+        window.initInstallForm();
     }
-    location.href = base + '/nix_install';
+    $('#tab3').trigger('click');
 }
 </script>
 

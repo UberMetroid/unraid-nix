@@ -42,13 +42,10 @@ function editService(name) {
         if (response.success) {
             sessionStorage.setItem('nix_edit_metadata', JSON.stringify(response.metadata));
             // Redirect to the Install Flake tab
-            var base = '/Settings';
-            if (location.pathname.indexOf('/Nix') === 0) {
-                base = '/Nix';
-            } else if (location.pathname.indexOf('/Settings') === 0) {
-                base = '/Settings';
+            if (window.initInstallForm) {
+                window.initInstallForm();
             }
-            location.href = base + '/nix_install';
+            $('#tab3').trigger('click');
         } else {
             alert("Failed to retrieve service configuration: " + response.error);
         }
