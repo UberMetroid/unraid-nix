@@ -2,7 +2,7 @@
 <!DOCTYPE PLUGIN [
   <!ENTITY name      "nix">
   <!ENTITY author    "UberMetroid">
-  <!ENTITY version   "2026.06.26.14">
+  <!ENTITY version   "2026.06.26.15">
   <!ENTITY launch    "Settings/nix">
   <!ENTITY plugdir   "/boot/config/plugins/&name;">
   <!ENTITY usrdir    "/usr/local/emhttp/plugins/&name;">
@@ -11,6 +11,8 @@
 
   <CHANGES>
     ## nix package manager plugin
+    ### 2026.06.26.15
+    - Always display Play and Stop action buttons in the Active Flakes table, graying them out with helpful tooltip titles when redundant (e.g., graying out Play when a service is already running).
     ### 2026.06.26.14
     - Integrated clickable links directly into the dynamic version number in the active flakes table:
       - Packages originating from the official Flake Store link directly to their search.nixos.org search details.

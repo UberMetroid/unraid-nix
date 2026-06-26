@@ -198,6 +198,15 @@
     box-shadow: none;
 }
 
+.nix-btn:disabled, .nix-btn[disabled] {
+    background: #1c1c1f !important;
+    border-color: #2d2d30 !important;
+    color: #525256 !important;
+    cursor: not-allowed !important;
+    transform: none !important;
+    box-shadow: none !important;
+}
+
 .nix-btn-install {
     background: #00a1ff;
     border: none;
