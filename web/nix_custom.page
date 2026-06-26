@@ -41,16 +41,24 @@ if (file_exists($cfg_file)) {
         
         <div id="nix-service-only-options" style="display: <?php echo $enable_cli === 'yes' ? 'none' : 'block'; ?>; border-left: 3px solid #00a1ff; padding-left: 15px; margin-bottom: 15px;">
             <div class="nix-form-group">
-                <label for="custom-appdata">Appdata Path:</label>
+                <label for="custom-appdata">Install Path:</label>
                 <input type="text" id="custom-appdata" autocomplete="off" spellcheck="false" placeholder="/mnt/user/appdata/service-name" data-pickcloseonfile="true" data-pickfilter="HIDE_FILES_FILTER" data-pickroot="/mnt" data-pickfolders="true">
             </div>
             
             <div class="nix-form-group">
-                <label>Additional Shared Paths (Optional):</label>
+                <label>Additional Shared Paths:</label>
                 <div id="nix-extra-binds-container" style="margin-bottom: 8px;">
                     <!-- Dynamic rows go here -->
                 </div>
                 <button type="button" class="nix-btn" style="margin: 0;" onclick="addBindRow()"><i class="fa fa-plus"></i> Add Path</button>
+            </div>
+
+            <div class="nix-form-group">
+                <label>Network Port:</label>
+                <div id="nix-port-info" style="font-size: 13px; color: #eee; padding: 8px 12px; background: rgba(255,255,255,0.05); border-radius: 4px; border: 1px solid #333; display: flex; align-items: center; gap: 8px;">
+                    <i class="fa fa-info-circle" style="color: #00a1ff;"></i>
+                    <span id="nix-port-text">Determined by service (Host Networking)</span>
+                </div>
             </div>
 
             <div class="nix-form-row">
@@ -64,7 +72,7 @@ if (file_exists($cfg_file)) {
                 </div>
             </div>
             <div class="nix-form-group">
-                <label><input type="checkbox" id="custom-gpu"> Enable GPU Access</label>
+                <label><input type="checkbox" id="custom-gpu"> Enable GPU</label>
             </div>
         </div>
 
@@ -123,7 +131,7 @@ function installCustomFlake(e) {
         data.gpu = $("#custom-gpu").is(':checked') ? '1' : '0';
         
         if (!data.appdata) {
-            alert("Appdata path is required for services.");
+            alert("Install path is required for services.");
             return;
         }
 
@@ -209,8 +217,10 @@ function updatePresetInfo() {
         </div>
         `;
         infoBox.html(html).slideDown();
+        $("#nix-port-text").html("Preset Port: <strong>" + matched.port + "</strong> (Host Networking)");
     } else {
         infoBox.slideUp().empty();
+        $("#nix-port-text").html("Determined by service (Host Networking)");
     }
 }
 </script>
