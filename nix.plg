@@ -2,7 +2,7 @@
 <!DOCTYPE PLUGIN [
   <!ENTITY name      "nix">
   <!ENTITY author    "UberMetroid">
-  <!ENTITY version   "2026.06.26.18">
+  <!ENTITY version   "2026.06.26.19">
   <!ENTITY launch    "Settings/nix">
   <!ENTITY plugdir   "/boot/config/plugins/&name;">
   <!ENTITY usrdir    "/usr/local/emhttp/plugins/&name;">
@@ -11,6 +11,9 @@
 
   <CHANGES>
     ## nix package manager plugin
+    ### 2026.06.26.19
+    - Fixed a critical backend bug where the incorrect process-compose `shutdown` command (should be `down`) prevented active flakes from stopping and applying configuration updates.
+    - Added a robust `fuser` port-level cleanup/force-kill fallback to ensure the old process-compose supervisor releases its port during restart.
     ### 2026.06.26.18
     - Added processing animation and disabled state handling for the primary submit button in the Install/Edit Flake form to prevent accidental double-submits.
     ### 2026.06.26.17

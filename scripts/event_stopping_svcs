@@ -5,22 +5,20 @@
 echo "Nix Event: stopping_svcs triggered." | logger -t "nix-plugin"
 
 # 1. Gracefully shut down process-compose supervisor and active flakes
-if [ -f "/var/run/nix-process-compose.pid" ]; then
-    PID=$(cat /var/run/nix-process-compose.pid)
-    
-    if [ -f "/nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh" ]; then
-        source /nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh
-    fi
-    
-    echo "Stopping Nix services..." | logger -t "nix-plugin"
-    nix run nixpkgs#process-compose -- \
-        -p 29704 \
-        -f /boot/config/plugins/nix/process-compose.yml \
-        shutdown >/dev/null 2>&1
-        
-    kill "$PID" >/dev/null 2>&1
-    rm -f /var/run/nix-process-compose.pid
+if [ -f "/nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh" ]; then
+    source /nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh
 fi
+
+echo "Stopping Nix services..." | logger -t "nix-plugin"
+nix run nixpkgs#process-compose -- \
+    -p 29704 \
+    down >/dev/null 2>&1
+    
+if fuser 29704/tcp >/dev/null 2>&1; then
+    echo "Force stopping Nix services..." | logger -t "nix-plugin"
+    fuser -k -9 29704/tcp >/dev/null 2>&1
+fi
+rm -f /var/run/nix-process-compose.pid
 
 # 2. Shut down the background nix-daemon
 /etc/rc.d/rc.nix-daemon stop 2>&1 | logger -t "nix-plugin"

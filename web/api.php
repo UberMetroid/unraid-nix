@@ -405,29 +405,37 @@ function restart_nix_supervisor() {
     $pid_file = "/var/run/nix-process-compose.pid";
     $cfg_file = "/boot/config/plugins/nix/process-compose.yml";
     
-    // 1. Stop if running
-    if (file_exists($pid_file)) {
-        $pid = trim(file_get_contents($pid_file));
-        if (!empty($pid)) {
-            exec("kill -0 " . escapeshellarg($pid) . " 2>&1", $out, $code);
-            if ($code === 0) {
-                // Source environment and shutdown gracefully
-                shell_exec(". /nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh && nix run nixpkgs#process-compose -- -p 29704 -f " . escapeshellarg($cfg_file) . " shutdown >/dev/null 2>&1");
-                
-                // Wait up to 3 seconds for it to exit
-                for ($i = 0; $i < 30; $i++) {
-                    exec("kill -0 " . escapeshellarg($pid) . " 2>&1", $out2, $code2);
-                    if ($code2 !== 0) {
-                        break;
-                    }
-                    usleep(100000);
+    // 1. Gracefully shut down process-compose via port 29704
+    shell_exec(". /nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh && nix run nixpkgs#process-compose -- -p 29704 down >/dev/null 2>&1");
+    
+    // Wait up to 3 seconds for the port to be freed
+    $freed = false;
+    for ($i = 0; $i < 30; $i++) {
+        $port_status = [];
+        $port_code = 0;
+        exec("fuser 29704/tcp 2>/dev/null", $port_status, $port_code);
+        if ($port_code !== 0) {
+            $freed = true;
+            break;
+        }
+        usleep(100000);
+    }
+    
+    // If still running, force kill any process using port 29704
+    if (!$freed) {
+        $port_status = [];
+        $port_code = 0;
+        exec("fuser 29704/tcp 2>/dev/null", $port_status, $port_code);
+        if ($port_code === 0 && !empty($port_status)) {
+            $pids = preg_split('/\s+/', trim(implode(' ', $port_status)));
+            foreach ($pids as $p) {
+                if (is_numeric($p)) {
+                    exec("kill -9 " . escapeshellarg($p) . " >/dev/null 2>&1");
                 }
-                // Force kill if still running
-                exec("kill -9 " . escapeshellarg($pid) . " >/dev/null 2>&1");
             }
         }
-        @unlink($pid_file);
     }
+    @unlink($pid_file);
     
     // 2. Start it up
     if (file_exists($cfg_file)) {
