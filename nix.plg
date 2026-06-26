@@ -2,7 +2,7 @@
 <!DOCTYPE PLUGIN [
   <!ENTITY name      "nix">
   <!ENTITY author    "UberMetroid">
-  <!ENTITY version   "2026.06.25.4">
+  <!ENTITY version   "2026.06.25.5">
   <!ENTITY launch    "Settings/Nix">
   <!ENTITY plugdir   "/boot/config/plugins/&name;">
   <!ENTITY usrdir    "/usr/local/emhttp/plugins/&name;">
@@ -11,6 +11,8 @@
 
   <CHANGES>
     ## nix package manager plugin
+    ### 2026.06.25.5
+    - Fixed case-sensitivity for child tab Menu properties (pointing to lowercase nix) to successfully link them to the parent nix.page.
     ### 2026.06.25.4
     - Updated Menu mapping to Utilities to display the Nix icon under User Utilities in the Settings menu.
     ### 2026.06.25.3

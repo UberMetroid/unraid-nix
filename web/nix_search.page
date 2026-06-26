@@ -1,4 +1,4 @@
-Menu="Nix:2"
+Menu="nix:2"
 Title="Flakes Browser"
 ---
 <link type="text/css" rel="stylesheet" href="/plugins/nix/styles.css">

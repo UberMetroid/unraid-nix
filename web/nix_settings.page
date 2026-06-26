@@ -1,4 +1,4 @@
-Menu="Nix:3"
+Menu="nix:3"
 Title="Settings"
 ---
 <link type="text/css" rel="stylesheet" href="/plugins/nix/styles.css">

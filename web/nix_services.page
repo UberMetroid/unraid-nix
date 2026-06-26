@@ -1,4 +1,4 @@
-Menu="Nix:1"
+Menu="nix:1"
 Title="Services"
 ---
 <link type="text/css" rel="stylesheet" href="/plugins/nix/styles.css">
