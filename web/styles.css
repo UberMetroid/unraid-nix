@@ -72,9 +72,22 @@
 /* Services and Search Tables */
 .nix-services-table, .nix-search-table {
     width: 100%;
+    table-layout: fixed;
     border-collapse: collapse;
     margin-top: 10px;
 }
+
+.nix-search-table th:nth-child(1), .nix-search-table td:nth-child(1) { width: 25%; word-break: break-all; }
+.nix-search-table th:nth-child(2), .nix-search-table td:nth-child(2) { width: 15%; word-break: break-all; }
+.nix-search-table th:nth-child(3), .nix-search-table td:nth-child(3) { width: 40%; word-break: break-word; }
+.nix-search-table th:nth-child(4), .nix-search-table td:nth-child(4) { width: 20%; text-align: center; }
+
+.nix-services-table th:nth-child(1), .nix-services-table td:nth-child(1) { width: 25%; word-break: break-all; }
+.nix-services-table th:nth-child(2), .nix-services-table td:nth-child(2) { width: 15%; }
+.nix-services-table th:nth-child(3), .nix-services-table td:nth-child(3) { width: 15%; }
+.nix-services-table th:nth-child(4), .nix-services-table td:nth-child(4) { width: 10%; }
+.nix-services-table th:nth-child(5), .nix-services-table td:nth-child(5) { width: 15%; }
+.nix-services-table th:nth-child(6), .nix-services-table td:nth-child(6) { width: 20%; text-align: center; }
 
 .nix-services-table th, .nix-search-table th {
     text-align: left;
@@ -92,6 +105,7 @@
     border-bottom: 1px solid #2d2d30;
     color: #eee;
     font-size: 13px;
+    vertical-align: middle;
 }
 
 /* Status Badges */

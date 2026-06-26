@@ -2,7 +2,7 @@
 <!DOCTYPE PLUGIN [
   <!ENTITY name      "nix">
   <!ENTITY author    "UberMetroid">
-  <!ENTITY version   "2026.06.25.27">
+  <!ENTITY version   "2026.06.25.28">
   <!ENTITY launch    "Settings/nix">
   <!ENTITY plugdir   "/boot/config/plugins/&name;">
   <!ENTITY usrdir    "/usr/local/emhttp/plugins/&name;">
@@ -11,6 +11,8 @@
 
   <CHANGES>
     ## nix package manager plugin
+    ### 2026.06.25.28
+    - Adjusted search and active flakes tables to use a fixed table layout with proportional column widths to prevent page overflow.
     ### 2026.06.25.27
     - Fixed package search failures by calling the absolute Nix binary path in the Rust helper.
     - Integrated "Add Service" searches to redirect to Custom Flakes with auto-filled forms and sandboxing defaults.
