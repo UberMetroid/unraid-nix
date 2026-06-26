@@ -78,7 +78,7 @@
 }
 
 .nix-services-table {
-    max-width: 1000px;
+    width: 100%;
 }
 
 .nix-services-table tr, .nix-search-table tr {
@@ -91,11 +91,15 @@
 .nix-search-table th:nth-child(3), .nix-search-table td:nth-child(3) { width: 40%; white-space: normal; overflow-wrap: break-word; word-break: normal; }
 .nix-search-table th:nth-child(4), .nix-search-table td:nth-child(4) { width: 20%; text-align: center; }
 
-.nix-services-table th:nth-child(1), .nix-services-table td:nth-child(1) { width: 30%; }
-.nix-services-table th:nth-child(2), .nix-services-table td:nth-child(2) { width: 15%; }
-.nix-services-table th:nth-child(3), .nix-services-table td:nth-child(3) { width: 15%; }
-.nix-services-table th:nth-child(4), .nix-services-table td:nth-child(4) { width: 25%; }
-.nix-services-table th:nth-child(5), .nix-services-table td:nth-child(5) { width: 15%; text-align: center; }
+.nix-services-table th:nth-child(1), .nix-services-table td:nth-child(1) { width: 15%; }
+.nix-services-table th:nth-child(2), .nix-services-table td:nth-child(2) { width: 10%; }
+.nix-services-table th:nth-child(3), .nix-services-table td:nth-child(3) { width: 8%; }
+.nix-services-table th:nth-child(4), .nix-services-table td:nth-child(4) { width: 10%; }
+.nix-services-table th:nth-child(5), .nix-services-table td:nth-child(5) { width: 10%; }
+.nix-services-table th:nth-child(6), .nix-services-table td:nth-child(6) { width: 15%; }
+.nix-services-table th:nth-child(7), .nix-services-table td:nth-child(7) { width: 20%; word-break: break-all; }
+.nix-services-table th:nth-child(8), .nix-services-table td:nth-child(8) { width: 7%; }
+.nix-services-table th:nth-child(9), .nix-services-table td:nth-child(9) { width: 5%; text-align: center; }
 
 
 .nix-services-table th, .nix-search-table th {

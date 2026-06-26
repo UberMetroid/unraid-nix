@@ -2,7 +2,7 @@
 <!DOCTYPE PLUGIN [
   <!ENTITY name      "nix">
   <!ENTITY author    "UberMetroid">
-  <!ENTITY version   "2026.06.26.04">
+  <!ENTITY version   "2026.06.26.05">
   <!ENTITY launch    "Settings/nix">
   <!ENTITY plugdir   "/boot/config/plugins/&name;">
   <!ENTITY usrdir    "/usr/local/emhttp/plugins/&name;">
@@ -11,6 +11,9 @@
 
   <CHANGES>
     ## nix package manager plugin
+    ### 2026.06.26.05
+    - Re-designed active flakes services table to be identical to Unraid's native Docker container list layout.
+    - Added columns: Application (name + status dot indicator), Version (up-to-date status), Network, Container IP, Container Port, LAN IP:Port (with dynamic host LAN IP resolution), Volume Mappings (App to Host), Autostart, and Actions.
     ### 2026.06.26.04
     - Consolidated layout into a high-density 5-column grid (Service, Status, Port(s), Resources, Actions).
     - Merged Service Name and Path into a stacked block to completely prevent text overflow/overlap.

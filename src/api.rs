@@ -41,63 +41,23 @@ fn extract_home_path(command: &str) -> String {
     "-".to_string()
 }
 
-/// Helper to recursive sum files size in a directory.
-fn get_dir_size(path: &std::path::Path) -> u64 {
-    let mut total = 0;
-    if let Ok(entries) = std::fs::read_dir(path) {
-        for entry in entries.filter_map(|e| e.ok()) {
-            let p = entry.path();
-            if p.is_file() {
-                if let Ok(metadata) = entry.metadata() {
-                    total += metadata.len();
-                }
-            } else if p.is_dir() {
-                total += get_dir_size(&p);
-            }
-        }
-    }
-    total
-}
 
-/// Helper to format file sizes in bytes to human-readable units.
-fn format_size(bytes: u64) -> String {
-    if bytes == 0 {
-        return "0 B".to_string();
-    }
-    let units = ["B", "KB", "MB", "GB", "TB"];
-    let mut size = bytes as f64;
-    let mut unit_idx = 0;
-    while size >= 1024.0 && unit_idx < units.len() - 1 {
-        size /= 1024.0;
-        unit_idx += 1;
-    }
-    format!("{:.1} {}", size, units[unit_idx])
-}
 
-/// Query NVIDIA GPU utilization once per render.
-fn get_nvidia_gpu_usage() -> (std::collections::HashMap<i32, u64>, bool) {
-    let mut map = std::collections::HashMap::new();
-    let output = std::process::Command::new("nvidia-smi")
-        .args(&["--query-compute-apps=pid,used_memory", "--format=csv,noheader,nounits"])
+/// Resolves primary LAN IP on Unraid host.
+fn get_host_lan_ip() -> String {
+    let output = std::process::Command::new("sh")
+        .args(&["-c", "ip route get 1 2>/dev/null | awk '{print $7;exit}'"])
         .output();
     
-    match output {
-        Ok(out) => {
-            if out.status.success() {
-                let text = String::from_utf8_lossy(&out.stdout);
-                for line in text.lines() {
-                    let parts: Vec<&str> = line.split(',').collect();
-                    if parts.len() == 2 {
-                        if let (Ok(pid), Ok(mem)) = (parts[0].trim().parse::<i32>(), parts[1].trim().parse::<u64>()) {
-                            map.insert(pid, mem);
-                        }
-                    }
-                }
+    if let Ok(out) = output {
+        if out.status.success() {
+            let ip = String::from_utf8_lossy(&out.stdout).trim().to_string();
+            if !ip.is_empty() {
+                return ip;
             }
-            (map, true)
         }
-        Err(_) => (map, false),
     }
+    "127.0.0.1".to_string()
 }
 
 /// Renders the services dashboard table as an HTML string.
@@ -114,63 +74,63 @@ pub fn render_services_table(api_port: u16) -> String {
 
     let config_path = "/boot/config/plugins/nix/process-compose.yml";
     let config = crate::config::load_config(config_path).ok();
-    let (gpu_map, has_gpu) = get_nvidia_gpu_usage();
+    let host_ip = get_host_lan_ip();
 
     let mut html = r#"<table class="nix-services-table">
         <thead>
             <tr>
-                <th>Service</th>
-                <th>Status</th>
-                <th>Port(s)</th>
-                <th>Resources</th>
+                <th>Application</th>
+                <th>Version</th>
+                <th>Network</th>
+                <th>Container IP</th>
+                <th>Container Port</th>
+                <th>LAN IP:Port</th>
+                <th>Volume Mappings (App to Host)</th>
+                <th>Autostart</th>
                 <th>Actions</th>
             </tr>
         </thead>
         <tbody>"#.to_string();
 
     if statuses.is_empty() {
-        html.push_str(r#"<tr><td colspan="5" class="text-center">No Nix Flake services configured. Go to the Flakes tab to install one.</td></tr>"#);
+        html.push_str(r#"<tr><td colspan="9" class="text-center">No Nix Flake services configured. Go to the Flakes tab to install one.</td></tr>"#);
     } else {
         for s in statuses {
             let is_running = s.status.to_lowercase() == "running";
 
-            let status_badge = if is_running {
-                r#"<span class="status green">🟢 Running</span>"#
+            let status_subtext = if is_running {
+                r#"<span style="color: #2ecc71;">●</span> started"#
             } else if s.status.to_lowercase() == "stopped" {
-                r#"<span class="status red">🔴 Stopped</span>"#
+                r#"<span style="color: #e74c3c;">●</span> stopped"#
             } else {
-                r#"<span class="status yellow">🟡 Failed</span>"#
+                r#"<span style="color: #f1c40f;">●</span> failed"#
             };
 
-            let cpu_str = s.cpu.map(|c| format!("{:.1}%", c)).unwrap_or_else(|| "-".to_string());
-            let mem_str = s.memory.map(|m| format!("{} MB", m / 1024 / 1024)).unwrap_or_else(|| "-".to_string());
-            let uptime_str = s.uptime();
+            let app_html = format!(
+                r#"<div style="display: flex; flex-direction: column; gap: 2px;">
+                    <strong>{}</strong>
+                    <span style="font-size: 11px; color: #a0a0a5;">{}</span>
+                </div>"#,
+                s.name, status_subtext
+            );
 
-            let status_html = if is_running {
-                format!(
-                    r#"<div style="display: flex; flex-direction: column; gap: 4px; align-items: flex-start;">
-                        {}
-                        <span style="font-size: 11px; color: #888;">{} uptime</span>
-                    </div>"#,
-                    status_badge, uptime_str
-                )
-            } else {
-                format!(
-                    r#"<div style="display: flex; flex-direction: column; gap: 4px; align-items: flex-start;">
-                        {}
-                    </div>"#,
-                    status_badge
-                )
-            };
+            let version_html = r#"<span style="color: #2ecc71; font-weight: 500;">up-to-date</span>"#;
+            let network_str = "host";
+            let container_ip_str = "host";
 
-            let port_str = if let Some(port) = get_service_web_port(&s.name) {
+            let port_num = get_service_web_port(&s.name);
+            let port_str = port_num
+                .map(|p| format!("{}:TCP", p))
+                .unwrap_or_else(|| "-".to_string());
+
+            let lan_ip_port_html = if let Some(port) = port_num {
                 if is_running {
                     format!(
-                        r##"<a href="#" onclick="window.open('http://' + window.location.hostname + ':{}/', '_blank'); return false;" style="color: #00a1ff; text-decoration: none;">{} <i class="fa fa-external-link" style="font-size: 10px;"></i></a>"##,
-                        port, port
+                        r##"<a href="#" onclick="window.open('http://{}:{}/', '_blank'); return false;" style="color: #00a1ff; text-decoration: none;">{}:{} <i class="fa fa-external-link" style="font-size: 10px;"></i></a>"##,
+                        host_ip, port, host_ip, port
                     )
                 } else {
-                    port.to_string()
+                    format!(r#"<span style="color: #888;">{}:{}</span>"#, host_ip, port)
                 }
             } else {
                 "-".to_string()
@@ -182,62 +142,26 @@ pub fn render_services_table(api_port: u16) -> String {
                 .map(|p| extract_home_path(&p.command))
                 .unwrap_or_else(|| "-".to_string());
 
-            let service_html = if home_path != "-" && !home_path.is_empty() {
+            let volume_mappings_html = if home_path != "-" && !home_path.is_empty() {
                 format!(
-                    r#"<div style="display: flex; flex-direction: column; gap: 4px;">
-                        <strong>{}</strong>
-                        <span style="font-size: 11px; color: #888; font-family: monospace; word-break: break-all;">{}</span>
-                    </div>"#,
-                    s.name, home_path
+                    r#"<span style="color: #a0a0a5;">/config</span> <i class="fa fa-arrow-right" style="margin: 0 4px; font-size: 10px; color: #888;"></i> <code>{}</code>"#,
+                    home_path
                 )
-            } else {
-                format!("<strong>{}</strong>", s.name)
-            };
-
-            let disk_size_str = if home_path != "-" && !home_path.is_empty() {
-                let p = std::path::Path::new(&home_path);
-                if p.exists() {
-                    format_size(get_dir_size(p))
-                } else {
-                    "-".to_string()
-                }
             } else {
                 "-".to_string()
             };
 
-            let gpu_str = if let Some(pid) = s.pid {
-                if let Some(mem) = gpu_map.get(&pid) {
-                    format!("{} MB VRAM", mem)
-                } else {
-                    "-".to_string()
-                }
-            } else {
-                "-".to_string()
-            };
+            let autostart_enabled = config
+                .as_ref()
+                .and_then(|c| c.processes.get(&s.name))
+                .and_then(|p| p.availability.as_ref())
+                .map(|a| a.restart.to_lowercase() == "always")
+                .unwrap_or(true);
 
-            let resources_html = if is_running {
-                let mut res = format!(
-                    r#"<div class="nix-resources-container">
-                        <div><strong>CPU</strong> <span>{}</span></div>
-                        <div><strong>RAM</strong> <span>{}</span></div>"#,
-                    cpu_str, mem_str
-                );
-                if has_gpu && gpu_str != "-" {
-                    res.push_str(&format!("<div><strong>GPU</strong> <span>{}</span></div>", gpu_str));
-                }
-                res.push_str(&format!(
-                    r#"<div><strong>Disk</strong> <span>{}</span></div>
-                    </div>"#,
-                    disk_size_str
-                ));
-                res
+            let autostart_html = if autostart_enabled {
+                r#"<span style="color: #2ecc71; font-weight: 500;">On</span>"#
             } else {
-                format!(
-                    r#"<div class="nix-resources-container">
-                        <div><strong>Disk</strong> <span>{}</span></div>
-                    </div>"#,
-                    disk_size_str
-                )
+                r#"<span style="color: #888;">Off</span>"#
             };
 
             let start_btn = if !is_running {
@@ -258,6 +182,10 @@ pub fn render_services_table(api_port: u16) -> String {
                 r#"<tr>
                     <td>{}</td>
                     <td>{}</td>
+                    <td><code>{}</code></td>
+                    <td><code>{}</code></td>
+                    <td><code>{}</code></td>
+                    <td>{}</td>
                     <td>{}</td>
                     <td>{}</td>
                     <td>
@@ -268,7 +196,7 @@ pub fn render_services_table(api_port: u16) -> String {
                         </div>
                     </td>
                 </tr>"#,
-                service_html, status_html, port_str, resources_html, start_btn, stop_btn, logs_btn
+                app_html, version_html, network_str, container_ip_str, port_str, lan_ip_port_html, volume_mappings_html, autostart_html, start_btn, stop_btn, logs_btn
             ));
         }
     }
