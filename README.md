@@ -56,22 +56,12 @@ tail -f /var/log/nix-process-compose.log /var/log/nix-services/*.log
 
 ## 3. Sandboxing & Share Security
 
-Nix services run in a lightweight **`bubblewrap`** sandbox. This isolates the process filesystem, ensuring it cannot access your disks or flash drive unless you explicitly map them under **Path Mappings** in the Settings:
+To ensure security and filesystem isolation while fully respecting Unraid's RAM-based `rootfs` architecture, Nix services run inside an isolated private mount namespace (`unshare -m`).
 
-```bash
-# Example under-the-hood sandbox invocation:
-bwrap \
-  --ro-bind /usr /usr \
-  --ro-bind /lib /lib \
-  --ro-bind /nix /nix \
-  --dev /dev \
-  --proc /proc \
-  --bind /mnt/user/media /media \
-  --bind /mnt/user/appdata/radarr /config \
-  --uid 99 --gid 100 \
-  nix run nixpkgs#radarr
-```
-The `--uid 99` and `--gid 100` flags spoof the user inside the container to match Unraid's `nobody:users` group, ensuring files written to your shares have the correct permissions.
+### Design & Security Principles:
+- **Respect Unraid's Architecture & Permissions:** The plugin strictly respects Unraid's storage layout, shares, and networking stack. It must never bypass access controls, user shares permission scopes, or system capabilities that Unraid does not normally grant to applications.
+- **Privilege Dropping:** All background services drop root privileges to match Unraid's standard `nobody:users` ownership (via `PUID=99` and `PGID=100`) using `setpriv` before executing the flake. Any files created by these services will automatically belong to `nobody:users`, preventing permission issues on your shares.
+- **Selective Storage Sandboxing:** When **Storage Sandboxing** is enabled in Settings, the plugin mounts a private `tmpfs` over `/mnt` inside the namespace to completely hide all disks, pools, and unmapped user shares. It then selectively re-exposes (via recursive bind-mounting) *only* the directories explicitly mapped in the service's configuration (plus remote shares and unassigned devices under `/mnt/disks` and `/mnt/remotes`). This prevents any Nix flake from reading/writing to unmapped storage directories.
 
 ---
 
@@ -90,6 +80,6 @@ All business logic (parsers, sandbox generators, API clients) has comprehensive 
 
 Tests cover:
 * Config file validation and YAML output checks.
-* `bubblewrap` CLI arguments builder matching.
+* Selective storage sandbox mount namespace generated command matching.
 * Nix search JSON result mapping.
 * Path validity constraints (preventing store loops on `/boot`).
