@@ -1,5 +1,5 @@
 Menu="nix:3"
-Title="Custom Flakes"
+Title="Install Flake"
 ---
 <link type="text/css" rel="stylesheet" href="/plugins/nix/styles.css">
 <div class="nix-section">
