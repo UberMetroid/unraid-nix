@@ -41,6 +41,65 @@ fn extract_home_path(command: &str) -> String {
     "-".to_string()
 }
 
+/// Helper to recursive sum files size in a directory.
+fn get_dir_size(path: &std::path::Path) -> u64 {
+    let mut total = 0;
+    if let Ok(entries) = std::fs::read_dir(path) {
+        for entry in entries.filter_map(|e| e.ok()) {
+            let p = entry.path();
+            if p.is_file() {
+                if let Ok(metadata) = entry.metadata() {
+                    total += metadata.len();
+                }
+            } else if p.is_dir() {
+                total += get_dir_size(&p);
+            }
+        }
+    }
+    total
+}
+
+/// Helper to format file sizes in bytes to human-readable units.
+fn format_size(bytes: u64) -> String {
+    if bytes == 0 {
+        return "0 B".to_string();
+    }
+    let units = ["B", "KB", "MB", "GB", "TB"];
+    let mut size = bytes as f64;
+    let mut unit_idx = 0;
+    while size >= 1024.0 && unit_idx < units.len() - 1 {
+        size /= 1024.0;
+        unit_idx += 1;
+    }
+    format!("{:.1} {}", size, units[unit_idx])
+}
+
+/// Query NVIDIA GPU utilization once per render.
+fn get_nvidia_gpu_usage() -> (std::collections::HashMap<i32, u64>, bool) {
+    let mut map = std::collections::HashMap::new();
+    let output = std::process::Command::new("nvidia-smi")
+        .args(&["--query-compute-apps=pid,used_memory", "--format=csv,noheader,nounits"])
+        .output();
+    
+    match output {
+        Ok(out) => {
+            if out.status.success() {
+                let text = String::from_utf8_lossy(&out.stdout);
+                for line in text.lines() {
+                    let parts: Vec<&str> = line.split(',').collect();
+                    if parts.len() == 2 {
+                        if let (Ok(pid), Ok(mem)) = (parts[0].trim().parse::<i32>(), parts[1].trim().parse::<u64>()) {
+                            map.insert(pid, mem);
+                        }
+                    }
+                }
+            }
+            (map, true)
+        }
+        Err(_) => (map, false),
+    }
+}
+
 /// Renders the services dashboard table as an HTML string.
 /// Mirrors the styling and visual cues of Unraid's native Docker container list.
 pub fn render_services_table(api_port: u16) -> String {
@@ -55,16 +114,17 @@ pub fn render_services_table(api_port: u16) -> String {
 
     let config_path = "/boot/config/plugins/nix/process-compose.yml";
     let config = crate::config::load_config(config_path).ok();
+    let (gpu_map, has_gpu) = get_nvidia_gpu_usage();
 
     let mut html = r#"<table class="nix-services-table">
         <thead>
             <tr>
                 <th>Service Name</th>
-                <th>Port(s)</th>
                 <th>Status</th>
+                <th>Port(s)</th>
+                <th>Path(s)</th>
                 <th>Uptime</th>
                 <th>Resources</th>
-                <th>Path(s)</th>
                 <th>Actions</th>
             </tr>
         </thead>
@@ -86,12 +146,6 @@ pub fn render_services_table(api_port: u16) -> String {
 
             let cpu_str = s.cpu.map(|c| format!("{:.1}%", c)).unwrap_or_else(|| "-".to_string());
             let mem_str = s.memory.map(|m| format!("{} MB", m / 1024 / 1024)).unwrap_or_else(|| "-".to_string());
-            let resources_str = if is_running {
-                format!("{} / {}", cpu_str, mem_str)
-            } else {
-                "-".to_string()
-            };
-
             let uptime_str = s.uptime();
 
             let port_str = if let Some(port) = get_service_web_port(&s.name) {
@@ -113,6 +167,53 @@ pub fn render_services_table(api_port: u16) -> String {
                 .map(|p| extract_home_path(&p.command))
                 .unwrap_or_else(|| "-".to_string());
 
+            let disk_size_str = if home_path != "-" && !home_path.is_empty() {
+                let p = std::path::Path::new(&home_path);
+                if p.exists() {
+                    format_size(get_dir_size(p))
+                } else {
+                    "-".to_string()
+                }
+            } else {
+                "-".to_string()
+            };
+
+            let gpu_str = if let Some(pid) = s.pid {
+                if let Some(mem) = gpu_map.get(&pid) {
+                    format!("{} MB VRAM", mem)
+                } else {
+                    "-".to_string()
+                }
+            } else {
+                "-".to_string()
+            };
+
+            let resources_html = if is_running {
+                let mut res = format!(
+                    r#"<div class="nix-resources-container">
+                        <div><strong>CPU</strong> <span>{}</span></div>
+                        <div><strong>RAM</strong> <span>{}</span></div>"#,
+                    cpu_str, mem_str
+                );
+                if has_gpu && gpu_str != "-" {
+                    res.push_str(&format!("<div><strong>GPU</strong> <span>{}</span></div>", gpu_str));
+                }
+                res.push_str(&format!(
+                    r#"<div><strong>Disk</strong> <span>{}</span></div>
+                       <div><strong>Net</strong> <span>Host Shared</span></div>
+                    </div>"#,
+                    disk_size_str
+                ));
+                res
+            } else {
+                format!(
+                    r#"<div class="nix-resources-container">
+                        <div><strong>Disk</strong> <span>{}</span></div>
+                    </div>"#,
+                    disk_size_str
+                )
+            };
+
             let start_btn = if !is_running {
                 format!(r#"<button type="button" class="nix-btn" onclick="serviceAction('{}', 'start')" title="Start"><i class="fa fa-play"></i></button>"#, s.name)
             } else {
@@ -132,9 +233,9 @@ pub fn render_services_table(api_port: u16) -> String {
                     <td><strong>{}</strong></td>
                     <td>{}</td>
                     <td>{}</td>
-                    <td>{}</td>
-                    <td>{}</td>
                     <td><code>{}</code></td>
+                    <td>{}</td>
+                    <td>{}</td>
                     <td>
                         <div class="nix-actions-wrapper">
                             {}
@@ -143,7 +244,7 @@ pub fn render_services_table(api_port: u16) -> String {
                         </div>
                     </td>
                 </tr>"#,
-                s.name, port_str, status_badge, uptime_str, resources_str, home_path, start_btn, stop_btn, logs_btn
+                s.name, status_badge, port_str, home_path, uptime_str, resources_html, start_btn, stop_btn, logs_btn
             ));
         }
     }
