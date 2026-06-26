@@ -2,7 +2,7 @@
 <!DOCTYPE PLUGIN [
   <!ENTITY name      "nix">
   <!ENTITY author    "UberMetroid">
-  <!ENTITY version   "2026.06.25.50">
+  <!ENTITY version   "2026.06.25.51">
   <!ENTITY launch    "Settings/nix">
   <!ENTITY plugdir   "/boot/config/plugins/&name;">
   <!ENTITY usrdir    "/usr/local/emhttp/plugins/&name;">
@@ -11,6 +11,8 @@
 
   <CHANGES>
     ## nix package manager plugin
+    ### 2026.06.25.51
+    - Set max-width on the active flakes table to prevent columns from stretching excessively on widescreen monitors.
     ### 2026.06.25.50
     - Configured service action buttons to stack vertically in a clean column instead of a horizontal row.
     ### 2026.06.25.49

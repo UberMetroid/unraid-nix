@@ -69,13 +69,16 @@
     font-size: 12px;
 }
 
-/* Services and Search Tables */
 .nix-services-table, .nix-search-table {
     width: 100%;
     table-layout: fixed;
     border-collapse: collapse;
     margin-top: 10px;
     background: #1c1c1f !important;
+}
+
+.nix-services-table {
+    max-width: 850px;
 }
 
 .nix-services-table tr, .nix-search-table tr {
