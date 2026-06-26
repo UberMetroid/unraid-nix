@@ -14,6 +14,8 @@ pub struct SandboxConfig {
     pub enable_gpu: bool,
     pub inner_command: String,
     pub extra_binds: Vec<(String, String)>,
+    pub port: Option<u16>,
+    pub bind_address: Option<String>,
 }
 
 /// Generates the full unshare mount namespace execution command string.
@@ -73,14 +75,27 @@ pub fn build_bwrap_command(config: &SandboxConfig) -> Result<String, String> {
 
     let mounts_str = mounts_cmd.join(" && ");
 
+    let mut env_vars = vec!["export HOME=/config".to_string()];
+    if let Some(p) = config.port {
+        env_vars.push(format!("export PORT={}", p));
+    }
+    if let Some(ref addr) = config.bind_address {
+        if !addr.trim().is_empty() {
+            env_vars.push(format!("export BIND_ADDRESS={}", addr));
+            env_vars.push(format!("export HOST={}", addr));
+        }
+    }
+    let env_str = env_vars.join(" && ");
+
     // Format the command to execute via unshare and setpriv.
     // We source the Nix daemon profile so that nix is in the PATH and NIX_REMOTE is set correctly.
     // We run HOME=/config because Nix requires a writeable HOME directory owned by the user.
     let runuser_cmd = format!(
-        "exec unshare -m sh -c \"mount --make-rprivate / && {} && exec setpriv --reuid={} --regid={} --init-groups sh -c \\\"export HOME=/config && . /nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh && exec {}\\\"\"",
+        "exec unshare -m sh -c \"mount --make-rprivate / && {} && exec setpriv --reuid={} --regid={} --init-groups sh -c \\\"{} && . /nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh && exec {}\\\"\"",
         mounts_str,
         config.puid,
         config.pgid,
+        env_str,
         config.inner_command.replace("\"", "\\\"")
     );
 
@@ -102,6 +117,8 @@ mod tests {
             enable_gpu: false,
             inner_command: "nix run nixpkgs#hello".to_string(),
             extra_binds: vec![("/mnt/user/downloads".to_string(), "/downloads".to_string())],
+            port: Some(8080),
+            bind_address: Some("127.0.0.1".to_string()),
         };
 
         let cmd = build_bwrap_command(&config).unwrap();
@@ -111,6 +128,8 @@ mod tests {
         assert!(cmd.contains("mount --bind /mnt/user/downloads /downloads"));
         assert!(cmd.contains("exec setpriv --reuid=99 --regid=100"));
         assert!(cmd.contains("nix run nixpkgs#hello"));
+        assert!(cmd.contains("export PORT=8080"));
+        assert!(cmd.contains("export BIND_ADDRESS=127.0.0.1"));
     }
 
     #[test]
@@ -124,6 +143,8 @@ mod tests {
             enable_gpu: false,
             inner_command: "run".to_string(),
             extra_binds: Vec::new(),
+            port: None,
+            bind_address: None,
         };
 
         let err = build_bwrap_command(&config);

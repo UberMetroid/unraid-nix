@@ -249,7 +249,9 @@ if ($action === 'install-custom') {
             $cmd = shell_exec(format_preset_cmd($name, $appdata, $media, $puid, $pgid, $gpu, $binds_arg, $port, $bind_address));
         } else {
             // Build custom bubblewrap command
-            $cmd = shell_exec("/usr/local/emhttp/plugins/nix/nix-helper sandbox --name " . escapeshellarg($name) . " --appdata " . escapeshellarg($appdata) . " --media " . escapeshellarg($media) . " --puid " . escapeshellarg($puid) . " --pgid " . escapeshellarg($pgid) . " --cmd " . escapeshellarg("nix run " . $uri) . " --extra-binds " . escapeshellarg($binds_arg));
+            $port_flag = empty($port) ? "" : " --port " . escapeshellarg($port);
+            $addr_flag = empty($bind_address) ? "" : " --bind-address " . escapeshellarg($bind_address);
+            $cmd = shell_exec("/usr/local/emhttp/plugins/nix/nix-helper sandbox --name " . escapeshellarg($name) . " --appdata " . escapeshellarg($appdata) . " --media " . escapeshellarg($media) . " --puid " . escapeshellarg($puid) . " --pgid " . escapeshellarg($pgid) . " --cmd " . escapeshellarg("nix run " . $uri) . " --extra-binds " . escapeshellarg($binds_arg) . $port_flag . $addr_flag);
         }
 
 

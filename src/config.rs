@@ -115,7 +115,7 @@ pub fn get_service_command_preset(
         "radarr" | "sonarr" => {
             let default_port = if name.to_lowercase() == "radarr" { 7878 } else { 8989 };
             let p = port.unwrap_or(default_port);
-            let addr = bind_address.unwrap_or_else(|| "*".to_string());
+            let addr = bind_address.clone().unwrap_or_else(|| "*".to_string());
             // Create default config.xml if it doesn't exist, and patch Port/BindAddress using sed inside the namespace
             format!(
                 "mkdir -p /config && [ ! -f /config/config.xml ] && echo '<Config><Port>{}</Port><BindAddress>{}</BindAddress></Config>' > /config/config.xml; sed -i 's|<Port>[^<]*</Port>|<Port>{}</Port>|g' /config/config.xml; sed -i 's|<BindAddress>[^<]*</BindAddress>|<BindAddress>{}</BindAddress>|g' /config/config.xml; nix run nixpkgs#{}",
@@ -149,6 +149,8 @@ pub fn get_service_command_preset(
         enable_gpu,
         inner_command,
         extra_binds,
+        port,
+        bind_address,
     })
 }
 

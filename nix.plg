@@ -2,7 +2,7 @@
 <!DOCTYPE PLUGIN [
   <!ENTITY name      "nix">
   <!ENTITY author    "UberMetroid">
-  <!ENTITY version   "2026.06.26.21">
+  <!ENTITY version   "2026.06.26.22">
   <!ENTITY launch    "Settings/Nix">
   <!ENTITY plugdir   "/boot/config/plugins/&name;">
   <!ENTITY usrdir    "/usr/local/emhttp/plugins/&name;">
@@ -11,6 +11,10 @@
 
   <CHANGES>
     ## nix package manager plugin
+    ### 2026.06.26.22
+    - **Universal Flake Store Compatibility**: Made custom ports and bind address overrides work for **any** custom application or package from the Flake Store.
+      - Sandboxed environments automatically export `PORT`, `BIND_ADDRESS`, and `HOST` environment variables when custom values are configured.
+      - Enables standard web frameworks, microservices, and custom server flakes to automatically bind to your chosen port and IP out of the box with zero configuration file edits.
     ### 2026.06.26.21
     - **Custom Port & Bind Address Configuration**: Added new installation and editing fields allowing users to override the default application ports and interface bind addresses (Option C network isolation).
       - Preset templates automatically inject port and bind overrides on startup.
