@@ -2,7 +2,7 @@
 <!DOCTYPE PLUGIN [
   <!ENTITY name      "nix">
   <!ENTITY author    "UberMetroid">
-  <!ENTITY version   "2026.06.25.18">
+  <!ENTITY version   "2026.06.25.19">
   <!ENTITY launch    "Settings/nix_services">
   <!ENTITY plugdir   "/boot/config/plugins/&name;">
   <!ENTITY usrdir    "/usr/local/emhttp/plugins/&name;">
@@ -11,6 +11,8 @@
 
   <CHANGES>
     ## nix package manager plugin
+    ### 2026.06.25.19
+    - Switched from printf to safe echo statements for generating the local README.md description to bypass nested parser percent sign evaluations.
     ### 2026.06.25.18
     - Reverted launch target to Settings/nix_services and restored nix.page redirect to ensure the tabbed layout renders correctly on settings page load.
     ### 2026.06.25.17
@@ -89,7 +91,9 @@
       done
       
       # Write a minimal README.md containing only the overview for the Unraid Plugins GUI screen
-      printf "**Nix**\n\nA native, 100%% Rust-backed plugin to run the Nix package manager and manage Nix Flakes natively on Unraid.\n" > "&usrdir;/README.md"
+      echo "**Nix**" > "&usrdir;/README.md"
+      echo "" >> "&usrdir;/README.md"
+      echo "A native, 100% Rust-backed plugin to run the Nix package manager and manage Nix Flakes natively on Unraid." >> "&usrdir;/README.md"
 
       # Create case-sensitive symlinks for Unraid Plugin Manager when using display name "Nix"
       ln -sf nix.png "&usrdir;/Nix.png"
