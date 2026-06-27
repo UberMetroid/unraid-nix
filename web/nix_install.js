@@ -7,6 +7,7 @@ window.initInstallForm = function() {
     $("#custom-bind-address").val("0.0.0.0");
     $("#nix-extra-binds-container").empty();
     $("#nix-env-vars-container").empty();
+    $("#custom-compile-locally").prop('checked', false);
     $("#nix-install-section h3").text("Configure Flake");
     $("#nix-install-section .nix-subtext").text("Run or daemonize any custom flake from GitHub or a local directory.");
     $("#nix-install-submit-btn").text("Install Flake");
@@ -55,6 +56,9 @@ window.initInstallForm = function() {
                     });
                 }
             } catch(e) {}
+        }
+        if (editData.compile_locally === '1' || editData.compile_locally === true || editData.compile_locally === 'true') {
+            $("#custom-compile-locally").prop('checked', true);
         }
         $("#nix-install-section h3").text("Configure Flake: " + editData.name);
         $("#nix-install-section .nix-subtext").text("Modify paths, environment settings, and permissions for service: " + editData.name);
@@ -181,6 +185,7 @@ function installCustomFlake(e) {
             if (k) { envVars[k] = v; }
         });
         params.env_vars = JSON.stringify(envVars);
+        params.compile_locally = $("#custom-compile-locally").is(":checked") ? "1" : "0";
     }
     $.each(params, (k, v) => form.append($('<input>', { type: 'hidden', name: k, value: v })));
     

@@ -25,6 +25,7 @@ pub fn install_service(args: &[String]) {
     let mut port = None;
     let mut bind_address = None;
     let mut env_vars_json = String::new();
+    let mut compile_locally = false;
 
     let mut i = 2;
     while i < args.len() {
@@ -94,6 +95,10 @@ pub fn install_service(args: &[String]) {
                 if i + 1 >= args.len() { eprintln!("Error: Missing value for --env-vars"); exit(1); }
                 env_vars_json = args[i+1].clone();
                 i += 2;
+            }
+            "--compile-locally" => {
+                compile_locally = true;
+                i += 1;
             }
             _ => { eprintln!("Unknown install-service flag: {}", args[i]); exit(1); }
         }
@@ -210,6 +215,12 @@ pub fn install_service(args: &[String]) {
         }
     };
 
+    let cmd = if compile_locally {
+        cmd.replace("nix run ", "nix run --option substituters \"\" ")
+    } else {
+        cmd
+    };
+
     // 5. Update the process supervisor configuration yml
     let mut cfg = config::load_config("/boot/config/plugins/nix/process-compose.yml").unwrap_or_else(|_| {
         config::ProcessComposeConfig {
@@ -240,6 +251,11 @@ pub fn install_service(args: &[String]) {
     }
 
     let mut env_list = Vec::new();
+    if compile_locally {
+        env_list.push("NIX_ENFORCE_NO_NATIVE=0".to_string());
+        env_list.push("NIX_CFLAGS_COMPILE=-march=native".to_string());
+        env_list.push("RUSTFLAGS=-C target-cpu=native".to_string());
+    }
     if !env_vars_json.is_empty() {
         if let Ok(serde_json::Value::Object(map)) = serde_json::from_str::<serde_json::Value>(&env_vars_json) {
             for (k, v) in map {
@@ -284,6 +300,7 @@ pub fn install_service(args: &[String]) {
         "port": port.unwrap_or_default(),
         "bind_address": bind_address.unwrap_or_default(),
         "env_vars": env_vars_json,
+        "compile_locally": if compile_locally { "1" } else { "0" },
     });
     let meta_dir = "/boot/config/plugins/nix/metadata";
     let _ = std::fs::create_dir_all(meta_dir);
