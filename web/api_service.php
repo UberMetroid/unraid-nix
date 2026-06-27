@@ -1,0 +1,97 @@
+<?php
+/// Nix Plugin WebGUI PHP API - Service Management Actions
+///
+/// This file is included by api.php to process active post actions
+/// for starting, stopping, configuring, and installing services/packages.
+
+if ($action === 'start' || $action === 'stop' || $action === 'restart') {
+    $service = isset($_POST['service']) ? $_POST['service'] : '';
+    $output = [];
+    $code = 0;
+    exec("/usr/local/emhttp/plugins/nix/nix-helper service " . escapeshellarg($action) . " " . escapeshellarg($service) . " 2>&1", $output, $code);
+    if ($code !== 0) {
+        error(implode("\n", $output));
+    }
+    success();
+}
+
+if ($action === 'toggle-autostart') {
+    $service = isset($_POST['service']) ? $_POST['service'] : '';
+    $enabled = isset($_POST['enabled']) ? $_POST['enabled'] : 'false';
+    $toggle_val = ($enabled === 'true' || $enabled === '1') ? 'on' : 'off';
+    
+    $output = [];
+    $code = 0;
+    exec("/usr/local/emhttp/plugins/nix/nix-helper autostart " . escapeshellarg($service) . " " . escapeshellarg($toggle_val) . " 2>&1", $output, $code);
+    if ($code !== 0) {
+        error(implode("\n", $output));
+    }
+    success();
+}
+
+if ($action === 'remove') {
+    $service = isset($_POST['service']) ? $_POST['service'] : '';
+    $output = [];
+    $code = 0;
+    exec("/usr/local/emhttp/plugins/nix/nix-helper remove-service " . escapeshellarg($service) . " 2>&1", $output, $code);
+    if ($code !== 0) {
+        error(implode("\n", $output));
+    }
+    success();
+}
+
+if ($action === 'install-cli') {
+    $package = isset($_POST['package']) ? $_POST['package'] : '';
+    $output = [];
+    $code = 0;
+    exec("/usr/local/emhttp/plugins/nix/nix-helper install " . escapeshellarg($package) . " 2>&1", $output, $code);
+    if ($code !== 0) {
+        error(implode("\n", $output));
+    }
+    success();
+}
+
+if ($action === 'install-custom') {
+    $uri = isset($_POST['uri']) ? $_POST['uri'] : '';
+    $type = isset($_POST['type']) ? $_POST['type'] : '';
+    
+    if ($type === 'cli') {
+        $output = [];
+        $code = 0;
+        exec("/usr/local/emhttp/plugins/nix/nix-helper install " . escapeshellarg($uri) . " 2>&1", $output, $code);
+        if ($code !== 0) {
+            error(implode("\n", $output));
+        }
+        success();
+    } elseif ($type === 'service') {
+        $appdata = isset($_POST['appdata']) ? $_POST['appdata'] : '';
+        $media = isset($_POST['media']) ? $_POST['media'] : '';
+        $puid = isset($_POST['puid']) ? $_POST['puid'] : '99';
+        $pgid = isset($_POST['pgid']) ? $_POST['pgid'] : '100';
+        $gpu = isset($_POST['gpu']) ? $_POST['gpu'] : '0';
+        $gpus = isset($_POST['gpus']) ? $_POST['gpus'] : '';
+        $extra_binds = isset($_POST['extra_binds']) ? $_POST['extra_binds'] : '';
+        $port = isset($_POST['port']) ? $_POST['port'] : '';
+        $bind_address = isset($_POST['bind_address']) ? $_POST['bind_address'] : '';
+        
+        $output = [];
+        $code = 0;
+        $cmd = "/usr/local/emhttp/plugins/nix/nix-helper install-service " .
+               "--uri " . escapeshellarg($uri) . " " .
+               "--appdata " . escapeshellarg($appdata) . " " .
+               "--media " . escapeshellarg($media) . " " .
+               "--puid " . escapeshellarg($puid) . " " .
+               "--pgid " . escapeshellarg($pgid) . " " .
+               "--gpu " . escapeshellarg($gpu) . " " .
+               "--gpus " . escapeshellarg($gpus) . " " .
+               "--extra-binds " . escapeshellarg($extra_binds) . " " .
+               "--port " . escapeshellarg($port) . " " .
+               "--bind-address " . escapeshellarg($bind_address);
+               
+        exec($cmd . " 2>&1", $output, $code);
+        if ($code !== 0) {
+            error(implode("\n", $output));
+        }
+        success();
+    }
+}
