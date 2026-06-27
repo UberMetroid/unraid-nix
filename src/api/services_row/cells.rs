@@ -120,7 +120,7 @@ pub fn render_resources_cell(
     memory: Option<u64>,
     gpus_override: &Option<String>,
     legacy_gpu: &Option<String>,
-    gpu_stats: &Option<std::collections::HashMap<i32, GpuStat>>,
+    _gpu_stats: &Option<std::collections::HashMap<i32, GpuStat>>,
 ) -> String {
     let mut res = String::new();
     if is_running {
@@ -155,82 +155,34 @@ pub fn render_resources_cell(
             name, cpu_str, name, mem_str, name, name
         ));
 
-        let mut target_gpus = Vec::new();
-        if let Some(ref g) = gpus_override {
-            for part in g.split(',') {
-                let p = part.trim();
-                if !p.is_empty() {
-                    let idx_str: String = p.chars().filter(|c| c.is_digit(10)).collect();
-                    if let Ok(idx) = idx_str.parse::<i32>() {
-                        target_gpus.push(idx);
-                    }
-                }
-            }
-        }
-        
-        if target_gpus.is_empty() {
-            if let Some(ref lg) = legacy_gpu {
-                if lg == "1" || lg == "true" {
-                    if let Some(ref stats) = gpu_stats {
-                        let mut keys: Vec<i32> = stats.keys().cloned().collect();
-                        keys.sort();
-                        target_gpus = keys;
-                    }
-                }
-            }
-        }
-
-        if !target_gpus.is_empty() {
-            for &gpu_idx in &target_gpus {
-                let sm_val = if let Some(ref stats) = gpu_stats {
-                    if let Some(stat) = stats.get(&gpu_idx) {
-                        stat.sm
-                    } else {
-                        0
-                    }
-                } else {
-                    0
-                };
-                
-                res.push_str(&format!(
-                    r#"<div class="nix-stat-row" data-service="{}" data-type="gpu-{}" style="display: flex; align-items: center; gap: 8px; margin-bottom: 2px;">
-                        <svg class="nix-sparkline" style="width: 60px; height: 12px; overflow: visible; display: inline-block; vertical-align: middle;"></svg>
-                        <span class="nix-stat-val" style="font-size: 11px; color: #00a1ff; font-family: monospace; font-weight: 500; min-width: 45px; text-align: right; display: inline-block;">{}%</span>
-                        <span style="font-size: 10px; color: #666; font-family: monospace;">GPU-{}</span>
-                       </div>"#,
-                    name, gpu_idx, sm_val, gpu_idx
-                ));
-            }
-        } else {
-            match gpus_override {
-                Some(ref g) if !g.trim().is_empty() => {
-                    let mut badges = Vec::new();
-                    for part in g.split(',') {
-                        let p = part.trim();
-                        if !p.is_empty() {
-                            let display_part = if p.starts_with("nvidia-") {
-                                p.replace("nvidia-", "GPU-")
-                            } else {
-                                p.to_string()
-                            };
-                            badges.push(format!(
-                                r#"<span style="background: rgba(0, 161, 255, 0.08); border: 1px solid rgba(0, 161, 255, 0.25); border-radius: 3px; padding: 2px 6px; font-size: 10px; color: #00a1ff; font-family: monospace; display: inline-block;">{}</span>"#,
-                                display_part
-                            ));
-                        }
-                    }
-                    if !badges.is_empty() {
-                        res.push_str(&format!(
-                            r#"<div style="display: flex; flex-wrap: wrap; gap: 4px; margin-top: 4px;">{}</div>"#,
-                            badges.join("")
+        match gpus_override {
+            Some(ref g) if !g.trim().is_empty() => {
+                let mut badges = Vec::new();
+                for part in g.split(',') {
+                    let p = part.trim();
+                    if !p.is_empty() {
+                        let display_part = if p.starts_with("nvidia-") {
+                            p.replace("nvidia-", "GPU-")
+                        } else {
+                            p.to_string()
+                        };
+                        badges.push(format!(
+                            r#"<span style="background: rgba(0, 161, 255, 0.08); border: 1px solid rgba(0, 161, 255, 0.25); border-radius: 3px; padding: 2px 6px; font-size: 10px; color: #00a1ff; font-family: monospace; display: inline-block;">{}</span>"#,
+                            display_part
                         ));
                     }
                 }
-                _ => {
-                    if let Some(ref lg) = legacy_gpu {
-                        if lg == "1" || lg == "true" {
-                            res.push_str(r#"<div style="display: flex; flex-wrap: wrap; gap: 4px; margin-top: 4px;"><span style="background: rgba(0, 161, 255, 0.08); border: 1px solid rgba(0, 161, 255, 0.25); border-radius: 3px; padding: 2px 6px; font-size: 10px; color: #00a1ff; font-family: monospace; display: inline-block;">All GPUs</span></div>"#);
-                        }
+                if !badges.is_empty() {
+                    res.push_str(&format!(
+                        r#"<div style="display: flex; flex-wrap: wrap; gap: 4px; margin-top: 4px;">{}</div>"#,
+                        badges.join("")
+                    ));
+                }
+            }
+            _ => {
+                if let Some(ref lg) = legacy_gpu {
+                    if lg == "1" || lg == "true" {
+                        res.push_str(r#"<div style="display: flex; flex-wrap: wrap; gap: 4px; margin-top: 4px;"><span style="background: rgba(0, 161, 255, 0.08); border: 1px solid rgba(0, 161, 255, 0.25); border-radius: 3px; padding: 2px 6px; font-size: 10px; color: #00a1ff; font-family: monospace; display: inline-block;">All GPUs</span></div>"#);
                     }
                 }
             }
