@@ -218,7 +218,7 @@ function handleOverridePortClick() { addPortRow('', '', '', false); }
 function populatePortRows(portStr, presetName) {
     $("#nix-ports-container").empty();
     if (!portStr) return;
-                            var labels = {
+                                var labels = {
         'actual-budget:5006': 'HTTP',
         'adguard-home:3000': 'Setup',
         'adguard-home:53': 'DNS',
@@ -468,7 +468,7 @@ function updatePresetInfo() {
         $("#custom-uri").parent().after('<div id="nix-preset-info-box" style="margin-top: 10px; display: none;"></div>');
         infoBox = $("#nix-preset-info-box");
     }
-                            var presets = {
+                                var presets = {
         "actual-budget": "Actual Budget",
         "adguard-home": "AdGuard Home",
         "agent-dvr": "Agent DVR",
@@ -706,7 +706,7 @@ function updatePresetInfo() {
         "ddclient": "fa-server",
         "deconz": "fa-server",
         "deluge": "fa-download",
-        "dify": "fa-magic",
+        "dify": "fa-server",
         "dizquetv": "fa-server",
         "dokuwiki": "fa-server",
         "doplarr": "fa-server",
@@ -722,14 +722,14 @@ function updatePresetInfo() {
         "excalidraw": "fa-server",
         "fail2ban": "fa-server",
         "filebot": "fa-server",
-        "filerun": "fa-server",
+        "filerun": "fa-cloud",
         "filezilla": "fa-server",
         "firefly-iii": "fa-server",
         "flame": "fa-server",
         "flaresolverr": "fa-server",
         "flowise": "fa-magic",
         "focalboard": "fa-server",
-        "fooocus": "fa-magic",
+        "fooocus": "fa-server",
         "forgejo": "fa-server",
         "frigate": "fa-server",
         "gatus": "fa-server",
@@ -754,7 +754,7 @@ function updatePresetInfo() {
         "homepage": "fa-server",
         "immich": "fa-server",
         "influxdb": "fa-database",
-        "invokeai": "fa-magic",
+        "invokeai": "fa-server",
         "it-tools": "fa-server",
         "jackett": "fa-search",
         "jdownloader2": "fa-server",
@@ -778,7 +778,7 @@ function updatePresetInfo() {
         "lidarr": "fa-music",
         "linkding": "fa-server",
         "linkwarden": "fa-server",
-        "lobe-chat": "fa-magic",
+        "lobe-chat": "fa-server",
         "localai": "fa-magic",
         "makemkv": "fa-server",
         "mariadb": "fa-database",
@@ -790,11 +790,11 @@ function updatePresetInfo() {
         "mosquitto": "fa-server",
         "mylar3": "fa-server",
         "mysql": "fa-database",
-        "n8n": "fa-sitemap",
+        "n8n": "fa-server",
         "navidrome": "fa-music",
         "netbird": "fa-server",
         "netdata": "fa-bar-chart",
-        "nextcloud": "fa-refresh",
+        "nextcloud": "fa-cloud",
         "nginx-proxy-manager": "fa-exchange",
         "nocodb": "fa-server",
         "node-red": "fa-code-fork",
@@ -807,7 +807,7 @@ function updatePresetInfo() {
         "organizr": "fa-server",
         "outline": "fa-server",
         "overseerr": "fa-server",
-        "owncloud": "fa-refresh",
+        "owncloud": "fa-cloud",
         "paperless-ngx": "fa-server",
         "petio": "fa-server",
         "pgadmin4": "fa-server",
@@ -835,7 +835,7 @@ function updatePresetInfo() {
         "sabnzbd": "fa-download",
         "scrutiny": "fa-server",
         "scrypted": "fa-server",
-        "seafile": "fa-refresh",
+        "seafile": "fa-cloud",
         "sentry": "fa-server",
         "shinobi": "fa-server",
         "shiori": "fa-server",

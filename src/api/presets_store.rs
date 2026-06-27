@@ -50,6 +50,7 @@ pub fn render_presets_store() -> String {
             <button type="button" class="nix-preset-pill active" onclick="filterPresetCategory('ai', this)">AI</button>
             <button type="button" class="nix-preset-pill" onclick="filterPresetCategory('arr', this)">ARR!</button>
             <button type="button" class="nix-preset-pill" onclick="filterPresetCategory('automation', this)">Automation</button>
+            <button type="button" class="nix-preset-pill" onclick="filterPresetCategory('cloud', this)">Cloud</button>
             <button type="button" class="nix-preset-pill" onclick="filterPresetCategory('database', this)">Databases</button>
             <button type="button" class="nix-preset-pill" onclick="filterPresetCategory('downloads', this)">Downloads</button>
             <button type="button" class="nix-preset-pill" onclick="filterPresetCategory('media', this)">Media & Audio</button>
@@ -213,8 +214,10 @@ fn get_preset_category_name(name: &str) -> &'static str {
         "smarthome"
     } else if name_lower.contains("vaultwarden") || name_lower.contains("bitwarden") || name_lower.contains("keepass") {
         "security"
-    } else if name_lower.contains("syncthing") || name_lower.contains("nextcloud") || name_lower.contains("owncloud") ||
-       name_lower.contains("seafile") || name_lower.contains("rclone") || name_lower.contains("duplicati") ||
+    } else if name_lower.contains("nextcloud") || name_lower.contains("owncloud") ||
+       name_lower.contains("seafile") || name_lower.contains("filerun") {
+        "cloud"
+    } else if name_lower.contains("syncthing") || name_lower.contains("rclone") || name_lower.contains("duplicati") ||
        name_lower.contains("kopia") || name_lower.contains("backups") {
         "storage"
     } else if name_lower.contains("influx") || name_lower.contains("prometheus") || name_lower.contains("grafana") ||
@@ -323,9 +326,19 @@ fn get_preset_category_styling(name: &str, default_icon: &str) -> CategoryStylin
         };
     }
 
+    // Cloud (Blue)
+    if name_lower.contains("nextcloud") || name_lower.contains("owncloud") ||
+       name_lower.contains("seafile") || name_lower.contains("filerun") {
+        return CategoryStyling {
+            icon: default_icon.to_string(),
+            color: "#74b9ff",
+            bg: "rgba(116, 185, 255, 0.08)",
+            border: "rgba(116, 185, 255, 0.2)",
+        };
+    }
+
     // Sync & Backups (Teal)
-    if name_lower.contains("syncthing") || name_lower.contains("nextcloud") || name_lower.contains("owncloud") ||
-       name_lower.contains("seafile") || name_lower.contains("rclone") || name_lower.contains("duplicati") ||
+    if name_lower.contains("syncthing") || name_lower.contains("rclone") || name_lower.contains("duplicati") ||
        name_lower.contains("kopia") || name_lower.contains("backups") {
         return CategoryStyling {
             icon: default_icon.to_string(),

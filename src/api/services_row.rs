@@ -147,11 +147,21 @@ fn get_static_config(name_lower: &str) -> StaticConfig {
         };
     }
 
+    // Cloud (Blue)
+    if name_lower.contains("nextcloud") || name_lower.contains("owncloud") ||
+       name_lower.contains("seafile") || name_lower.contains("filerun") {
+        return StaticConfig {
+            icon: "fa-cloud",
+            color: "#74b9ff",
+            bg: "rgba(116, 185, 255, 0.08)",
+            border: "rgba(116, 185, 255, 0.2)",
+        };
+    }
+
     // Sync & Backups (Teal)
-    if name_lower.contains("syncthing") || name_lower.contains("nextcloud") || name_lower.contains("owncloud") ||
-       name_lower.contains("seafile") || name_lower.contains("rclone") || name_lower.contains("duplicati") ||
+    if name_lower.contains("syncthing") || name_lower.contains("rclone") || name_lower.contains("duplicati") ||
        name_lower.contains("kopia") || name_lower.contains("backups") {
-        let icon = if name_lower.contains("syncthing") || name_lower.contains("nextcloud") || name_lower.contains("owncloud") {
+        let icon = if name_lower.contains("syncthing") {
             "fa-refresh"
         } else {
             "fa-cloud-upload"
