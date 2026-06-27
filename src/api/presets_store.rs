@@ -45,9 +45,10 @@ pub fn render_presets_store() -> String {
             </div>
         </div>
 
-        <!-- Category pills (Alphabetically Sorted) -->
+        <!-- Category pills (Alphabetically Sorted, with AI first) -->
         <div class="nix-preset-pills" style="display: flex; gap: 8px; flex-wrap: wrap; padding-bottom: 5px; border-bottom: 1px solid rgba(255,255,255,0.05);">
-            <button type="button" class="nix-preset-pill active" onclick="filterPresetCategory('automation', this)">ARR!</button>
+            <button type="button" class="nix-preset-pill active" onclick="filterPresetCategory('ai', this)">AI</button>
+            <button type="button" class="nix-preset-pill" onclick="filterPresetCategory('automation', this)">ARR!</button>
             <button type="button" class="nix-preset-pill" onclick="filterPresetCategory('database', this)">Databases</button>
             <button type="button" class="nix-preset-pill" onclick="filterPresetCategory('downloads', this)">Downloads</button>
             <button type="button" class="nix-preset-pill" onclick="filterPresetCategory('media', this)">Media & Audio</button>
@@ -98,7 +99,7 @@ pub fn render_presets_store() -> String {
 
     html.push_str(r##"</div>
     <script>
-    var activeCategory = 'automation';
+    var activeCategory = 'ai';
 
     function filterPresetCategory(cat, btn) {
         activeCategory = cat;
@@ -182,7 +183,11 @@ struct CategoryStyling {
 
 fn get_preset_category_name(name: &str) -> &'static str {
     let name_lower = name.to_lowercase();
-    if name_lower.contains("jellyfin") || name_lower.contains("plex") || name_lower.contains("emby") ||
+    if name_lower.contains("ollama") || name_lower.contains("open-webui") || name_lower.contains("localai") ||
+       name_lower.contains("anythingllm") || name_lower.contains("librechat") || name_lower.contains("flowise") ||
+       name_lower.contains("stable-diffusion") || name_lower.contains("comfyui") || name_lower.contains("text-generation-webui") {
+        "ai"
+    } else if name_lower.contains("jellyfin") || name_lower.contains("plex") || name_lower.contains("emby") ||
        name_lower.contains("navidrome") || name_lower.contains("airsonic") || name_lower.contains("subsonic") || name_lower.contains("lidarr") {
         "media"
     } else if name_lower.contains("sonarr") || name_lower.contains("sickrage") || name_lower.contains("sickchill") ||
@@ -220,6 +225,18 @@ fn get_preset_category_name(name: &str) -> &'static str {
 fn get_preset_category_styling(name: &str, default_icon: &str) -> CategoryStyling {
     let name_lower = name.to_lowercase();
     
+    // AI & LLMs (Indigo/Cyberpunk Purple-Blue)
+    if name_lower.contains("ollama") || name_lower.contains("open-webui") || name_lower.contains("localai") ||
+       name_lower.contains("anythingllm") || name_lower.contains("librechat") || name_lower.contains("flowise") ||
+       name_lower.contains("stable-diffusion") || name_lower.contains("comfyui") || name_lower.contains("text-generation-webui") {
+        return CategoryStyling {
+            icon: default_icon.to_string(),
+            color: "#a29bfe",
+            bg: "rgba(162, 155, 254, 0.08)",
+            border: "rgba(162, 155, 254, 0.2)",
+        };
+    }
+
     // Media & Audio (Cyan/Blue)
     if name_lower.contains("jellyfin") || name_lower.contains("plex") || name_lower.contains("emby") ||
        name_lower.contains("navidrome") || name_lower.contains("airsonic") || name_lower.contains("subsonic") || name_lower.contains("lidarr") {

@@ -19,6 +19,18 @@ struct StaticConfig {
 
 fn get_static_config(name_lower: &str) -> StaticConfig {
     
+    // AI & LLMs (Indigo/Cyberpunk Purple-Blue)
+    if name_lower.contains("ollama") || name_lower.contains("open-webui") || name_lower.contains("localai") ||
+       name_lower.contains("anythingllm") || name_lower.contains("librechat") || name_lower.contains("flowise") ||
+       name_lower.contains("stable-diffusion") || name_lower.contains("comfyui") || name_lower.contains("text-generation-webui") {
+        return StaticConfig {
+            icon: "fa-magic",
+            color: "#a29bfe",
+            bg: "rgba(162, 155, 254, 0.08)",
+            border: "rgba(162, 155, 254, 0.2)",
+        };
+    }
+
     // Media & Audio (Cyan/Blue)
     if name_lower.contains("jellyfin") || name_lower.contains("plex") || name_lower.contains("emby") ||
        name_lower.contains("navidrome") || name_lower.contains("airsonic") || name_lower.contains("subsonic") || name_lower.contains("lidarr") {

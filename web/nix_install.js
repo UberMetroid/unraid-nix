@@ -218,7 +218,7 @@ function handleOverridePortClick() { addPortRow('', '', '', false); }
 function populatePortRows(portStr, presetName) {
     $("#nix-ports-container").empty();
     if (!portStr) return;
-                var labels = {
+                    var labels = {
         'actual-budget:5006': 'HTTP',
         'adguard-home:3000': 'Setup',
         'adguard-home:53': 'DNS',
@@ -463,7 +463,7 @@ function updatePresetInfo() {
         $("#custom-uri").parent().after('<div id="nix-preset-info-box" style="margin-top: 10px; display: none;"></div>');
         infoBox = $("#nix-preset-info-box");
     }
-                var presets = {
+                    var presets = {
         "actual-budget": "Actual Budget",
         "adguard-home": "AdGuard Home",
         "agent-dvr": "Agent DVR",
@@ -670,7 +670,7 @@ function updatePresetInfo() {
         "adguard-home": "fa-shield",
         "agent-dvr": "fa-server",
         "airsonic-advanced": "fa-music",
-        "anythingllm": "fa-server",
+        "anythingllm": "fa-magic",
         "apprise": "fa-server",
         "appwrite": "fa-server",
         "archivebox": "fa-server",
@@ -689,7 +689,7 @@ function updatePresetInfo() {
         "cloudflare-ddns": "fa-server",
         "cloudflared": "fa-server",
         "code-server": "fa-server",
-        "comfyui": "fa-server",
+        "comfyui": "fa-magic",
         "crowdsec": "fa-server",
         "cyberchef": "fa-server",
         "dashy": "fa-server",
@@ -716,7 +716,7 @@ function updatePresetInfo() {
         "firefly-iii": "fa-server",
         "flame": "fa-server",
         "flaresolverr": "fa-server",
-        "flowise": "fa-server",
+        "flowise": "fa-magic",
         "focalboard": "fa-server",
         "forgejo": "fa-server",
         "frigate": "fa-server",
@@ -761,11 +761,11 @@ function updatePresetInfo() {
         "lancache": "fa-server",
         "lazylibrarian": "fa-server",
         "leantime": "fa-server",
-        "librechat": "fa-server",
+        "librechat": "fa-magic",
         "lidarr": "fa-music",
         "linkding": "fa-server",
         "linkwarden": "fa-server",
-        "localai": "fa-server",
+        "localai": "fa-magic",
         "makemkv": "fa-server",
         "mariadb": "fa-database",
         "mastodon": "fa-server",
@@ -785,9 +785,9 @@ function updatePresetInfo() {
         "node-red": "fa-code-fork",
         "ntfy": "fa-server",
         "nzbget": "fa-download",
-        "ollama": "fa-server",
+        "ollama": "fa-magic",
         "ombi": "fa-server",
-        "open-webui": "fa-server",
+        "open-webui": "fa-magic",
         "openhab": "fa-server",
         "organizr": "fa-server",
         "outline": "fa-server",
@@ -831,7 +831,7 @@ function updatePresetInfo() {
         "sonarr": "fa-television",
         "speedtest-tracker": "fa-server",
         "sqlite-web": "fa-database",
-        "stable-diffusion-webui": "fa-server",
+        "stable-diffusion-webui": "fa-magic",
         "statping-ng": "fa-server",
         "stirling-pdf": "fa-server",
         "supabase": "fa-server",
@@ -841,7 +841,7 @@ function updatePresetInfo() {
         "tautulli": "fa-server",
         "tdarr": "fa-server",
         "telegraf": "fa-server",
-        "text-generation-webui": "fa-server",
+        "text-generation-webui": "fa-magic",
         "threadfin": "fa-server",
         "traefik": "fa-exchange",
         "transmission": "fa-download",
