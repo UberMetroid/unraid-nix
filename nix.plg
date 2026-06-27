@@ -335,7 +335,7 @@
           sed -i 's/^Menu="Tasks:95"/Menu="Utilities"/' "&usrdir;/Nix.page"
           rm -f "&usrdir;/NixLauncher.page"
       else
-          echo -e "Menu=\"Utilities\"\nTitle=\"Nix\"\nIcon=\"nix.png\"\n---\n<script>window.location.href = '/Settings/Nix';</script>" > "&usrdir;/NixLauncher.page"
+          echo -e "Menu=\"Utilities\"\nTitle=\"Nix\"\nIcon=\"nix.png\"\n---\n<script>window.location.href = '/Nix';</script>" > "&usrdir;/NixLauncher.page"
       fi
       
       # Write a minimal README.md containing only the overview for the Unraid Plugins GUI screen
