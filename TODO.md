@@ -35,7 +35,7 @@ Below is the structured roadmap of features to be added to the `unraid-nix` plug
   - When deployed, it runs tests *from the inside* of the chroot jail to verify isolation boundaries (checking if host `/etc/shadow` is hidden, host PIDs are invisible, and host IPC namespaces are isolated) and produces a security report.
 
 ## 6. Diagnostic Logging & Troubleshooting
-- [ ] **One-Click Diagnostic Bundle**:
+- [x] **One-Click Diagnostic Bundle**:
   - Add a button in the **Logs** or **Settings** tab to zip and download all nix process logs, system startup logs, and config files.
-- [ ] **GitHub Issues Helper**:
+- [x] **GitHub Issues Helper**:
   - Provide clear instructions and links to easily post bug reports and upload the diagnostic zip directly to [UberMetroid/unraid-nix/issues](https://github.com/UberMetroid/unraid-nix/issues).
