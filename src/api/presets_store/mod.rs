@@ -219,15 +219,20 @@ pub fn render_presets_store() -> String {
                         <p style="font-size: 12px; color: #a0a0a5; line-height: 1.5; margin: 0; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; height: 54px;">{}</p>
                     </div>
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 12px; padding-top: 8px; border-top: 1px solid rgba(255,255,255,0.03);">
-                        <a href="{}" target="_blank" style="font-size: 11px; color: #00a1ff; text-decoration: none; display: inline-flex; align-items: center; gap: 4px;" onclick="event.stopPropagation();">
-                             <i class="fa fa-globe"></i> Website
-                        </a>
+                        <div style="display: flex; gap: 10px; align-items: center;">
+                            <a href="{}" target="_blank" style="font-size: 11px; color: #00a1ff; text-decoration: none; display: inline-flex; align-items: center; gap: 4px;" onclick="event.stopPropagation();">
+                                 <i class="fa fa-globe"></i> Website
+                            </a>
+                            <a href="https://search.nixos.org/packages?channel=unstable&show={}&query={}" target="_blank" style="font-size: 11px; color: #888; text-decoration: none; display: inline-flex; align-items: center; gap: 4px;" onclick="event.stopPropagation();" class="nix-store-link">
+                                 <i class="fa fa-book"></i> Nix Store
+                            </a>
+                        </div>
                         <button type="button" class="nix-btn-install" style="margin: 0; padding: 4px 10px; font-size: 11px; border-radius: 3px;" onclick="showServiceModal('nixpkgs#{}')">
                             <i class="fa fa-plus" style="margin-right: 4px;"></i> Add Service
                         </button>
                     </div>
                 </div>"#,
-                p.name, p.description.to_lowercase(), category_name, if p.is_composed { "true" } else { "false" }, styling.bg, styling.border, styling.color, styling.icon, p.display_name, p.display_name, subtitle_html, meta_html, p.description, p.url, p.name
+                p.name, p.description.to_lowercase(), category_name, if p.is_composed { "true" } else { "false" }, styling.bg, styling.border, styling.color, styling.icon, p.display_name, p.display_name, subtitle_html, meta_html, p.description, p.url, p.name, p.name, p.name
             ));
         }
     }
@@ -323,6 +328,10 @@ pub fn render_presets_store() -> String {
         border-color: rgba(0, 161, 255, 0.3) !important;
         color: #00a1ff !important;
         font-weight: 500;
+    }
+    .nix-store-link:hover {
+        color: #fff !important;
+        text-decoration: underline !important;
     }
     </style>
     "##);
