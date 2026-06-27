@@ -1,0 +1,10 @@
+{
+  "name": "plex",
+  "display_name": "Plex Media Server",
+  "description": "Plex Media Server",
+  "url": "https://www.plex.tv/",
+  "command": "exec nix run nixpkgs#plex",
+  "default_ports": [
+    { "host": 32400, "container": 32400, "label": "PMS HTTP" }
+  ]
+}

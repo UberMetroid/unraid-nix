@@ -1,0 +1,10 @@
+{
+  "name": "vaultwarden",
+  "display_name": "Vaultwarden",
+  "description": "Vaultwarden Password Manager",
+  "url": "https://github.com/dani-garcia/vaultwarden",
+  "command": "exec nix run nixpkgs#vaultwarden",
+  "default_ports": [
+    { "host": 8222, "container": 80, "label": "HTTP" }
+  ]
+}

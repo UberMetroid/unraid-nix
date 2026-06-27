@@ -221,7 +221,13 @@ function populatePortRows(portStr, presetName) {
     var labels = {
         'radarr:7878': 'HTTP', 'sonarr:8989': 'HTTP',
         'jellyfin:8096': 'HTTP', 'jellyfin:8920': 'HTTPS', 'jellyfin:1900': 'DLNA (UDP)', 'jellyfin:7359': 'Discovery (UDP)',
-        'syncthing:8384': 'Web GUI', 'syncthing:22000': 'Sync Protocol', 'syncthing:21027': 'Local Discovery (UDP)'
+        'syncthing:8384': 'Web GUI', 'syncthing:22000': 'Sync Protocol', 'syncthing:21027': 'Local Discovery (UDP)',
+        'transmission:9091': 'RPC/Web', 'transmission:51413': 'Peer Port',
+        'qbittorrent:8080': 'Web GUI', 'qbittorrent:6881': 'BitTorrent Port',
+        'vaultwarden:80': 'HTTP',
+        'home-assistant:8123': 'Web GUI',
+        'gitea:3000': 'HTTP', 'gitea:22': 'SSH',
+        'plex:32400': 'PMS HTTP'
     };
     portStr.split(',').forEach(function(part) {
         part = part.trim();
@@ -246,7 +252,13 @@ function updatePresetInfo() {
         "radarr": "Radarr Movie Manager",
         "sonarr": "Sonarr TV Show Manager",
         "jellyfin": "Jellyfin Media Server",
-        "syncthing": "Syncthing File Synchronization"
+        "syncthing": "Syncthing File Synchronization",
+        "transmission": "Transmission Torrent Client",
+        "qbittorrent": "qBittorrent Torrent Client",
+        "vaultwarden": "Vaultwarden Password Manager",
+        "home-assistant": "Home Assistant Automation",
+        "gitea": "Gitea Git Server",
+        "plex": "Plex Media Server"
     };
     var matched = presets[name];
     if (matched) {
