@@ -23,10 +23,31 @@ struct PresetInfo {
     description: String,
     url: String,
     icon: Option<String>,
+    command: String,
     #[serde(skip)]
     is_composed: bool,
     composed_parts: Option<Vec<String>>,
     meta: Option<PresetMeta>,
+}
+
+fn extract_pkg_name(command: &str, preset_name: &str) -> String {
+    if let Some(pos) = command.find("nixpkgs#") {
+        let start = pos + 8;
+        let mut end = start;
+        let chars: Vec<char> = command.chars().collect();
+        while end < chars.len() {
+            let c = chars[end];
+            if c.is_alphanumeric() || c == '-' || c == '_' || c == '.' {
+                end += 1;
+            } else {
+                break;
+            }
+        }
+        if end > start {
+            return command[start..end].to_string();
+        }
+    }
+    preset_name.to_string()
 }
 
 fn should_filter_presets() -> bool {
@@ -203,6 +224,8 @@ pub fn render_presets_store() -> String {
                 meta_html.push_str("</div>");
             }
 
+            let pkg_search_name = extract_pkg_name(&p.command, &p.name);
+
             html.push_str(&format!(
                 r#"<div class="nix-preset-card" data-name="{}" data-desc="{}" data-category="{}" data-is-composed="{}" style="background: rgba(255, 255, 255, 0.02); border: 1px solid rgba(255, 255, 255, 0.05); border-radius: 6px; padding: 16px; display: flex; flex-direction: column; justify-content: space-between; transition: transform 0.2s ease, border-color 0.2s ease, background 0.2s ease, box-shadow 0.2s ease; height: 195px;">
                     <div>
@@ -232,7 +255,7 @@ pub fn render_presets_store() -> String {
                         </button>
                     </div>
                 </div>"#,
-                p.name, p.description.to_lowercase(), category_name, if p.is_composed { "true" } else { "false" }, styling.bg, styling.border, styling.color, styling.icon, p.display_name, p.display_name, subtitle_html, meta_html, p.description, p.url, p.name, p.name, p.name
+                p.name, p.description.to_lowercase(), category_name, if p.is_composed { "true" } else { "false" }, styling.bg, styling.border, styling.color, styling.icon, p.display_name, p.display_name, subtitle_html, meta_html, p.description, p.url, pkg_search_name, pkg_search_name, p.name
             ));
         }
     }
