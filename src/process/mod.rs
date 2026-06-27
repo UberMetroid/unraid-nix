@@ -21,6 +21,10 @@ pub struct ServiceStatus {
     pub exit_code: Option<i32>,
     #[serde(default)]
     pub gpu_active: Option<bool>,
+    #[serde(default)]
+    pub io_read: Option<u64>,
+    #[serde(default)]
+    pub io_write: Option<u64>,
 }
 
 impl ServiceStatus {
@@ -114,6 +118,25 @@ pub fn get_gpu_active_services() -> std::collections::HashSet<String> {
     active_services
 }
 
+fn get_proc_io(pid: i32) -> Option<(u64, u64)> {
+    let io_file = format!("/proc/{}/io", pid);
+    if let Ok(content) = fs::read_to_string(io_file) {
+        let mut rchar = None;
+        let mut wchar = None;
+        for line in content.lines() {
+            if line.starts_with("rchar:") {
+                rchar = line.split_whitespace().nth(1).and_then(|s| s.parse::<u64>().ok());
+            } else if line.starts_with("wchar:") {
+                wchar = line.split_whitespace().nth(1).and_then(|s| s.parse::<u64>().ok());
+            }
+        }
+        if let (Some(rc), Some(wc)) = (rchar, wchar) {
+            return Some((rc, wc));
+        }
+    }
+    None
+}
+
 /// Queries the process-compose daemon HTTP API for the status of all managed services.
 pub fn get_services_status(api_port: u16) -> Result<Vec<ServiceStatus>, String> {
     if !is_supervisor_running() {
@@ -132,6 +155,12 @@ pub fn get_services_status(api_port: u16) -> Result<Vec<ServiceStatus>, String> 
     let active_gpus = get_gpu_active_services();
     for s in &mut data {
         s.gpu_active = Some(active_gpus.contains(&s.name));
+        if let Some(pid) = s.pid {
+            if let Some((rc, wc)) = get_proc_io(pid) {
+                s.io_read = Some(rc);
+                s.io_write = Some(wc);
+            }
+        }
     }
 
     Ok(data)

@@ -174,12 +174,22 @@ pub fn render_resources_cell(
                 <span class="nix-stat-val" style="font-size: 11px; color: #00d5ff; font-family: monospace; font-weight: 500; min-width: 45px; text-align: right; display: inline-block;">{}</span>
                 <span style="font-size: 10px; color: #666; font-family: monospace;">CPU</span>
                </div>
-               <div class="nix-stat-row" data-service="{}" data-type="ram" style="display: flex; align-items: center; gap: 8px; margin-bottom: 4px;">
+               <div class="nix-stat-row" data-service="{}" data-type="ram" style="display: flex; align-items: center; gap: 8px; margin-bottom: 2px;">
                 <svg class="nix-sparkline" style="width: 60px; height: 12px; overflow: visible; display: inline-block; vertical-align: middle;"></svg>
                 <span class="nix-stat-val" style="font-size: 11px; color: #d946ef; font-family: monospace; font-weight: 500; min-width: 45px; text-align: right; display: inline-block;">{}</span>
                 <span style="font-size: 10px; color: #666; font-family: monospace;">RAM</span>
+               </div>
+               <div class="nix-stat-row" data-service="{}" data-type="io-in" style="display: flex; align-items: center; gap: 8px; margin-bottom: 2px;">
+                <svg class="nix-sparkline" style="width: 60px; height: 12px; overflow: visible; display: inline-block; vertical-align: middle;"></svg>
+                <span class="nix-stat-val" style="font-size: 11px; color: #2ecc71; font-family: monospace; font-weight: 500; min-width: 45px; text-align: right; display: inline-block;">0.0 B/s</span>
+                <span style="font-size: 10px; color: #666; font-family: monospace;">I/O In</span>
+               </div>
+               <div class="nix-stat-row" data-service="{}" data-type="io-out" style="display: flex; align-items: center; gap: 8px; margin-bottom: 4px;">
+                <svg class="nix-sparkline" style="width: 60px; height: 12px; overflow: visible; display: inline-block; vertical-align: middle;"></svg>
+                <span class="nix-stat-val" style="font-size: 11px; color: #e67e22; font-family: monospace; font-weight: 500; min-width: 45px; text-align: right; display: inline-block;">0.0 B/s</span>
+                <span style="font-size: 10px; color: #666; font-family: monospace;">I/O Out</span>
                </div>"#,
-            name, cpu_str, name, mem_str
+            name, cpu_str, name, mem_str, name, name
         ));
     }
     if gpus_display != r#"<span style="color: #777;">-</span>"# {
