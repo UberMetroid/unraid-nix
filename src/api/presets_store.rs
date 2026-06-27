@@ -121,6 +121,16 @@ pub fn render_presets_store() -> String {
     }
 
     function filterPresetsStore() {
+        var q = $("#nix-preset-search").val().trim();
+        if (q.length > 0 && activeCategory !== 'all') {
+            activeCategory = 'all';
+            document.querySelectorAll('.nix-preset-pill').forEach(function(pill) {
+                pill.classList.remove('active');
+                if (pill.getAttribute('onclick') && pill.getAttribute('onclick').indexOf("'all'") !== -1) {
+                    pill.classList.add('active');
+                }
+            });
+        }
         applyPresetFilters();
     }
 
