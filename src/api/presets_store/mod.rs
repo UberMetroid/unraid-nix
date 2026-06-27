@@ -87,7 +87,11 @@ pub fn render_presets_store() -> String {
         <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px;">
             <div>
                 <h3 style="margin: 0;">Preset Service Store</h3>
-                <p class="nix-subtext" style="margin: 5px 0 0 0;">Browse and configure over 200+ pre-configured self-hosted templates.</p>
+                <p class="nix-subtext" style="margin: 5px 0 0 0;">Browse and configure over "##.to_string();
+    
+    html.push_str(&presets.len().to_string());
+    
+    html.push_str(r##" pre-configured self-hosted templates.</p>
             </div>
             <div style="display: flex; gap: 8px; align-items: center;">
                 <button type="button" class="nix-preset-pill active" onclick="filterPresetCategory('all', this)">All</button>
@@ -126,7 +130,7 @@ pub fn render_presets_store() -> String {
     </div>
     
     <div class="nix-presets-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 16px; margin-bottom: 30px;">
-    "##.to_string();
+    "##);
 
     if presets.is_empty() {
         html.push_str(r#"<div style="grid-column: 1 / -1; text-align: center; color: #888; padding: 45px 0;">No preset files found on system.</div>"#);
