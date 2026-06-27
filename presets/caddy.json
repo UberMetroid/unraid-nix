@@ -21,5 +21,18 @@
       "label": "HTTPS"
     }
   ],
-  "icon": "fa-exchange"
+  "icon": "fa-exchange",
+  "meta": {
+    "version": "2.11.4",
+    "license": "Apache-2.0",
+    "platforms": [
+      "aarch64-linux",
+      "x86_64-linux"
+    ],
+    "maintainers": [
+      "stepbrobd",
+      "techknowlogick",
+      "ryan4yin"
+    ]
+  }
 }

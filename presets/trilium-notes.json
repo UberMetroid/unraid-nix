@@ -11,5 +11,17 @@
       "label": "HTTP"
     }
   ],
-  "icon": "fa-file-text-o"
+  "icon": "fa-file-text-o",
+  "meta": {
+    "version": "0.103.0",
+    "license": "AGPL-3.0-or-later",
+    "platforms": [
+      "x86_64-linux",
+      "aarch64-linux"
+    ],
+    "maintainers": [
+      "eliandoran",
+      "FliegendeWurst"
+    ]
+  }
 }

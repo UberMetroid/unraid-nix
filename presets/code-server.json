@@ -11,5 +11,17 @@
       "label": "HTTP"
     }
   ],
-  "icon": "fa-server"
+  "icon": "fa-server",
+  "meta": {
+    "version": "4.115.0",
+    "license": "MIT",
+    "platforms": [
+      "x86_64-linux",
+      "aarch64-linux"
+    ],
+    "maintainers": [
+      "henkery",
+      "code-asher"
+    ]
+  }
 }

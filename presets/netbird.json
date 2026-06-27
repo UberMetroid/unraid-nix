@@ -16,5 +16,18 @@
       "label": "HTTPS"
     }
   ],
-  "icon": "fa-key"
+  "icon": "fa-key",
+  "meta": {
+    "version": "0.72.2",
+    "license": "BSD-3-Clause",
+    "platforms": [
+      "aarch64-linux",
+      "x86_64-linux"
+    ],
+    "maintainers": [
+      "nazarewk",
+      "saturn745",
+      "LoCrealloc"
+    ]
+  }
 }

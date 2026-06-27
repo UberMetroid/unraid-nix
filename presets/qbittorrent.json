@@ -16,5 +16,17 @@
       "label": "BT Port"
     }
   ],
-  "icon": "fa-download"
+  "icon": "fa-download",
+  "meta": {
+    "version": "5.2.1",
+    "license": "",
+    "platforms": [
+      "aarch64-linux",
+      "x86_64-linux"
+    ],
+    "maintainers": [
+      "Anton-Latukha",
+      "kashw2"
+    ]
+  }
 }

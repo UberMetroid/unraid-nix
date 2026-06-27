@@ -11,5 +11,17 @@
       "label": "HTTP"
     }
   ],
-  "icon": "fa-search"
+  "icon": "fa-search",
+  "meta": {
+    "version": "2.3.5.5327",
+    "license": "GPL-3.0-only",
+    "platforms": [
+      "x86_64-linux",
+      "aarch64-linux"
+    ],
+    "maintainers": [
+      "pizzapim",
+      "nyanloutre"
+    ]
+  }
 }

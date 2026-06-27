@@ -11,5 +11,16 @@
       "label": "HTTP"
     }
   ],
-  "icon": "fa-server"
+  "icon": "fa-server",
+  "meta": {
+    "version": "26.5.1",
+    "license": "Zlib",
+    "platforms": [
+      "x86_64-linux",
+      "aarch64-linux"
+    ],
+    "maintainers": [
+      "allout58"
+    ]
+  }
 }

@@ -11,5 +11,17 @@
       "label": "HTTP"
     }
   ],
-  "icon": "fa-download"
+  "icon": "fa-download",
+  "meta": {
+    "version": "26.0",
+    "license": "GPL-2.0-or-later",
+    "platforms": [
+      "aarch64-linux",
+      "x86_64-linux"
+    ],
+    "maintainers": [
+      "pSub",
+      "devusb"
+    ]
+  }
 }

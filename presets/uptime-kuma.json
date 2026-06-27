@@ -11,5 +11,17 @@
       "label": "Web GUI"
     }
   ],
-  "icon": "fa-bar-chart"
+  "icon": "fa-bar-chart",
+  "meta": {
+    "version": "2.4.0",
+    "license": "MIT",
+    "platforms": [
+      "aarch64-linux",
+      "x86_64-linux"
+    ],
+    "maintainers": [
+      "JulienMalka",
+      "felixsinger"
+    ]
+  }
 }

@@ -11,5 +11,15 @@
       "label": "Web GUI"
     }
   ],
-  "icon": "fa-server"
+  "icon": "fa-server",
+  "meta": {
+    "version": "1.18.3",
+    "license": "",
+    "platforms": [
+      "x86_64-linux"
+    ],
+    "maintainers": [
+      "jchv"
+    ]
+  }
 }

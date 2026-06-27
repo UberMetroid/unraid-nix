@@ -11,5 +11,17 @@
       "label": "Web GUI"
     }
   ],
-  "icon": "fa-folder-open-o"
+  "icon": "fa-folder-open-o",
+  "meta": {
+    "version": "3.70.5",
+    "license": "GPL-2.0",
+    "platforms": [
+      "aarch64-linux",
+      "x86_64-linux"
+    ],
+    "maintainers": [
+      "iedame",
+      "pSub"
+    ]
+  }
 }

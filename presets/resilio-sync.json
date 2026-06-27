@@ -11,5 +11,17 @@
       "label": "Web GUI"
     }
   ],
-  "icon": "fa-refresh"
+  "icon": "fa-refresh",
+  "meta": {
+    "version": "3.1.1.1075",
+    "license": "unfreeRedistributable",
+    "platforms": [
+      "aarch64-linux",
+      "x86_64-linux"
+    ],
+    "maintainers": [
+      "thoughtpolice",
+      "cwoac"
+    ]
+  }
 }

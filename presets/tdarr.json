@@ -16,5 +16,16 @@
       "label": "Server"
     }
   ],
-  "icon": "fa-server"
+  "icon": "fa-server",
+  "meta": {
+    "version": "2.77.01",
+    "license": "unfree",
+    "platforms": [
+      "x86_64-linux",
+      "aarch64-linux"
+    ],
+    "maintainers": [
+      "Mistyttm"
+    ]
+  }
 }

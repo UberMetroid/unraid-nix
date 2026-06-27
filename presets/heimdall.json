@@ -16,5 +16,17 @@
       "label": "HTTPS"
     }
   ],
-  "icon": "fa-tachometer"
+  "icon": "fa-tachometer",
+  "meta": {
+    "version": "2.2.2",
+    "license": "MIT",
+    "platforms": [
+      "aarch64-linux",
+      "x86_64-linux"
+    ],
+    "maintainers": [
+      "surfaceflinger",
+      "timschumi"
+    ]
+  }
 }

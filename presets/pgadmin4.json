@@ -16,5 +16,16 @@
       "label": "HTTPS"
     }
   ],
-  "icon": "fa-server"
+  "icon": "fa-server",
+  "meta": {
+    "version": "9.14",
+    "license": "MIT",
+    "platforms": [
+      "aarch64-linux",
+      "x86_64-linux"
+    ],
+    "maintainers": [
+      "gador"
+    ]
+  }
 }

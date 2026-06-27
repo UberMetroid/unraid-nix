@@ -11,5 +11,16 @@
       "label": "HTTP"
     }
   ],
-  "icon": "fa-server"
+  "icon": "fa-server",
+  "meta": {
+    "version": "4.47.1",
+    "license": "GPL-2.0-only",
+    "platforms": [
+      "x86_64-linux",
+      "aarch64-linux"
+    ],
+    "maintainers": [
+      "andreisergiu98"
+    ]
+  }
 }

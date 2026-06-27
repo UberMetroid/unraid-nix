@@ -11,5 +11,18 @@
       "label": "Postgres Port"
     }
   ],
-  "icon": "fa-database"
+  "icon": "fa-database",
+  "meta": {
+    "version": "17.10",
+    "license": "PostgreSQL",
+    "platforms": [
+      "aarch64-linux",
+      "x86_64-linux"
+    ],
+    "maintainers": [
+      "Ma27",
+      "thoughtpolice",
+      "wolfgangwalther"
+    ]
+  }
 }

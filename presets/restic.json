@@ -5,5 +5,18 @@
   "url": "https://restic.net/",
   "command": "exec nix run nixpkgs#restic",
   "default_ports": [],
-  "icon": "fa-cloud-upload"
+  "icon": "fa-cloud-upload",
+  "meta": {
+    "version": "0.18.1",
+    "license": "BSD-2-Clause",
+    "platforms": [
+      "aarch64-linux",
+      "x86_64-linux"
+    ],
+    "maintainers": [
+      "mbrgm",
+      "djds",
+      "dotlambda"
+    ]
+  }
 }

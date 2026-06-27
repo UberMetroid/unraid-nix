@@ -11,5 +11,15 @@
       "label": "HTTP"
     }
   ],
-  "icon": "fa-bookmark-o"
+  "icon": "fa-bookmark-o",
+  "meta": {
+    "version": "2.14.0",
+    "license": "AGPL-3.0-only",
+    "platforms": [
+      "x86_64-linux"
+    ],
+    "maintainers": [
+      "jvanbruegge"
+    ]
+  }
 }

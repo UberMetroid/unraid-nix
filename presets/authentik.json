@@ -16,5 +16,17 @@
       "label": "HTTPS"
     }
   ],
-  "icon": "fa-lock"
+  "icon": "fa-lock",
+  "meta": {
+    "version": "2025.12.5",
+    "license": "MIT",
+    "platforms": [
+      "aarch64-linux",
+      "x86_64-linux"
+    ],
+    "maintainers": [
+      "jvanbruegge",
+      "rissson"
+    ]
+  }
 }

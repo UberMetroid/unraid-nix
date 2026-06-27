@@ -16,5 +16,16 @@
       "label": "Native"
     }
   ],
-  "icon": "fa-database"
+  "icon": "fa-database",
+  "meta": {
+    "version": "26.5.2.39-stable",
+    "license": "Apache-2.0",
+    "platforms": [
+      "aarch64-linux",
+      "x86_64-linux"
+    ],
+    "maintainers": [
+      "thevar1able"
+    ]
+  }
 }

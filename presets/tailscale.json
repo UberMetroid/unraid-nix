@@ -5,5 +5,18 @@
   "url": "https://tailscale.com/",
   "command": "exec nix run nixpkgs#tailscale -- up",
   "default_ports": [],
-  "icon": "fa-key"
+  "icon": "fa-key",
+  "meta": {
+    "version": "1.98.5",
+    "license": "BSD-3-Clause",
+    "platforms": [
+      "aarch64-linux",
+      "x86_64-linux"
+    ],
+    "maintainers": [
+      "martinbaillie",
+      "06kellyjac",
+      "mfrw"
+    ]
+  }
 }

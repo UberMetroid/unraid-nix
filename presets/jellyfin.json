@@ -26,5 +26,18 @@
       "label": "Discovery (UDP)"
     }
   ],
-  "icon": "fa-play-circle"
+  "icon": "fa-play-circle",
+  "meta": {
+    "version": "10.11.11",
+    "license": "GPL-2.0-or-later",
+    "platforms": [
+      "x86_64-linux",
+      "aarch64-linux"
+    ],
+    "maintainers": [
+      "nyanloutre",
+      "minijackson",
+      "purcell"
+    ]
+  }
 }

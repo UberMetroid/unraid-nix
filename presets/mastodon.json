@@ -16,5 +16,18 @@
       "label": "Streaming"
     }
   ],
-  "icon": "fa-share-alt"
+  "icon": "fa-share-alt",
+  "meta": {
+    "version": "4.5.11",
+    "license": "AGPL-3.0-or-later",
+    "platforms": [
+      "x86_64-linux",
+      "aarch64-linux"
+    ],
+    "maintainers": [
+      "happy-river",
+      "erictapen",
+      "Izorkin"
+    ]
+  }
 }

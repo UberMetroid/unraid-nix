@@ -11,5 +11,15 @@
       "label": "HTTP"
     }
   ],
-  "icon": "fa-bolt"
+  "icon": "fa-bolt",
+  "meta": {
+    "version": "2.32.5",
+    "license": "unfree",
+    "platforms": [
+      "x86_64-linux"
+    ],
+    "maintainers": [
+      "bjornfor"
+    ]
+  }
 }

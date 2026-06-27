@@ -11,5 +11,16 @@
       "label": "HTTP"
     }
   ],
-  "icon": "fa-cloud"
+  "icon": "fa-cloud",
+  "meta": {
+    "version": "9.0.15",
+    "license": "GPL-2.0-or-later",
+    "platforms": [
+      "aarch64-linux",
+      "x86_64-linux"
+    ],
+    "maintainers": [
+      "schmittlauch"
+    ]
+  }
 }

@@ -11,5 +11,13 @@
       "label": "HTTP"
     }
   ],
-  "icon": "fa-server"
+  "icon": "fa-server",
+  "meta": {
+    "version": "2024.10.22-7ca5933",
+    "license": "GPL-3.0-only",
+    "platforms": [],
+    "maintainers": [
+      "akotro"
+    ]
+  }
 }

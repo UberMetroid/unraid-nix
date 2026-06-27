@@ -5,5 +5,16 @@
   "url": "https://ddclient.net/",
   "command": "exec nix run nixpkgs#ddclient",
   "default_ports": [],
-  "icon": "fa-server"
+  "icon": "fa-server",
+  "meta": {
+    "version": "4.0.0",
+    "license": "GPL-2.0-or-later",
+    "platforms": [
+      "aarch64-linux",
+      "x86_64-linux"
+    ],
+    "maintainers": [
+      "bjornfor"
+    ]
+  }
 }

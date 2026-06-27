@@ -11,5 +11,16 @@
       "label": "HTTP"
     }
   ],
-  "icon": "fa-gamepad"
+  "icon": "fa-gamepad",
+  "meta": {
+    "version": "2.6.9",
+    "license": "",
+    "platforms": [
+      "aarch64-linux",
+      "x86_64-linux"
+    ],
+    "maintainers": [
+      "tie"
+    ]
+  }
 }

@@ -11,5 +11,18 @@
       "label": "Game Port"
     }
   ],
-  "icon": "fa-gamepad"
+  "icon": "fa-gamepad",
+  "meta": {
+    "version": "26.1.2",
+    "license": "unfreeRedistributable",
+    "platforms": [
+      "aarch64-linux",
+      "x86_64-linux"
+    ],
+    "maintainers": [
+      "thoughtpolice",
+      "tomberek",
+      "costrouc"
+    ]
+  }
 }

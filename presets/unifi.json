@@ -16,5 +16,17 @@
       "label": "Inform Port"
     }
   ],
-  "icon": "fa-server"
+  "icon": "fa-server",
+  "meta": {
+    "version": "10.4.57",
+    "license": "unfree",
+    "platforms": [
+      "x86_64-linux",
+      "aarch64-linux"
+    ],
+    "maintainers": [
+      "globin",
+      "Patryk27"
+    ]
+  }
 }

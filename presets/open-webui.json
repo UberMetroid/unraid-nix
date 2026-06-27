@@ -11,5 +11,17 @@
       "label": "Web GUI"
     }
   ],
-  "icon": "fa-magic"
+  "icon": "fa-magic",
+  "meta": {
+    "version": "0.9.6",
+    "license": "Open WebUI License",
+    "platforms": [
+      "aarch64-linux",
+      "x86_64-linux"
+    ],
+    "maintainers": [
+      "shivaraj-bh",
+      "codgician"
+    ]
+  }
 }

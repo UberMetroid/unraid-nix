@@ -11,5 +11,17 @@
       "label": "HTTP"
     }
   ],
-  "icon": "fa-magic"
+  "icon": "fa-magic",
+  "meta": {
+    "version": "0.8.6",
+    "license": "MIT",
+    "platforms": [
+      "aarch64-linux",
+      "x86_64-linux"
+    ],
+    "maintainers": [
+      "gepbird",
+      "niklaskorz"
+    ]
+  }
 }

@@ -11,5 +11,18 @@
       "label": "Rsync Port"
     }
   ],
-  "icon": "fa-refresh"
+  "icon": "fa-refresh",
+  "meta": {
+    "version": "3.4.1",
+    "license": "GPL-3.0-or-later",
+    "platforms": [
+      "aarch64-linux",
+      "x86_64-linux"
+    ],
+    "maintainers": [
+      "balsoft",
+      "infinisil",
+      "andir"
+    ]
+  }
 }

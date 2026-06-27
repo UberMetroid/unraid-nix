@@ -11,5 +11,17 @@
       "label": "HTTP"
     }
   ],
-  "icon": "fa-key"
+  "icon": "fa-key",
+  "meta": {
+    "version": "0.28.0",
+    "license": "BSD-3-Clause",
+    "platforms": [
+      "aarch64-linux",
+      "x86_64-linux"
+    ],
+    "maintainers": [
+      "kradalby",
+      "Misterio77"
+    ]
+  }
 }

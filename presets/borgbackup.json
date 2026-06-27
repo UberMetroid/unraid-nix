@@ -5,5 +5,16 @@
   "url": "https://www.borgbackup.org/",
   "command": "exec nix run nixpkgs#borgbackup",
   "default_ports": [],
-  "icon": "fa-cloud-upload"
+  "icon": "fa-cloud-upload",
+  "meta": {
+    "version": "1.4.4",
+    "license": "BSD-3-Clause",
+    "platforms": [
+      "aarch64-linux",
+      "x86_64-linux"
+    ],
+    "maintainers": [
+      "dotlambda"
+    ]
+  }
 }

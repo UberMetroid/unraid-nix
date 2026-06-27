@@ -21,5 +21,17 @@
       "label": "Local Discovery (UDP)"
     }
   ],
-  "icon": "fa-refresh"
+  "icon": "fa-refresh",
+  "meta": {
+    "version": "2.0.15",
+    "license": "MPL-2.0",
+    "platforms": [
+      "aarch64-linux",
+      "x86_64-linux"
+    ],
+    "maintainers": [
+      "jokogr",
+      "peterhoeg"
+    ]
+  }
 }

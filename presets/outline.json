@@ -11,5 +11,18 @@
       "label": "HTTP"
     }
   ],
-  "icon": "fa-file-text-o"
+  "icon": "fa-file-text-o",
+  "meta": {
+    "version": "1.8.1",
+    "license": "BUSL-1.1",
+    "platforms": [
+      "aarch64-linux",
+      "x86_64-linux"
+    ],
+    "maintainers": [
+      "cab404",
+      "e1mo",
+      "xanderio"
+    ]
+  }
 }

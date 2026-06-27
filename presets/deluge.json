@@ -16,5 +16,16 @@
       "label": "Daemon"
     }
   ],
-  "icon": "fa-download"
+  "icon": "fa-download",
+  "meta": {
+    "version": "2.2.0",
+    "license": "GPL-3.0-or-later",
+    "platforms": [
+      "aarch64-linux",
+      "x86_64-linux"
+    ],
+    "maintainers": [
+      "a-peirogon"
+    ]
+  }
 }

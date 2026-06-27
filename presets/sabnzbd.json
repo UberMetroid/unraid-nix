@@ -11,5 +11,17 @@
       "label": "Web GUI"
     }
   ],
-  "icon": "fa-download"
+  "icon": "fa-download",
+  "meta": {
+    "version": "5.0.3",
+    "license": "GPL-2.0-or-later",
+    "platforms": [
+      "aarch64-linux",
+      "x86_64-linux"
+    ],
+    "maintainers": [
+      "jojosch",
+      "adamcstephens"
+    ]
+  }
 }

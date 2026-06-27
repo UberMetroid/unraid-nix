@@ -11,5 +11,18 @@
       "label": "HTTP"
     }
   ],
-  "icon": "fa-film"
+  "icon": "fa-film",
+  "meta": {
+    "version": "6.1.1.10360",
+    "license": "GPL-3.0-only",
+    "platforms": [
+      "x86_64-linux",
+      "aarch64-linux"
+    ],
+    "maintainers": [
+      "purcell",
+      "nyanloutre",
+      "karaolidis"
+    ]
+  }
 }

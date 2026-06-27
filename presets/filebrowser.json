@@ -11,5 +11,16 @@
       "label": "Web GUI"
     }
   ],
-  "icon": "fa-folder-open-o"
+  "icon": "fa-folder-open-o",
+  "meta": {
+    "version": "2.63.5",
+    "license": "Apache-2.0",
+    "platforms": [
+      "aarch64-linux",
+      "x86_64-linux"
+    ],
+    "maintainers": [
+      "HritwikSinghal"
+    ]
+  }
 }

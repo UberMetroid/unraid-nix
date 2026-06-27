@@ -11,5 +11,18 @@
       "label": "HTTP"
     }
   ],
-  "icon": "fa-book"
+  "icon": "fa-book",
+  "meta": {
+    "version": "2.35.1",
+    "license": "GPL-3.0",
+    "platforms": [
+      "aarch64-linux",
+      "x86_64-linux"
+    ],
+    "maintainers": [
+      "jvanbruegge",
+      "adamcstephens",
+      "tebriel"
+    ]
+  }
 }

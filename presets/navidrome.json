@@ -11,5 +11,17 @@
       "label": "HTTP"
     }
   ],
-  "icon": "fa-music"
+  "icon": "fa-music",
+  "meta": {
+    "version": "0.61.2",
+    "license": "GPL-3.0-only",
+    "platforms": [
+      "aarch64-linux",
+      "x86_64-linux"
+    ],
+    "maintainers": [
+      "aciceri",
+      "tebriel"
+    ]
+  }
 }

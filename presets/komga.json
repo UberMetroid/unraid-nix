@@ -11,5 +11,17 @@
       "label": "HTTP"
     }
   ],
-  "icon": "fa-cloud"
+  "icon": "fa-cloud",
+  "meta": {
+    "version": "1.24.4",
+    "license": "MIT",
+    "platforms": [
+      "x86_64-linux",
+      "aarch64-linux"
+    ],
+    "maintainers": [
+      "tebriel",
+      "GovanifY"
+    ]
+  }
 }

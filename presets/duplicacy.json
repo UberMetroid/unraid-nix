@@ -11,5 +11,17 @@
       "label": "Web GUI"
     }
   ],
-  "icon": "fa-cloud-upload"
+  "icon": "fa-cloud-upload",
+  "meta": {
+    "version": "3.2.5",
+    "license": "unfree",
+    "platforms": [
+      "aarch64-linux",
+      "x86_64-linux"
+    ],
+    "maintainers": [
+      "ffinkdevs",
+      "devusb"
+    ]
+  }
 }

@@ -11,5 +11,18 @@
       "label": "Web GUI"
     }
   ],
-  "icon": "fa-server"
+  "icon": "fa-server",
+  "meta": {
+    "version": "2.22.5",
+    "license": "SUL-1.0",
+    "platforms": [
+      "aarch64-linux",
+      "x86_64-linux"
+    ],
+    "maintainers": [
+      "gepbird",
+      "AdrienLemaire",
+      "sweenu"
+    ]
+  }
 }

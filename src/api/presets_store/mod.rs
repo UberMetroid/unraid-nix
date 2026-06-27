@@ -8,6 +8,15 @@ use category_names::get_preset_category_name;
 use category_styling::get_preset_category_styling;
 
 #[derive(Deserialize)]
+#[allow(dead_code)]
+struct PresetMeta {
+    version: Option<String>,
+    license: Option<String>,
+    platforms: Option<Vec<String>>,
+    maintainers: Option<Vec<String>>,
+}
+
+#[derive(Deserialize)]
 struct PresetInfo {
     name: String,
     display_name: String,
@@ -17,6 +26,7 @@ struct PresetInfo {
     #[serde(skip)]
     is_composed: bool,
     composed_parts: Option<Vec<String>>,
+    meta: Option<PresetMeta>,
 }
 
 fn should_filter_presets() -> bool {
@@ -156,8 +166,45 @@ pub fn render_presets_store() -> String {
                 format!(r#"<span style="font-size: 10px; color: #a0a0a5; font-family: monospace;">nixpkgs#{}</span>"#, p.name)
             };
             
+            let mut meta_html = String::new();
+            if let Some(ref m) = p.meta {
+                meta_html.push_str(r#"<div style="display: flex; gap: 6px; margin-top: 8px; flex-wrap: wrap; align-items: center;">"#);
+                if let Some(ref v) = m.version {
+                    if !v.is_empty() {
+                        meta_html.push_str(&format!(
+                            r#"<span style="font-size: 9px; color: #fff; background: rgba(255,255,255,0.06); padding: 1px 5px; border-radius: 3px; border: 1px solid rgba(255,255,255,0.1); display: inline-flex; align-items: center; gap: 3px;" title="Version"><i class="fa fa-tag" style="font-size: 8px;"></i> {}</span>"#,
+                            v
+                        ));
+                    }
+                }
+                if let Some(ref lic) = m.license {
+                    if !lic.is_empty() {
+                        meta_html.push_str(&format!(
+                            r#"<span style="font-size: 9px; color: #a0a0a5; background: rgba(255,255,255,0.03); padding: 1px 5px; border-radius: 3px; border: 1px solid rgba(255,255,255,0.06); display: inline-flex; align-items: center; gap: 3px;" title="License"><i class="fa fa-gavel" style="font-size: 8px;"></i> {}</span>"#,
+                            lic
+                        ));
+                    }
+                }
+                if let Some(ref plats) = m.platforms {
+                    if !plats.is_empty() {
+                        let plat_label = if plats.contains(&"aarch64-linux".to_string()) && plats.contains(&"x86_64-linux".to_string()) {
+                            "multi-arch"
+                        } else if plats.contains(&"x86_64-linux".to_string()) {
+                            "x86_64"
+                        } else {
+                            "arm64"
+                        };
+                        meta_html.push_str(&format!(
+                            r#"<span style="font-size: 9px; color: #a0a0a5; background: rgba(255,255,255,0.03); padding: 1px 5px; border-radius: 3px; border: 1px solid rgba(255,255,255,0.06); display: inline-flex; align-items: center; gap: 3px;" title="Supported Platforms"><i class="fa fa-laptop" style="font-size: 8px;"></i> {}</span>"#,
+                            plat_label
+                        ));
+                    }
+                }
+                meta_html.push_str("</div>");
+            }
+
             html.push_str(&format!(
-                r#"<div class="nix-preset-card" data-name="{}" data-desc="{}" data-category="{}" data-is-composed="{}" style="background: rgba(255, 255, 255, 0.02); border: 1px solid rgba(255, 255, 255, 0.05); border-radius: 6px; padding: 16px; display: flex; flex-direction: column; justify-content: space-between; transition: transform 0.2s ease, border-color 0.2s ease, background 0.2s ease, box-shadow 0.2s ease; height: 180px;">
+                r#"<div class="nix-preset-card" data-name="{}" data-desc="{}" data-category="{}" data-is-composed="{}" style="background: rgba(255, 255, 255, 0.02); border: 1px solid rgba(255, 255, 255, 0.05); border-radius: 6px; padding: 16px; display: flex; flex-direction: column; justify-content: space-between; transition: transform 0.2s ease, border-color 0.2s ease, background 0.2s ease, box-shadow 0.2s ease; height: 210px;">
                     <div>
                         <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 12px;">
                             <div style="width: 32px; height: 32px; border-radius: 4px; background: {}; border: 1px solid {}; display: flex; align-items: center; justify-content: center; color: {}; flex-shrink: 0;">
@@ -169,6 +216,7 @@ pub fn render_presets_store() -> String {
                             </div>
                         </div>
                         <p style="font-size: 12px; color: #a0a0a5; line-height: 1.5; margin: 0; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; height: 54px;">{}</p>
+                        {}
                     </div>
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 12px; padding-top: 8px; border-top: 1px solid rgba(255,255,255,0.03);">
                         <a href="{}" target="_blank" style="font-size: 11px; color: #00a1ff; text-decoration: none; display: inline-flex; align-items: center; gap: 4px;" onclick="event.stopPropagation();">
@@ -179,7 +227,7 @@ pub fn render_presets_store() -> String {
                         </button>
                     </div>
                 </div>"#,
-                p.name, p.description.to_lowercase(), category_name, if p.is_composed { "true" } else { "false" }, styling.bg, styling.border, styling.color, styling.icon, p.display_name, p.display_name, subtitle_html, p.description, p.url, p.name
+                p.name, p.description.to_lowercase(), category_name, if p.is_composed { "true" } else { "false" }, styling.bg, styling.border, styling.color, styling.icon, p.display_name, p.display_name, subtitle_html, p.description, meta_html, p.url, p.name
             ));
         }
     }

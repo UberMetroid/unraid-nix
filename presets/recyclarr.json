@@ -5,5 +5,17 @@
   "url": "https://recyclarr.dev/",
   "command": "exec nix run nixpkgs#recyclarr",
   "default_ports": [],
-  "icon": "fa-server"
+  "icon": "fa-server",
+  "meta": {
+    "version": "8.6.0",
+    "license": "MIT",
+    "platforms": [
+      "x86_64-linux",
+      "aarch64-linux"
+    ],
+    "maintainers": [
+      "josephst",
+      "aldoborrero"
+    ]
+  }
 }

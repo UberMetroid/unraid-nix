@@ -11,5 +11,13 @@
       "label": "Web GUI"
     }
   ],
-  "icon": "fa-bolt"
+  "icon": "fa-bolt",
+  "meta": {
+    "version": "2.12.0",
+    "license": "GPL-3.0",
+    "platforms": [],
+    "maintainers": [
+      "mweinelt"
+    ]
+  }
 }

@@ -11,5 +11,13 @@
       "label": "HTTP"
     }
   ],
-  "icon": "fa-cloud"
+  "icon": "fa-cloud",
+  "meta": {
+    "version": "251130-b3068414c",
+    "license": "AGPL-3.0-only",
+    "platforms": [],
+    "maintainers": [
+      "BeneSim"
+    ]
+  }
 }

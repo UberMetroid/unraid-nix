@@ -11,5 +11,14 @@
       "label": "HTTP"
     }
   ],
-  "icon": "fa-share-alt"
+  "icon": "fa-share-alt",
+  "meta": {
+    "version": "2.6.14",
+    "license": "MIT",
+    "platforms": [
+      "aarch64-linux",
+      "x86_64-linux"
+    ],
+    "maintainers": []
+  }
 }

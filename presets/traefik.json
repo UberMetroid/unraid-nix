@@ -21,5 +21,17 @@
       "label": "HTTPS"
     }
   ],
-  "icon": "fa-exchange"
+  "icon": "fa-exchange",
+  "meta": {
+    "version": "3.7.4",
+    "license": "MIT",
+    "platforms": [
+      "aarch64-linux",
+      "x86_64-linux"
+    ],
+    "maintainers": [
+      "djds",
+      "vdemeester"
+    ]
+  }
 }

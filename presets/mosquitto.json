@@ -16,5 +16,17 @@
       "label": "WebSockets"
     }
   ],
-  "icon": "fa-server"
+  "icon": "fa-server",
+  "meta": {
+    "version": "2.1.2",
+    "license": "EPL-1.0",
+    "platforms": [
+      "aarch64-linux",
+      "x86_64-linux"
+    ],
+    "maintainers": [
+      "peterhoeg",
+      "sikmir"
+    ]
+  }
 }

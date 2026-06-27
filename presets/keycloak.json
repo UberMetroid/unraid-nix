@@ -11,5 +11,18 @@
       "label": "Web GUI"
     }
   ],
-  "icon": "fa-lock"
+  "icon": "fa-lock",
+  "meta": {
+    "version": "26.6.3",
+    "license": "Apache-2.0",
+    "platforms": [
+      "x86_64-linux",
+      "aarch64-linux"
+    ],
+    "maintainers": [
+      "ngerstle",
+      "talyz",
+      "NickCao"
+    ]
+  }
 }

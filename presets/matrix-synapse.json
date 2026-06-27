@@ -11,5 +11,18 @@
       "label": "HTTP"
     }
   ],
-  "icon": "fa-comments"
+  "icon": "fa-comments",
+  "meta": {
+    "version": "1.154.0",
+    "license": "AGPL-3.0-or-later",
+    "platforms": [
+      "aarch64-linux",
+      "x86_64-linux"
+    ],
+    "maintainers": [
+      "sumnerevans",
+      "Ma27",
+      "mguentner"
+    ]
+  }
 }

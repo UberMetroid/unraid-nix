@@ -11,5 +11,16 @@
       "label": "Redis Port"
     }
   ],
-  "icon": "fa-database"
+  "icon": "fa-database",
+  "meta": {
+    "version": "8.8.0",
+    "license": "AGPL-3.0-only",
+    "platforms": [
+      "aarch64-linux",
+      "x86_64-linux"
+    ],
+    "maintainers": [
+      "Hythera"
+    ]
+  }
 }

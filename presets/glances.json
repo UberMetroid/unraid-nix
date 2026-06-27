@@ -11,5 +11,17 @@
       "label": "Web GUI"
     }
   ],
-  "icon": "fa-bar-chart"
+  "icon": "fa-bar-chart",
+  "meta": {
+    "version": "4.5.4",
+    "license": "LGPL-3.0-only",
+    "platforms": [
+      "aarch64-linux",
+      "x86_64-linux"
+    ],
+    "maintainers": [
+      "k0ral",
+      "MiniHarinn"
+    ]
+  }
 }

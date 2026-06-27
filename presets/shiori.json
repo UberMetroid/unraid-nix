@@ -11,5 +11,17 @@
       "label": "HTTP"
     }
   ],
-  "icon": "fa-bookmark-o"
+  "icon": "fa-bookmark-o",
+  "meta": {
+    "version": "1.8.0",
+    "license": "MIT",
+    "platforms": [
+      "aarch64-linux",
+      "x86_64-linux"
+    ],
+    "maintainers": [
+      "minijackson",
+      "CaptainJawZ"
+    ]
+  }
 }

@@ -11,5 +11,18 @@
       "label": "Web GUI"
     }
   ],
-  "icon": "fa-cloud-upload"
+  "icon": "fa-cloud-upload",
+  "meta": {
+    "version": "2.3.0.1",
+    "license": "LGPL-2.1",
+    "platforms": [
+      "x86_64-linux",
+      "aarch64-linux"
+    ],
+    "maintainers": [
+      "nyanloutre",
+      "Bot-wxt1221",
+      "puiyq"
+    ]
+  }
 }

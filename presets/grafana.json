@@ -11,5 +11,18 @@
       "label": "Web GUI"
     }
   ],
-  "icon": "fa-bar-chart"
+  "icon": "fa-bar-chart",
+  "meta": {
+    "version": "13.0.2",
+    "license": "AGPL-3.0-only",
+    "platforms": [
+      "x86_64-linux",
+      "aarch64-linux"
+    ],
+    "maintainers": [
+      "fpletz",
+      "globin",
+      "Ma27"
+    ]
+  }
 }

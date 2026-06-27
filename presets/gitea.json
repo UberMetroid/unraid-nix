@@ -16,5 +16,17 @@
       "label": "SSH"
     }
   ],
-  "icon": "fa-server"
+  "icon": "fa-server",
+  "meta": {
+    "version": "1.26.2",
+    "license": "MIT",
+    "platforms": [
+      "aarch64-linux",
+      "x86_64-linux"
+    ],
+    "maintainers": [
+      "techknowlogick",
+      "SuperSandro2000"
+    ]
+  }
 }

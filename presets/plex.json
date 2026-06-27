@@ -11,5 +11,18 @@
       "label": "PMS HTTP"
     }
   ],
-  "icon": "fa-play-circle"
+  "icon": "fa-play-circle",
+  "meta": {
+    "version": "1.43.2.10687-563d026ea",
+    "license": "unfree",
+    "platforms": [
+      "x86_64-linux",
+      "aarch64-linux"
+    ],
+    "maintainers": [
+      "badmutex",
+      "Forkk",
+      "pjones"
+    ]
+  }
 }

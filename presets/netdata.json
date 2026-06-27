@@ -11,5 +11,17 @@
       "label": "Web GUI"
     }
   ],
-  "icon": "fa-bar-chart"
+  "icon": "fa-bar-chart",
+  "meta": {
+    "version": "2.10.3",
+    "license": "",
+    "platforms": [
+      "aarch64-linux",
+      "x86_64-linux"
+    ],
+    "maintainers": [
+      "mkg20001",
+      "rhoriguchi"
+    ]
+  }
 }

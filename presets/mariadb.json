@@ -11,5 +11,18 @@
       "label": "MySQL Port"
     }
   ],
-  "icon": "fa-database"
+  "icon": "fa-database",
+  "meta": {
+    "version": "11.4.9",
+    "license": "GPL-2.0-or-later",
+    "platforms": [
+      "aarch64-linux",
+      "x86_64-linux"
+    ],
+    "maintainers": [
+      "Conni2461",
+      "dasJ",
+      "helsinki-Jo"
+    ]
+  }
 }

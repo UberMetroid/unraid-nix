@@ -11,5 +11,18 @@
       "label": "HTTP"
     }
   ],
-  "icon": "fa-file-text-o"
+  "icon": "fa-file-text-o",
+  "meta": {
+    "version": "2.20.15",
+    "license": "GPL-3.0-only",
+    "platforms": [
+      "aarch64-linux",
+      "x86_64-linux"
+    ],
+    "maintainers": [
+      "leona-ya",
+      "SuperSandro2000",
+      "erikarvstedt"
+    ]
+  }
 }

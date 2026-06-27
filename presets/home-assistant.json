@@ -11,5 +11,17 @@
       "label": "Web GUI"
     }
   ],
-  "icon": "fa-home"
+  "icon": "fa-home",
+  "meta": {
+    "version": "2026.6.1",
+    "license": "Apache-2.0",
+    "platforms": [
+      "aarch64-linux",
+      "x86_64-linux"
+    ],
+    "maintainers": [
+      "dotlambda",
+      "mweinelt"
+    ]
+  }
 }

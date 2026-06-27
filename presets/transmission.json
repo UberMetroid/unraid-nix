@@ -16,5 +16,16 @@
       "label": "Peer Port"
     }
   ],
-  "icon": "fa-download"
+  "icon": "fa-download",
+  "meta": {
+    "version": "4.1.1",
+    "license": "",
+    "platforms": [
+      "aarch64-linux",
+      "x86_64-linux"
+    ],
+    "maintainers": [
+      "nyanloutre"
+    ]
+  }
 }

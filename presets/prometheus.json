@@ -11,5 +11,18 @@
       "label": "Web GUI"
     }
   ],
-  "icon": "fa-bar-chart"
+  "icon": "fa-bar-chart",
+  "meta": {
+    "version": "3.11.3",
+    "license": "Apache-2.0",
+    "platforms": [
+      "aarch64-linux",
+      "x86_64-linux"
+    ],
+    "maintainers": [
+      "fpletz",
+      "Frostman",
+      "jpds"
+    ]
+  }
 }

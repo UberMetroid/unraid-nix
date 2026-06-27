@@ -11,5 +11,16 @@
       "label": "Web GUI"
     }
   ],
-  "icon": "fa-key"
+  "icon": "fa-key",
+  "meta": {
+    "version": "0.6.2",
+    "license": "MIT",
+    "platforms": [
+      "aarch64-linux",
+      "x86_64-linux"
+    ],
+    "maintainers": [
+      "Bot-wxt1221"
+    ]
+  }
 }

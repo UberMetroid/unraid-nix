@@ -11,5 +11,17 @@
       "label": "Web GUI"
     }
   ],
-  "icon": "fa-comments"
+  "icon": "fa-comments",
+  "meta": {
+    "version": "2026.1.4",
+    "license": "GPL-2.0-or-later",
+    "platforms": [
+      "aarch64-linux",
+      "x86_64-linux"
+    ],
+    "maintainers": [
+      "leona-ya",
+      "talyz"
+    ]
+  }
 }

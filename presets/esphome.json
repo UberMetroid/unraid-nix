@@ -11,5 +11,18 @@
       "label": "HTTP"
     }
   ],
-  "icon": "fa-bolt"
+  "icon": "fa-bolt",
+  "meta": {
+    "version": "2026.5.3",
+    "license": "",
+    "platforms": [
+      "aarch64-linux",
+      "x86_64-linux"
+    ],
+    "maintainers": [
+      "mweinelt",
+      "picnoir",
+      "thanegill"
+    ]
+  }
 }

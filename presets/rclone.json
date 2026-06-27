@@ -5,5 +5,16 @@
   "url": "https://rclone.org/",
   "command": "exec nix run nixpkgs#rclone",
   "default_ports": [],
-  "icon": "fa-refresh"
+  "icon": "fa-refresh",
+  "meta": {
+    "version": "1.74.3",
+    "license": "MIT",
+    "platforms": [
+      "aarch64-linux",
+      "x86_64-linux"
+    ],
+    "maintainers": [
+      "SuperSandro2000"
+    ]
+  }
 }

@@ -11,5 +11,18 @@
       "label": "Web GUI"
     }
   ],
-  "icon": "fa-comments"
+  "icon": "fa-comments",
+  "meta": {
+    "version": "11.7.2",
+    "license": "",
+    "platforms": [
+      "aarch64-linux",
+      "x86_64-linux"
+    ],
+    "maintainers": [
+      "ryantm",
+      "numinit",
+      "mgdelacroix"
+    ]
+  }
 }

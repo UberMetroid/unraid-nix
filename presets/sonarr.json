@@ -11,5 +11,18 @@
       "label": "HTTP"
     }
   ],
-  "icon": "fa-television"
+  "icon": "fa-television",
+  "meta": {
+    "version": "4.0.17.2952",
+    "license": "GPL-3.0-only",
+    "platforms": [
+      "x86_64-linux",
+      "aarch64-linux"
+    ],
+    "maintainers": [
+      "purcell",
+      "tie",
+      "niklaskorz"
+    ]
+  }
 }

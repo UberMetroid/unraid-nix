@@ -11,5 +11,14 @@
       "label": "HTTP"
     }
   ],
-  "icon": "fa-server"
+  "icon": "fa-server",
+  "meta": {
+    "version": "6.6.3",
+    "license": "AGPL-3.0-only",
+    "platforms": [],
+    "maintainers": [
+      "savyajha",
+      "PatrickDaG"
+    ]
+  }
 }

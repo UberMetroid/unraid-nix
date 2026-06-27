@@ -11,5 +11,16 @@
       "label": "HTTP"
     }
   ],
-  "icon": "fa-code-fork"
+  "icon": "fa-code-fork",
+  "meta": {
+    "version": "4.1.8",
+    "license": "Apache-2.0",
+    "platforms": [
+      "aarch64-linux",
+      "x86_64-linux"
+    ],
+    "maintainers": [
+      "MatthewCroughan"
+    ]
+  }
 }
