@@ -151,7 +151,7 @@ pub fn install_service(args: &[String]) {
         p_str.parse::<u16>().ok()
     } else {
         let name_lower = name.to_lowercase();
-        let preset_path = format!("/usr/local/emhttp/plugins/nix/presets/{}.json", name_lower);
+        let preset_path = crate::config::get_preset_path(&name_lower);
         if std::path::Path::new(&preset_path).exists() {
             if let Ok(content) = std::fs::read_to_string(&preset_path) {
                 if let Ok(json) = serde_json::from_str::<serde_json::Value>(&content) {
@@ -182,7 +182,7 @@ pub fn install_service(args: &[String]) {
 
     // 4. Load presets for known servers or fallback to custom sandbox builder
     let name_lower = name.to_lowercase();
-    let preset_path = format!("/usr/local/emhttp/plugins/nix/presets/{}.json", name_lower);
+    let preset_path = crate::config::get_preset_path(&name_lower);
     let has_preset = std::path::Path::new(&preset_path).exists() || ["radarr", "sonarr", "jellyfin", "syncthing"].contains(&name_lower.as_str());
 
     let cmd = if !command_override.trim().is_empty() {

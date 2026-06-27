@@ -1,5 +1,15 @@
 use crate::sandbox::{build_bwrap_command, parse_ports, SandboxConfig};
 
+pub fn get_preset_path(name: &str) -> String {
+    let name_lower = name.to_lowercase();
+    let composed = format!("/usr/local/emhttp/plugins/nix/presets_composed/{}.json", name_lower);
+    if std::path::Path::new(&composed).exists() {
+        composed
+    } else {
+        format!("/usr/local/emhttp/plugins/nix/presets/{}.json", name_lower)
+    }
+}
+
 /// Retrieves the command preset templates for common services.
 /// Customizes directory paths and applies drop-privileges wrapper parameters.
 pub fn get_service_command_preset(
@@ -24,7 +34,7 @@ pub fn get_service_command_preset(
     let name_lower = name.to_lowercase();
 
     let mut inner_command = String::new();
-    let preset_path = format!("/usr/local/emhttp/plugins/nix/presets/{}.json", name_lower);
+    let preset_path = get_preset_path(&name_lower);
     if std::path::Path::new(&preset_path).exists() {
         if let Ok(content) = std::fs::read_to_string(&preset_path) {
             if let Ok(json) = serde_json::from_str::<serde_json::Value>(&content) {
@@ -34,6 +44,7 @@ pub fn get_service_command_preset(
             }
         }
     }
+
 
     if inner_command.is_empty() {
         inner_command = match name_lower.as_str() {
@@ -144,7 +155,7 @@ pub fn get_service_command_preset(
                 format!("exec nix run nixpkgs#syncthing -- --home=/config --gui-address=http://{}:{}", addr, gui_port)
             }
             _ => {
-                let preset_path = format!("/usr/local/emhttp/plugins/nix/presets/{}.json", name_lower);
+                let preset_path = get_preset_path(&name_lower);
                 if std::path::Path::new(&preset_path).exists() {
                     format!("exec nix run nixpkgs#{}", name_lower)
                 } else {

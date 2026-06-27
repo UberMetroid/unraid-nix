@@ -2,7 +2,7 @@ pub mod file;
 pub mod presets;
 
 pub use file::{load_config, save_config};
-pub use presets::get_service_command_preset;
+pub use presets::{get_service_command_preset, get_preset_path};
 
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;

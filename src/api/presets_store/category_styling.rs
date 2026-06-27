@@ -8,6 +8,15 @@ pub struct CategoryStyling {
 pub fn get_preset_category_styling(name: &str, default_icon: &str) -> CategoryStyling {
     let name_lower = name.to_lowercase();
     
+    if name_lower == "composed" {
+        return CategoryStyling {
+            icon: default_icon.to_string(),
+            color: "#e056fd",
+            bg: "rgba(224, 86, 253, 0.08)",
+            border: "rgba(224, 86, 253, 0.2)",
+        };
+    }
+    
     // AI & LLMs (Indigo/Cyberpunk Purple-Blue)
     if name_lower.contains("ollama") || name_lower.contains("open-webui") || name_lower.contains("localai") ||
        name_lower.contains("anythingllm") || name_lower.contains("librechat") || name_lower.contains("flowise") ||

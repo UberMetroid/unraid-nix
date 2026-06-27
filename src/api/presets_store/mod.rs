@@ -14,6 +14,8 @@ struct PresetInfo {
     description: String,
     url: String,
     icon: Option<String>,
+    #[serde(skip)]
+    is_composed: bool,
 }
 
 fn should_filter_presets() -> bool {
@@ -29,7 +31,6 @@ fn should_filter_presets() -> bool {
 }
 
 pub fn render_presets_store() -> String {
-    let presets_dir = "/usr/local/emhttp/plugins/nix/presets";
     let mut presets = Vec::new();
 
     let filter_enabled = should_filter_presets();
@@ -43,27 +44,35 @@ pub fn render_presets_store() -> String {
         }
     };
 
-    if let Ok(entries) = fs::read_dir(presets_dir) {
-        for entry in entries.flatten() {
-            let path = entry.path();
-            if path.extension().and_then(|s| s.to_str()) == Some("json") {
-                let filename = path.file_name().and_then(|s| s.to_str()).unwrap_or("");
-                
-                if filter_enabled {
-                    if filename.ends_with("-cuda.json") && !detected_gpus.has_nvidia {
-                        continue;
-                    }
-                    if filename.ends_with("-rocm.json") && !detected_gpus.has_amd {
-                        continue;
-                    }
-                    if filename.ends_with("-vulkan.json") && !detected_gpus.has_intel {
-                        continue;
-                    }
-                }
+    let scan_dirs = vec![
+        ("/usr/local/emhttp/plugins/nix/presets", false),
+        ("/usr/local/emhttp/plugins/nix/presets_composed", true),
+    ];
 
-                if let Ok(content) = fs::read_to_string(&path) {
-                    if let Ok(preset) = serde_json::from_str::<PresetInfo>(&content) {
-                        presets.push(preset);
+    for (dir, is_composed) in scan_dirs {
+        if let Ok(entries) = fs::read_dir(dir) {
+            for entry in entries.flatten() {
+                let path = entry.path();
+                if path.extension().and_then(|s| s.to_str()) == Some("json") {
+                    let filename = path.file_name().and_then(|s| s.to_str()).unwrap_or("");
+                    
+                    if filter_enabled {
+                        if filename.ends_with("-cuda.json") && !detected_gpus.has_nvidia {
+                            continue;
+                        }
+                        if filename.ends_with("-rocm.json") && !detected_gpus.has_amd {
+                            continue;
+                        }
+                        if filename.ends_with("-vulkan.json") && !detected_gpus.has_intel {
+                            continue;
+                        }
+                    }
+
+                    if let Ok(content) = fs::read_to_string(&path) {
+                        if let Ok(mut preset) = serde_json::from_str::<PresetInfo>(&content) {
+                            preset.is_composed = is_composed;
+                            presets.push(preset);
+                        }
                     }
                 }
             }
@@ -108,6 +117,7 @@ pub fn render_presets_store() -> String {
             <button type="button" class="nix-preset-pill" onclick="filterPresetCategory('social', this)">Social Media</button>
             <button type="button" class="nix-preset-pill" onclick="filterPresetCategory('sync', this)">Sync</button>
             <button type="button" class="nix-preset-pill" onclick="filterPresetCategory('vpn', this)">VPN</button>
+            <button type="button" class="nix-preset-pill" onclick="filterPresetCategory('composed', this)">Composed</button>
             <button type="button" class="nix-preset-pill" onclick="filterPresetCategory('all', this)">All</button>
         </div>
     </div>
@@ -119,8 +129,16 @@ pub fn render_presets_store() -> String {
         html.push_str(r#"<div style="grid-column: 1 / -1; text-align: center; color: #888; padding: 45px 0;">No preset files found on system.</div>"#);
     } else {
         for p in presets {
-            let styling = get_preset_category_styling(&p.name, p.icon.as_deref().unwrap_or("fa-server"));
-            let category_name = get_preset_category_name(&p.name);
+            let styling = if p.is_composed {
+                get_preset_category_styling("composed", p.icon.as_deref().unwrap_or("fa-server"))
+            } else {
+                get_preset_category_styling(&p.name, p.icon.as_deref().unwrap_or("fa-server"))
+            };
+            let category_name = if p.is_composed {
+                "composed"
+            } else {
+                get_preset_category_name(&p.name)
+            };
             
             html.push_str(&format!(
                 r#"<div class="nix-preset-card" data-name="{}" data-desc="{}" data-category="{}" style="background: rgba(255, 255, 255, 0.02); border: 1px solid rgba(255, 255, 255, 0.05); border-radius: 6px; padding: 16px; display: flex; flex-direction: column; justify-content: space-between; transition: transform 0.2s ease, border-color 0.2s ease, background 0.2s ease, box-shadow 0.2s ease; height: 180px;">
