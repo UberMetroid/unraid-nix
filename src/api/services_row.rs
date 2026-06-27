@@ -3,6 +3,29 @@ use crate::config::ProcessComposeConfig;
 use crate::api::utils::{HostAddr, get_service_web_port, get_service_appdata_path, extract_package_uri};
 use crate::api::package::{get_cached_version, get_package_link_url};
 
+fn get_service_fa_icon(name: &str) -> &'static str {
+    let name_lower = name.to_lowercase();
+    if name_lower.contains("jellyfin") || name_lower.contains("plex") || name_lower.contains("emby") {
+        "fa-play-circle"
+    } else if name_lower.contains("sonarr") || name_lower.contains("sickrage") {
+        "fa-television"
+    } else if name_lower.contains("radarr") || name_lower.contains("couchpotato") {
+        "fa-film"
+    } else if name_lower.contains("prowlarr") || name_lower.contains("jackett") {
+        "fa-search"
+    } else if name_lower.contains("transmission") || name_lower.contains("sabnzbd") || name_lower.contains("nzbget") || name_lower.contains("qbittorrent") || name_lower.contains("deluge") {
+        "fa-download"
+    } else if name_lower.contains("syncthing") || name_lower.contains("nextcloud") || name_lower.contains("owncloud") {
+        "fa-refresh"
+    } else if name_lower.contains("home-assistant") || name_lower.contains("homeassistant") || name_lower.contains("hass") {
+        "fa-home"
+    } else if name_lower.contains("jellyseerr") || name_lower.contains("overseerr") {
+        "fa-eye"
+    } else {
+        "fa-server"
+    }
+}
+
 pub fn render_service_row(s: &ServiceStatus, config: &Option<ProcessComposeConfig>, host_ips: &[HostAddr]) -> String {
     let is_running = s.status.to_lowercase() == "running";
     let status_lower = s.status.to_lowercase();
@@ -43,16 +66,19 @@ pub fn render_service_row(s: &ServiceStatus, config: &Option<ProcessComposeConfi
         "".to_string()
     };
 
+    let fa_icon = get_service_fa_icon(&s.name);
     let app_html = format!(
         r#"<div style="display: flex; align-items: center; gap: 10px;">
-            <img src="/plugins/nix/api.php?action=get-icon&service={}" style="width: 28px; height: 28px; border-radius: 4px;" />
+            <div style="width: 28px; height: 28px; border-radius: 4px; background: rgba(0, 161, 255, 0.08); border: 1px solid rgba(0, 161, 255, 0.2); display: inline-flex; align-items: center; justify-content: center; color: #00a1ff; flex-shrink: 0;">
+                <i class="fa {}" style="font-size: 14px;"></i>
+            </div>
             <div style="display: flex; flex-direction: column; gap: 2px;">
                 <strong style="font-size: 13px;">{}</strong>
                 {}
                 <div style="font-size: 11px; color: #a0a0a5;">{}</div>
             </div>
         </div>"#,
-        s.name, s.name, version_badge, status_subtext
+        fa_icon, s.name, version_badge, status_subtext
     );
 
     let port_num = get_service_web_port(&s.name);
