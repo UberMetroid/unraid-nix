@@ -127,7 +127,6 @@ pub fn render_presets_store() -> String {
             </div>
             <div style="display: flex; gap: 8px; align-items: center;">
                 <!-- Scope Filters -->
-                <button type="button" class="nix-scope-btn active" onclick="filterPresetScope('all', this)">All</button>
                 <button type="button" class="nix-scope-btn" onclick="filterPresetScope('composed', this)">Composed</button>
                 <button type="button" class="nix-scope-btn" onclick="filterPresetScope('standard', this)">Standard</button>
                 
@@ -141,7 +140,6 @@ pub fn render_presets_store() -> String {
 
         <!-- Category pills (Alphabetically Sorted) -->
         <div class="nix-preset-pills" style="display: flex; gap: 8px; flex-wrap: wrap; padding-bottom: 5px; border-bottom: 1px solid rgba(255,255,255,0.05);">
-            <button type="button" class="nix-preset-pill active" onclick="filterPresetCategory('all', this)">All</button>
             <button type="button" class="nix-preset-pill" onclick="filterPresetCategory('ai', this)">AI</button>
             <button type="button" class="nix-preset-pill" onclick="filterPresetCategory('automation', this)">Automation</button>
             <button type="button" class="nix-preset-pill" onclick="filterPresetCategory('backup', this)">Backup</button>
@@ -275,24 +273,30 @@ pub fn render_presets_store() -> String {
 
     html.push_str(r##"</div>
     <script>
-    var activeScope = 'all';
-    var activeCategory = 'all';
+    var activeScopes = [];
+    var activeCategories = [];
 
     function filterPresetScope(scope, btn) {
-        activeScope = scope;
-        document.querySelectorAll('.nix-scope-btn').forEach(function(el) {
-            el.classList.remove('active');
-        });
-        btn.classList.add('active');
+        var idx = activeScopes.indexOf(scope);
+        if (idx > -1) {
+            activeScopes.splice(idx, 1);
+            btn.classList.remove('active');
+        } else {
+            activeScopes.push(scope);
+            btn.classList.add('active');
+        }
         applyPresetFilters();
     }
 
     function filterPresetCategory(cat, btn) {
-        activeCategory = cat;
-        document.querySelectorAll('.nix-preset-pill').forEach(function(pill) {
-            pill.classList.remove('active');
-        });
-        btn.classList.add('active');
+        var idx = activeCategories.indexOf(cat);
+        if (idx > -1) {
+            activeCategories.splice(idx, 1);
+            btn.classList.remove('active');
+        } else {
+            activeCategories.push(cat);
+            btn.classList.add('active');
+        }
         applyPresetFilters();
     }
 
@@ -312,19 +316,22 @@ pub fn render_presets_store() -> String {
             var matchesQuery = (name.indexOf(q) !== -1 || desc.indexOf(q) !== -1);
             
             var matchesScope = false;
-            if (activeScope === 'all') {
+            if (activeScopes.length === 0 || activeScopes.length === 2) {
                 matchesScope = true;
-            } else if (activeScope === 'composed') {
-                matchesScope = isComposed;
-            } else if (activeScope === 'standard') {
-                matchesScope = !isComposed;
+            } else {
+                var selectedScope = activeScopes[0];
+                if (selectedScope === 'composed') {
+                    matchesScope = isComposed;
+                } else if (selectedScope === 'standard') {
+                    matchesScope = !isComposed;
+                }
             }
             
             var matchesCategory = false;
-            if (activeCategory === 'all') {
+            if (activeCategories.length === 0) {
                 matchesCategory = true;
             } else {
-                matchesCategory = (category === activeCategory);
+                matchesCategory = activeCategories.indexOf(category) > -1;
             }
             
             if (matchesQuery && matchesScope && matchesCategory) {
