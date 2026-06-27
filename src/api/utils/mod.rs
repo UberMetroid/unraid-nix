@@ -45,6 +45,21 @@ pub fn get_service_web_port(name: &str) -> Option<u16> {
     }
 
     let name_lower = name.to_lowercase();
+    let preset_path = format!("/usr/local/emhttp/plugins/nix/presets/{}.json", name_lower);
+    if std::path::Path::new(&preset_path).exists() {
+        if let Ok(content) = std::fs::read_to_string(&preset_path) {
+            if let Ok(json) = serde_json::from_str::<serde_json::Value>(&content) {
+                if let Some(ports_arr) = json.get("default_ports").and_then(|p| p.as_array()) {
+                    if !ports_arr.is_empty() {
+                        if let Some(host_port) = ports_arr[0].get("host").and_then(|hp| hp.as_u64()) {
+                            return Some(host_port as u16);
+                        }
+                    }
+                }
+            }
+        }
+    }
+
     if name_lower.contains("sonarr") {
         Some(8989)
     } else if name_lower.contains("radarr") {
