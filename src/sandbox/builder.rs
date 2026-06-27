@@ -86,10 +86,24 @@ pub fn build_bwrap_command(config: &SandboxConfig) -> Result<String, String> {
                 ));
             }
         }
+
+        if config.enable_gpu {
+            mounts_cmd.push("/bin/bash /usr/local/emhttp/plugins/nix/nix-gpu-setup.sh".to_string());
+            mounts_cmd.push(format!("mkdir -p {}/run/opengl-driver/lib", chroot_dir));
+            mounts_cmd.push(format!("mount --bind /var/run/nix-nvidia-driver/lib {}/run/opengl-driver/lib", chroot_dir));
+            mounts_cmd.push(format!("if [ -d /usr/lib64 ]; then mkdir -p {}/usr/lib64 && mount --bind -o ro /usr/lib64 {}/usr/lib64; fi", chroot_dir, chroot_dir));
+            mounts_cmd.push(format!("if [ -d /lib64 ]; then mkdir -p {}/lib64 && mount --bind -o ro /lib64 {}/lib64; fi", chroot_dir, chroot_dir));
+            mounts_cmd.push(format!("if [ -d /usr/lib ]; then mkdir -p {}/usr/lib && mount --bind -o ro /usr/lib {}/usr/lib; fi", chroot_dir, chroot_dir));
+            mounts_cmd.push(format!("if [ -d /lib ]; then mkdir -p {}/lib && mount --bind -o ro /lib {}/lib; fi", chroot_dir, chroot_dir));
+        }
         
         let mounts_str = mounts_cmd.join(" && ").replace("\"", "\\\"");
         
         let mut env_vars = vec!["export HOME=/config".to_string()];
+        if config.enable_gpu {
+            env_vars.push("export LD_LIBRARY_PATH=/run/opengl-driver/lib".to_string());
+            env_vars.push("export LIBVA_DRIVERS_PATH=/usr/lib64/dri".to_string());
+        }
         if let Some(ref p_str) = config.port {
             let mappings = parse_ports(p_str);
             if let Some(first) = mappings.first() {
@@ -147,9 +161,19 @@ pub fn build_bwrap_command(config: &SandboxConfig) -> Result<String, String> {
             }
         }
 
+        if config.enable_gpu {
+            mounts_cmd.push("/bin/bash /usr/local/emhttp/plugins/nix/nix-gpu-setup.sh".to_string());
+            mounts_cmd.push("mkdir -p /run/opengl-driver/lib".to_string());
+            mounts_cmd.push("mount --bind /var/run/nix-nvidia-driver/lib /run/opengl-driver/lib".to_string());
+        }
+
         let mounts_str = mounts_cmd.join(" && ").replace("\"", "\\\"");
 
         let mut env_vars = vec!["export HOME=/config".to_string()];
+        if config.enable_gpu {
+            env_vars.push("export LD_LIBRARY_PATH=/run/opengl-driver/lib".to_string());
+            env_vars.push("export LIBVA_DRIVERS_PATH=/usr/lib64/dri".to_string());
+        }
         if let Some(ref p_str) = config.port {
             let mappings = parse_ports(p_str);
             if let Some(first) = mappings.first() {

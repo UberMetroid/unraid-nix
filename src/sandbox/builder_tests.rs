@@ -77,3 +77,54 @@ fn test_build_bwrap_command_storage_sandboxed() {
     assert!(cmd.contains("chroot --userspec=99:100 --groups=100"));
     assert!(cmd.contains("nix run nixpkgs#hello"));
 }
+
+#[test]
+fn test_build_bwrap_command_gpu() {
+    let config = SandboxConfig {
+        name: "test-gpu-app".to_string(),
+        appdata_path: "/mnt/cache/appdata/test-gpu-app".to_string(),
+        media_path: None,
+        puid: 99,
+        pgid: 100,
+        enable_gpu: true,
+        inner_command: "nix run nixpkgs#hello".to_string(),
+        extra_binds: Vec::new(),
+        port: None,
+        bind_address: None,
+        host_init_commands: Vec::new(),
+    };
+
+    let cmd = build_bwrap_command(&config).unwrap();
+    assert!(cmd.contains("/bin/bash /usr/local/emhttp/plugins/nix/nix-gpu-setup.sh"));
+    assert!(cmd.contains("mount --bind /var/run/nix-nvidia-driver/lib /run/opengl-driver/lib"));
+    assert!(cmd.contains("export LD_LIBRARY_PATH=/run/opengl-driver/lib"));
+    assert!(cmd.contains("export LIBVA_DRIVERS_PATH=/usr/lib64/dri"));
+}
+
+#[test]
+fn test_build_bwrap_command_gpu_sandboxed() {
+    std::env::set_var("NIX_FORCE_STORAGE_SANDBOX", "1");
+    
+    let config = SandboxConfig {
+        name: "test-gpu-app".to_string(),
+        appdata_path: "/mnt/cache/appdata/test-gpu-app".to_string(),
+        media_path: None,
+        puid: 99,
+        pgid: 100,
+        enable_gpu: true,
+        inner_command: "nix run nixpkgs#hello".to_string(),
+        extra_binds: Vec::new(),
+        port: None,
+        bind_address: None,
+        host_init_commands: Vec::new(),
+    };
+
+    let cmd = build_bwrap_command(&config).unwrap();
+    std::env::remove_var("NIX_FORCE_STORAGE_SANDBOX");
+
+    assert!(cmd.contains("/bin/bash /usr/local/emhttp/plugins/nix/nix-gpu-setup.sh"));
+    assert!(cmd.contains("mount --bind /var/run/nix-nvidia-driver/lib /var/run/nix-chroot-test-gpu-app/run/opengl-driver/lib"));
+    assert!(cmd.contains("mount --bind -o ro /usr/lib64 /var/run/nix-chroot-test-gpu-app/usr/lib64"));
+    assert!(cmd.contains("export LD_LIBRARY_PATH=/run/opengl-driver/lib"));
+    assert!(cmd.contains("export LIBVA_DRIVERS_PATH=/usr/lib64/dri"));
+}
