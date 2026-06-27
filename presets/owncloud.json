@@ -21,6 +21,9 @@
     ],
     "maintainers": [
       "xinyangli"
+    ],
+    "programs": [
+      "ocis"
     ]
   }
 }

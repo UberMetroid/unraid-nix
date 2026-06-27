@@ -1,0 +1,27 @@
+{
+  "name": "oauth2-proxy",
+  "display_name": "OAuth2 Proxy",
+  "description": "A reverse proxy and user-authentication daemon that provides authentication using Google, GitHub, and other providers.",
+  "url": "https://oauth2-proxy.github.io/oauth2-proxy/",
+  "command": "exec nix run nixpkgs#oauth2-proxy -- --config=/config/oauth2-proxy.cfg",
+  "default_ports": [
+    {
+      "host": 4180,
+      "container": 4180,
+      "label": "HTTP Proxy"
+    }
+  ],
+  "icon": "fa-key",
+  "meta": {
+    "version": "7.15.2",
+    "license": "MIT",
+    "platforms": [
+      "aarch64-linux",
+      "x86_64-linux"
+    ],
+    "maintainers": [],
+    "programs": [
+      "oauth2-proxy"
+    ]
+  }
+}

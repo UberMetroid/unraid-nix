@@ -22,6 +22,15 @@
     "maintainers": [
       "mkg20001",
       "rhoriguchi"
+    ],
+    "programs": [
+      "nd-mcp",
+      "nd-run",
+      "netdata",
+      "netdata-claim.sh",
+      "netdata-edit-config",
+      "netdatacli",
+      "systemd-cat-native"
     ]
   }
 }

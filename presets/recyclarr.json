@@ -16,6 +16,9 @@
     "maintainers": [
       "josephst",
       "aldoborrero"
+    ],
+    "programs": [
+      "recyclarr"
     ]
   }
 }

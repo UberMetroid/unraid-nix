@@ -32,6 +32,9 @@
     "maintainers": [
       "jokogr",
       "peterhoeg"
+    ],
+    "programs": [
+      "syncthing"
     ]
   }
 }

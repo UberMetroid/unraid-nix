@@ -21,6 +21,10 @@
     ],
     "maintainers": [
       "06kellyjac"
+    ],
+    "programs": [
+      "crowdsec",
+      "cscli"
     ]
   }
 }

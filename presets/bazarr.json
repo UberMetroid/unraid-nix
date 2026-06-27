@@ -11,5 +11,10 @@
       "label": "HTTP"
     }
   ],
-  "icon": "fa-closed-captioning"
+  "icon": "fa-closed-captioning",
+  "meta": {
+    "programs": [
+      "bazarr"
+    ]
+  }
 }

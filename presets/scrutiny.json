@@ -22,6 +22,9 @@
     "maintainers": [
       "Samasaur1",
       "svistoi"
+    ],
+    "programs": [
+      "scrutiny"
     ]
   }
 }

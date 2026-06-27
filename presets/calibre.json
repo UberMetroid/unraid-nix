@@ -22,6 +22,29 @@
     "maintainers": [
       "pSub",
       "sempiternal-aurora"
+    ],
+    "programs": [
+      "calibre",
+      "calibre-complete",
+      "calibre-customize",
+      "calibre-debug",
+      "calibre-parallel",
+      "calibre-server",
+      "calibre-smtp",
+      "calibre-uninstall",
+      "calibredb",
+      "ebook-convert",
+      "ebook-device",
+      "ebook-edit",
+      "ebook-meta",
+      "ebook-polish",
+      "ebook-viewer",
+      "fetch-ebook-metadata",
+      "lrf2lrs",
+      "lrfviewer",
+      "lrs2lrf",
+      "markdown-calibre",
+      "web2disk"
     ]
   }
 }

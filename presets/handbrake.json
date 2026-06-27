@@ -11,5 +11,11 @@
       "label": "Web GUI"
     }
   ],
-  "icon": "fa-server"
+  "icon": "fa-server",
+  "meta": {
+    "programs": [
+      "HandBrakeCLI",
+      "ghb"
+    ]
+  }
 }

@@ -11,5 +11,10 @@
       "label": "HTTP"
     }
   ],
-  "icon": "fa-file-text-o"
+  "icon": "fa-file-text-o",
+  "meta": {
+    "programs": [
+      "Stirling-PDF"
+    ]
+  }
 }

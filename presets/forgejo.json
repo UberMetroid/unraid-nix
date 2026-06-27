@@ -28,6 +28,10 @@
       "adamcstephens",
       "bendlas",
       "christoph-heiss"
+    ],
+    "programs": [
+      "environment-to-ini",
+      "forgejo"
     ]
   }
 }

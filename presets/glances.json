@@ -22,6 +22,9 @@
     "maintainers": [
       "k0ral",
       "MiniHarinn"
+    ],
+    "programs": [
+      "glances"
     ]
   }
 }

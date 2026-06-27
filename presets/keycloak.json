@@ -23,6 +23,13 @@
       "ngerstle",
       "talyz",
       "NickCao"
+    ],
+    "programs": [
+      "client",
+      "federation-sssd-setup.sh",
+      "kc.sh",
+      "kcadm.sh",
+      "kcreg.sh"
     ]
   }
 }

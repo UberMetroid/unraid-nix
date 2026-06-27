@@ -21,6 +21,10 @@
     ],
     "maintainers": [
       "rhoriguchi"
+    ],
+    "programs": [
+      "plexpy",
+      "tautulli"
     ]
   }
 }

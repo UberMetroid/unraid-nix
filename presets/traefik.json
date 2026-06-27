@@ -32,6 +32,9 @@
     "maintainers": [
       "djds",
       "vdemeester"
+    ],
+    "programs": [
+      "traefik"
     ]
   }
 }

@@ -23,6 +23,9 @@
       "bbigras",
       "kilyanni",
       "nadir-ishiguro"
+    ],
+    "programs": [
+      "kopia"
     ]
   }
 }

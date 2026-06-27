@@ -11,5 +11,8 @@
       "label": "SMTP Port"
     }
   ],
-  "icon": "fa-envelope-o"
+  "icon": "fa-envelope-o",
+  "meta": {
+    "programs": []
+  }
 }

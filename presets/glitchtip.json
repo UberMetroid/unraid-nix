@@ -19,6 +19,9 @@
     "maintainers": [
       "Defelo",
       "felbinger"
+    ],
+    "programs": [
+      "glitchtip-manage"
     ]
   }
 }

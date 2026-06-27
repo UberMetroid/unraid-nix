@@ -23,6 +23,20 @@
       "sumnerevans",
       "Ma27",
       "mguentner"
+    ],
+    "programs": [
+      "export_signing_key",
+      "generate_config",
+      "generate_log_config",
+      "generate_signing_key",
+      "hash_password",
+      "register_new_matrix_user",
+      "synapse_homeserver",
+      "synapse_port_db",
+      "synapse_review_recent_signups",
+      "synapse_worker",
+      "synctl",
+      "update_synapse_database"
     ]
   }
 }

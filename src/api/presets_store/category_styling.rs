@@ -125,14 +125,26 @@ pub fn get_preset_category_styling(name: &str, default_icon: &str) -> CategorySt
 
     // Network (Purple)
     if name_lower.contains("pihole") || name_lower.contains("pi-hole") || name_lower.contains("adguard") ||
-       name_lower.contains("nginx") || name_lower.contains("traefik") || name_lower.contains("caddy") || name_lower.contains("npm") ||
-       name_lower.contains("unifi") || name_lower.contains("cloudflared") || name_lower.contains("cloudflare-ddns") ||
+       name_lower.contains("npm") || name_lower.contains("unifi") || name_lower.contains("cloudflare-ddns") ||
        name_lower.contains("ddclient") || name_lower.contains("duckdns") || name_lower.contains("swag") {
         return CategoryStyling {
             icon: default_icon.to_string(),
             color: "#9b59b6",
             bg: "rgba(155, 89, 182, 0.08)",
             border: "rgba(155, 89, 182, 0.2)",
+        };
+    }
+
+    // Proxies (Vibrant Sunset Peach/Orange)
+    if name_lower.contains("nginx") || name_lower.contains("traefik") || name_lower.contains("caddy") ||
+       name_lower.contains("cloudflared") || name_lower.contains("frp") || name_lower.contains("rathole") ||
+       name_lower.contains("oauth2-proxy") || name_lower.contains("squid") || name_lower.contains("privoxy") ||
+       name_lower.contains("haproxy") {
+        return CategoryStyling {
+            icon: default_icon.to_string(),
+            color: "#ff9f43",
+            bg: "rgba(255, 159, 67, 0.08)",
+            border: "rgba(255, 159, 67, 0.2)",
         };
     }
 

@@ -23,6 +23,10 @@
       "balsoft",
       "infinisil",
       "andir"
+    ],
+    "programs": [
+      "rsync",
+      "rsync-ssl"
     ]
   }
 }

@@ -27,6 +27,9 @@
     "maintainers": [
       "techknowlogick",
       "SuperSandro2000"
+    ],
+    "programs": [
+      "gitea"
     ]
   }
 }

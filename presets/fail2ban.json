@@ -13,6 +13,16 @@
       "aarch64-linux",
       "x86_64-linux"
     ],
-    "maintainers": []
+    "maintainers": [],
+    "programs": [
+      "/nix/store/6f20ijkwaarr439a191fkyk1c7d9s3zy-fail2ban-1.1.0/bin:",
+      "fail2ban-client",
+      "fail2ban-python",
+      "fail2ban-regex",
+      "fail2ban-server",
+      "fail2ban-testcases",
+      "/nix/store/q0nhknx2p9wblcwbjcyf35j7xhk86lhw-fail2ban-1.1.0-man:",
+      "share"
+    ]
   }
 }

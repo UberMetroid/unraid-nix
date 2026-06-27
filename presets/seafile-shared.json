@@ -21,6 +21,10 @@
     ],
     "maintainers": [
       "schmittlauch"
+    ],
+    "programs": [
+      "seaf-cli",
+      "seaf-daemon"
     ]
   }
 }

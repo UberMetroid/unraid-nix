@@ -43,10 +43,14 @@ pub fn get_preset_category_name(name: &str) -> &'static str {
        name_lower.contains("qbittorrent") || name_lower.contains("deluge") || name_lower.contains("rtorrent") || name_lower.contains("aria2") {
         "downloads"
     } else if name_lower.contains("pihole") || name_lower.contains("pi-hole") || name_lower.contains("adguard") ||
-       name_lower.contains("nginx") || name_lower.contains("traefik") || name_lower.contains("caddy") || name_lower.contains("npm") ||
-       name_lower.contains("unifi") || name_lower.contains("cloudflared") || name_lower.contains("cloudflare-ddns") ||
+       name_lower.contains("npm") || name_lower.contains("unifi") || name_lower.contains("cloudflare-ddns") ||
        name_lower.contains("ddclient") || name_lower.contains("duckdns") || name_lower.contains("swag") {
         "network"
+    } else if name_lower.contains("nginx") || name_lower.contains("traefik") || name_lower.contains("caddy") ||
+       name_lower.contains("cloudflared") || name_lower.contains("frp") || name_lower.contains("rathole") ||
+       name_lower.contains("oauth2-proxy") || name_lower.contains("squid") || name_lower.contains("privoxy") ||
+       name_lower.contains("haproxy") {
+        "proxy"
     } else if name_lower.contains("tailscale") || name_lower.contains("wireguard") || name_lower.contains("vpn") ||
        name_lower.contains("headscale") || name_lower.contains("netbird") || name_lower.contains("openvpn") ||
        name_lower.contains("pritunl") {

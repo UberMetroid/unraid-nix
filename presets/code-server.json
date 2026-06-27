@@ -22,6 +22,9 @@
     "maintainers": [
       "henkery",
       "code-asher"
+    ],
+    "programs": [
+      "code-server"
     ]
   }
 }

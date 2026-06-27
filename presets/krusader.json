@@ -16,6 +16,9 @@
     "version": "2.9.0",
     "license": "GPL-2.0-only",
     "platforms": [],
-    "maintainers": []
+    "maintainers": [],
+    "programs": [
+      "krusader"
+    ]
   }
 }

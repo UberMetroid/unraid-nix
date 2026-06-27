@@ -15,6 +15,9 @@
     ],
     "maintainers": [
       "bjornfor"
+    ],
+    "programs": [
+      "ddclient"
     ]
   }
 }

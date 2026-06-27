@@ -21,6 +21,10 @@
     ],
     "maintainers": [
       "squat"
+    ],
+    "programs": [
+      "linkding",
+      "linkding-bootstrap"
     ]
   }
 }

@@ -18,6 +18,9 @@
     "platforms": [],
     "maintainers": [
       "BeneSim"
+    ],
+    "programs": [
+      "photoprism"
     ]
   }
 }

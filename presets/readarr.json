@@ -22,6 +22,9 @@
     "maintainers": [
       "jocelynthode",
       "devusb"
+    ],
+    "programs": [
+      "Readarr"
     ]
   }
 }

@@ -17,6 +17,9 @@
       "mbrgm",
       "djds",
       "dotlambda"
+    ],
+    "programs": [
+      "restic"
     ]
   }
 }

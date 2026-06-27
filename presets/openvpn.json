@@ -11,5 +11,10 @@
       "label": "VPN Port"
     }
   ],
-  "icon": "fa-key"
+  "icon": "fa-key",
+  "meta": {
+    "programs": [
+      "openvpn"
+    ]
+  }
 }

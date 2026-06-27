@@ -21,6 +21,12 @@
     ],
     "maintainers": [
       "SuperSandro2000"
+    ],
+    "programs": [
+      "cleanup",
+      "hedgedoc",
+      "manage_users",
+      "migrate_from_fs_to_minio"
     ]
   }
 }

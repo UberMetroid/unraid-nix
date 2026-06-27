@@ -19,6 +19,17 @@
       "aarch64-linux",
       "x86_64-linux"
     ],
-    "maintainers": []
+    "maintainers": [],
+    "programs": [
+      "console",
+      "doctrine",
+      "doctrine-dbal",
+      "doctrine-migrations",
+      "generate-defuse-key",
+      "openapi",
+      "sql-formatter",
+      "var-dump-server",
+      "yaml-lint"
+    ]
   }
 }

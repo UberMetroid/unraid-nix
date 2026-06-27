@@ -21,6 +21,12 @@
     ],
     "maintainers": [
       "zimbatm"
+    ],
+    "programs": [
+      "influx",
+      "influx_inspect",
+      "influx_tools",
+      "influxd"
     ]
   }
 }

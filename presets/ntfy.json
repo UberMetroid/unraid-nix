@@ -21,6 +21,9 @@
     ],
     "maintainers": [
       "kamilchm"
+    ],
+    "programs": [
+      "ntfy"
     ]
   }
 }

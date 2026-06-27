@@ -21,6 +21,10 @@
     ],
     "maintainers": [
       "MatthewCroughan"
+    ],
+    "programs": [
+      "node-red",
+      "node-red-pi"
     ]
   }
 }

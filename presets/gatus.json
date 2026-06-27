@@ -21,6 +21,9 @@
     ],
     "maintainers": [
       "undefined-moe"
+    ],
+    "programs": [
+      "gatus"
     ]
   }
 }

@@ -23,6 +23,10 @@
       "fpletz",
       "Frostman",
       "jpds"
+    ],
+    "programs": [
+      "migrate",
+      "prometheus"
     ]
   }
 }

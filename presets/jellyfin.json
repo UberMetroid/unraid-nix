@@ -38,6 +38,9 @@
       "nyanloutre",
       "minijackson",
       "purcell"
+    ],
+    "programs": [
+      "jellyfin"
     ]
   }
 }

@@ -26,6 +26,10 @@
     ],
     "maintainers": [
       "gador"
+    ],
+    "programs": [
+      "pgadmin4",
+      "pgadmin4-cli"
     ]
   }
 }

@@ -11,5 +11,10 @@
       "label": "Web GUI"
     }
   ],
-  "icon": "fa-home"
+  "icon": "fa-home",
+  "meta": {
+    "programs": [
+      "homebridge"
+    ]
+  }
 }

@@ -22,6 +22,9 @@
     "maintainers": [
       "gepbird",
       "niklaskorz"
+    ],
+    "programs": [
+      "librechat-server"
     ]
   }
 }

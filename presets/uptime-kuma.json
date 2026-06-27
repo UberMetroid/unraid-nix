@@ -22,6 +22,9 @@
     "maintainers": [
       "JulienMalka",
       "felixsinger"
+    ],
+    "programs": [
+      "uptime-kuma-server"
     ]
   }
 }

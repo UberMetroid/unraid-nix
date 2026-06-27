@@ -22,6 +22,9 @@
     "maintainers": [
       "minijackson",
       "CaptainJawZ"
+    ],
+    "programs": [
+      "shiori"
     ]
   }
 }

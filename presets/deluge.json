@@ -26,6 +26,13 @@
     ],
     "maintainers": [
       "a-peirogon"
+    ],
+    "programs": [
+      "deluge",
+      "deluge-console",
+      "deluge-gtk",
+      "deluge-web",
+      "deluged"
     ]
   }
 }

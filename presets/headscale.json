@@ -22,6 +22,9 @@
     "maintainers": [
       "kradalby",
       "Misterio77"
+    ],
+    "programs": [
+      "headscale"
     ]
   }
 }

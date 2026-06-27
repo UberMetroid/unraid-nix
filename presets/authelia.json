@@ -22,6 +22,9 @@
     "maintainers": [
       "06kellyjac",
       "nicomem"
+    ],
+    "programs": [
+      "authelia"
     ]
   }
 }

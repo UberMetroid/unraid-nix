@@ -1,0 +1,27 @@
+{
+  "name": "privoxy",
+  "display_name": "Privoxy",
+  "description": "A non-caching web proxy with advanced filtering capabilities for enhancing privacy and modifying web page data.",
+  "url": "https://www.privoxy.org/",
+  "command": "exec nix run nixpkgs#privoxy -- --no-daemon /config/config",
+  "default_ports": [
+    {
+      "host": 8118,
+      "container": 8118,
+      "label": "Proxy Listener"
+    }
+  ],
+  "icon": "fa-filter",
+  "meta": {
+    "version": "4.1.0",
+    "license": "GPL-2.0-or-later",
+    "platforms": [
+      "aarch64-linux",
+      "x86_64-linux"
+    ],
+    "maintainers": [],
+    "programs": [
+      "privoxy"
+    ]
+  }
+}

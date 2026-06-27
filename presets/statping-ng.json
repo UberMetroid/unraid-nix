@@ -21,6 +21,9 @@
     ],
     "maintainers": [
       "FKouhai"
+    ],
+    "programs": [
+      "statping-ng"
     ]
   }
 }

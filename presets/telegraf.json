@@ -17,6 +17,9 @@
       "Mic92",
       "roblabla",
       "timstott"
+    ],
+    "programs": [
+      "telegraf"
     ]
   }
 }

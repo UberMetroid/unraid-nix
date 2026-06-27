@@ -22,6 +22,9 @@
     "maintainers": [
       "tebriel",
       "GovanifY"
+    ],
+    "programs": [
+      "komga"
     ]
   }
 }

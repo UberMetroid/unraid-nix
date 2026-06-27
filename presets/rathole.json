@@ -1,0 +1,27 @@
+{
+  "name": "rathole",
+  "display_name": "Rathole",
+  "description": "A lightweight and high-performance reverse proxy for NAT traversal, written in Rust.",
+  "url": "https://github.com/rapiz1/rathole",
+  "command": "exec nix run nixpkgs#rathole -- --config /config/rathole.toml",
+  "default_ports": [
+    {
+      "host": 2333,
+      "container": 2333,
+      "label": "Tunnel Port"
+    }
+  ],
+  "icon": "fa-share-alt",
+  "meta": {
+    "version": "0.5.0-unstable-2025-07-29",
+    "license": "Apache-2.0",
+    "platforms": [
+      "aarch64-linux",
+      "x86_64-linux"
+    ],
+    "maintainers": [],
+    "programs": [
+      "rathole"
+    ]
+  }
+}

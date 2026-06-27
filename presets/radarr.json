@@ -23,6 +23,9 @@
       "purcell",
       "nyanloutre",
       "karaolidis"
+    ],
+    "programs": [
+      "Radarr"
     ]
   }
 }

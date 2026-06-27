@@ -1,0 +1,34 @@
+{
+  "name": "haproxy",
+  "display_name": "HAProxy",
+  "description": "A reliable, high-performance TCP/HTTP load balancer and proxy server.",
+  "url": "https://www.haproxy.org/",
+  "command": "exec nix run nixpkgs#haproxy -- -db -f /config/haproxy.cfg",
+  "default_ports": [
+    {
+      "host": 8080,
+      "container": 8080,
+      "label": "HTTP Backend"
+    },
+    {
+      "host": 8404,
+      "container": 8404,
+      "label": "Stats Portal"
+    }
+  ],
+  "icon": "fa-sliders",
+  "meta": {
+    "version": "3.3.10",
+    "license": "",
+    "platforms": [
+      "aarch64-linux",
+      "x86_64-linux"
+    ],
+    "maintainers": [],
+    "programs": [
+      "haproxy",
+      "haproxy-dump-certs",
+      "haproxy-reload"
+    ]
+  }
+}

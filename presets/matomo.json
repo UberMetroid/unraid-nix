@@ -23,6 +23,9 @@
       "florianjacob",
       "sebbel",
       "Twey"
+    ],
+    "programs": [
+      "matomo-console"
     ]
   }
 }

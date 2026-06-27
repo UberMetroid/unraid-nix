@@ -26,6 +26,37 @@
     ],
     "maintainers": [
       "thevar1able"
+    ],
+    "programs": [
+      "ch",
+      "chc",
+      "chdig",
+      "chl",
+      "clickhouse",
+      "clickhouse-benchmark",
+      "clickhouse-chdig",
+      "clickhouse-check-marks",
+      "clickhouse-checksum-for-compressed-block",
+      "clickhouse-client",
+      "clickhouse-compressor",
+      "clickhouse-disks",
+      "clickhouse-docker-init",
+      "clickhouse-extract-from-config",
+      "clickhouse-format",
+      "clickhouse-git-import",
+      "clickhouse-keeper",
+      "clickhouse-keeper-bench",
+      "clickhouse-keeper-client",
+      "clickhouse-keeper-converter",
+      "clickhouse-keeper-data-dumper",
+      "clickhouse-keeper-utils",
+      "clickhouse-local",
+      "clickhouse-obfuscator",
+      "clickhouse-server",
+      "clickhouse-static-files-disk-uploader",
+      "clickhouse-su",
+      "clickhouse-zookeeper-dump-tree",
+      "clickhouse-zookeeper-remove-by-list"
     ]
   }
 }

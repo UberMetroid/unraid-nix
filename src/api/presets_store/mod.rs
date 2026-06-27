@@ -14,6 +14,7 @@ struct PresetMeta {
     license: Option<String>,
     platforms: Option<Vec<String>>,
     maintainers: Option<Vec<String>>,
+    programs: Option<Vec<String>>,
 }
 
 #[derive(Deserialize)]
@@ -151,6 +152,7 @@ pub fn render_presets_store() -> String {
             <button type="button" class="nix-preset-pill" onclick="filterPresetCategory('media', this)">Media Players</button>
             <button type="button" class="nix-preset-pill" onclick="filterPresetCategory('network', this)">Network</button>
             <button type="button" class="nix-preset-pill" onclick="filterPresetCategory('productivity', this)">Productivity</button>
+            <button type="button" class="nix-preset-pill" onclick="filterPresetCategory('proxy', this)">Proxies</button>
             <button type="button" class="nix-preset-pill" onclick="filterPresetCategory('security', this)">Security</button>
             <button type="button" class="nix-preset-pill" onclick="filterPresetCategory('arr', this)">Servarr</button>
             <button type="button" class="nix-preset-pill" onclick="filterPresetCategory('smarthome', this)">Smart Home</button>
@@ -221,13 +223,22 @@ pub fn render_presets_store() -> String {
                         ));
                     }
                 }
+                if let Some(ref progs) = m.programs {
+                    if !progs.is_empty() {
+                        let progs_str = progs.join(", ");
+                        meta_html.push_str(&format!(
+                            r#"<div style="font-size: 8px; color: #777; margin-top: 4px; width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; display: inline-flex; align-items: center; gap: 3px;" title="Programs Provided: {}"><i class="fa fa-terminal" style="font-size: 7px; color: #555;"></i> {}</div>"#,
+                            progs_str, progs_str
+                        ));
+                    }
+                }
                 meta_html.push_str("</div>");
             }
 
             let pkg_search_name = extract_pkg_name(&p.command, &p.name);
 
             html.push_str(&format!(
-                r#"<div class="nix-preset-card" data-name="{}" data-desc="{}" data-category="{}" data-is-composed="{}" style="background: rgba(255, 255, 255, 0.02); border: 1px solid rgba(255, 255, 255, 0.05); border-radius: 6px; padding: 16px; display: flex; flex-direction: column; justify-content: space-between; transition: transform 0.2s ease, border-color 0.2s ease, background 0.2s ease, box-shadow 0.2s ease; height: 195px;">
+                r#"<div class="nix-preset-card" data-name="{}" data-desc="{}" data-category="{}" data-is-composed="{}" style="background: rgba(255, 255, 255, 0.02); border: 1px solid rgba(255, 255, 255, 0.05); border-radius: 6px; padding: 16px; display: flex; flex-direction: column; justify-content: space-between; transition: transform 0.2s ease, border-color 0.2s ease, background 0.2s ease, box-shadow 0.2s ease; height: 210px;">
                     <div>
                         <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 12px;">
                             <div style="width: 32px; height: 32px; border-radius: 4px; background: {}; border: 1px solid {}; display: flex; align-items: center; justify-content: center; color: {}; flex-shrink: 0;">

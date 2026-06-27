@@ -1,0 +1,33 @@
+{
+  "name": "frps",
+  "display_name": "FRP Server",
+  "description": "Fast Reverse Proxy server to listen for client connections and route traffic to local exposed nodes.",
+  "url": "https://github.com/fatedier/frp",
+  "command": "exec nix run nixpkgs#frp -- frps -c /config/frps.toml",
+  "default_ports": [
+    {
+      "host": 7000,
+      "container": 7000,
+      "label": "Server Bind"
+    },
+    {
+      "host": 7500,
+      "container": 7500,
+      "label": "Dashboard"
+    }
+  ],
+  "icon": "fa-server",
+  "meta": {
+    "version": "0.66.0",
+    "license": "Apache-2.0",
+    "platforms": [
+      "aarch64-linux",
+      "x86_64-linux"
+    ],
+    "maintainers": [],
+    "programs": [
+      "frpc",
+      "frps"
+    ]
+  }
+}

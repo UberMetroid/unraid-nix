@@ -11,5 +11,8 @@
       "label": "HTTP"
     }
   ],
-  "icon": "fa-database"
+  "icon": "fa-database",
+  "meta": {
+    "programs": []
+  }
 }

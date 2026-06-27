@@ -22,6 +22,9 @@
     "maintainers": [
       "leona-ya",
       "adamcstephens"
+    ],
+    "programs": [
+      "vikunja"
     ]
   }
 }

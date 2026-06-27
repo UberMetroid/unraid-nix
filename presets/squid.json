@@ -1,0 +1,27 @@
+{
+  "name": "squid",
+  "display_name": "Squid Proxy",
+  "description": "A high-performance caching proxy for web clients, supporting HTTP, HTTPS, and FTP requests.",
+  "url": "http://www.squid-cache.org/",
+  "command": "exec nix run nixpkgs#squid -- -N -f /config/squid.conf",
+  "default_ports": [
+    {
+      "host": 3128,
+      "container": 3128,
+      "label": "Proxy Listener"
+    }
+  ],
+  "icon": "fa-database",
+  "meta": {
+    "version": "7.5",
+    "license": "GPL-2.0-or-later",
+    "platforms": [
+      "aarch64-linux",
+      "x86_64-linux"
+    ],
+    "maintainers": [],
+    "programs": [
+      "squid"
+    ]
+  }
+}

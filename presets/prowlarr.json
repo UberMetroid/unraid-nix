@@ -22,6 +22,9 @@
     "maintainers": [
       "pizzapim",
       "nyanloutre"
+    ],
+    "programs": [
+      "Prowlarr"
     ]
   }
 }

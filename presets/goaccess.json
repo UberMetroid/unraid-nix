@@ -11,5 +11,10 @@
       "label": "WebSockets"
     }
   ],
-  "icon": "fa-server"
+  "icon": "fa-server",
+  "meta": {
+    "programs": [
+      "goaccess"
+    ]
+  }
 }

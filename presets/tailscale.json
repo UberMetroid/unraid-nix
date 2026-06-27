@@ -17,6 +17,11 @@
       "martinbaillie",
       "06kellyjac",
       "mfrw"
+    ],
+    "programs": [
+      "get-authkey",
+      "tailscale",
+      "tailscaled"
     ]
   }
 }

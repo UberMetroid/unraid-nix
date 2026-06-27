@@ -22,6 +22,9 @@
     "maintainers": [
       "dotlambda",
       "SuperSandro2000"
+    ],
+    "programs": [
+      "vaultwarden"
     ]
   }
 }

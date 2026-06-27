@@ -23,6 +23,24 @@
       "nyanloutre",
       "Bot-wxt1221",
       "puiyq"
+    ],
+    "programs": [
+      "duplicati",
+      "duplicati-aescrypt",
+      "duplicati-agent",
+      "duplicati-autoupdater",
+      "duplicati-backend-tester",
+      "duplicati-backend-tool",
+      "duplicati-cli",
+      "duplicati-database-tool",
+      "duplicati-recovery-tool",
+      "duplicati-secret-tool",
+      "duplicati-server",
+      "duplicati-server-util",
+      "duplicati-service",
+      "duplicati-snapshots",
+      "duplicati-source-tool",
+      "duplicati-sync-tool"
     ]
   }
 }

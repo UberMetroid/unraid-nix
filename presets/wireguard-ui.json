@@ -21,6 +21,9 @@
     ],
     "maintainers": [
       "Bot-wxt1221"
+    ],
+    "programs": [
+      "wireguard-ui"
     ]
   }
 }

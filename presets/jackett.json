@@ -22,6 +22,11 @@
     "maintainers": [
       "nyanloutre",
       "purcell"
+    ],
+    "programs": [
+      "Jackett",
+      "jackett",
+      "libMono.Unix.so"
     ]
   }
 }

@@ -15,6 +15,14 @@
     ],
     "maintainers": [
       "SuperSandro2000"
+    ],
+    "programs": [
+      "/nix/store/cr19g4j3ccpgb61aqy6knb7l2xsfq4v6-rclone-1.74.3-man:",
+      "share",
+      "/nix/store/lhr13fn0qnjcgiy1kyvplxygchmmnj43-rclone-1.74.3/bin:",
+      "mount.rclone",
+      "rclone",
+      "rclonefs"
     ]
   }
 }

@@ -22,6 +22,9 @@
     "maintainers": [
       "ramonacat",
       "karaolidis"
+    ],
+    "programs": [
+      "Lidarr"
     ]
   }
 }

@@ -18,6 +18,9 @@
     "platforms": [],
     "maintainers": [
       "jf-uu"
+    ],
+    "programs": [
+      "overseerr"
     ]
   }
 }

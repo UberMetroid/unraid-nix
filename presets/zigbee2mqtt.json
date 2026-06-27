@@ -18,6 +18,9 @@
     "platforms": [],
     "maintainers": [
       "mweinelt"
+    ],
+    "programs": [
+      "zigbee2mqtt"
     ]
   }
 }

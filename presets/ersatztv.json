@@ -21,6 +21,10 @@
     ],
     "maintainers": [
       "allout58"
+    ],
+    "programs": [
+      "ErsatzTV",
+      "ErsatzTV.Scanner"
     ]
   }
 }

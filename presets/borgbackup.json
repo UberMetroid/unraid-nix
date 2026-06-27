@@ -15,6 +15,13 @@
     ],
     "maintainers": [
       "dotlambda"
+    ],
+    "programs": [
+      "/nix/store/n527pa1l667vb8nhfd4wjqymn98srgjz-borgbackup-1.4.4-man:",
+      "share",
+      "/nix/store/y64s8mldjhmjwprknmpzp3pv5x2cmp4z-borgbackup-1.4.4/bin:",
+      "borg",
+      "borgfs"
     ]
   }
 }

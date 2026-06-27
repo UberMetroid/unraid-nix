@@ -21,6 +21,13 @@
     ],
     "maintainers": [
       "prusnak"
+    ],
+    "programs": [
+      "bench",
+      "engine",
+      "generator",
+      "ollama",
+      "runner"
     ]
   }
 }

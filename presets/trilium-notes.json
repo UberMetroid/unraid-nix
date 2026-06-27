@@ -22,6 +22,9 @@
     "maintainers": [
       "eliandoran",
       "FliegendeWurst"
+    ],
+    "programs": [
+      "trilium-server"
     ]
   }
 }

@@ -23,6 +23,9 @@
       "fpletz",
       "globin",
       "Ma27"
+    ],
+    "programs": [
+      "grafana"
     ]
   }
 }

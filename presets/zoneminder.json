@@ -19,6 +19,29 @@
       "aarch64-linux",
       "x86_64-linux"
     ],
-    "maintainers": []
+    "maintainers": [],
+    "programs": [
+      "zm_rtsp_server",
+      "zmaudit.pl",
+      "zmc",
+      "zmcamtool.pl",
+      "zmcontrol.pl",
+      "zmdc.pl",
+      "zmfilter.pl",
+      "zmonvif-probe.pl",
+      "zmonvif-trigger.pl",
+      "zmpkg.pl",
+      "zmrecover.pl",
+      "zmstats.pl",
+      "zmsystemctl.pl",
+      "zmtelemetry.pl",
+      "zmtrack.pl",
+      "zmtrigger.pl",
+      "zmu",
+      "zmupdate.pl",
+      "zmvideo.pl",
+      "zmwatch.pl",
+      "zmx10.pl"
+    ]
   }
 }
