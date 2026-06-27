@@ -19,11 +19,14 @@ pub fn render_service_row(s: &ServiceStatus, config: &Option<ProcessComposeConfi
     };
 
     let app_html = format!(
-        r#"<div style="display: flex; flex-direction: column; gap: 2px;">
-            <strong>{}</strong>
-            <span style="font-size: 11px; color: #a0a0a5;">{}</span>
+        r#"<div style="display: flex; align-items: center; gap: 8px;">
+            <img src="/plugins/nix/api.php?action=get-icon&service={}" style="width: 24px; height: 24px; border-radius: 4px;" />
+            <div style="display: flex; flex-direction: column; gap: 2px;">
+                <strong>{}</strong>
+                <span style="font-size: 11px; color: #a0a0a5;">{}</span>
+            </div>
         </div>"#,
-        s.name, status_subtext
+        s.name, s.name, status_subtext
     );
 
     let cmd = config

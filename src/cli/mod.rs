@@ -29,6 +29,7 @@ pub fn print_usage() {
     println!("  save-settings <options>                Saves Nix plugin settings and manages migration");
     println!("  get-metadata <name>                    Outputs JSON service metadata");
     println!("  detect-gpus                            Outputs JSON list of detected host GPUs");
+    println!("  get-icon <name>                        Outputs the absolute path of a service logo in the Nix store");
 }
 
 pub fn run(args: Vec<String>) {
@@ -49,6 +50,14 @@ pub fn run(args: Vec<String>) {
         "save-settings" => settings::save_settings(&args),
         "get-metadata" => metadata::get_metadata(&args),
         "detect-gpus" => gpus::detect_gpus(&args),
+        "get-icon" => {
+            let name = if args.len() >= 3 { &args[2] } else { "" };
+            if let Some(path) = crate::api::utils::get_service_icon_path(name) {
+                println!("{}", path);
+            } else {
+                println!("");
+            }
+        }
         _ => {
             print_usage();
         }

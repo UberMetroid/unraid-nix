@@ -60,6 +60,39 @@ if ($action === 'get_dashboard_json') {
     exit;
 }
 
+// 2f. Get service icon (streams image directly)
+if ($action === 'get-icon') {
+    $service = isset($_GET['service']) ? $_GET['service'] : '';
+    if (empty($service) || preg_match('/[^a-zA-Z0-9_-]/', $service)) {
+        header('HTTP/1.1 400 Bad Request');
+        exit;
+    }
+
+    $path = trim(shell_exec("/usr/local/emhttp/plugins/nix/nix-helper get-icon " . escapeshellarg($service)));
+    if (!empty($path) && file_exists($path) && is_file($path)) {
+        if (strpos($path, '/nix/store/') === 0) {
+            $ext = strtolower(pathinfo($path, PATHINFO_EXTENSION));
+            if ($ext === 'svg') {
+                header('Content-Type: image/svg+xml');
+            } elseif ($ext === 'png') {
+                header('Content-Type: image/png');
+            } elseif ($ext === 'ico') {
+                header('Content-Type: image/x-icon');
+            } else {
+                header('Content-Type: image/png');
+            }
+            header('Cache-Control: max-age=86400');
+            readfile($path);
+            exit;
+        }
+    }
+
+    header('Content-Type: image/svg+xml');
+    header('Cache-Control: max-age=86400');
+    echo '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" fill="#00a1ff" width="32" height="32"><path d="M440 256c0 101.6-82.4 184-184 184S72 357.6 72 256s82.4-184 184-184s184 82.4 184 184zm-184-88c-11 0-20 9-20 20v24.8l-17.5-17.5c-7.8-7.8-20.5-7.8-28.3 0s-7.8 20.5 0 28.3l37.8 37.8c3.9 3.9 9 5.9 14.1 5.9s10.2-2 14.1-5.9l37.8-37.8c7.8-7.8 7.8-20.5 0-28.3s-20.5-7.8-28.3 0L280 212.8V188c0-11-9-20-20-20z"/></svg>';
+    exit;
+}
+
 // 2c. Detect host GPUs (outputs JSON)
 if ($action === 'detect-gpus') {
     passthru("/usr/local/emhttp/plugins/nix/nix-helper detect-gpus");

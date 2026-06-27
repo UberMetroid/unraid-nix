@@ -31,14 +31,17 @@ pub fn render_dashboard_rows(api_port: u16) -> String {
         html.push_str(&format!(
             r#"<tr data-service="{}">
                 <td>
-                    <span class="left">{}</span>
+                    <span class="left">
+                        <img src="/plugins/nix/api.php?action=get-icon&service={}" style="width: 14px; height: 14px; margin-right: 6px; vertical-align: middle; border-radius: 2px;" />
+                        <span style="vertical-align: middle;">{}</span>
+                    </span>
                     <span class="right">
                         <span class="status-dot" style="background: {}; display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 5px; box-shadow: {};"></span>
                         <span class="status-text">{}</span>
                     </span>
                 </td>
             </tr>"#,
-            s.name, s.name, status_color, shadow, status_text
+            s.name, s.name, s.name, status_color, shadow, status_text
         ));
     }
     html
