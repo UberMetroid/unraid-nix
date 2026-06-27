@@ -171,18 +171,24 @@ pub fn unmount_nix_store() -> Result<(), String> {
     Ok(())
 }
 
-fn read_allow_source_builds() -> bool {
+fn read_cfg_val(key: &str, default: &str) -> String {
     let cfg_file = "/boot/config/plugins/nix/nix.cfg";
     if let Ok(content) = std::fs::read_to_string(cfg_file) {
         for line in content.lines() {
             let line = line.trim();
-            if line.starts_with("ALLOW_SOURCE_BUILDS=") {
-                let val = line.split('=').nth(1).unwrap_or("").trim().trim_matches('"');
-                return val == "yes";
+            if line.starts_with(key) {
+                let parts: Vec<&str> = line.split('=').collect();
+                if parts.len() >= 2 {
+                    return parts[1].trim().trim_matches('"').to_string();
+                }
             }
         }
     }
-    false
+    default.to_string()
+}
+
+fn read_allow_source_builds() -> bool {
+    read_cfg_val("ALLOW_SOURCE_BUILDS=", "no") == "yes"
 }
 
 /// Sets up persistent /etc/nix directory via symlinks.
@@ -210,18 +216,34 @@ pub fn setup_nix_conf() -> Result<(), String> {
     log_event("INFO", "Writing nix.conf to apply resource and builder settings...");
     
     let allow_source = read_allow_source_builds();
-    let (jobs, cores_limit) = if allow_source {
-        let total_cores = std::thread::available_parallelism()
-            .map(|p| p.get())
-            .unwrap_or(4);
-        (std::cmp::max(1, total_cores / 2), 2)
+    
+    // Parse build resource settings
+    let build_cores = read_cfg_val("BUILD_CORES=", "0");
+    let build_jobs = read_cfg_val("BUILD_JOBS=", "0");
+    
+    let (jobs_val, cores_val) = if allow_source {
+        let j = if build_jobs == "0" {
+            let total = std::thread::available_parallelism().map(|p| p.get()).unwrap_or(4);
+            std::cmp::max(1, total / 2).to_string()
+        } else {
+            build_jobs
+        };
+        (j, build_cores)
     } else {
-        (0, 0)
+        ("0".to_string(), "0".to_string())
     };
 
+    // Parse native auto-GC settings
+    let gc_min_free_gb: u64 = read_cfg_val("GC_MIN_FREE=", "5").parse().unwrap_or(5);
+    let gc_max_free_gb: u64 = read_cfg_val("GC_MAX_FREE=", "10").parse().unwrap_or(10);
+    
+    // Convert GB to bytes
+    let min_free_bytes = gc_min_free_gb * 1024 * 1024 * 1024;
+    let max_free_bytes = gc_max_free_gb * 1024 * 1024 * 1024;
+
     let default_conf = format!(
-        "experimental-features = nix-command flakes\nmax-jobs = {}\ncores = {}\n",
-        jobs, cores_limit
+        "experimental-features = nix-command flakes\nmax-jobs = {}\ncores = {}\nmin-free = {}\nmax-free = {}\n",
+        jobs_val, cores_val, min_free_bytes, max_free_bytes
     );
 
     if let Err(e) = fs::write(conf_path, default_conf) {
@@ -229,6 +251,18 @@ pub fn setup_nix_conf() -> Result<(), String> {
         log_event("ERROR", &err_msg);
         return Err(err_msg);
     }
+
+    // Configure system-wide flake registry overrides to pin nixpkgs channel
+    let registry_path = "/nix/etc/nix/registry.json";
+    let channel_ref = read_cfg_val("NIX_CHANNEL=", "nixos-unstable");
+    let registry_content = format!(
+        r#"{{"flakes": [{{"from": {{"id": "nixpkgs", "type": "indirect"}}, "to": {{"owner": "NixOS", "repo": "nixpkgs", "ref": "{}", "type": "github"}}}}], "version": 2}}"#,
+        channel_ref
+    );
+    if let Err(e) = fs::write(registry_path, registry_content) {
+        log_event("WARNING", &format!("Failed to write registry.json: {}", e));
+    }
+
     log_event("INFO", "Nix configuration setup complete.");
     Ok(())
 }

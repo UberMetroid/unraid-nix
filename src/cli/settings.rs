@@ -95,6 +95,11 @@ pub fn save_settings(args: &[String]) {
     let mut enable_ipc_isolation = "yes".to_string();
     let mut auto_gc = "no".to_string();
     let mut store_quota = "30".to_string();
+    let mut build_cores = "0".to_string();
+    let mut build_jobs = "0".to_string();
+    let mut gc_min_free = "5".to_string();
+    let mut gc_max_free = "10".to_string();
+    let mut nix_channel = "nixos-unstable".to_string();
 
     let mut i = 2;
     while i < args.len() {
@@ -159,6 +164,31 @@ pub fn save_settings(args: &[String]) {
                 store_quota = args[i+1].clone();
                 i += 2;
             }
+            "--build-cores" => {
+                if i + 1 >= args.len() { eprintln!("Error: Missing build-cores value"); exit(1); }
+                build_cores = args[i+1].clone();
+                i += 2;
+            }
+            "--build-jobs" => {
+                if i + 1 >= args.len() { eprintln!("Error: Missing build-jobs value"); exit(1); }
+                build_jobs = args[i+1].clone();
+                i += 2;
+            }
+            "--gc-min-free" => {
+                if i + 1 >= args.len() { eprintln!("Error: Missing gc-min-free value"); exit(1); }
+                gc_min_free = args[i+1].clone();
+                i += 2;
+            }
+            "--gc-max-free" => {
+                if i + 1 >= args.len() { eprintln!("Error: Missing gc-max-free value"); exit(1); }
+                gc_max_free = args[i+1].clone();
+                i += 2;
+            }
+            "--nix-channel" => {
+                if i + 1 >= args.len() { eprintln!("Error: Missing nix-channel value"); exit(1); }
+                nix_channel = args[i+1].clone();
+                i += 2;
+            }
             _ => { eprintln!("Unknown save-settings flag: {}", args[i]); exit(1); }
         }
     }
@@ -193,8 +223,8 @@ pub fn save_settings(args: &[String]) {
     // Write settings to ini config
     let _ = std::fs::create_dir_all("/boot/config/plugins/nix");
     let cfg_content = format!(
-        "NIX_STORE_PATH=\"{}\"\nAUTOSTART_FLAKES=\"{}\"\nENABLE_STORAGE_SANDBOX=\"{}\"\nENABLE_CLI_INSTALL=\"{}\"\nSHOW_IN_NAVIGATION=\"{}\"\nALLOW_SOURCE_BUILDS=\"{}\"\nFILTER_PRESETS_BY_HARDWARE=\"{}\"\nENABLE_PID_ISOLATION=\"{}\"\nENABLE_UTS_ISOLATION=\"{}\"\nENABLE_IPC_ISOLATION=\"{}\"\nAUTO_GC=\"{}\"\nNIX_STORE_QUOTA=\"{}\"\n",
-        clean_store_path, autostart, enable_sandbox, enable_cli, show_in_nav, allow_source_builds, filter_presets_by_hardware, enable_pid_isolation, enable_uts_isolation, enable_ipc_isolation, auto_gc, store_quota
+        "NIX_STORE_PATH=\"{}\"\nAUTOSTART_FLAKES=\"{}\"\nENABLE_STORAGE_SANDBOX=\"{}\"\nENABLE_CLI_INSTALL=\"{}\"\nSHOW_IN_NAVIGATION=\"{}\"\nALLOW_SOURCE_BUILDS=\"{}\"\nFILTER_PRESETS_BY_HARDWARE=\"{}\"\nENABLE_PID_ISOLATION=\"{}\"\nENABLE_UTS_ISOLATION=\"{}\"\nENABLE_IPC_ISOLATION=\"{}\"\nAUTO_GC=\"{}\"\nNIX_STORE_QUOTA=\"{}\"\nBUILD_CORES=\"{}\"\nBUILD_JOBS=\"{}\"\nGC_MIN_FREE=\"{}\"\nGC_MAX_FREE=\"{}\"\nNIX_CHANNEL=\"{}\"\n",
+        clean_store_path, autostart, enable_sandbox, enable_cli, show_in_nav, allow_source_builds, filter_presets_by_hardware, enable_pid_isolation, enable_uts_isolation, enable_ipc_isolation, auto_gc, store_quota, build_cores, build_jobs, gc_min_free, gc_max_free, nix_channel
     );
     if std::fs::write(cfg_file, cfg_content).is_err() {
         eprintln!("Failed to write nix.cfg to flash drive.");

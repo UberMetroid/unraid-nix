@@ -212,6 +212,11 @@ if ($action === 'save-settings') {
     $enable_ipc_isolation = isset($_POST['enable_ipc_isolation']) ? $_POST['enable_ipc_isolation'] : 'yes';
     $auto_gc = isset($_POST['auto_gc']) ? $_POST['auto_gc'] : 'no';
     $store_quota = isset($_POST['store_quota']) ? $_POST['store_quota'] : '30';
+    $build_cores = isset($_POST['build_cores']) ? $_POST['build_cores'] : '0';
+    $build_jobs = isset($_POST['build_jobs']) ? $_POST['build_jobs'] : '0';
+    $gc_min_free = isset($_POST['gc_min_free']) ? $_POST['gc_min_free'] : '5';
+    $gc_max_free = isset($_POST['gc_max_free']) ? $_POST['gc_max_free'] : '10';
+    $nix_channel = isset($_POST['nix_channel']) ? $_POST['nix_channel'] : 'nixos-unstable';
     
     $output = [];
     $code = 0;
@@ -227,7 +232,12 @@ if ($action === 'save-settings') {
            "--enable-uts-isolation " . escapeshellarg($enable_uts_isolation) . " " .
            "--enable-ipc-isolation " . escapeshellarg($enable_ipc_isolation) . " " .
            "--auto-gc " . escapeshellarg($auto_gc) . " " .
-           "--store-quota " . escapeshellarg($store_quota);
+           "--store-quota " . escapeshellarg($store_quota) . " " .
+           "--build-cores " . escapeshellarg($build_cores) . " " .
+           "--build-jobs " . escapeshellarg($build_jobs) . " " .
+           "--gc-min-free " . escapeshellarg($gc_min_free) . " " .
+           "--gc-max-free " . escapeshellarg($gc_max_free) . " " .
+           "--nix-channel " . escapeshellarg($nix_channel);
            
     exec($cmd . " 2>&1", $output, $code);
     if ($code !== 0) {
