@@ -45,16 +45,16 @@ pub fn render_presets_store() -> String {
             </div>
         </div>
 
-        <!-- Category pills -->
+        <!-- Category pills (Alphabetically Sorted) -->
         <div class="nix-preset-pills" style="display: flex; gap: 8px; flex-wrap: wrap; padding-bottom: 5px; border-bottom: 1px solid rgba(255,255,255,0.05);">
-            <button type="button" class="nix-preset-pill active" onclick="filterPresetCategory('media', this)">Media & Audio</button>
-            <button type="button" class="nix-preset-pill" onclick="filterPresetCategory('automation', this)">ARR!</button>
-            <button type="button" class="nix-preset-pill" onclick="filterPresetCategory('downloads', this)">Downloads</button>
-            <button type="button" class="nix-preset-pill" onclick="filterPresetCategory('network', this)">Network & VPN</button>
-            <button type="button" class="nix-preset-pill" onclick="filterPresetCategory('smarthome', this)">Smart Home</button>
-            <button type="button" class="nix-preset-pill" onclick="filterPresetCategory('security', this)">Security & Locks</button>
-            <button type="button" class="nix-preset-pill" onclick="filterPresetCategory('storage', this)">Sync & Backups</button>
+            <button type="button" class="nix-preset-pill active" onclick="filterPresetCategory('automation', this)">ARR!</button>
             <button type="button" class="nix-preset-pill" onclick="filterPresetCategory('database', this)">Databases</button>
+            <button type="button" class="nix-preset-pill" onclick="filterPresetCategory('downloads', this)">Downloads</button>
+            <button type="button" class="nix-preset-pill" onclick="filterPresetCategory('media', this)">Media & Audio</button>
+            <button type="button" class="nix-preset-pill" onclick="filterPresetCategory('network', this)">Network & VPN</button>
+            <button type="button" class="nix-preset-pill" onclick="filterPresetCategory('security', this)">Security & Locks</button>
+            <button type="button" class="nix-preset-pill" onclick="filterPresetCategory('smarthome', this)">Smart Home</button>
+            <button type="button" class="nix-preset-pill" onclick="filterPresetCategory('storage', this)">Sync & Backups</button>
         </div>
     </div>
     
@@ -98,7 +98,7 @@ pub fn render_presets_store() -> String {
 
     html.push_str(r##"</div>
     <script>
-    var activeCategory = 'media';
+    var activeCategory = 'automation';
 
     function filterPresetCategory(cat, btn) {
         activeCategory = cat;
