@@ -1,7 +1,6 @@
-Menu="Dashboard:0"
-Cond="version_compare(parse_ini_file('/etc/unraid-version')['version'],'6.11.9','>')"
+Menu="Dashboard:30"
+Title="Nix Services"
 ---
 <?php
-$dashboard_html = shell_exec("/usr/local/emhttp/plugins/nix/nix-helper render dashboard 2>/dev/null");
-$mytiles['nix']['column2'] = $dashboard_html;
+passthru("/usr/local/emhttp/plugins/nix/nix-helper render dashboard 2>/dev/null");
 ?>
