@@ -1,0 +1,14 @@
+{
+  "name": "prometheus",
+  "display_name": "Prometheus",
+  "description": "Prometheus Monitoring DB",
+  "url": "https://prometheus.io/",
+  "command": "exec nix run nixpkgs#prometheus -- --config.file=/config/prometheus.yml --storage.tsdb.path=/config/data",
+  "default_ports": [
+    {
+      "host": 9090,
+      "container": 9090,
+      "label": "Web GUI"
+    }
+  ]
+}

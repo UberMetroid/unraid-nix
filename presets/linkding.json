@@ -1,0 +1,14 @@
+{
+  "name": "linkding",
+  "display_name": "Linkding",
+  "description": "Linkding Bookmark Manager",
+  "url": "https://github.com/sissbruecker/linkding",
+  "command": "exec nix run nixpkgs#linkding",
+  "default_ports": [
+    {
+      "host": 9090,
+      "container": 9090,
+      "label": "HTTP"
+    }
+  ]
+}

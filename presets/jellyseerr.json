@@ -1,0 +1,14 @@
+{
+  "name": "jellyseerr",
+  "display_name": "Jellyseerr",
+  "description": "Jellyseerr Media Requests",
+  "url": "https://github.com/Fallenbagel/jellyseerr",
+  "command": "exec nix run nixpkgs#jellyseerr",
+  "default_ports": [
+    {
+      "host": 5055,
+      "container": 5055,
+      "label": "HTTP"
+    }
+  ]
+}

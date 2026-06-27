@@ -1,0 +1,14 @@
+{
+  "name": "baserow",
+  "display_name": "Baserow",
+  "description": "Baserow Airtable Substitute",
+  "url": "https://baserow.io/",
+  "command": "exec nix run nixpkgs#baserow",
+  "default_ports": [
+    {
+      "host": 80,
+      "container": 80,
+      "label": "HTTP"
+    }
+  ]
+}

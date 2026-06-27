@@ -1,0 +1,14 @@
+{
+  "name": "netdata",
+  "display_name": "Netdata",
+  "description": "Netdata Performance Agent",
+  "url": "https://www.netdata.cloud/",
+  "command": "exec nix run nixpkgs#netdata -D",
+  "default_ports": [
+    {
+      "host": 19999,
+      "container": 19999,
+      "label": "Web GUI"
+    }
+  ]
+}

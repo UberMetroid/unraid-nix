@@ -1,0 +1,14 @@
+{
+  "name": "postgresql",
+  "display_name": "PostgreSQL",
+  "description": "PostgreSQL SQL Server",
+  "url": "https://www.postgresql.org/",
+  "command": "exec nix run nixpkgs#postgresql",
+  "default_ports": [
+    {
+      "host": 5432,
+      "container": 5432,
+      "label": "Postgres Port"
+    }
+  ]
+}

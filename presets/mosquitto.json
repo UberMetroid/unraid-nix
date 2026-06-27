@@ -1,0 +1,19 @@
+{
+  "name": "mosquitto",
+  "display_name": "Mosquitto",
+  "description": "Mosquitto MQTT Message Broker",
+  "url": "https://mosquitto.org/",
+  "command": "exec nix run nixpkgs#mosquitto -- -c /config/mosquitto.conf",
+  "default_ports": [
+    {
+      "host": 1883,
+      "container": 1883,
+      "label": "MQTT"
+    },
+    {
+      "host": 9001,
+      "container": 9001,
+      "label": "WebSockets"
+    }
+  ]
+}

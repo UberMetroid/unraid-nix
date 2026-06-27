@@ -1,0 +1,14 @@
+{
+  "name": "stirling-pdf",
+  "display_name": "Stirling-PDF",
+  "description": "Stirling PDF Tool Suite",
+  "url": "https://github.com/Stirling-Tools/Stirling-PDF",
+  "command": "exec nix run nixpkgs#stirling-pdf",
+  "default_ports": [
+    {
+      "host": 8080,
+      "container": 8080,
+      "label": "HTTP"
+    }
+  ]
+}

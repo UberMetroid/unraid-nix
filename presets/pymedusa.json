@@ -1,0 +1,14 @@
+{
+  "name": "pymedusa",
+  "display_name": "PyMedusa",
+  "description": "PyMedusa TV Manager",
+  "url": "https://pymedusa.com/",
+  "command": "exec nix run nixpkgs#pymedusa",
+  "default_ports": [
+    {
+      "host": 8081,
+      "container": 8081,
+      "label": "HTTP"
+    }
+  ]
+}

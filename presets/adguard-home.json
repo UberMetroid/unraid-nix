@@ -1,0 +1,24 @@
+{
+  "name": "adguard-home",
+  "display_name": "AdGuard Home",
+  "description": "AdGuard Home DNS Adblocker",
+  "url": "https://adguard.com/adguard-home.html",
+  "command": "exec nix run nixpkgs#adguardhome -- --config /config/AdGuardHome.yaml --work-dir /config",
+  "default_ports": [
+    {
+      "host": 3000,
+      "container": 3000,
+      "label": "Setup"
+    },
+    {
+      "host": 80,
+      "container": 80,
+      "label": "Web GUI"
+    },
+    {
+      "host": 53,
+      "container": 53,
+      "label": "DNS"
+    }
+  ]
+}

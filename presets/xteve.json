@@ -1,0 +1,14 @@
+{
+  "name": "xteve",
+  "display_name": "xTeVe",
+  "description": "xTeVe M3U Proxy",
+  "url": "https://github.com/xteve-project/xTeVe",
+  "command": "exec nix run nixpkgs#xteve -- -config=/config",
+  "default_ports": [
+    {
+      "host": 34400,
+      "container": 34400,
+      "label": "HTTP"
+    }
+  ]
+}

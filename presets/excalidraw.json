@@ -1,0 +1,14 @@
+{
+  "name": "excalidraw",
+  "display_name": "Excalidraw",
+  "description": "Excalidraw Drawing Canvas",
+  "url": "https://excalidraw.com/",
+  "command": "exec nix run nixpkgs#excalidraw",
+  "default_ports": [
+    {
+      "host": 3000,
+      "container": 3000,
+      "label": "HTTP"
+    }
+  ]
+}

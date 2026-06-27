@@ -1,0 +1,14 @@
+{
+  "name": "nzbget",
+  "display_name": "NZBGet",
+  "description": "NZBGet Usenet Client",
+  "url": "https://nzbget.com/",
+  "command": "exec nix run nixpkgs#nzbget -- -s -o OutputMode=Log -c /config/nzbget.conf",
+  "default_ports": [
+    {
+      "host": 6789,
+      "container": 6789,
+      "label": "HTTP"
+    }
+  ]
+}

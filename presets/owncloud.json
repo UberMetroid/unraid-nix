@@ -1,0 +1,14 @@
+{
+  "name": "owncloud",
+  "display_name": "OwnCloud",
+  "description": "OwnCloud File Storage",
+  "url": "https://owncloud.com/",
+  "command": "exec nix run nixpkgs#owncloud",
+  "default_ports": [
+    {
+      "host": 80,
+      "container": 80,
+      "label": "HTTP"
+    }
+  ]
+}

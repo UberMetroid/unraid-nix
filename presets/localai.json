@@ -1,0 +1,14 @@
+{
+  "name": "localai",
+  "display_name": "LocalAI",
+  "description": "LocalAI LLM API Server",
+  "url": "https://localai.io/",
+  "command": "exec nix run nixpkgs#localai",
+  "default_ports": [
+    {
+      "host": 8080,
+      "container": 8080,
+      "label": "HTTP"
+    }
+  ]
+}

@@ -1,0 +1,14 @@
+{
+  "name": "esphome",
+  "display_name": "ESPHome",
+  "description": "ESPHome IoT Firmware Creator",
+  "url": "https://esphome.io/",
+  "command": "exec nix run nixpkgs#esphome -- dashboard /config",
+  "default_ports": [
+    {
+      "host": 6052,
+      "container": 6052,
+      "label": "HTTP"
+    }
+  ]
+}

@@ -1,0 +1,14 @@
+{
+  "name": "transmission-openvpn",
+  "display_name": "Transmission VPN",
+  "description": "Transmission Client with VPN",
+  "url": "https://github.com/haugene/docker-transmission-openvpn",
+  "command": "exec nix run nixpkgs#transmission -- -f -g /config",
+  "default_ports": [
+    {
+      "host": 9091,
+      "container": 9091,
+      "label": "RPC/Web"
+    }
+  ]
+}

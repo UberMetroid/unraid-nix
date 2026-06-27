@@ -1,0 +1,14 @@
+{
+  "name": "jdownloader2",
+  "display_name": "JDownloader 2",
+  "description": "JDownloader 2 Web GUI",
+  "url": "https://jdownloader.org/",
+  "command": "exec nix run nixpkgs#jdownloader",
+  "default_ports": [
+    {
+      "host": 5800,
+      "container": 5800,
+      "label": "Web GUI"
+    }
+  ]
+}

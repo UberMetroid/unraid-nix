@@ -1,0 +1,14 @@
+{
+  "name": "navidrome",
+  "display_name": "Navidrome",
+  "description": "Navidrome Music Server",
+  "url": "https://www.navidrome.org/",
+  "command": "exec nix run nixpkgs#navidrome -- --configfile /config/navidrome.toml",
+  "default_ports": [
+    {
+      "host": 4533,
+      "container": 4533,
+      "label": "HTTP"
+    }
+  ]
+}

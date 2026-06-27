@@ -1,0 +1,14 @@
+{
+  "name": "prowlarr",
+  "display_name": "Prowlarr",
+  "description": "Prowlarr Indexer Manager",
+  "url": "https://prowlarr.com/",
+  "command": "exec nix run nixpkgs#prowlarr",
+  "default_ports": [
+    {
+      "host": 9696,
+      "container": 9696,
+      "label": "HTTP"
+    }
+  ]
+}

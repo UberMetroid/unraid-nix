@@ -1,0 +1,14 @@
+{
+  "name": "dokuwiki",
+  "display_name": "DokuWiki",
+  "description": "DokuWiki Wiki Engine",
+  "url": "https://www.dokuwiki.org/",
+  "command": "exec nix run nixpkgs#dokuwiki",
+  "default_ports": [
+    {
+      "host": 80,
+      "container": 80,
+      "label": "HTTP"
+    }
+  ]
+}

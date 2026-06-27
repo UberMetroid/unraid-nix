@@ -1,0 +1,14 @@
+{
+  "name": "speedtest-tracker",
+  "display_name": "Speedtest Tracker",
+  "description": "Speedtest Network Monitoring",
+  "url": "https://github.com/alexjustesen/speedtest-tracker",
+  "command": "exec nix run nixpkgs#speedtest-tracker",
+  "default_ports": [
+    {
+      "host": 80,
+      "container": 80,
+      "label": "HTTP"
+    }
+  ]
+}

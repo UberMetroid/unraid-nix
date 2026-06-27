@@ -1,0 +1,14 @@
+{
+  "name": "filezilla",
+  "display_name": "FileZilla",
+  "description": "FileZilla FTP GUI",
+  "url": "https://filezilla-project.org/",
+  "command": "exec nix run nixpkgs#filezilla",
+  "default_ports": [
+    {
+      "host": 5800,
+      "container": 5800,
+      "label": "Web GUI"
+    }
+  ]
+}

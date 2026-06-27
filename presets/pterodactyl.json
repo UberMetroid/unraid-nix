@@ -1,0 +1,19 @@
+{
+  "name": "pterodactyl",
+  "display_name": "Pterodactyl",
+  "description": "Pterodactyl Game Server Manager",
+  "url": "https://pterodactyl.io/",
+  "command": "exec nix run nixpkgs#pterodactyl",
+  "default_ports": [
+    {
+      "host": 80,
+      "container": 80,
+      "label": "HTTP"
+    },
+    {
+      "host": 443,
+      "container": 443,
+      "label": "HTTPS"
+    }
+  ]
+}

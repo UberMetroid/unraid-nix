@@ -1,0 +1,14 @@
+{
+  "name": "zoneminder",
+  "display_name": "ZoneMinder",
+  "description": "ZoneMinder NVR Security",
+  "url": "https://zoneminder.com/",
+  "command": "exec nix run nixpkgs#zoneminder",
+  "default_ports": [
+    {
+      "host": 80,
+      "container": 80,
+      "label": "HTTP"
+    }
+  ]
+}

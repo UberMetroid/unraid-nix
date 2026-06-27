@@ -1,0 +1,14 @@
+{
+  "name": "grafana",
+  "display_name": "Grafana",
+  "description": "Grafana Visual Dashboards",
+  "url": "https://grafana.com/",
+  "command": "exec nix run nixpkgs#grafana",
+  "default_ports": [
+    {
+      "host": 3000,
+      "container": 3000,
+      "label": "Web GUI"
+    }
+  ]
+}

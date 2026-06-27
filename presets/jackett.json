@@ -1,0 +1,14 @@
+{
+  "name": "jackett",
+  "display_name": "Jackett",
+  "description": "Jackett API Proxy",
+  "url": "https://github.com/Jackett/Jackett",
+  "command": "exec nix run nixpkgs#jackett -- --DataFolder /config",
+  "default_ports": [
+    {
+      "host": 9117,
+      "container": 9117,
+      "label": "HTTP"
+    }
+  ]
+}

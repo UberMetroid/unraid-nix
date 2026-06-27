@@ -1,10 +1,14 @@
 {
   "name": "home-assistant",
   "display_name": "Home Assistant",
-  "description": "Home Assistant Automation",
+  "description": "Home Assistant Smart Automation",
   "url": "https://www.home-assistant.io/",
   "command": "exec nix run nixpkgs#home-assistant -- --config /config",
   "default_ports": [
-    { "host": 8123, "container": 8123, "label": "Web GUI" }
+    {
+      "host": 8123,
+      "container": 8123,
+      "label": "Web GUI"
+    }
   ]
 }

@@ -1,0 +1,14 @@
+{
+  "name": "kopia",
+  "display_name": "Kopia",
+  "description": "Kopia Snapshot System",
+  "url": "https://kopia.io/",
+  "command": "exec nix run nixpkgs#kopia",
+  "default_ports": [
+    {
+      "host": 52000,
+      "container": 52000,
+      "label": "Web GUI"
+    }
+  ]
+}

@@ -1,0 +1,14 @@
+{
+  "name": "matrix-synapse",
+  "display_name": "Matrix Synapse",
+  "description": "Matrix Synapse Chat Gateway",
+  "url": "https://matrix.org/",
+  "command": "exec nix run nixpkgs#matrix-synapse",
+  "default_ports": [
+    {
+      "host": 8008,
+      "container": 8008,
+      "label": "HTTP"
+    }
+  ]
+}

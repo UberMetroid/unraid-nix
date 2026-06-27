@@ -1,0 +1,14 @@
+{
+  "name": "readarr",
+  "display_name": "Readarr",
+  "description": "Readarr Book Manager",
+  "url": "https://readarr.com/",
+  "command": "exec nix run nixpkgs#readarr",
+  "default_ports": [
+    {
+      "host": 8787,
+      "container": 8787,
+      "label": "HTTP"
+    }
+  ]
+}

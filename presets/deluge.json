@@ -1,0 +1,19 @@
+{
+  "name": "deluge",
+  "display_name": "Deluge",
+  "description": "Deluge Torrent Client",
+  "url": "https://deluge-torrent.org/",
+  "command": "exec nix run nixpkgs#deluge -- -d -c /config",
+  "default_ports": [
+    {
+      "host": 8112,
+      "container": 8112,
+      "label": "Web GUI"
+    },
+    {
+      "host": 58846,
+      "container": 58846,
+      "label": "Daemon"
+    }
+  ]
+}

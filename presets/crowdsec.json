@@ -1,0 +1,14 @@
+{
+  "name": "crowdsec",
+  "display_name": "CrowdSec",
+  "description": "CrowdSec IPS System",
+  "url": "https://www.crowdsec.net/",
+  "command": "exec nix run nixpkgs#crowdsec -- -c /config/config.yaml",
+  "default_ports": [
+    {
+      "host": 8080,
+      "container": 8080,
+      "label": "LAPI"
+    }
+  ]
+}

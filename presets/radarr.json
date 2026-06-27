@@ -3,7 +3,12 @@
   "display_name": "Radarr",
   "description": "Radarr Movie Manager",
   "url": "https://radarr.video/",
+  "command": "exec nix run nixpkgs#radarr",
   "default_ports": [
-    { "host": 7878, "container": 7878, "label": "HTTP" }
+    {
+      "host": 7878,
+      "container": 7878,
+      "label": "HTTP"
+    }
   ]
 }

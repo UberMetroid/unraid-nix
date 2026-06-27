@@ -1,0 +1,14 @@
+{
+  "name": "yourls",
+  "display_name": "YOURLS",
+  "description": "YOURLS URL Shortener",
+  "url": "https://yourls.org/",
+  "command": "exec nix run nixpkgs#yourls",
+  "default_ports": [
+    {
+      "host": 80,
+      "container": 80,
+      "label": "HTTP"
+    }
+  ]
+}

@@ -1,0 +1,14 @@
+{
+  "name": "comfyui",
+  "display_name": "ComfyUI",
+  "description": "ComfyUI Node Diffusion Editor",
+  "url": "https://github.com/comfyanonymous/ComfyUI",
+  "command": "exec nix run nixpkgs#comfyui",
+  "default_ports": [
+    {
+      "host": 8188,
+      "container": 8188,
+      "label": "Web GUI"
+    }
+  ]
+}

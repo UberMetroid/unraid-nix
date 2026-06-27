@@ -1,0 +1,14 @@
+{
+  "name": "matomo",
+  "display_name": "Matomo",
+  "description": "Matomo Web Analytics",
+  "url": "https://matomo.org/",
+  "command": "exec nix run nixpkgs#matomo",
+  "default_ports": [
+    {
+      "host": 80,
+      "container": 80,
+      "label": "HTTP"
+    }
+  ]
+}

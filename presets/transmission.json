@@ -5,7 +5,15 @@
   "url": "https://transmissionbt.com/",
   "command": "exec nix run nixpkgs#transmission -- -f -g /config",
   "default_ports": [
-    { "host": 9091, "container": 9091, "label": "RPC/Web" },
-    { "host": 51413, "container": 51413, "label": "Peer Port" }
+    {
+      "host": 9091,
+      "container": 9091,
+      "label": "RPC/Web"
+    },
+    {
+      "host": 51413,
+      "container": 51413,
+      "label": "Peer Port"
+    }
   ]
 }

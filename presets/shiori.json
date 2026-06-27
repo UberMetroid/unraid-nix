@@ -1,0 +1,14 @@
+{
+  "name": "shiori",
+  "display_name": "Shiori",
+  "description": "Shiori Bookmark Manager",
+  "url": "https://github.com/go-shiori/shiori",
+  "command": "exec nix run nixpkgs#shiori -- serve --address 0.0.0.0:8080",
+  "default_ports": [
+    {
+      "host": 8080,
+      "container": 8080,
+      "label": "HTTP"
+    }
+  ]
+}

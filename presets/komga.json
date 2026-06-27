@@ -1,0 +1,14 @@
+{
+  "name": "komga",
+  "display_name": "Komga",
+  "description": "Komga Media Server",
+  "url": "https://komga.org/",
+  "command": "exec nix run nixpkgs#komga",
+  "default_ports": [
+    {
+      "host": 8080,
+      "container": 8080,
+      "label": "HTTP"
+    }
+  ]
+}

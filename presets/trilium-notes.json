@@ -1,0 +1,14 @@
+{
+  "name": "trilium-notes",
+  "display_name": "Trilium Notes",
+  "description": "Trilium Notes Library",
+  "url": "https://github.com/zadam/trilium",
+  "command": "exec nix run nixpkgs#trilium",
+  "default_ports": [
+    {
+      "host": 8080,
+      "container": 8080,
+      "label": "HTTP"
+    }
+  ]
+}

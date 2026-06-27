@@ -1,0 +1,14 @@
+{
+  "name": "petio",
+  "display_name": "Petio",
+  "description": "Petio Requests Portal",
+  "url": "https://petio.tv/",
+  "command": "exec nix run nixpkgs#petio",
+  "default_ports": [
+    {
+      "host": 7777,
+      "container": 7777,
+      "label": "HTTP"
+    }
+  ]
+}

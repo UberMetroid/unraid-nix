@@ -3,7 +3,12 @@
   "display_name": "Sonarr",
   "description": "Sonarr TV Show Manager",
   "url": "https://sonarr.tv/",
+  "command": "exec nix run nixpkgs#sonarr",
   "default_ports": [
-    { "host": 8989, "container": 8989, "label": "HTTP" }
+    {
+      "host": 8989,
+      "container": 8989,
+      "label": "HTTP"
+    }
   ]
 }

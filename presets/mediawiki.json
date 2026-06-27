@@ -1,0 +1,14 @@
+{
+  "name": "mediawiki",
+  "display_name": "MediaWiki",
+  "description": "MediaWiki Engine",
+  "url": "https://www.mediawiki.org/",
+  "command": "exec nix run nixpkgs#mediawiki",
+  "default_ports": [
+    {
+      "host": 80,
+      "container": 80,
+      "label": "HTTP"
+    }
+  ]
+}

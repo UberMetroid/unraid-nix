@@ -1,0 +1,14 @@
+{
+  "name": "scrypted",
+  "display_name": "Scrypted",
+  "description": "Scrypted Camera Server",
+  "url": "https://www.scrypted.app/",
+  "command": "exec nix run nixpkgs#scrypted",
+  "default_ports": [
+    {
+      "host": 10443,
+      "container": 10443,
+      "label": "HTTPS Web"
+    }
+  ]
+}

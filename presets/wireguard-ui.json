@@ -1,0 +1,14 @@
+{
+  "name": "wireguard-ui",
+  "display_name": "Wireguard-UI",
+  "description": "Wireguard Web Portal GUI",
+  "url": "https://github.com/ngoduykhanh/wireguard-ui",
+  "command": "exec nix run nixpkgs#wireguard-ui",
+  "default_ports": [
+    {
+      "host": 5000,
+      "container": 5000,
+      "label": "Web GUI"
+    }
+  ]
+}

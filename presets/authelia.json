@@ -1,0 +1,14 @@
+{
+  "name": "authelia",
+  "display_name": "Authelia",
+  "description": "Authelia Authentication",
+  "url": "https://www.authelia.com/",
+  "command": "exec nix run nixpkgs#authelia -- --config /config/configuration.yml",
+  "default_ports": [
+    {
+      "host": 9091,
+      "container": 9091,
+      "label": "HTTP"
+    }
+  ]
+}

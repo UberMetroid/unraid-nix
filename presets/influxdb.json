@@ -1,0 +1,14 @@
+{
+  "name": "influxdb",
+  "display_name": "InfluxDB",
+  "description": "InfluxDB Time Series DB",
+  "url": "https://www.influxdata.com/",
+  "command": "exec nix run nixpkgs#influxdb",
+  "default_ports": [
+    {
+      "host": 8086,
+      "container": 8086,
+      "label": "API"
+    }
+  ]
+}

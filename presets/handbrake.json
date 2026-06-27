@@ -1,0 +1,14 @@
+{
+  "name": "handbrake",
+  "display_name": "HandBrake",
+  "description": "HandBrake Transcoder GUI",
+  "url": "https://handbrake.fr/",
+  "command": "exec nix run nixpkgs#handbrake",
+  "default_ports": [
+    {
+      "host": 5800,
+      "container": 5800,
+      "label": "Web GUI"
+    }
+  ]
+}

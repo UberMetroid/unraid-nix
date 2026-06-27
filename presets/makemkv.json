@@ -1,0 +1,14 @@
+{
+  "name": "makemkv",
+  "display_name": "MakeMKV",
+  "description": "MakeMKV Blu-ray Ripper GUI",
+  "url": "https://www.makemkv.com/",
+  "command": "exec nix run nixpkgs#makemkv",
+  "default_ports": [
+    {
+      "host": 5800,
+      "container": 5800,
+      "label": "Web GUI"
+    }
+  ]
+}

@@ -1,0 +1,14 @@
+{
+  "name": "calibre",
+  "display_name": "Calibre",
+  "description": "Calibre Ebook Manager",
+  "url": "https://calibre-ebook.com/",
+  "command": "exec nix run nixpkgs#calibre",
+  "default_ports": [
+    {
+      "host": 8080,
+      "container": 8080,
+      "label": "HTTP"
+    }
+  ]
+}

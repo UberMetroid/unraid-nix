@@ -1,0 +1,19 @@
+{
+  "name": "pgadmin4",
+  "display_name": "pgAdmin4",
+  "description": "pgAdmin4 PostgreSQL Client",
+  "url": "https://www.pgadmin.org/",
+  "command": "exec nix run nixpkgs#pgadmin4",
+  "default_ports": [
+    {
+      "host": 80,
+      "container": 80,
+      "label": "HTTP"
+    },
+    {
+      "host": 443,
+      "container": 443,
+      "label": "HTTPS"
+    }
+  ]
+}

@@ -1,0 +1,14 @@
+{
+  "name": "jellystat",
+  "display_name": "Jellystat",
+  "description": "Jellystat Statistics",
+  "url": "https://github.com/CyferShepard/Jellystat",
+  "command": "exec nix run nixpkgs#jellystat",
+  "default_ports": [
+    {
+      "host": 3000,
+      "container": 3000,
+      "label": "HTTP"
+    }
+  ]
+}

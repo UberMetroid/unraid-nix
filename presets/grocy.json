@@ -1,0 +1,14 @@
+{
+  "name": "grocy",
+  "display_name": "Grocy",
+  "description": "Grocy Groceries ERP",
+  "url": "https://grocy.info/",
+  "command": "exec nix run nixpkgs#grocy",
+  "default_ports": [
+    {
+      "host": 80,
+      "container": 80,
+      "label": "HTTP"
+    }
+  ]
+}

@@ -1,0 +1,14 @@
+{
+  "name": "filebot",
+  "display_name": "FileBot",
+  "description": "FileBot Media Renamer GUI",
+  "url": "https://www.filebot.net/",
+  "command": "exec nix run nixpkgs#filebot",
+  "default_ports": [
+    {
+      "host": 5800,
+      "container": 5800,
+      "label": "Web GUI"
+    }
+  ]
+}

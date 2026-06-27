@@ -1,0 +1,14 @@
+{
+  "name": "shinobi",
+  "display_name": "Shinobi",
+  "description": "Shinobi NVR Security Web",
+  "url": "https://shinobi.video/",
+  "command": "exec nix run nixpkgs#shinobi",
+  "default_ports": [
+    {
+      "host": 8080,
+      "container": 8080,
+      "label": "HTTP"
+    }
+  ]
+}

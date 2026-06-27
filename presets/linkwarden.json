@@ -1,0 +1,14 @@
+{
+  "name": "linkwarden",
+  "display_name": "Linkwarden",
+  "description": "Linkwarden Bookmark Manager",
+  "url": "https://linkwarden.app/",
+  "command": "exec nix run nixpkgs#linkwarden",
+  "default_ports": [
+    {
+      "host": 3000,
+      "container": 3000,
+      "label": "HTTP"
+    }
+  ]
+}

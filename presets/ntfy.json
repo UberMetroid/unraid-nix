@@ -1,0 +1,14 @@
+{
+  "name": "ntfy",
+  "display_name": "NTFY",
+  "description": "NTFY Push Notification Broker",
+  "url": "https://ntfy.sh/",
+  "command": "exec nix run nixpkgs#ntfy -- serve",
+  "default_ports": [
+    {
+      "host": 80,
+      "container": 80,
+      "label": "HTTP"
+    }
+  ]
+}

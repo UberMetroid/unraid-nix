@@ -1,0 +1,14 @@
+{
+  "name": "leantime",
+  "display_name": "Leantime",
+  "description": "Leantime Project Management",
+  "url": "https://leantime.io/",
+  "command": "exec nix run nixpkgs#leantime",
+  "default_ports": [
+    {
+      "host": 80,
+      "container": 80,
+      "label": "HTTP"
+    }
+  ]
+}

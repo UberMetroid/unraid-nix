@@ -1,0 +1,14 @@
+{
+  "name": "wled",
+  "display_name": "WLED",
+  "description": "WLED LED Strip Controller",
+  "url": "https://github.com/Aircoookie/WLED",
+  "command": "exec nix run nixpkgs#wled",
+  "default_ports": [
+    {
+      "host": 80,
+      "container": 80,
+      "label": "HTTP"
+    }
+  ]
+}

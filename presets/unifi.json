@@ -1,0 +1,19 @@
+{
+  "name": "unifi",
+  "display_name": "UniFi Network Application",
+  "description": "UniFi Software Controller",
+  "url": "https://ui.com/",
+  "command": "exec nix run nixpkgs#unifi",
+  "default_ports": [
+    {
+      "host": 8443,
+      "container": 8443,
+      "label": "HTTPS GUI"
+    },
+    {
+      "host": 8080,
+      "container": 8080,
+      "label": "Inform Port"
+    }
+  ]
+}

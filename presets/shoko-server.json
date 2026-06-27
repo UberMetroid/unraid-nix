@@ -1,0 +1,14 @@
+{
+  "name": "shoko-server",
+  "display_name": "Shoko Server",
+  "description": "Shoko Server Anime Database",
+  "url": "https://shokoanime.com/",
+  "command": "exec nix run nixpkgs#shoko-server",
+  "default_ports": [
+    {
+      "host": 8111,
+      "container": 8111,
+      "label": "HTTP"
+    }
+  ]
+}

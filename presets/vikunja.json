@@ -1,0 +1,14 @@
+{
+  "name": "vikunja",
+  "display_name": "Vikunja",
+  "description": "Vikunja Task Manager",
+  "url": "https://vikunja.io/",
+  "command": "exec nix run nixpkgs#vikunja",
+  "default_ports": [
+    {
+      "host": 3456,
+      "container": 3456,
+      "label": "HTTP"
+    }
+  ]
+}

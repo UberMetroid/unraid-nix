@@ -1,0 +1,24 @@
+{
+  "name": "caddy",
+  "display_name": "Caddy",
+  "description": "Caddy Web Server",
+  "url": "https://caddyserver.com/",
+  "command": "exec nix run nixpkgs#caddy -- run --config /config/Caddyfile",
+  "default_ports": [
+    {
+      "host": 2019,
+      "container": 2019,
+      "label": "Admin"
+    },
+    {
+      "host": 80,
+      "container": 80,
+      "label": "HTTP"
+    },
+    {
+      "host": 443,
+      "container": 443,
+      "label": "HTTPS"
+    }
+  ]
+}

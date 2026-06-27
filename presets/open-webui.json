@@ -1,0 +1,14 @@
+{
+  "name": "open-webui",
+  "display_name": "Open WebUI",
+  "description": "Open WebUI Chat Frontend",
+  "url": "https://github.com/open-webui/open-webui",
+  "command": "exec nix run nixpkgs#open-webui",
+  "default_ports": [
+    {
+      "host": 8080,
+      "container": 8080,
+      "label": "Web GUI"
+    }
+  ]
+}

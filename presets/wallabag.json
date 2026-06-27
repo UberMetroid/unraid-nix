@@ -1,0 +1,14 @@
+{
+  "name": "wallabag",
+  "display_name": "Wallabag",
+  "description": "Wallabag Read Later Reader",
+  "url": "https://wallabag.org/",
+  "command": "exec nix run nixpkgs#wallabag",
+  "default_ports": [
+    {
+      "host": 80,
+      "container": 80,
+      "label": "HTTP"
+    }
+  ]
+}

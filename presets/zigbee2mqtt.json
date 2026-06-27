@@ -1,0 +1,14 @@
+{
+  "name": "zigbee2mqtt",
+  "display_name": "Zigbee2MQTT",
+  "description": "Zigbee2MQTT Bridge GUI",
+  "url": "https://www.zigbee2mqtt.io/",
+  "command": "exec nix run nixpkgs#zigbee2mqtt",
+  "default_ports": [
+    {
+      "host": 8080,
+      "container": 8080,
+      "label": "Web GUI"
+    }
+  ]
+}

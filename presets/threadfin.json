@@ -1,0 +1,14 @@
+{
+  "name": "threadfin",
+  "display_name": "Threadfin",
+  "description": "Threadfin M3U Proxy",
+  "url": "https://github.com/Threadfin/Threadfin",
+  "command": "exec nix run nixpkgs#threadfin",
+  "default_ports": [
+    {
+      "host": 34400,
+      "container": 34400,
+      "label": "HTTP"
+    }
+  ]
+}

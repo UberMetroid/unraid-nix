@@ -1,0 +1,14 @@
+{
+  "name": "wiki-js",
+  "display_name": "Wiki.js",
+  "description": "Wiki.js Knowledge Base Platform",
+  "url": "https://js.wiki/",
+  "command": "exec nix run nixpkgs#wiki-js",
+  "default_ports": [
+    {
+      "host": 3000,
+      "container": 3000,
+      "label": "HTTP"
+    }
+  ]
+}

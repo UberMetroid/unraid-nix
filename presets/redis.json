@@ -1,0 +1,14 @@
+{
+  "name": "redis",
+  "display_name": "Redis",
+  "description": "Redis Cache Server",
+  "url": "https://redis.io/",
+  "command": "exec nix run nixpkgs#redis",
+  "default_ports": [
+    {
+      "host": 6379,
+      "container": 6379,
+      "label": "Redis Port"
+    }
+  ]
+}

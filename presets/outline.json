@@ -1,0 +1,14 @@
+{
+  "name": "outline",
+  "display_name": "Outline",
+  "description": "Outline Knowledge Base",
+  "url": "https://www.getoutline.com/",
+  "command": "exec nix run nixpkgs#outline",
+  "default_ports": [
+    {
+      "host": 3000,
+      "container": 3000,
+      "label": "HTTP"
+    }
+  ]
+}

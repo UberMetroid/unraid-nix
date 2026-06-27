@@ -1,0 +1,14 @@
+{
+  "name": "kanboard",
+  "display_name": "Kanboard",
+  "description": "Kanboard Kanban Board",
+  "url": "https://kanboard.org/",
+  "command": "exec nix run nixpkgs#kanboard",
+  "default_ports": [
+    {
+      "host": 80,
+      "container": 80,
+      "label": "HTTP"
+    }
+  ]
+}

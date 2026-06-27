@@ -1,0 +1,14 @@
+{
+  "name": "actual-budget",
+  "display_name": "Actual Budget",
+  "description": "Actual Local Finance Tracker",
+  "url": "https://actualbudget.org/",
+  "command": "exec nix run nixpkgs#actual-budget",
+  "default_ports": [
+    {
+      "host": 5006,
+      "container": 5006,
+      "label": "HTTP"
+    }
+  ]
+}

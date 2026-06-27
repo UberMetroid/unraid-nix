@@ -1,0 +1,14 @@
+{
+  "name": "krusader",
+  "display_name": "Krusader",
+  "description": "Krusader File Manager Web GUI",
+  "url": "https://krusader.org/",
+  "command": "exec nix run nixpkgs#krusader",
+  "default_ports": [
+    {
+      "host": 5800,
+      "container": 5800,
+      "label": "Web GUI"
+    }
+  ]
+}

@@ -1,0 +1,14 @@
+{
+  "name": "dozzle",
+  "display_name": "Dozzle",
+  "description": "Dozzle Log Viewer",
+  "url": "https://dozzle.dev/",
+  "command": "exec nix run nixpkgs#dozzle",
+  "default_ports": [
+    {
+      "host": 8080,
+      "container": 8080,
+      "label": "HTTP"
+    }
+  ]
+}

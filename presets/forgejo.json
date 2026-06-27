@@ -1,0 +1,19 @@
+{
+  "name": "forgejo",
+  "display_name": "Forgejo",
+  "description": "Forgejo Git Hosting Platform",
+  "url": "https://forgejo.org/",
+  "command": "exec nix run nixpkgs#forgejo -- web",
+  "default_ports": [
+    {
+      "host": 3000,
+      "container": 3000,
+      "label": "HTTP"
+    },
+    {
+      "host": 22,
+      "container": 22,
+      "label": "SSH"
+    }
+  ]
+}

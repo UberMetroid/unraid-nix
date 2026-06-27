@@ -1,0 +1,14 @@
+{
+  "name": "shlink",
+  "display_name": "Shlink",
+  "description": "Shlink URL Shortener",
+  "url": "https://shlink.io/",
+  "command": "exec nix run nixpkgs#shlink",
+  "default_ports": [
+    {
+      "host": 8080,
+      "container": 8080,
+      "label": "HTTP"
+    }
+  ]
+}

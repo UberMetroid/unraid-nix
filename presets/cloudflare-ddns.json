@@ -1,0 +1,8 @@
+{
+  "name": "cloudflare-ddns",
+  "display_name": "Cloudflare DDNS",
+  "description": "Cloudflare Dynamic DNS Updater",
+  "url": "https://github.com/favonia/cloudflare-ddns",
+  "command": "exec nix run nixpkgs#cloudflare-ddns",
+  "default_ports": []
+}

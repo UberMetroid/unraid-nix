@@ -1,0 +1,14 @@
+{
+  "name": "anythingllm",
+  "display_name": "AnythingLLM",
+  "description": "AnythingLLM Workspace Builder",
+  "url": "https://anythingllm.com/",
+  "command": "exec nix run nixpkgs#anythingllm",
+  "default_ports": [
+    {
+      "host": 3001,
+      "container": 3001,
+      "label": "HTTP"
+    }
+  ]
+}

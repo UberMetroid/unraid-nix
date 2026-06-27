@@ -1,0 +1,14 @@
+{
+  "name": "paperless-ngx",
+  "display_name": "Paperless-ngx",
+  "description": "Paperless Document Archiving",
+  "url": "https://docs.paperless-ngx.com/",
+  "command": "exec nix run nixpkgs#paperless-ngx",
+  "default_ports": [
+    {
+      "host": 8000,
+      "container": 8000,
+      "label": "HTTP"
+    }
+  ]
+}

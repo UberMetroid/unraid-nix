@@ -1,0 +1,14 @@
+{
+  "name": "photoprism",
+  "display_name": "PhotoPrism",
+  "description": "PhotoPrism AI Gallery",
+  "url": "https://photoprism.app/",
+  "command": "exec nix run nixpkgs#photoprism",
+  "default_ports": [
+    {
+      "host": 2342,
+      "container": 2342,
+      "label": "HTTP"
+    }
+  ]
+}

@@ -1,0 +1,14 @@
+{
+  "name": "ombi",
+  "display_name": "Ombi",
+  "description": "Ombi Requests Portal",
+  "url": "https://ombi.io/",
+  "command": "exec nix run nixpkgs#ombi",
+  "default_ports": [
+    {
+      "host": 3579,
+      "container": 3579,
+      "label": "HTTP"
+    }
+  ]
+}

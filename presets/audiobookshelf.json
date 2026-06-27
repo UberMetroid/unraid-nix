@@ -1,0 +1,14 @@
+{
+  "name": "audiobookshelf",
+  "display_name": "Audiobookshelf",
+  "description": "Audiobookshelf Book/Podcast Server",
+  "url": "https://www.audiobookshelf.org/",
+  "command": "exec nix run nixpkgs#audiobookshelf -- --config /config --metadata /config/metadata",
+  "default_ports": [
+    {
+      "host": 8000,
+      "container": 8000,
+      "label": "HTTP"
+    }
+  ]
+}

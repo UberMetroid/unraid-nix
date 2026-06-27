@@ -1,0 +1,14 @@
+{
+  "name": "overseerr",
+  "display_name": "Overseerr",
+  "description": "Overseerr Media Requests",
+  "url": "https://overseerr.dev/",
+  "command": "exec nix run nixpkgs#overseerr",
+  "default_ports": [
+    {
+      "host": 5055,
+      "container": 5055,
+      "label": "HTTP"
+    }
+  ]
+}

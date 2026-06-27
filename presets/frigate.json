@@ -1,0 +1,14 @@
+{
+  "name": "frigate",
+  "display_name": "Frigate NVR",
+  "description": "Frigate NVR AI Surveillance",
+  "url": "https://frigate.video/",
+  "command": "exec nix run nixpkgs#frigate",
+  "default_ports": [
+    {
+      "host": 5000,
+      "container": 5000,
+      "label": "HTTP"
+    }
+  ]
+}

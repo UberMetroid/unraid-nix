@@ -1,0 +1,8 @@
+{
+  "name": "cloudflared",
+  "display_name": "Cloudflare Tunnel",
+  "description": "Cloudflare Tunnel Client",
+  "url": "https://developers.cloudflare.com/cloudflare-one/connections/connect-networks/",
+  "command": "exec nix run nixpkgs#cloudflared -- tunnel --config /config/config.yml run",
+  "default_ports": []
+}

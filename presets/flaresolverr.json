@@ -1,0 +1,14 @@
+{
+  "name": "flaresolverr",
+  "display_name": "Flaresolverr",
+  "description": "Flaresolverr Cloudflare Proxy",
+  "url": "https://github.com/FlareSolverr/FlareSolverr",
+  "command": "exec nix run nixpkgs#flaresolverr",
+  "default_ports": [
+    {
+      "host": 8191,
+      "container": 8191,
+      "label": "HTTP"
+    }
+  ]
+}

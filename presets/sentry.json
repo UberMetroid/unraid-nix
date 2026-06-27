@@ -1,0 +1,14 @@
+{
+  "name": "sentry",
+  "display_name": "Sentry",
+  "description": "Sentry Monitoring Engine",
+  "url": "https://sentry.io/",
+  "command": "exec nix run nixpkgs#sentry",
+  "default_ports": [
+    {
+      "host": 9000,
+      "container": 9000,
+      "label": "HTTP"
+    }
+  ]
+}

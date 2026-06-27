@@ -1,0 +1,14 @@
+{
+  "name": "homebridge",
+  "display_name": "Homebridge",
+  "description": "Homebridge Apple Home Bridge",
+  "url": "https://homebridge.io/",
+  "command": "exec nix run nixpkgs#homebridge",
+  "default_ports": [
+    {
+      "host": 8581,
+      "container": 8581,
+      "label": "Web GUI"
+    }
+  ]
+}

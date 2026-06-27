@@ -1,0 +1,14 @@
+{
+  "name": "sabnzbd",
+  "display_name": "SABnzbd",
+  "description": "SABnzbd Usenet Downloader",
+  "url": "https://sabnzbd.org/",
+  "command": "exec nix run nixpkgs#sabnzbd -- --config-file /config/sabnzbd.ini --browser 0",
+  "default_ports": [
+    {
+      "host": 8080,
+      "container": 8080,
+      "label": "Web GUI"
+    }
+  ]
+}

@@ -1,0 +1,14 @@
+{
+  "name": "kavita",
+  "display_name": "Kavita",
+  "description": "Kavita Reader",
+  "url": "https://www.kavitareader.com/",
+  "command": "exec nix run nixpkgs#kavita",
+  "default_ports": [
+    {
+      "host": 5000,
+      "container": 5000,
+      "label": "HTTP"
+    }
+  ]
+}

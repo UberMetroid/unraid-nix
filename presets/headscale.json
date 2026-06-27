@@ -1,0 +1,14 @@
+{
+  "name": "headscale",
+  "display_name": "Headscale",
+  "description": "Headscale Tailscale Coordination Server",
+  "url": "https://github.com/juanfont/headscale",
+  "command": "exec nix run nixpkgs#headscale",
+  "default_ports": [
+    {
+      "host": 8080,
+      "container": 8080,
+      "label": "HTTP"
+    }
+  ]
+}

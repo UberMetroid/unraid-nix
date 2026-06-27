@@ -1,0 +1,14 @@
+{
+  "name": "sqlite-web",
+  "display_name": "SQLite-Web",
+  "description": "SQLite-Web SQLite GUI Admin",
+  "url": "https://github.com/coleifer/sqlite-web",
+  "command": "exec nix run nixpkgs#sqlite-web",
+  "default_ports": [
+    {
+      "host": 8080,
+      "container": 8080,
+      "label": "HTTP"
+    }
+  ]
+}

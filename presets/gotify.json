@@ -1,0 +1,14 @@
+{
+  "name": "gotify",
+  "display_name": "Gotify",
+  "description": "Gotify Notification Broker",
+  "url": "https://gotify.net/",
+  "command": "exec nix run nixpkgs#gotify-server",
+  "default_ports": [
+    {
+      "host": 80,
+      "container": 80,
+      "label": "HTTP"
+    }
+  ]
+}

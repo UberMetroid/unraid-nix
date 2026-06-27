@@ -1,0 +1,19 @@
+{
+  "name": "heimdall",
+  "display_name": "Heimdall",
+  "description": "Heimdall Dashboard GUI",
+  "url": "https://heimdall.site/",
+  "command": "exec nix run nixpkgs#heimdall",
+  "default_ports": [
+    {
+      "host": 80,
+      "container": 80,
+      "label": "HTTP"
+    },
+    {
+      "host": 443,
+      "container": 443,
+      "label": "HTTPS"
+    }
+  ]
+}

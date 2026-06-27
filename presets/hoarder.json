@@ -1,0 +1,14 @@
+{
+  "name": "hoarder",
+  "display_name": "Hoarder",
+  "description": "Hoarder Bookmarks Manager",
+  "url": "https://hoarder.app/",
+  "command": "exec nix run nixpkgs#hoarder",
+  "default_ports": [
+    {
+      "host": 3000,
+      "container": 3000,
+      "label": "HTTP"
+    }
+  ]
+}

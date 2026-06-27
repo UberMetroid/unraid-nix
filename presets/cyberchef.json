@@ -1,0 +1,14 @@
+{
+  "name": "cyberchef",
+  "display_name": "CyberChef",
+  "description": "CyberChef Processing Tool",
+  "url": "https://github.com/gchq/CyberChef",
+  "command": "exec nix run nixpkgs#cyberchef",
+  "default_ports": [
+    {
+      "host": 8000,
+      "container": 8000,
+      "label": "HTTP"
+    }
+  ]
+}

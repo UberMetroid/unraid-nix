@@ -1,0 +1,14 @@
+{
+  "name": "gladys-assistant",
+  "display_name": "Gladys Assistant",
+  "description": "Gladys Home Assistant",
+  "url": "https://gladysassistant.com/",
+  "command": "exec nix run nixpkgs#gladys-assistant",
+  "default_ports": [
+    {
+      "host": 80,
+      "container": 80,
+      "label": "HTTP"
+    }
+  ]
+}

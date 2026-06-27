@@ -1,0 +1,19 @@
+{
+  "name": "authentik",
+  "display_name": "Authentik",
+  "description": "Authentik Identity Portal",
+  "url": "https://goauthentik.io/",
+  "command": "exec nix run nixpkgs#authentik",
+  "default_ports": [
+    {
+      "host": 9000,
+      "container": 9000,
+      "label": "HTTP"
+    },
+    {
+      "host": 9443,
+      "container": 9443,
+      "label": "HTTPS"
+    }
+  ]
+}

@@ -1,0 +1,14 @@
+{
+  "name": "bazarr",
+  "display_name": "Bazarr",
+  "description": "Bazarr Subtitle Manager",
+  "url": "https://www.bazarr.media/",
+  "command": "exec nix run nixpkgs#bazarr -- --config /config",
+  "default_ports": [
+    {
+      "host": 6767,
+      "container": 6767,
+      "label": "HTTP"
+    }
+  ]
+}

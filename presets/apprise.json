@@ -1,0 +1,14 @@
+{
+  "name": "apprise",
+  "display_name": "Apprise",
+  "description": "Apprise Notification Push API",
+  "url": "https://github.com/caronc/apprise",
+  "command": "exec nix run nixpkgs#apprise",
+  "default_ports": [
+    {
+      "host": 8000,
+      "container": 8000,
+      "label": "HTTP"
+    }
+  ]
+}

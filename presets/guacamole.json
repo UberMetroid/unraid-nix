@@ -1,0 +1,14 @@
+{
+  "name": "guacamole",
+  "display_name": "Apache Guacamole",
+  "description": "Apache Guacamole Remote Desktop Gateway",
+  "url": "https://guacamole.apache.org/",
+  "command": "exec nix run nixpkgs#guacamole",
+  "default_ports": [
+    {
+      "host": 8080,
+      "container": 8080,
+      "label": "HTTP"
+    }
+  ]
+}

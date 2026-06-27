@@ -1,0 +1,19 @@
+{
+  "name": "mastodon",
+  "display_name": "Mastodon",
+  "description": "Mastodon Decentralized Social",
+  "url": "https://joinmastodon.org/",
+  "command": "exec nix run nixpkgs#mastodon",
+  "default_ports": [
+    {
+      "host": 3000,
+      "container": 3000,
+      "label": "Web"
+    },
+    {
+      "host": 4000,
+      "container": 4000,
+      "label": "Streaming"
+    }
+  ]
+}

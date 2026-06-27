@@ -3,9 +3,22 @@
   "display_name": "Syncthing",
   "description": "Syncthing File Synchronization",
   "url": "https://syncthing.net/",
+  "command": "exec nix run nixpkgs#syncthing -- --home=/config",
   "default_ports": [
-    { "host": 8384, "container": 8384, "label": "Web GUI" },
-    { "host": 22000, "container": 22000, "label": "Sync Protocol" },
-    { "host": 21027, "container": 21027, "label": "Local Discovery (UDP)" }
+    {
+      "host": 8384,
+      "container": 8384,
+      "label": "Web GUI"
+    },
+    {
+      "host": 22000,
+      "container": 22000,
+      "label": "Sync Protocol"
+    },
+    {
+      "host": 21027,
+      "container": 21027,
+      "label": "Local Discovery (UDP)"
+    }
   ]
 }

@@ -1,0 +1,14 @@
+{
+  "name": "duplicacy",
+  "display_name": "Duplicacy",
+  "description": "Duplicacy Backup Engine",
+  "url": "https://duplicacy.com/",
+  "command": "exec nix run nixpkgs#duplicacy",
+  "default_ports": [
+    {
+      "host": 3875,
+      "container": 3875,
+      "label": "Web GUI"
+    }
+  ]
+}

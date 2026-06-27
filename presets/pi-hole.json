@@ -1,0 +1,19 @@
+{
+  "name": "pi-hole",
+  "display_name": "Pi-hole",
+  "description": "Pi-hole DNS Adblocker",
+  "url": "https://pi-hole.net/",
+  "command": "exec nix run nixpkgs#pi-hole",
+  "default_ports": [
+    {
+      "host": 80,
+      "container": 80,
+      "label": "Web GUI"
+    },
+    {
+      "host": 53,
+      "container": 53,
+      "label": "DNS"
+    }
+  ]
+}

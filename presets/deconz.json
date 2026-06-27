@@ -1,0 +1,14 @@
+{
+  "name": "deconz",
+  "display_name": "deCONZ",
+  "description": "deCONZ Zigbee Controller Gateway",
+  "url": "https://www.dresden-elektronik.de/deconz/",
+  "command": "exec nix run nixpkgs#deconz",
+  "default_ports": [
+    {
+      "host": 80,
+      "container": 80,
+      "label": "HTTP"
+    }
+  ]
+}

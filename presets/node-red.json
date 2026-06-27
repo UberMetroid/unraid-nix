@@ -1,0 +1,14 @@
+{
+  "name": "node-red",
+  "display_name": "Node-RED",
+  "description": "Node-RED Logic Editor",
+  "url": "https://nodered.org/",
+  "command": "exec nix run nixpkgs#node-red -- --userDir /config",
+  "default_ports": [
+    {
+      "host": 1880,
+      "container": 1880,
+      "label": "HTTP"
+    }
+  ]
+}

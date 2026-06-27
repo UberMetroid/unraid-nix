@@ -1,0 +1,14 @@
+{
+  "name": "lidarr",
+  "display_name": "Lidarr",
+  "description": "Lidarr Music Manager",
+  "url": "https://lidarr.audio/",
+  "command": "exec nix run nixpkgs#lidarr",
+  "default_ports": [
+    {
+      "host": 8686,
+      "container": 8686,
+      "label": "HTTP"
+    }
+  ]
+}

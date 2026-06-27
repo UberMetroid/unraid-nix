@@ -1,0 +1,24 @@
+{
+  "name": "traefik",
+  "display_name": "Traefik",
+  "description": "Traefik Proxy Server",
+  "url": "https://traefik.io/",
+  "command": "exec nix run nixpkgs#traefik -- --configfile=/config/traefik.yml",
+  "default_ports": [
+    {
+      "host": 8080,
+      "container": 8080,
+      "label": "Admin"
+    },
+    {
+      "host": 80,
+      "container": 80,
+      "label": "HTTP"
+    },
+    {
+      "host": 443,
+      "container": 443,
+      "label": "HTTPS"
+    }
+  ]
+}

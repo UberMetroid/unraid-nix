@@ -1,11 +1,19 @@
 {
   "name": "qbittorrent",
   "display_name": "qBittorrent",
-  "description": "qBittorrent Torrent Client",
+  "description": "qBittorrent Client",
   "url": "https://www.qbittorrent.org/",
   "command": "exec nix run nixpkgs#qbittorrent-nox -- --profile=/config",
   "default_ports": [
-    { "host": 8080, "container": 8080, "label": "Web GUI" },
-    { "host": 6881, "container": 6881, "label": "BitTorrent Port" }
+    {
+      "host": 8080,
+      "container": 8080,
+      "label": "Web GUI"
+    },
+    {
+      "host": 6881,
+      "container": 6881,
+      "label": "BT Port"
+    }
   ]
 }

@@ -1,0 +1,14 @@
+{
+  "name": "bookstack",
+  "display_name": "BookStack",
+  "description": "BookStack Knowledge Organizer",
+  "url": "https://www.bookstackapp.com/",
+  "command": "exec nix run nixpkgs#bookstack",
+  "default_ports": [
+    {
+      "host": 80,
+      "container": 80,
+      "label": "HTTP"
+    }
+  ]
+}

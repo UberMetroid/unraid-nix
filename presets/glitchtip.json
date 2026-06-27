@@ -1,0 +1,14 @@
+{
+  "name": "glitchtip",
+  "display_name": "GlitchTip",
+  "description": "GlitchTip Bug Tracker",
+  "url": "https://glitchtip.com/",
+  "command": "exec nix run nixpkgs#glitchtip",
+  "default_ports": [
+    {
+      "host": 8000,
+      "container": 8000,
+      "label": "HTTP"
+    }
+  ]
+}

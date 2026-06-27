@@ -1,0 +1,14 @@
+{
+  "name": "it-tools",
+  "display_name": "IT-Tools",
+  "description": "IT-Tools Utility Hub",
+  "url": "https://it-tools.tech/",
+  "command": "exec nix run nixpkgs#it-tools",
+  "default_ports": [
+    {
+      "host": 8000,
+      "container": 80,
+      "label": "HTTP"
+    }
+  ]
+}

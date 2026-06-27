@@ -1,0 +1,8 @@
+{
+  "name": "singlefile",
+  "display_name": "SingleFile",
+  "description": "SingleFile Page Archiver CLI",
+  "url": "https://github.com/gildas-lormeau/SingleFile",
+  "command": "exec nix run nixpkgs#singlefile",
+  "default_ports": []
+}

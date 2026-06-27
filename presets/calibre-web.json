@@ -1,0 +1,14 @@
+{
+  "name": "calibre-web",
+  "display_name": "Calibre-Web",
+  "description": "Calibre Ebook Web GUI",
+  "url": "https://github.com/janeczku/calibre-web",
+  "command": "exec nix run nixpkgs#calibre-web -- -g /config",
+  "default_ports": [
+    {
+      "host": 8083,
+      "container": 8083,
+      "label": "HTTP"
+    }
+  ]
+}

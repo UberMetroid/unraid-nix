@@ -1,0 +1,14 @@
+{
+  "name": "immich",
+  "display_name": "Immich",
+  "description": "Immich Photo/Video Backup",
+  "url": "https://immich.app/",
+  "command": "exec nix run nixpkgs#immich",
+  "default_ports": [
+    {
+      "host": 2283,
+      "container": 2283,
+      "label": "HTTP"
+    }
+  ]
+}

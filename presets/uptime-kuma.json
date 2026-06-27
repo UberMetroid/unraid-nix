@@ -1,0 +1,14 @@
+{
+  "name": "uptime-kuma",
+  "display_name": "Uptime Kuma",
+  "description": "Uptime Kuma Monitoring",
+  "url": "https://github.com/louislam/uptime-kuma",
+  "command": "exec nix run nixpkgs#uptime-kuma",
+  "default_ports": [
+    {
+      "host": 3001,
+      "container": 3001,
+      "label": "Web GUI"
+    }
+  ]
+}

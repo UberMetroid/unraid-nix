@@ -1,0 +1,14 @@
+{
+  "name": "zwavejs2mqtt",
+  "display_name": "ZwaveJS2MQTT",
+  "description": "ZwaveJS2MQTT Bridge GUI",
+  "url": "https://zwave-js.github.io/zwavejs2mqtt/",
+  "command": "exec nix run nixpkgs#zwavejs2mqtt",
+  "default_ports": [
+    {
+      "host": 8091,
+      "container": 8091,
+      "label": "Web GUI"
+    }
+  ]
+}

@@ -1,0 +1,14 @@
+{
+  "name": "mylar3",
+  "display_name": "Mylar 3",
+  "description": "Mylar 3 Comics Manager",
+  "url": "https://github.com/mylar3/mylar3",
+  "command": "exec nix run nixpkgs#mylar3",
+  "default_ports": [
+    {
+      "host": 8090,
+      "container": 8090,
+      "label": "HTTP"
+    }
+  ]
+}

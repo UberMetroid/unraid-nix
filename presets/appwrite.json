@@ -1,0 +1,14 @@
+{
+  "name": "appwrite",
+  "display_name": "Appwrite",
+  "description": "Appwrite Backend Suite",
+  "url": "https://appwrite.io/",
+  "command": "exec nix run nixpkgs#appwrite",
+  "default_ports": [
+    {
+      "host": 80,
+      "container": 80,
+      "label": "HTTP"
+    }
+  ]
+}

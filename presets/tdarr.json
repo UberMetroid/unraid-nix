@@ -1,0 +1,19 @@
+{
+  "name": "tdarr",
+  "display_name": "Tdarr",
+  "description": "Tdarr Media Transcoder",
+  "url": "https://tdarr.io/",
+  "command": "exec nix run nixpkgs#tdarr",
+  "default_ports": [
+    {
+      "host": 8265,
+      "container": 8265,
+      "label": "Web GUI"
+    },
+    {
+      "host": 8266,
+      "container": 8266,
+      "label": "Server"
+    }
+  ]
+}

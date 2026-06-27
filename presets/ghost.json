@@ -1,0 +1,14 @@
+{
+  "name": "ghost",
+  "display_name": "Ghost",
+  "description": "Ghost Blogging Platform",
+  "url": "https://ghost.org/",
+  "command": "exec nix run nixpkgs#ghost",
+  "default_ports": [
+    {
+      "host": 2368,
+      "container": 2368,
+      "label": "HTTP"
+    }
+  ]
+}

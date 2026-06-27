@@ -1,0 +1,14 @@
+{
+  "name": "mariadb",
+  "display_name": "MariaDB",
+  "description": "MariaDB SQL Server",
+  "url": "https://mariadb.org/",
+  "command": "exec nix run nixpkgs#mariadb",
+  "default_ports": [
+    {
+      "host": 3306,
+      "container": 3306,
+      "label": "MySQL Port"
+    }
+  ]
+}

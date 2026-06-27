@@ -1,0 +1,14 @@
+{
+  "name": "ollama",
+  "display_name": "Ollama",
+  "description": "Ollama Local LLM Servicer",
+  "url": "https://ollama.ai/",
+  "command": "exec nix run nixpkgs#ollama -- serve",
+  "default_ports": [
+    {
+      "host": 11434,
+      "container": 11434,
+      "label": "API"
+    }
+  ]
+}

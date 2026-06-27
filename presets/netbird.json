@@ -1,0 +1,19 @@
+{
+  "name": "netbird",
+  "display_name": "Netbird",
+  "description": "Netbird Mesh VPN Overlay",
+  "url": "https://netbird.io/",
+  "command": "exec nix run nixpkgs#netbird",
+  "default_ports": [
+    {
+      "host": 80,
+      "container": 80,
+      "label": "HTTP"
+    },
+    {
+      "host": 443,
+      "container": 443,
+      "label": "HTTPS"
+    }
+  ]
+}

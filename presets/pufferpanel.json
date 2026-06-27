@@ -1,0 +1,14 @@
+{
+  "name": "pufferpanel",
+  "display_name": "PufferPanel",
+  "description": "PufferPanel Game Server GUI",
+  "url": "https://www.pufferpanel.com/",
+  "command": "exec nix run nixpkgs#pufferpanel",
+  "default_ports": [
+    {
+      "host": 8080,
+      "container": 8080,
+      "label": "HTTP"
+    }
+  ]
+}

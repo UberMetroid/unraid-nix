@@ -1,0 +1,8 @@
+{
+  "name": "telegraf",
+  "display_name": "Telegraf",
+  "description": "Telegraf Collector Agent",
+  "url": "https://www.influxdata.com/time-series-platform/telegraf/",
+  "command": "exec nix run nixpkgs#telegraf -- --config /config/telegraf.conf",
+  "default_ports": []
+}

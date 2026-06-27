@@ -1,0 +1,14 @@
+{
+  "name": "kutt",
+  "display_name": "Kutt",
+  "description": "Kutt URL Shortener Portal",
+  "url": "https://kutt.it/",
+  "command": "exec nix run nixpkgs#kutt",
+  "default_ports": [
+    {
+      "host": 3000,
+      "container": 3000,
+      "label": "HTTP"
+    }
+  ]
+}

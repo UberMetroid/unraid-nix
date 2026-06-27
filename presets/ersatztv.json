@@ -1,0 +1,14 @@
+{
+  "name": "ersatztv",
+  "display_name": "ErsatzTV",
+  "description": "ErsatzTV Live IP TV Channels",
+  "url": "https://ersatztv.org/",
+  "command": "exec nix run nixpkgs#ersatztv",
+  "default_ports": [
+    {
+      "host": 8409,
+      "container": 8409,
+      "label": "HTTP"
+    }
+  ]
+}

@@ -1,0 +1,19 @@
+{
+  "name": "clickhouse",
+  "display_name": "ClickHouse",
+  "description": "ClickHouse Analytical DB",
+  "url": "https://clickhouse.com/",
+  "command": "exec nix run nixpkgs#clickhouse",
+  "default_ports": [
+    {
+      "host": 8123,
+      "container": 8123,
+      "label": "HTTP"
+    },
+    {
+      "host": 9000,
+      "container": 9000,
+      "label": "Native"
+    }
+  ]
+}

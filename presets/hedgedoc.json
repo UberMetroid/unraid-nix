@@ -1,0 +1,14 @@
+{
+  "name": "hedgedoc",
+  "display_name": "HedgeDoc",
+  "description": "HedgeDoc Collaborative Markdown",
+  "url": "https://hedgedoc.org/",
+  "command": "exec nix run nixpkgs#hedgedoc",
+  "default_ports": [
+    {
+      "host": 3000,
+      "container": 3000,
+      "label": "HTTP"
+    }
+  ]
+}

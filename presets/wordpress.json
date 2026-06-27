@@ -1,0 +1,14 @@
+{
+  "name": "wordpress",
+  "display_name": "WordPress",
+  "description": "WordPress Blogging Platform",
+  "url": "https://wordpress.org/",
+  "command": "exec nix run nixpkgs#wordpress",
+  "default_ports": [
+    {
+      "host": 80,
+      "container": 80,
+      "label": "HTTP"
+    }
+  ]
+}

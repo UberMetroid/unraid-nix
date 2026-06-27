@@ -1,0 +1,14 @@
+{
+  "name": "whisparr",
+  "display_name": "Whisparr",
+  "description": "Whisparr Adult Media Manager",
+  "url": "https://whisparr.com/",
+  "command": "exec nix run nixpkgs#whisparr",
+  "default_ports": [
+    {
+      "host": 6969,
+      "container": 6969,
+      "label": "HTTP"
+    }
+  ]
+}

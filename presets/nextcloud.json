@@ -1,0 +1,14 @@
+{
+  "name": "nextcloud",
+  "display_name": "Nextcloud",
+  "description": "Nextcloud Productivity Platform",
+  "url": "https://nextcloud.com/",
+  "command": "exec nix run nixpkgs#nextcloud",
+  "default_ports": [
+    {
+      "host": 80,
+      "container": 80,
+      "label": "HTTP"
+    }
+  ]
+}

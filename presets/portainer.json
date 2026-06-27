@@ -1,0 +1,19 @@
+{
+  "name": "portainer",
+  "display_name": "Portainer",
+  "description": "Portainer Management GUI",
+  "url": "https://www.portainer.io/",
+  "command": "exec nix run nixpkgs#portainer",
+  "default_ports": [
+    {
+      "host": 9000,
+      "container": 9000,
+      "label": "HTTP"
+    },
+    {
+      "host": 9443,
+      "container": 9443,
+      "label": "HTTPS"
+    }
+  ]
+}

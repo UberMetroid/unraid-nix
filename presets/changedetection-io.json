@@ -1,0 +1,14 @@
+{
+  "name": "changedetection-io",
+  "display_name": "ChangeDetection.io",
+  "description": "ChangeDetection Monitor",
+  "url": "https://changedetection.io/",
+  "command": "exec nix run nixpkgs#changedetection",
+  "default_ports": [
+    {
+      "host": 5000,
+      "container": 5000,
+      "label": "HTTP"
+    }
+  ]
+}
