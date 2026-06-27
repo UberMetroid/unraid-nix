@@ -7,14 +7,25 @@ header('Content-Type: application/json');
 
 $action = isset($_REQUEST['action']) ? $_REQUEST['action'] : '';
 
+// Helper function to write debug logs
+function log_debug($msg) {
+    $log_path = '/var/log/nix-plugin.log';
+    $now = date('Y-m-d H:i:s');
+    file_put_contents($log_path, "$now [DEBUG] $msg\n", FILE_APPEND);
+}
+
+log_debug("API Route invoked: action='{$action}', method='{$_SERVER['REQUEST_METHOD']}'");
+
 // Helper function to return JSON error responses
 function error($msg) {
+    log_debug("API Response Failure: error='{$msg}'");
     echo json_encode(['success' => false, 'error' => $msg]);
     exit;
 }
 
 // Helper function to return JSON success responses
 function success() {
+    log_debug("API Response Success");
     echo json_encode(['success' => true]);
     exit;
 }

@@ -32,6 +32,7 @@ fn run_preflight_checks(name: &str) {
     }
 
     let metadata_path = format!("/boot/config/plugins/nix/metadata/{}.json", name);
+    crate::store::log_event("DEBUG", &format!("Checking metadata configuration at path: {}", metadata_path));
     if std::path::Path::new(&metadata_path).exists() {
         match std::fs::read_to_string(&metadata_path) {
             Ok(content) => {
@@ -46,6 +47,7 @@ fn run_preflight_checks(name: &str) {
                         if let Some(ref appdata_path) = meta.appdata {
                             if !appdata_path.trim().is_empty() {
                                 let path = std::path::Path::new(appdata_path);
+                                crate::store::log_event("DEBUG", &format!("Checking permissions for AppData path: {}", appdata_path));
                                 if path.exists() {
                                     use std::os::unix::fs::MetadataExt;
                                     match std::fs::metadata(path) {
@@ -77,7 +79,7 @@ fn run_preflight_checks(name: &str) {
                                                     &format!(
                                                         "Directory permissions check passed: Service '{}' configuration location '{}' is owned by UID {}.",
                                                         name, appdata_path, owner_uid
-                                                    ),
+                                                     ),
                                                 );
                                             }
                                         }
@@ -158,6 +160,7 @@ pub fn send_service_action(api_port: u16, name: &str, action: &str) -> Result<()
     };
 
     let url = format!("http://127.0.0.1:{}/{}", api_port, endpoint);
+    crate::store::log_event("DEBUG", &format!("Sending HTTP request to process-compose: method='{}', url='{}'", method, url));
     let resp = ureq::request(method, &url)
         .call()
         .map_err(|e| format!("HTTP request failed: {}", e))?;
@@ -166,5 +169,6 @@ pub fn send_service_action(api_port: u16, name: &str, action: &str) -> Result<()
         return Err(format!("Server returned HTTP status {}", resp.status()));
     }
 
+    crate::store::log_event("DEBUG", &format!("HTTP request completed: status='{}'", resp.status()));
     Ok(())
 }

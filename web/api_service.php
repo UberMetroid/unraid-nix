@@ -6,6 +6,7 @@
 
 if ($action === 'start' || $action === 'stop' || $action === 'restart') {
     $service = isset($_POST['service']) ? $_POST['service'] : '';
+    log_debug("Service operation triggered: action='{$action}', service='{$service}'");
     $output = [];
     $code = 0;
     exec("/usr/local/emhttp/plugins/nix/nix-helper service " . escapeshellarg($action) . " " . escapeshellarg($service) . " 2>&1", $output, $code);
@@ -19,6 +20,7 @@ if ($action === 'toggle-autostart') {
     $service = isset($_POST['service']) ? $_POST['service'] : '';
     $enabled = isset($_POST['enabled']) ? $_POST['enabled'] : 'false';
     $toggle_val = ($enabled === 'true' || $enabled === '1') ? 'on' : 'off';
+    log_debug("Autostart configuration updated: service='{$service}', enabled='{$enabled}', value='{$toggle_val}'");
     
     $output = [];
     $code = 0;
@@ -31,6 +33,7 @@ if ($action === 'toggle-autostart') {
 
 if ($action === 'remove') {
     $service = isset($_POST['service']) ? $_POST['service'] : '';
+    log_debug("Service removal triggered: service='{$service}'");
     $output = [];
     $code = 0;
     exec("/usr/local/emhttp/plugins/nix/nix-helper remove-service " . escapeshellarg($service) . " 2>&1", $output, $code);
@@ -42,6 +45,7 @@ if ($action === 'remove') {
 
 if ($action === 'install-cli') {
     $package = isset($_POST['package']) ? $_POST['package'] : '';
+    log_debug("CLI package installation triggered: package='{$package}'");
     $output = [];
     $code = 0;
     exec("/usr/local/emhttp/plugins/nix/nix-helper install " . escapeshellarg($package) . " 2>&1", $output, $code);
@@ -54,6 +58,7 @@ if ($action === 'install-cli') {
 if ($action === 'install-custom') {
     $uri = isset($_POST['uri']) ? $_POST['uri'] : '';
     $type = isset($_POST['type']) ? $_POST['type'] : '';
+    log_debug("Custom installation triggered: uri='{$uri}', type='{$type}'");
     
     if ($type === 'cli') {
         $output = [];
@@ -75,6 +80,8 @@ if ($action === 'install-custom') {
         $bind_address = isset($_POST['bind_address']) ? $_POST['bind_address'] : '';
         $network_isolation = isset($_POST['network_isolation']) ? $_POST['network_isolation'] : '0';
         
+        log_debug("Installing background service configs: appdata='{$appdata}', network_isolation='{$network_isolation}', extra_binds='{$extra_binds}'");
+        
         $output = [];
         $code = 0;
         $cmd = "/usr/local/emhttp/plugins/nix/nix-helper install-service " .
@@ -90,6 +97,7 @@ if ($action === 'install-custom') {
                "--bind-address " . escapeshellarg($bind_address) . " " .
                "--network-isolation " . escapeshellarg($network_isolation);
                
+        log_debug("Executing installation helper command: {$cmd}");
         exec($cmd . " 2>&1", $output, $code);
         if ($code !== 0) {
             error(implode("\n", $output));
