@@ -126,12 +126,10 @@ pub fn render_presets_store() -> String {
     html.push_str(r##" verified templates ready for native deployment.</p>
             </div>
             <div style="display: flex; gap: 8px; align-items: center;">
-                <!-- Scope Segmented Toggle -->
-                <div class="nix-scope-toggle" style="display: inline-flex; background: rgba(0,0,0,0.25); border: 1px solid rgba(255,255,255,0.08); border-radius: 6px; padding: 2px; gap: 2px; align-items: center;">
-                    <button type="button" class="nix-scope-btn active" onclick="filterPresetScope('all', this)">All</button>
-                    <button type="button" class="nix-scope-btn" onclick="filterPresetScope('composed', this)">Composed</button>
-                    <button type="button" class="nix-scope-btn" onclick="filterPresetScope('standard', this)">Standard</button>
-                </div>
+                <!-- Scope Filters -->
+                <button type="button" class="nix-scope-btn active" onclick="filterPresetScope('all', this)">All</button>
+                <button type="button" class="nix-scope-btn" onclick="filterPresetScope('composed', this)">Composed</button>
+                <button type="button" class="nix-scope-btn" onclick="filterPresetScope('standard', this)">Standard</button>
                 
                 <!-- Search bar -->
                 <div style="position: relative; width: 250px; margin-left: 8px;">
@@ -376,35 +374,26 @@ pub fn render_presets_store() -> String {
         text-decoration: underline !important;
     }
     .nix-scope-btn {
-        border: 1px solid transparent;
-        background: transparent;
-        padding: 4px 10px;
-        border-radius: 4px;
-        font-size: 11px;
+        background: rgba(255, 255, 255, 0.03);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 12px;
+        padding: 4px 12px;
         color: #a0a0a5;
+        font-size: 11px;
         cursor: pointer;
         transition: all 0.15s ease;
         margin: 0;
         outline: none;
     }
-    .nix-scope-btn:hover:not(.active) {
-        background: rgba(255, 255, 255, 0.05);
+    .nix-scope-btn:hover {
+        background: rgba(255, 255, 255, 0.08);
         color: #fff;
     }
     .nix-scope-btn.active {
-        background: rgba(255, 255, 255, 0.08) !important;
-        color: #fff !important;
-        font-weight: 500;
-    }
-    .nix-scope-btn[onclick*="'composed'"].active {
-        background: rgba(224, 86, 253, 0.12) !important;
-        border: 1px solid rgba(224, 86, 253, 0.25) !important;
-        color: #e056fd !important;
-    }
-    .nix-scope-btn[onclick*="'standard'"].active {
-        background: rgba(0, 161, 255, 0.12) !important;
-        border: 1px solid rgba(0, 161, 255, 0.25) !important;
+        background: rgba(0, 161, 255, 0.1) !important;
+        border-color: rgba(0, 161, 255, 0.3) !important;
         color: #00a1ff !important;
+        font-weight: 500;
     }
     </style>
     "##);
