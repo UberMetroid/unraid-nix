@@ -1,0 +1,15 @@
+{
+  "name": "jellyfin-web",
+  "display_name": "Jellyfin Web Client",
+  "description": "Standalone static web client for connecting to a remote Jellyfin server.",
+  "url": "https://jellyfin.org/",
+  "command": "exec sh -c 'web_dir=$(nix build nixpkgs#jellyfin-web --no-link --print-out-paths)/share/jellyfin-web; exec nix run nixpkgs#caddy -- file-server --root $web_dir --listen :8096'",
+  "default_ports": [
+    {
+      "host": 8096,
+      "container": 8096,
+      "label": "Web GUI"
+    }
+  ],
+  "icon": "fa-television"
+}
