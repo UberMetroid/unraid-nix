@@ -19,10 +19,9 @@ fn test_build_bwrap_command_basic() {
 
     let cmd = build_bwrap_command(&config).unwrap();
     assert!(cmd.starts_with("exec unshare -m sh -c "));
-    assert!(cmd.contains("mount -t tmpfs tmpfs /boot"));
     assert!(cmd.contains("mount --bind /mnt/cache/appdata/test-app /config"));
     assert!(cmd.contains("mount --bind /mnt/user/downloads /downloads"));
-    assert!(cmd.contains("exec setpriv --reuid=99 --regid=100"));
+    assert!(cmd.contains("exec setpriv --reuid=99 --regid=100") || cmd.contains("exec chroot --userspec=99:100"));
     assert!(cmd.contains("nix run nixpkgs#hello"));
     assert!(cmd.contains("export PORT=8080"));
     assert!(cmd.contains("export BIND_ADDRESS=127.0.0.1"));

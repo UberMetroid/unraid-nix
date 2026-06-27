@@ -3,26 +3,157 @@ use crate::config::ProcessComposeConfig;
 use crate::api::utils::{HostAddr, get_service_web_port, get_service_appdata_path, extract_package_uri};
 use crate::api::package::{get_cached_version, get_package_link_url};
 
-fn get_service_fa_icon(name: &str) -> &'static str {
+struct FaIconConfig {
+    icon: &'static str,
+    color: &'static str,
+    bg: &'static str,
+    border: &'static str,
+}
+
+fn get_service_fa_config(name: &str) -> FaIconConfig {
     let name_lower = name.to_lowercase();
-    if name_lower.contains("jellyfin") || name_lower.contains("plex") || name_lower.contains("emby") {
-        "fa-play-circle"
-    } else if name_lower.contains("sonarr") || name_lower.contains("sickrage") {
-        "fa-television"
-    } else if name_lower.contains("radarr") || name_lower.contains("couchpotato") {
-        "fa-film"
-    } else if name_lower.contains("prowlarr") || name_lower.contains("jackett") {
-        "fa-search"
-    } else if name_lower.contains("transmission") || name_lower.contains("sabnzbd") || name_lower.contains("nzbget") || name_lower.contains("qbittorrent") || name_lower.contains("deluge") {
-        "fa-download"
-    } else if name_lower.contains("syncthing") || name_lower.contains("nextcloud") || name_lower.contains("owncloud") {
-        "fa-refresh"
-    } else if name_lower.contains("home-assistant") || name_lower.contains("homeassistant") || name_lower.contains("hass") {
-        "fa-home"
-    } else if name_lower.contains("jellyseerr") || name_lower.contains("overseerr") {
-        "fa-eye"
-    } else {
-        "fa-server"
+    
+    // Media & Audio (Cyan/Blue)
+    if name_lower.contains("jellyfin") || name_lower.contains("plex") || name_lower.contains("emby") ||
+       name_lower.contains("navidrome") || name_lower.contains("airsonic") || name_lower.contains("subsonic") || name_lower.contains("lidarr") {
+        let icon = if name_lower.contains("jellyfin") || name_lower.contains("plex") || name_lower.contains("emby") {
+            "fa-play-circle"
+        } else {
+            "fa-music"
+        };
+        return FaIconConfig {
+            icon,
+            color: "#00a1ff",
+            bg: "rgba(0, 161, 255, 0.08)",
+            border: "rgba(0, 161, 255, 0.2)",
+        };
+    }
+    
+    // Servarr / Automation (Orange)
+    if name_lower.contains("sonarr") || name_lower.contains("sickrage") || name_lower.contains("sickchill") ||
+       name_lower.contains("radarr") || name_lower.contains("couchpotato") || name_lower.contains("readarr") ||
+       name_lower.contains("calibre") || name_lower.contains("audiobookshelf") || name_lower.contains("bazarr") ||
+       name_lower.contains("prowlarr") || name_lower.contains("jackett") {
+        let icon = if name_lower.contains("sonarr") || name_lower.contains("sickrage") || name_lower.contains("sickchill") {
+            "fa-television"
+        } else if name_lower.contains("radarr") || name_lower.contains("couchpotato") {
+            "fa-film"
+        } else if name_lower.contains("readarr") || name_lower.contains("calibre") || name_lower.contains("audiobookshelf") {
+            "fa-book"
+        } else if name_lower.contains("bazarr") {
+            "fa-closed-captioning"
+        } else {
+            "fa-search"
+        };
+        return FaIconConfig {
+            icon,
+            color: "#e67e22",
+            bg: "rgba(230, 126, 34, 0.08)",
+            border: "rgba(230, 126, 34, 0.2)",
+        };
+    }
+
+    // Download Clients (Green)
+    if name_lower.contains("transmission") || name_lower.contains("sabnzbd") || name_lower.contains("nzbget") || 
+       name_lower.contains("qbittorrent") || name_lower.contains("deluge") || name_lower.contains("rtorrent") || name_lower.contains("aria2") {
+        return FaIconConfig {
+            icon: "fa-download",
+            color: "#2ecc71",
+            bg: "rgba(46, 204, 113, 0.08)",
+            border: "rgba(46, 204, 113, 0.2)",
+        };
+    }
+
+    // Network / Security / VPN (Purple)
+    if name_lower.contains("pihole") || name_lower.contains("pi-hole") || name_lower.contains("adguard") ||
+       name_lower.contains("nginx") || name_lower.contains("traefik") || name_lower.contains("caddy") || name_lower.contains("npm") ||
+       name_lower.contains("tailscale") || name_lower.contains("wireguard") || name_lower.contains("vpn") {
+        let icon = if name_lower.contains("pihole") || name_lower.contains("pi-hole") || name_lower.contains("adguard") {
+            "fa-shield"
+        } else if name_lower.contains("tailscale") || name_lower.contains("wireguard") || name_lower.contains("vpn") {
+            "fa-key"
+        } else {
+            "fa-exchange"
+        };
+        return FaIconConfig {
+            icon,
+            color: "#9b59b6",
+            bg: "rgba(155, 89, 182, 0.08)",
+            border: "rgba(155, 89, 182, 0.2)",
+        };
+    }
+
+    // Smart Home & IoT (Yellow)
+    if name_lower.contains("home-assistant") || name_lower.contains("homeassistant") || name_lower.contains("hass") ||
+       name_lower.contains("node-red") || name_lower.contains("nodered") || name_lower.contains("zigbee") ||
+       name_lower.contains("mqtt") || name_lower.contains("esphome") {
+        let icon = if name_lower.contains("home-assistant") || name_lower.contains("homeassistant") || name_lower.contains("hass") {
+            "fa-home"
+        } else if name_lower.contains("node-red") || name_lower.contains("nodered") {
+            "fa-code-fork"
+        } else {
+            "fa-bolt"
+        };
+        return FaIconConfig {
+            icon,
+            color: "#f1c40f",
+            bg: "rgba(241, 196, 15, 0.08)",
+            border: "rgba(241, 196, 15, 0.2)",
+        };
+    }
+
+    // Vaults & Passwords (Red)
+    if name_lower.contains("vaultwarden") || name_lower.contains("bitwarden") || name_lower.contains("keepass") {
+        return FaIconConfig {
+            icon: "fa-lock",
+            color: "#e74c3c",
+            bg: "rgba(231, 76, 60, 0.08)",
+            border: "rgba(231, 76, 60, 0.2)",
+        };
+    }
+
+    // Sync & Backups (Teal)
+    if name_lower.contains("syncthing") || name_lower.contains("nextcloud") || name_lower.contains("owncloud") ||
+       name_lower.contains("seafile") || name_lower.contains("rclone") || name_lower.contains("duplicati") ||
+       name_lower.contains("kopia") || name_lower.contains("backups") {
+        let icon = if name_lower.contains("syncthing") || name_lower.contains("nextcloud") || name_lower.contains("owncloud") {
+            "fa-refresh"
+        } else {
+            "fa-cloud-upload"
+        };
+        return FaIconConfig {
+            icon,
+            color: "#1abc9c",
+            bg: "rgba(26, 188, 156, 0.08)",
+            border: "rgba(26, 188, 156, 0.2)",
+        };
+    }
+
+    // Databases & Monitoring (Grey-Blue)
+    if name_lower.contains("influx") || name_lower.contains("prometheus") || name_lower.contains("grafana") ||
+       name_lower.contains("kuma") || name_lower.contains("netdata") || name_lower.contains("postgres") ||
+       name_lower.contains("mysql") || name_lower.contains("mariadb") || name_lower.contains("redis") ||
+       name_lower.contains("mongo") {
+        let icon = if name_lower.contains("influx") || name_lower.contains("postgres") || name_lower.contains("mysql") ||
+                      name_lower.contains("mariadb") || name_lower.contains("redis") || name_lower.contains("mongo") {
+            "fa-database"
+        } else {
+            "fa-bar-chart"
+        };
+        return FaIconConfig {
+            icon,
+            color: "#6c7a89",
+            bg: "rgba(108, 122, 137, 0.08)",
+            border: "rgba(108, 122, 137, 0.2)",
+        };
+    }
+
+    // Default Generic Server (Grey)
+    FaIconConfig {
+        icon: "fa-server",
+        color: "#7f8c8d",
+        bg: "rgba(127, 140, 141, 0.08)",
+        border: "rgba(127, 140, 141, 0.2)",
     }
 }
 
@@ -66,10 +197,10 @@ pub fn render_service_row(s: &ServiceStatus, config: &Option<ProcessComposeConfi
         "".to_string()
     };
 
-    let fa_icon = get_service_fa_icon(&s.name);
+    let cfg = get_service_fa_config(&s.name);
     let app_html = format!(
         r#"<div style="display: flex; align-items: center; gap: 10px;">
-            <div style="width: 28px; height: 28px; border-radius: 4px; background: rgba(0, 161, 255, 0.08); border: 1px solid rgba(0, 161, 255, 0.2); display: inline-flex; align-items: center; justify-content: center; color: #00a1ff; flex-shrink: 0;">
+            <div style="width: 28px; height: 28px; border-radius: 4px; background: {}; border: 1px solid {}; display: inline-flex; align-items: center; justify-content: center; color: {}; flex-shrink: 0;">
                 <i class="fa {}" style="font-size: 14px;"></i>
             </div>
             <div style="display: flex; flex-direction: column; gap: 2px;">
@@ -78,7 +209,7 @@ pub fn render_service_row(s: &ServiceStatus, config: &Option<ProcessComposeConfi
                 <div style="font-size: 11px; color: #a0a0a5;">{}</div>
             </div>
         </div>"#,
-        fa_icon, s.name, version_badge, status_subtext
+        cfg.bg, cfg.border, cfg.color, cfg.icon, s.name, version_badge, status_subtext
     );
 
     let port_num = get_service_web_port(&s.name);
