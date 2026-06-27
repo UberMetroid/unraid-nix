@@ -65,20 +65,20 @@ $is_nix_running = ($status_code === 0);
 
 <!-- 1. Core System Settings -->
 <div class="nix-section" style="margin-bottom: 20px;">
-    <h3>Core System Settings</h3>
-    <p class="nix-subtext">Configure local storage path bindings and system-level boot operations.</p>
+    <h3>System Configuration</h3>
+    <p class="nix-subtext">Define where packages are stored and how the environment boots.</p>
     
     <div class="nix-form-group">
-        <label for="settings-store-path">Nix Store Storage Location:</label>
+        <label for="settings-store-path">Storage Location:</label>
         <div style="position: relative;">
             <input type="text" id="settings-store-path" autocomplete="off" spellcheck="false" value="<?php echo htmlspecialchars($store_path); ?>" placeholder="/mnt/cache/system/nix" data-pickcloseonfile="true" data-pickfilter="HIDE_FILES_FILTER" data-pickroot="/mnt" data-pickfolders="true" required style="padding-right: 30px;">
             <i class="fa fa-folder-open nix-folder-picker-btn" style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); color: #aaa; pointer-events: none;"></i>
         </div>
-        <div class="nix-field-help">This is where the persistent `/nix` directory will be bind-mounted. Do NOT use your USB boot drive `/boot`.</div>
+        <div class="nix-field-help">Target directory for package persistence. Do NOT use your USB boot drive (/boot).</div>
     </div>
 
     <div class="nix-form-group">
-        <label for="settings-autostart">Autostart Nix Flakes Services on Array Start:</label>
+        <label for="settings-autostart">Autostart Services on Array Start:</label>
         <select id="settings-autostart">
             <option value="yes" <?php echo $autostart === 'yes' ? 'selected' : ''; ?>>Yes</option>
             <option value="no" <?php echo $autostart === 'no' ? 'selected' : ''; ?>>No</option>
@@ -86,52 +86,52 @@ $is_nix_running = ($status_code === 0);
     </div>
 
     <div class="nix-form-group">
-        <label for="settings-show-in-nav">Show Nix tab in Main Navigation Menu:</label>
+        <label for="settings-show-in-nav">Show in Navigation Header:</label>
         <select id="settings-show-in-nav">
             <option value="no" <?php echo $show_in_nav === 'no' ? 'selected' : ''; ?>>No (Show in Settings)</option>
-            <option value="yes" <?php echo $show_in_nav === 'yes' ? 'selected' : ''; ?>>Yes (Show in Top Navigation)</option>
+            <option value="yes" <?php echo $show_in_nav === 'yes' ? 'selected' : ''; ?>>Yes (Show in Top Header)</option>
         </select>
     </div>
 
     <div style="margin-top: 15px; display: flex; justify-content: flex-end; border-top: 1px solid rgba(255,255,255,0.05); padding-top: 15px;">
-        <button type="button" class="nix-btn-primary" style="margin: 0; padding: 6px 18px; font-size: 12px; display: inline-flex; align-items: center; gap: 6px;" onclick="saveAllSettings(this)"><i class="fa fa-check"></i> Apply System Settings</button>
+        <button type="button" class="nix-btn-primary" style="margin: 0; padding: 6px 18px; font-size: 12px; display: inline-flex; align-items: center; gap: 6px;" onclick="saveAllSettings(this)"><i class="fa fa-check"></i> Apply Configuration</button>
     </div>
 </div>
 
 <!-- 2. Flake Isolation Settings -->
 <div class="nix-section" style="margin-bottom: 20px;">
-    <h3>Flake Isolation Settings</h3>
-    <p class="nix-subtext">Configure namespace sandboxing rules to isolate guest processes from the Unraid host.</p>
+    <h3>Process Isolation</h3>
+    <p class="nix-subtext">Restrict namespace access to separate guest services from the Unraid host.</p>
     
     <div class="nix-form-group">
-        <label for="settings-enable-sandbox">Enable Storage Sandboxing (Filesystem Isolation):</label>
+        <label for="settings-enable-sandbox">Storage Sandboxing (Filesystem jail):</label>
         <select id="settings-enable-sandbox">
             <option value="no" <?php echo $enable_sandbox === 'no' ? 'selected' : ''; ?>>No (Native /mnt access)</option>
-            <option value="yes" <?php echo $enable_sandbox === 'yes' ? 'selected' : ''; ?>>Yes (Isolate /mnt to mapped paths)</option>
+            <option value="yes" <?php echo $enable_sandbox === 'yes' ? 'selected' : ''; ?>>Yes (Isolate to mapped paths)</option>
         </select>
-        <div class="nix-field-help">When enabled, Nix services run inside a private chroot jail and can only access paths explicitly mapped in their configuration.</div>
+        <div class="nix-field-help">Runs services inside a private chroot jail restricting directory visibility.</div>
     </div>
 
     <div class="nix-form-group">
-        <label for="settings-enable-pid-isolation">Enable Process (PID) Isolation by Default:</label>
+        <label for="settings-enable-pid-isolation">Process (PID) Isolation:</label>
         <select id="settings-enable-pid-isolation">
-            <option value="yes" <?php echo $enable_pid_isolation === 'yes' ? 'selected' : ''; ?>>Yes (Hide other system processes)</option>
-            <option value="no" <?php echo $enable_pid_isolation === 'no' ? 'selected' : ''; ?>>No (Show host process list)</option>
+            <option value="yes" <?php echo $enable_pid_isolation === 'yes' ? 'selected' : ''; ?>>Yes (Hide other host processes)</option>
+            <option value="no" <?php echo $enable_pid_isolation === 'no' ? 'selected' : ''; ?>>No (Inherit host process list)</option>
         </select>
-        <div class="nix-field-help">Isolates the process list namespace so that each service runs as PID 1, preventing it from inspecting or signaling host OS processes.</div>
+        <div class="nix-field-help">Prevents guest processes from inspecting or signaling host OS processes.</div>
     </div>
 
     <div class="nix-form-group">
-        <label for="settings-enable-uts-isolation">Enable Hostname (UTS) Isolation by Default:</label>
+        <label for="settings-enable-uts-isolation">Hostname (UTS) Isolation:</label>
         <select id="settings-enable-uts-isolation">
-            <option value="yes" <?php echo $enable_uts_isolation === 'yes' ? 'selected' : ''; ?>>Yes (Use sandboxed virtual hostname)</option>
-            <option value="no" <?php echo $enable_uts_isolation === 'no' ? 'selected' : ''; ?>>No (Inherit Unraid system hostname)</option>
+            <option value="yes" <?php echo $enable_uts_isolation === 'yes' ? 'selected' : ''; ?>>Yes (Use virtual hostname)</option>
+            <option value="no" <?php echo $enable_uts_isolation === 'no' ? 'selected' : ''; ?>>No (Expose host hostname)</option>
         </select>
-        <div class="nix-field-help">Isolates UTS namespace, hiding the host's actual server hostname from running processes.</div>
+        <div class="nix-field-help">Hides the host's actual server hostname from running processes.</div>
     </div>
 
     <div class="nix-form-group">
-        <label for="settings-enable-ipc-isolation">Enable IPC Isolation by Default:</label>
+        <label for="settings-enable-ipc-isolation">IPC Namespace Isolation:</label>
         <select id="settings-enable-ipc-isolation">
             <option value="yes" <?php echo $enable_ipc_isolation === 'yes' ? 'selected' : ''; ?>>Yes (Isolate Inter-Process Communication)</option>
             <option value="no" <?php echo $enable_ipc_isolation === 'no' ? 'selected' : ''; ?>>No (Share host IPC channels)</option>
@@ -140,35 +140,35 @@ $is_nix_running = ($status_code === 0);
     </div>
 
     <div style="margin-top: 15px; display: flex; justify-content: flex-end; border-top: 1px solid rgba(255,255,255,0.05); padding-top: 15px;">
-        <button type="button" class="nix-btn-primary" style="margin: 0; padding: 6px 18px; font-size: 12px; display: inline-flex; align-items: center; gap: 6px;" onclick="saveAllSettings(this)"><i class="fa fa-check"></i> Apply Isolation Settings</button>
+        <button type="button" class="nix-btn-primary" style="margin: 0; padding: 6px 18px; font-size: 12px; display: inline-flex; align-items: center; gap: 6px;" onclick="saveAllSettings(this)"><i class="fa fa-check"></i> Apply Isolation</button>
     </div>
 </div>
 
 <!-- 3. Advanced Builder Options -->
 <div class="nix-section" style="margin-bottom: 20px;">
-    <h3>Advanced Builder Options</h3>
-    <p class="nix-subtext">Configure compilation constraints and interface display filters.</p>
+    <h3>Advanced Options</h3>
+    <p class="nix-subtext">Fine-tune build constraints and package display filters.</p>
 
     <div class="nix-form-group">
-        <label for="settings-allow-source-builds">Allow Local Package Compilation (Build from Source):</label>
+        <label for="settings-allow-source-builds">Allow Local Compilation (Source Builds):</label>
         <select id="settings-allow-source-builds">
-            <option value="no" <?php echo $allow_source_builds === 'no' ? 'selected' : ''; ?>>No (Default - Nix Binary Caches only)</option>
-            <option value="yes" <?php echo $allow_source_builds === 'yes' ? 'selected' : ''; ?>>Yes (Allow compiling locally when cache misses)</option>
+            <option value="no" <?php echo $allow_source_builds === 'no' ? 'selected' : ''; ?>>No (Use pre-compiled cache only)</option>
+            <option value="yes" <?php echo $allow_source_builds === 'yes' ? 'selected' : ''; ?>>Yes (Compile locally on cache miss)</option>
         </select>
-        <div class="nix-field-help">Disables default enforcement of binary cache availability, allowing Nix to compile packages locally from source code. Turning this ON may cause high CPU usage and long installation times during package builds.</div>
+        <div class="nix-field-help">Compiling from source code may cause high CPU usage and long installation times.</div>
     </div>
 
     <div class="nix-form-group">
-        <label for="settings-filter-presets-by-hardware">Filter Preset Store based on Host GPU Hardware:</label>
+        <label for="settings-filter-presets-by-hardware">Filter Presets by GPU Hardware:</label>
         <select id="settings-filter-presets-by-hardware">
-            <option value="yes" <?php echo $filter_presets_by_hardware === 'yes' ? 'selected' : ''; ?>>Yes (Hide CUDA/ROCm/Vulkan presets if hardware is missing)</option>
+            <option value="yes" <?php echo $filter_presets_by_hardware === 'yes' ? 'selected' : ''; ?>>Yes (Hide CUDA/ROCm/Vulkan templates if hardware is missing)</option>
             <option value="no" <?php echo $filter_presets_by_hardware === 'no' ? 'selected' : ''; ?>>No (Show all template variants)</option>
         </select>
-        <div class="nix-field-help">Automatically filter the Preset Store to show only packages compatible with your system's hardware. For example, ROCm AMD templates will be hidden if no AMD GPU is detected.</div>
+        <div class="nix-field-help">Hides templates that require acceleration cards if those cards are not detected in the system.</div>
     </div>
 
     <div style="margin-top: 15px; display: flex; justify-content: flex-end; border-top: 1px solid rgba(255,255,255,0.05); padding-top: 15px;">
-        <button type="button" class="nix-btn-primary" style="margin: 0; padding: 6px 18px; font-size: 12px; display: inline-flex; align-items: center; gap: 6px;" onclick="saveAllSettings(this)"><i class="fa fa-check"></i> Apply Builder Settings</button>
+        <button type="button" class="nix-btn-primary" style="margin: 0; padding: 6px 18px; font-size: 12px; display: inline-flex; align-items: center; gap: 6px;" onclick="saveAllSettings(this)"><i class="fa fa-check"></i> Apply Advanced</button>
     </div>
 </div>
 
@@ -176,9 +176,9 @@ $is_nix_running = ($status_code === 0);
 <div class="nix-section" style="margin-bottom: 20px;">
     <div style="display: flex; align-items: center; justify-content: space-between;">
         <div>
-            <h3 style="margin: 0 0 5px 0;">Nix System Daemon</h3>
+            <h3 style="margin: 0 0 5px 0;">System Daemon</h3>
             <p class="nix-subtext" style="margin: 0;">
-                Daemon Status: 
+                Status: 
                 <?php if ($is_nix_running): ?>
                     <span class="status green">RUNNING</span>
                 <?php else: ?>
@@ -204,18 +204,18 @@ $is_nix_running = ($status_code === 0);
 <div class="nix-section" style="margin-bottom: 20px;">
     <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 15px; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 15px;">
         <div>
-            <h3 style="margin: 0 0 5px 0;">Template Library Sync</h3>
-            <p class="nix-subtext" style="margin: 0;">Sync and update self-hosted app templates from the remote templates repository.</p>
+            <h3 style="margin: 0 0 5px 0;">Template Library</h3>
+            <p class="nix-subtext" style="margin: 0;">Sync and update self-hosted app templates from the remote repository.</p>
         </div>
         <div>
-            <button type="button" id="nix-sync-btn" class="nix-btn" style="display: inline-flex; align-items: center; gap: 6px; margin: 0;" onclick="syncTemplates(this)"><i class="fa fa-refresh"></i> Force Sync Templates</button>
+            <button type="button" id="nix-sync-btn" class="nix-btn" style="display: inline-flex; align-items: center; gap: 6px; margin: 0;" onclick="syncTemplates(this)"><i class="fa fa-refresh"></i> Force Sync</button>
         </div>
     </div>
 
     <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 15px;">
         <div>
-            <h3 style="margin: 0 0 5px 0;">Nix Store Disk Maintenance</h3>
-            <p class="nix-subtext" style="margin: 0;">Clean up unused packages, old build derivations, and reclaim storage pool space.</p>
+            <h3 style="margin: 0 0 5px 0;">Garbage Collection</h3>
+            <p class="nix-subtext" style="margin: 0;">Clean up unused packages and reclaim storage pool space.</p>
         </div>
         <div style="text-align: right;">
             <button type="button" id="nix-gc-btn" class="nix-btn" style="display: inline-flex; align-items: center; gap: 6px; margin: 0;" onclick="collectGarbage(this)"><i class="fa fa-trash"></i> Collect Garbage</button>
@@ -223,27 +223,27 @@ $is_nix_running = ($status_code === 0);
     </div>
     
     <div class="nix-form-group" style="margin-top: 15px; border-top: 1px solid rgba(255,255,255,0.05); padding-top: 15px;">
-        <label for="settings-auto-gc">Automatic Weekly Garbage Collection (Nix GC):</label>
+        <label for="settings-auto-gc">Automatic Weekly Cleanup (GC):</label>
         <select id="settings-auto-gc">
             <option value="no" <?php echo $auto_gc === 'no' ? 'selected' : ''; ?>>No</option>
             <option value="yes" <?php echo $auto_gc === 'yes' ? 'selected' : ''; ?>>Yes</option>
         </select>
-        <div class="nix-field-help">If enabled, Nix will mirror Unraid's weekly scheduler (configured under Settings > Scheduler) to automatically purge dangling build inputs and deleted package layers weekly to save disk space.</div>
+        <div class="nix-field-help">If enabled, mirrors Unraid's weekly scheduler (Settings > Scheduler) to automatically purge dangling build packages.</div>
     </div>
 
     <div class="nix-form-group" style="margin-top: 15px;">
-        <label for="settings-store-quota">Target Nix Store Size Quota (GB):</label>
+        <label for="settings-store-quota">Storage Quota (GB):</label>
         <div style="display: flex; align-items: center; gap: 10px;">
             <input type="number" id="settings-store-quota" min="10" value="<?php echo htmlspecialchars($store_quota); ?>" style="width: 100px; padding: 6px; border-radius: 4px; border: 1px solid rgba(255,255,255,0.1); background: rgba(0,0,0,0.2); color: #fff; text-align: center;">
             <span style="font-size: 12px; color: #888;">
                 Suggested: <strong><?php echo $suggested_quota; ?> GB</strong> (based on <?php echo $num_flakes; ?> configured flakes)
             </span>
         </div>
-        <div class="nix-field-help">Target size threshold for the Nix store directory. If the store size exceeds this limit, cleanup tasks will automatically trigger garbage collection to free up pool space.</div>
+        <div class="nix-field-help">If store size exceeds this limit, background cleanup tasks will automatically trigger garbage collection.</div>
     </div>
 
     <div style="margin-top: 15px; display: flex; justify-content: flex-end; border-top: 1px solid rgba(255,255,255,0.05); padding-top: 15px;">
-        <button type="button" class="nix-btn-primary" style="margin: 0; padding: 6px 18px; font-size: 12px; display: inline-flex; align-items: center; gap: 6px;" onclick="saveAllSettings(this)"><i class="fa fa-check"></i> Apply Maintenance Settings</button>
+        <button type="button" class="nix-btn-primary" style="margin: 0; padding: 6px 18px; font-size: 12px; display: inline-flex; align-items: center; gap: 6px;" onclick="saveAllSettings(this)"><i class="fa fa-check"></i> Apply Maintenance</button>
     </div>
 </div>
 
@@ -280,7 +280,7 @@ function saveSettings(e) {
     var filterPresetsByHardware = $("#settings-filter-presets-by-hardware").val();
     
     if (path.indexOf("/boot") === 0) {
-        alert("Error: The Nix Store cannot be stored on your USB flash drive (/boot). Choose a pool disk or array share.");
+        alert("Error: Storage location cannot be on your USB flash drive (/boot). Choose a pool disk or array share.");
         submitBtn.each(function(i, btn) {
             $(btn).prop('disabled', false).html(originalHtmls[i]);
         });
@@ -336,6 +336,7 @@ function toggleNixDaemon(action) {
     }, 'json');
 }
 
+// Keep syncTemplates and collectGarbage handlers intact
 function syncTemplates(btn) {
     var $btn = $(btn);
     if ($btn.prop('disabled')) return;
