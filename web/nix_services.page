@@ -1,5 +1,5 @@
 Menu="Nix:1"
-Title="Active Flakes"
+Title="Flakes"
 ---
 <link type="text/css" rel="stylesheet" href="/plugins/nix/styles_layout.css?v=<?php echo time(); ?>">
 <link type="text/css" rel="stylesheet" href="/plugins/nix/styles_widgets.css?v=<?php echo time(); ?>">
@@ -11,7 +11,7 @@ $is_nix_running = ($status_code === 0);
 ?>
 
 <div class="nix-section">
-    <h3>Active Flakes</h3>
+    <h3>Flakes</h3>
     <p class="nix-subtext">Natively running background processes managed by the nix process supervisor.</p>
     
     <div id="nix-services-list">

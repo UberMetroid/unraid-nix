@@ -2,7 +2,7 @@
 <!DOCTYPE PLUGIN [
   <!ENTITY name      "nix">
   <!ENTITY author    "UberMetroid">
-  <!ENTITY version   "2026.06.26.45">
+  <!ENTITY version   "2026.06.26.46">
   <!ENTITY launch    "Settings/Nix">
   <!ENTITY plugdir   "/boot/config/plugins/&name;">
   <!ENTITY usrdir    "/usr/local/emhttp/plugins/&name;">
@@ -11,6 +11,8 @@
 
   <CHANGES>
     ## nix package manager plugin
+    ### 2026.06.26.46
+    - **Tab Renamed to Flakes**: Renamed the "Active Flakes" tab title and section header to "Flakes" for cleaner navigation and consistency.
     ### 2026.06.26.45
     - **Dedicated GPU Table Column**: Created a dedicated "GPU" column next to the "Resources" column in the Active Flakes table. Resolves clutter inside the resources metrics cell by isolating hardware allocations to their own column.
     ### 2026.06.26.44
