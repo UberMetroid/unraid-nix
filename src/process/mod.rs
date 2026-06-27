@@ -19,6 +19,8 @@ pub struct ServiceStatus {
     #[serde(rename = "age")]
     pub uptime_nanoseconds: Option<u64>,
     pub exit_code: Option<i32>,
+    #[serde(default)]
+    pub gpu_active: Option<bool>,
 }
 
 impl ServiceStatus {
@@ -77,6 +79,41 @@ pub fn is_supervisor_running() -> bool {
     }
 }
 
+pub fn get_gpu_active_services() -> std::collections::HashSet<String> {
+    let mut active_services = std::collections::HashSet::new();
+
+    let output = Command::new("nvidia-smi")
+        .args(&["--query-compute-apps=pid", "--format=csv,noheader,nounits"])
+        .output();
+
+    if let Ok(out) = output {
+        if out.status.success() {
+            let stdout = String::from_utf8_lossy(&out.stdout);
+            for line in stdout.lines() {
+                let pid_str = line.trim();
+                if pid_str.is_empty() || pid_str == "No running processes found" {
+                    continue;
+                }
+                if let Ok(pid) = pid_str.parse::<i32>() {
+                    let root_link = format!("/proc/{}/root", pid);
+                    if let Ok(target) = std::fs::read_link(&root_link) {
+                        let target_str = target.to_string_lossy();
+                        if let Some(pos) = target_str.find("nix-chroot-") {
+                            let start = pos + "nix-chroot-".len();
+                            let service_name = &target_str[start..];
+                            if !service_name.is_empty() {
+                                active_services.insert(service_name.to_string());
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    active_services
+}
+
 /// Queries the process-compose daemon HTTP API for the status of all managed services.
 pub fn get_services_status(api_port: u16) -> Result<Vec<ServiceStatus>, String> {
     if !is_supervisor_running() {
@@ -91,7 +128,13 @@ pub fn get_services_status(api_port: u16) -> Result<Vec<ServiceStatus>, String> 
     let wrapper: ProcessComposeResponse = resp.into_json()
         .map_err(|e| format!("Failed to parse status JSON: {}", e))?;
 
-    Ok(wrapper.data)
+    let mut data = wrapper.data;
+    let active_gpus = get_gpu_active_services();
+    for s in &mut data {
+        s.gpu_active = Some(active_gpus.contains(&s.name));
+    }
+
+    Ok(data)
 }
 
 #[cfg(test)]
