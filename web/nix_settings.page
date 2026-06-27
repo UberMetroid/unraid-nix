@@ -135,6 +135,10 @@ $is_nix_running = ($status_code === 0);
         </div>
         <div class="nix-field-help">Target size threshold for the Nix store directory. If the store size exceeds this limit, cleanup tasks will automatically trigger garbage collection to free up pool space.</div>
     </div>
+
+    <div style="margin-top: 15px; display: flex; justify-content: flex-end; border-top: 1px solid rgba(255,255,255,0.05); padding-top: 15px;">
+        <button type="button" class="nix-btn-primary" style="margin: 0; padding: 6px 18px; font-size: 12px; display: inline-flex; align-items: center; gap: 6px;" onclick="saveAllSettings(this)"><i class="fa fa-check"></i> Apply Maintenance Settings</button>
+    </div>
 </div>
 
 <!-- 4. Flake Isolation Settings -->
@@ -362,5 +366,9 @@ function collectGarbage(btn) {
         alert("Server returned an error while collecting garbage.");
         $btn.prop('disabled', false).html(originalHtml);
     });
+}
+
+function saveAllSettings(btn) {
+    $("#nix-settings-form").submit();
 }
 </script>
