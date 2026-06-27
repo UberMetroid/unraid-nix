@@ -2,7 +2,7 @@
 <!DOCTYPE PLUGIN [
   <!ENTITY name      "nix">
   <!ENTITY author    "UberMetroid">
-  <!ENTITY version   "2026.06.26.32">
+  <!ENTITY version   "2026.06.26.33">
   <!ENTITY launch    "Settings/Nix">
   <!ENTITY plugdir   "/boot/config/plugins/&name;">
   <!ENTITY usrdir    "/usr/local/emhttp/plugins/&name;">
@@ -11,6 +11,8 @@
 
   <CHANGES>
     ## nix package manager plugin
+    ### 2026.06.26.33
+    - **Redirect Route Context Fix**: Resolved 404 page load errors after service installation by dynamically determining the redirect prefix (/Settings or /Nix) based on the active path structure.
     ### 2026.06.26.32
     - **Deployment Manifest Fix**: Corrected the file list in nix.plg to ensure all CSS stylesheets, JS dictionaries, log streamers, and helper PHP controllers are properly deployed to the emhttp plugins directory.
     ### 2026.06.26.31

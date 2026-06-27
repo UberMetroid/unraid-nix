@@ -172,7 +172,10 @@ function installCustomFlake(e) {
     var timer = setInterval(function() {
         if (popup.closed) {
             clearInterval(timer);
-            if (type === 'service') { window.location.href = '/Nix/nix_services'; }
+            if (type === 'service') {
+                var prefix = window.location.pathname.toLowerCase().startsWith('/settings') ? '/Settings' : '/Nix';
+                window.location.href = prefix + '/nix_services';
+            }
         }
     }, 1000);
 }
