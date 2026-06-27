@@ -166,7 +166,7 @@ pub fn render_presets_store() -> String {
     "##);
 
     if presets.is_empty() {
-        html.push_str(r#"<div style="grid-column: 1 / -1; text-align: center; color: #888; padding: 45px 0;">No preset files found on system.</div>"#);
+        html.push_str(r#"<div style="grid-column: 1 / -1; text-align: center; color: var(--nix-text-muted); padding: 45px 0;">No preset files found on system.</div>"#);
     } else {
         for p in presets {
             let styling = if p.is_composed {
@@ -186,7 +186,7 @@ pub fn render_presets_store() -> String {
                 }).collect();
                 format!(r#"<div style="display: flex; flex-wrap: wrap; gap: 4px; margin-top: 2px;">{}</div>"#, tags.join(""))
             } else {
-                format!(r#"<span style="font-size: 10px; color: #a0a0a5; font-family: monospace;">nixpkgs#{}</span>"#, p.name)
+                format!(r#"<span style="font-size: 10px; color: var(--nix-text-secondary); font-family: monospace;">nixpkgs#{}</span>"#, p.name)
             };
             
             let mut meta_html = String::new();
@@ -195,7 +195,7 @@ pub fn render_presets_store() -> String {
                 if let Some(ref v) = m.version {
                     if !v.is_empty() {
                         meta_html.push_str(&format!(
-                            r#"<span style="font-size: 8px; color: #fff; background: rgba(255,255,255,0.06); padding: 1px 4px; border-radius: 3px; border: 1px solid rgba(255,255,255,0.1); display: inline-flex; align-items: center; gap: 2px;" title="Version"><i class="fa fa-tag" style="font-size: 7px;"></i> {}</span>"#,
+                            r#"<span style="font-size: 8px; color: var(--nix-text-bright); background: var(--nix-bg-tertiary); padding: 1px 4px; border-radius: 3px; border: 1px solid var(--nix-border-primary); display: inline-flex; align-items: center; gap: 2px;" title="Version"><i class="fa fa-tag" style="font-size: 7px;"></i> {}</span>"#,
                             v
                         ));
                     }
@@ -203,7 +203,7 @@ pub fn render_presets_store() -> String {
                 if let Some(ref lic) = m.license {
                     if !lic.is_empty() {
                         meta_html.push_str(&format!(
-                            r#"<span style="font-size: 8px; color: #a0a0a5; background: rgba(255,255,255,0.03); padding: 1px 4px; border-radius: 3px; border: 1px solid rgba(255,255,255,0.06); display: inline-flex; align-items: center; gap: 2px;" title="License"><i class="fa fa-gavel" style="font-size: 7px;"></i> {}</span>"#,
+                            r#"<span style="font-size: 8px; color: var(--nix-text-secondary); background: var(--nix-bg-secondary); padding: 1px 4px; border-radius: 3px; border: 1px solid var(--nix-border-primary); display: inline-flex; align-items: center; gap: 2px;" title="License"><i class="fa fa-gavel" style="font-size: 7px;"></i> {}</span>"#,
                             lic
                         ));
                     }
@@ -218,7 +218,7 @@ pub fn render_presets_store() -> String {
                             "arm64"
                         };
                         meta_html.push_str(&format!(
-                            r#"<span style="font-size: 8px; color: #a0a0a5; background: rgba(255,255,255,0.03); padding: 1px 4px; border-radius: 3px; border: 1px solid rgba(255,255,255,0.06); display: inline-flex; align-items: center; gap: 2px;" title="Supported Platforms"><i class="fa fa-laptop" style="font-size: 7px;"></i> {}</span>"#,
+                            r#"<span style="font-size: 8px; color: var(--nix-text-secondary); background: var(--nix-bg-secondary); padding: 1px 4px; border-radius: 3px; border: 1px solid var(--nix-border-primary); display: inline-flex; align-items: center; gap: 2px;" title="Supported Platforms"><i class="fa fa-laptop" style="font-size: 7px;"></i> {}</span>"#,
                             plat_label
                         ));
                     }
@@ -227,7 +227,7 @@ pub fn render_presets_store() -> String {
                     if !progs.is_empty() {
                         let progs_str = progs.join(", ");
                         meta_html.push_str(&format!(
-                            r#"<div style="font-size: 8px; color: #777; margin-top: 4px; width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; display: inline-flex; align-items: center; gap: 3px;" title="Programs Provided: {}"><i class="fa fa-terminal" style="font-size: 7px; color: #555;"></i> {}</div>"#,
+                            r#"<div style="font-size: 8px; color: var(--nix-text-muted); margin-top: 4px; width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; display: inline-flex; align-items: center; gap: 3px;" title="Programs Provided: {}"><i class="fa fa-terminal" style="font-size: 7px; color: var(--nix-text-muted);"></i> {}</div>"#,
                             progs_str, progs_str
                         ));
                     }
@@ -238,26 +238,26 @@ pub fn render_presets_store() -> String {
             let pkg_search_name = extract_pkg_name(&p.command, &p.name);
 
             html.push_str(&format!(
-                r#"<div class="nix-preset-card" data-name="{}" data-desc="{}" data-category="{}" data-is-composed="{}" style="background: rgba(255, 255, 255, 0.02); border: 1px solid rgba(255, 255, 255, 0.05); border-radius: 6px; padding: 16px; display: flex; flex-direction: column; justify-content: space-between; transition: transform 0.2s ease, border-color 0.2s ease, background 0.2s ease, box-shadow 0.2s ease; height: 210px;">
+                r#"<div class="nix-preset-card" data-name="{}" data-desc="{}" data-category="{}" data-is-composed="{}" style="background: var(--nix-bg-primary); border: 1px solid var(--nix-border-primary); border-radius: 6px; padding: 16px; display: flex; flex-direction: column; justify-content: space-between; transition: transform 0.2s ease, border-color 0.2s ease, background 0.2s ease, box-shadow 0.2s ease; height: 210px;">
                     <div>
                         <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 12px;">
                             <div style="width: 32px; height: 32px; border-radius: 4px; background: {}; border: 1px solid {}; display: flex; align-items: center; justify-content: center; color: {}; flex-shrink: 0;">
                                 <i class="fa {}" style="font-size: 15px;"></i>
                             </div>
                             <div style="display: flex; flex-direction: column; overflow: hidden; width: 100%;">
-                                <strong style="font-size: 14px; color: #fff; text-overflow: ellipsis; white-space: nowrap; overflow: hidden;" title="{}">{}</strong>
+                                <strong style="font-size: 14px; color: var(--nix-text-primary); text-overflow: ellipsis; white-space: nowrap; overflow: hidden;" title="{}">{}</strong>
                                 {}
                                 {}
                             </div>
                         </div>
-                        <p style="font-size: 12px; color: #a0a0a5; line-height: 1.5; margin: 0; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; height: 54px;">{}</p>
+                        <p style="font-size: 12px; color: var(--nix-text-secondary); line-height: 1.5; margin: 0; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; height: 54px;">{}</p>
                     </div>
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 12px; padding-top: 8px; border-top: 1px solid rgba(255,255,255,0.03);">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 12px; padding-top: 8px; border-top: 1px solid var(--nix-border-primary);">
                         <div style="display: flex; gap: 10px; align-items: center;">
-                            <a href="{}" target="_blank" style="font-size: 11px; color: #00a1ff; text-decoration: none; display: inline-flex; align-items: center; gap: 4px;" onclick="event.stopPropagation();">
+                            <a href="{}" target="_blank" style="font-size: 11px; color: var(--nix-accent); text-decoration: none; display: inline-flex; align-items: center; gap: 4px;" onclick="event.stopPropagation();">
                                  <i class="fa fa-globe"></i> Website
                             </a>
-                            <a href="https://search.nixos.org/packages?channel=unstable&show={}&query={}" target="_blank" style="font-size: 11px; color: #888; text-decoration: none; display: inline-flex; align-items: center; gap: 4px;" onclick="event.stopPropagation();" class="nix-store-link">
+                            <a href="https://search.nixos.org/packages?channel=unstable&show={}&query={}" target="_blank" style="font-size: 11px; color: var(--nix-text-muted); text-decoration: none; display: inline-flex; align-items: center; gap: 4px;" onclick="event.stopPropagation();" class="nix-store-link">
                                  <i class="fa fa-book"></i> Nix Store
                             </a>
                         </div>

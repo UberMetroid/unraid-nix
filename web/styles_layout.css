@@ -1,23 +1,67 @@
 /* unraid-nix Premium WebGUI Layout Stylesheet */
 
+/* Core CSS variables theme mapping */
+:root, .nix-plugin-container {
+    --nix-bg-primary: #1c1c1f;
+    --nix-bg-secondary: #141416;
+    --nix-bg-tertiary: #232326;
+    
+    --nix-border-primary: #2d2d30;
+    --nix-border-secondary: #3a3a3d;
+    
+    --nix-text-primary: #ffffff;
+    --nix-text-secondary: #a0a0a5;
+    --nix-text-muted: #626266;
+    --nix-text-bright: #eee;
+    
+    --nix-accent: #00a1ff;
+    --nix-accent-hover: #008be0;
+    --nix-accent-glow: rgba(0, 161, 255, 0.3);
+    
+    --nix-card-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    --nix-console-bg: #09090a;
+}
+
+/* Light theme overrides */
+.nix-plugin-container.theme-white {
+    --nix-bg-primary: #ffffff;
+    --nix-bg-secondary: #f4f4f7;
+    --nix-bg-tertiary: #ebebeb;
+    
+    --nix-border-primary: #dadade;
+    --nix-border-secondary: #c9c9cf;
+    
+    --nix-text-primary: #1a1a1c;
+    --nix-text-secondary: #5e5e63;
+    --nix-text-muted: #8e8e93;
+    --nix-text-bright: #111;
+    
+    --nix-accent: #008be0;
+    --nix-accent-hover: #0070b8;
+    --nix-accent-glow: rgba(0, 139, 224, 0.15);
+    
+    --nix-card-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    --nix-console-bg: #f8f9fa;
+}
+
 .nix-tab-container {
-    background: #1c1c1f;
+    background: var(--nix-bg-primary);
     border-radius: 8px;
     padding: 20px;
     margin-bottom: 20px;
-    border: 1px solid #2d2d30;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    border: 1px solid var(--nix-border-primary);
+    box-shadow: var(--nix-card-shadow);
 }
 
 .nix-header h2 {
     margin: 0 0 5px 0;
-    color: #00a1ff;
+    color: var(--nix-accent);
     font-weight: 600;
 }
 
 .nix-header p {
     margin: 0;
-    color: #a0a0a5;
+    color: var(--nix-text-secondary);
     font-size: 13px;
 }
 
@@ -25,13 +69,13 @@
     margin-top: 15px;
     display: flex;
     gap: 10px;
-    border-bottom: 1px solid #2d2d30;
+    border-bottom: 1px solid var(--nix-border-primary);
     padding-bottom: 10px;
 }
 
 .nix-tab-btn {
     text-decoration: none;
-    color: #a0a0a5;
+    color: var(--nix-text-secondary);
     padding: 8px 16px;
     border-radius: 4px;
     font-size: 14px;
@@ -40,18 +84,21 @@
 }
 
 .nix-tab-btn:hover {
-    color: #fff;
+    color: var(--nix-text-primary);
     background: rgba(255, 255, 255, 0.05);
+}
+.nix-plugin-container.theme-white .nix-tab-btn:hover {
+    background: rgba(0, 0, 0, 0.03);
 }
 
 .nix-tab-btn.active {
-    color: #fff;
-    background: #00a1ff;
+    color: #fff !important;
+    background: var(--nix-accent);
 }
 
 .nix-section {
-    background: #1c1c1f;
-    border: 1px solid #2d2d30;
+    background: var(--nix-bg-primary);
+    border: 1px solid var(--nix-border-primary);
     border-radius: 8px;
     padding: 20px;
     margin-bottom: 20px;
@@ -60,12 +107,12 @@
 .nix-section h3 {
     margin: 0 0 5px 0;
     font-size: 16px;
-    color: #fff;
+    color: var(--nix-text-primary);
 }
 
 .nix-subtext {
     margin: 0 0 20px 0;
-    color: #a0a0a5;
+    color: var(--nix-text-secondary);
     font-size: 12px;
 }
 
@@ -74,7 +121,7 @@
     table-layout: auto;
     border-collapse: collapse;
     margin-top: 10px;
-    background: #1c1c1f !important;
+    background: var(--nix-bg-primary) !important;
     position: relative !important;
 }
 
@@ -89,7 +136,7 @@
 .nix-services-table thead, .nix-search-table thead {
     display: table-header-group !important;
     position: static !important;
-    background: #141416 !important;
+    background: var(--nix-bg-secondary) !important;
 }
 
 .nix-services-table tbody, .nix-search-table tbody {
@@ -106,13 +153,13 @@
 }
 
 .nix-services-table tbody tr, .nix-search-table tbody tr {
-    background: #1c1c1f !important;
+    background: var(--nix-bg-primary) !important;
     display: table-row !important;
     position: static !important;
 }
 
 .nix-services-table thead tr, .nix-search-table thead tr {
-    background: #141416 !important;
+    background: var(--nix-bg-secondary) !important;
     display: table-row !important;
     position: static !important;
 }
@@ -133,12 +180,12 @@
 .nix-services-table th, .nix-search-table th {
     text-align: left;
     padding: 12px;
-    background: #141416 !important;
-    color: #a0a0a5;
+    background: var(--nix-bg-secondary) !important;
+    color: var(--nix-text-secondary);
     font-size: 12px;
     text-transform: uppercase;
     font-weight: 600;
-    border-bottom: 2px solid #2d2d30;
+    border-bottom: 2px solid var(--nix-border-primary);
     position: static !important;
     top: auto !important;
     z-index: auto !important;
@@ -148,11 +195,11 @@
 
 .nix-services-table td, .nix-search-table td {
     padding: 12px;
-    border-bottom: 1px solid #2d2d30;
-    color: #eee !important;
+    border-bottom: 1px solid var(--nix-border-primary);
+    color: var(--nix-text-bright) !important;
     font-size: 13px;
     vertical-align: middle;
-    background: #1c1c1f !important;
+    background: var(--nix-bg-primary) !important;
     display: table-cell !important;
     position: static !important;
 }
@@ -170,9 +217,9 @@
 
 /* Control Buttons */
 .nix-btn {
-    background: #232326;
-    border: 1px solid #3a3a3d;
-    color: #c0c0c5;
+    background: var(--nix-bg-tertiary);
+    border: 1px solid var(--nix-border-secondary);
+    color: var(--nix-text-secondary);
     padding: 6px 10px;
     border-radius: 4px;
     cursor: pointer;
@@ -185,10 +232,10 @@
 }
 
 .nix-btn:hover {
-    background: #00a1ff;
-    border-color: #00a1ff;
+    background: var(--nix-accent);
+    border-color: var(--nix-accent);
     color: #fff;
-    box-shadow: 0 4px 10px rgba(0, 161, 255, 0.3);
+    box-shadow: var(--nix-accent-glow);
     transform: translateY(-1.5px);
 }
 
@@ -198,16 +245,16 @@
 }
 
 .nix-btn:disabled, .nix-btn[disabled] {
-    background: #1c1c1f !important;
-    border-color: #2d2d30 !important;
-    color: #525256 !important;
+    background: var(--nix-bg-primary) !important;
+    border-color: var(--nix-border-primary) !important;
+    color: var(--nix-text-muted) !important;
     cursor: not-allowed !important;
     transform: none !important;
     box-shadow: none !important;
 }
 
 .nix-btn-install {
-    background: #00a1ff;
+    background: var(--nix-accent);
     border: none;
     color: #fff;
     padding: 6px 12px;
@@ -220,8 +267,8 @@
 }
 
 .nix-btn-install:hover {
-    background: #008be0;
-    box-shadow: 0 4px 10px rgba(0, 161, 255, 0.3);
+    background: var(--nix-accent-hover);
+    box-shadow: var(--nix-accent-glow);
     transform: translateY(-1.5px);
 }
 

@@ -12,7 +12,7 @@ pub fn render_app_cell(name: &str, version_badge: &str, status_subtext: &str) ->
             <div style="display: flex; flex-direction: column; gap: 2px;">
                 <strong style="font-size: 13px;">{}</strong>
                 {}
-                <div style="font-size: 11px; color: #a0a0a5;">{}</div>
+                <div style="font-size: 11px; color: var(--nix-text-secondary);">{}</div>
             </div>
         </div>"#,
         cfg.bg, cfg.border, cfg.color, cfg.icon, name, version_badge, status_subtext
@@ -50,12 +50,12 @@ pub fn render_lan_ip_port_cell(
             
             let link = if is_running {
                 format!(
-                    r##"<div style="margin-bottom: 4px;"><a href="#" onclick="window.open('http://{}:{}/', '_blank'); return false;" style="color: #00a1ff; text-decoration: none; font-weight: 500;">{}:{} <i class="fa fa-external-link" style="font-size: 9px; margin-left: 1px;"></i></a> <span style="font-size: 10px; color: #777; font-family: monospace;">({})</span></div>"##,
+                    r##"<div style="margin-bottom: 4px;"><a href="#" onclick="window.open('http://{}:{}/', '_blank'); return false;" style="color: var(--nix-accent); text-decoration: none; font-weight: 500;">{}:{} <i class="fa fa-external-link" style="font-size: 9px; margin-left: 1px;"></i></a> <span style="font-size: 10px; color: var(--nix-text-muted); font-family: monospace;">({})</span></div>"##,
                     addr.ip, port, addr.ip, port, label
                 )
             } else {
                 format!(
-                    r##"<div style="margin-bottom: 4px;"><span style="color: #888;">{}:{}</span> <span style="font-size: 10px; color: #555; font-family: monospace;">({})</span></div>"##,
+                    r##"<div style="margin-bottom: 4px;"><span style="color: var(--nix-text-secondary);">{}:{}</span> <span style="font-size: 10px; color: var(--nix-text-muted); font-family: monospace;">({})</span></div>"##,
                     addr.ip, port, label
                 )
             };
@@ -66,12 +66,12 @@ pub fn render_lan_ip_port_cell(
             if let Some(ref target) = bind_address_override {
                 let link = if is_running {
                     format!(
-                        r##"<div style="margin-bottom: 4px;"><a href="#" onclick="window.open('http://{}:{}/', '_blank'); return false;" style="color: #00a1ff; text-decoration: none; font-weight: 500;">{}:{} <i class="fa fa-external-link" style="font-size: 9px; margin-left: 1px;"></i></a> <span style="font-size: 10px; color: #777; font-family: monospace;">(override)</span></div>"##,
+                        r##"<div style="margin-bottom: 4px;"><a href="#" onclick="window.open('http://{}:{}/', '_blank'); return false;" style="color: var(--nix-accent); text-decoration: none; font-weight: 500;">{}:{} <i class="fa fa-external-link" style="font-size: 9px; margin-left: 1px;"></i></a> <span style="font-size: 10px; color: var(--nix-text-muted); font-family: monospace;">(override)</span></div>"##,
                         target, port, target, port
                     )
                 } else {
                     format!(
-                        r##"<div style="margin-bottom: 4px;"><span style="color: #888;">{}:{}</span> <span style="font-size: 10px; color: #555; font-family: monospace;">(override)</span></div>"##,
+                        r##"<div style="margin-bottom: 4px;"><span style="color: var(--nix-text-secondary);">{}:{}</span> <span style="font-size: 10px; color: var(--nix-text-muted); font-family: monospace;">(override)</span></div>"##,
                         target, port
                     )
                 };
@@ -93,14 +93,14 @@ pub fn render_volume_mappings_cell(home_path: &str, extra_binds_vec: &[(String, 
     let mut volume_mappings = Vec::new();
     if home_path != "-" && !home_path.is_empty() {
         volume_mappings.push(format!(
-            r#"<div style="margin-bottom: 4px;"><span style="color: #a0a0a5; font-family: monospace;">/config</span> <i class="fa fa-arrow-right" style="margin: 0 4px; font-size: 10px; color: #888;"></i> <code>{}</code></div>"#,
+            r#"<div style="margin-bottom: 4px;"><span style="color: var(--nix-text-secondary); font-family: monospace;">/config</span> <i class="fa fa-arrow-right" style="margin: 0 4px; font-size: 10px; color: var(--nix-text-muted);"></i> <code>{}</code></div>"#,
             home_path
         ));
     }
     for (host, sandbox) in extra_binds_vec {
         if !host.is_empty() && !sandbox.is_empty() {
             volume_mappings.push(format!(
-                r#"<div style="margin-bottom: 4px;"><span style="color: #a0a0a5; font-family: monospace;">{}</span> <i class="fa fa-arrow-right" style="margin: 0 4px; font-size: 10px; color: #888;"></i> <code>{}</code></div>"#,
+                r#"<div style="margin-bottom: 4px;"><span style="color: var(--nix-text-secondary); font-family: monospace;">{}</span> <i class="fa fa-arrow-right" style="margin: 0 4px; font-size: 10px; color: var(--nix-text-muted);"></i> <code>{}</code></div>"#,
                 sandbox, host
             ));
         }
@@ -135,22 +135,22 @@ pub fn render_resources_cell(
             r#"<div class="nix-stat-row" data-service="{}" data-type="cpu" style="display: flex; align-items: center; gap: 8px; margin-bottom: 2px;">
                 <svg class="nix-sparkline" style="width: 60px; height: 12px; overflow: visible; display: inline-block; vertical-align: middle;"></svg>
                 <span class="nix-stat-val" style="font-size: 11px; color: #00d5ff; font-family: monospace; font-weight: 500; min-width: 45px; text-align: right; display: inline-block;">{}</span>
-                <span style="font-size: 10px; color: #666; font-family: monospace;">CPU</span>
+                <span style="font-size: 10px; color: var(--nix-text-muted); font-family: monospace;">CPU</span>
                </div>
                <div class="nix-stat-row" data-service="{}" data-type="ram" style="display: flex; align-items: center; gap: 8px; margin-bottom: 2px;">
                 <svg class="nix-sparkline" style="width: 60px; height: 12px; overflow: visible; display: inline-block; vertical-align: middle;"></svg>
                 <span class="nix-stat-val" style="font-size: 11px; color: #d946ef; font-family: monospace; font-weight: 500; min-width: 45px; text-align: right; display: inline-block;">{}</span>
-                <span style="font-size: 10px; color: #666; font-family: monospace;">RAM</span>
+                <span style="font-size: 10px; color: var(--nix-text-muted); font-family: monospace;">RAM</span>
                </div>
                <div class="nix-stat-row" data-service="{}" data-type="io-in" style="display: flex; align-items: center; gap: 8px; margin-bottom: 2px;">
                 <svg class="nix-sparkline" style="width: 60px; height: 12px; overflow: visible; display: inline-block; vertical-align: middle;"></svg>
                 <span class="nix-stat-val" style="font-size: 11px; color: #2ecc71; font-family: monospace; font-weight: 500; min-width: 45px; text-align: right; display: inline-block;">0.0 B/s</span>
-                <span style="font-size: 10px; color: #666; font-family: monospace;">I/O In</span>
+                <span style="font-size: 10px; color: var(--nix-text-muted); font-family: monospace;">I/O In</span>
                </div>
                <div class="nix-stat-row" data-service="{}" data-type="io-out" style="display: flex; align-items: center; gap: 8px; margin-bottom: 4px;">
                 <svg class="nix-sparkline" style="width: 60px; height: 12px; overflow: visible; display: inline-block; vertical-align: middle;"></svg>
                 <span class="nix-stat-val" style="font-size: 11px; color: #e67e22; font-family: monospace; font-weight: 500; min-width: 45px; text-align: right; display: inline-block;">0.0 B/s</span>
-                <span style="font-size: 10px; color: #666; font-family: monospace;">I/O Out</span>
+                <span style="font-size: 10px; color: var(--nix-text-muted); font-family: monospace;">I/O Out</span>
                </div>"#,
             name, cpu_str, name, mem_str, name, name
         ));
@@ -167,7 +167,7 @@ pub fn render_resources_cell(
                             p.to_string()
                         };
                         badges.push(format!(
-                            r#"<span style="background: rgba(0, 161, 255, 0.08); border: 1px solid rgba(0, 161, 255, 0.25); border-radius: 3px; padding: 2px 6px; font-size: 10px; color: #00a1ff; font-family: monospace; display: inline-block;">{}</span>"#,
+                            r#"<span style="background: var(--nix-bg-tertiary); border: 1px solid var(--nix-border-primary); border-radius: 3px; padding: 2px 6px; font-size: 10px; color: var(--nix-text-secondary); font-family: monospace; display: inline-block;">{}</span>"#,
                             display_part
                         ));
                     }
@@ -182,13 +182,13 @@ pub fn render_resources_cell(
             _ => {
                 if let Some(ref lg) = legacy_gpu {
                     if lg == "1" || lg == "true" {
-                        res.push_str(r#"<div style="display: flex; flex-wrap: wrap; gap: 4px; margin-top: 4px;"><span style="background: rgba(0, 161, 255, 0.08); border: 1px solid rgba(0, 161, 255, 0.25); border-radius: 3px; padding: 2px 6px; font-size: 10px; color: #00a1ff; font-family: monospace; display: inline-block;">All GPUs</span></div>"#);
+                        res.push_str(r#"<div style="display: flex; flex-wrap: wrap; gap: 4px; margin-top: 4px;"><span style="background: var(--nix-bg-tertiary); border: 1px solid var(--nix-border-primary); border-radius: 3px; padding: 2px 6px; font-size: 10px; color: var(--nix-text-secondary); font-family: monospace; display: inline-block;">All GPUs</span></div>"#);
                     }
                 }
             }
         }
     } else {
-        res.push_str(r#"<span style="color: #777;">-</span>"#);
+        res.push_str(r#"<span style="color: var(--nix-text-muted);">-</span>"#);
     }
     res
 }

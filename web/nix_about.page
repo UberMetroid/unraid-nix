@@ -1,6 +1,8 @@
 Menu="Nix:7"
 Title="About"
 ---
+<?php require_once __DIR__ . "/theme_helper.php"; ?>
+<div class="nix-plugin-container theme-<?php echo $nix_theme; ?>">
 <link type="text/css" rel="stylesheet" href="/plugins/nix/styles_layout.css?v=<?php echo time(); ?>">
 <link type="text/css" rel="stylesheet" href="/plugins/nix/styles_widgets.css?v=<?php echo time(); ?>">
 <script src="/plugins/nix/nix.js"></script>
@@ -117,4 +119,6 @@ Title="About"
             </div>
         </div>
     </div>
+</div>
+
 </div>

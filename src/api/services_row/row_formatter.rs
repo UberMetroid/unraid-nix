@@ -39,12 +39,12 @@ pub fn render_service_row(
     let version_badge = if version != "unknown" {
         if let Some(link_url) = get_package_link_url(&uri) {
             format!(
-                r#"<div style="font-size: 11px; color: #a0a0a5; margin-top: -1px; margin-bottom: -1px;">v<a href="{}" target="_blank" style="color: #00a1ff; text-decoration: none;">{} <i class="fa fa-external-link" style="font-size: 8px;"></i></a> <span style="color: #2ecc71; font-weight: 500;">(up-to-date)</span></div>"#,
+                r#"<div style="font-size: 11px; color: var(--nix-text-secondary); margin-top: -1px; margin-bottom: -1px;">v<a href="{}" target="_blank" style="color: var(--nix-accent); text-decoration: none;">{} <i class="fa fa-external-link" style="font-size: 8px;"></i></a> <span style="color: #2ecc71; font-weight: 500;">(up-to-date)</span></div>"#,
                 link_url, version
             )
         } else {
             format!(
-                r#"<div style="font-size: 11px; color: #a0a0a5; margin-top: -1px; margin-bottom: -1px;">v{} <span style="color: #2ecc71; font-weight: 500;">(up-to-date)</span></div>"#,
+                r#"<div style="font-size: 11px; color: var(--nix-text-secondary); margin-top: -1px; margin-bottom: -1px;">v{} <span style="color: #2ecc71; font-weight: 500;">(up-to-date)</span></div>"#,
                 version
             )
         }
