@@ -1,7 +1,7 @@
 {
-  "name": "seafile",
-  "display_name": "Seafile Sync Client (Daemon)",
-  "description": "Seafile client sync daemon (seaf-daemon) for syncing local directories with a remote Seafile server.",
+  "name": "seafile-shared",
+  "display_name": "Seafile Shared",
+  "description": "Shared components of Seafile: seaf-daemon and seaf-cli for syncing local directories with a remote server.",
   "url": "https://www.seafile.com/",
   "command": "exec nix run nixpkgs#seafile-shared -- seaf-daemon -f -c /config",
   "default_ports": [
