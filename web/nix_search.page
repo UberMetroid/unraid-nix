@@ -1,9 +1,11 @@
 Menu="Nix:2"
 Title="Templates"
 ---
-<?php require_once "/usr/local/emhttp/plugins/nix/theme_helper.php"; ?>
-<div class="nix-plugin-container theme-<?php echo $nix_theme; ?>">
 
+<?php 
+require_once "/usr/local/emhttp/plugins/nix/theme_helper.php"; 
+echo "<div class=\"nix-plugin-container theme-{$nix_theme}\">";
+?>
 
 <link type="text/css" rel="stylesheet" href="/plugins/nix/styles_layout.css?v=<?php echo time(); ?>">
 <link type="text/css" rel="stylesheet" href="/plugins/nix/styles_widgets.css?v=<?php echo time(); ?>">
