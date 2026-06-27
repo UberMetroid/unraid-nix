@@ -186,11 +186,18 @@ pub fn setup_nix_conf() -> Result<(), String> {
         }
     }
 
-    // Default configuration to enable flakes
+    // Default configuration to enable flakes with safe resource concurrency limits
     let conf_path = "/nix/etc/nix/nix.conf";
     if !fs::metadata(conf_path).is_ok() {
         log_event("INFO", "Writing default nix.conf to enable flakes...");
-        let default_conf = "experimental-features = nix-command flakes\nmax-jobs = auto\n";
+        let total_cores = std::thread::available_parallelism()
+            .map(|p| p.get())
+            .unwrap_or(4);
+        let safe_jobs = std::cmp::max(1, total_cores / 2);
+        let default_conf = format!(
+            "experimental-features = nix-command flakes\nmax-jobs = {}\ncores = 2\n",
+            safe_jobs
+        );
         if let Err(e) = fs::write(conf_path, default_conf) {
             let err_msg = format!("Failed to write default nix.conf: {}", e);
             log_event("ERROR", &err_msg);

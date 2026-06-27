@@ -56,7 +56,7 @@ pub fn build_setpriv_command(
         env_vars.push("export LD_LIBRARY_PATH=/run/opengl-driver/lib".to_string());
     }
     if has_render {
-        env_vars.push("export LIBVA_DRIVERS_PATH=/usr/lib64/dri".to_string());
+        env_vars.push("export LIBVA_DRIVERS_PATH=/usr/lib64/dri:$(nix build --no-link --print-out-paths nixpkgs#intel-media-driver 2>/dev/null || true)/lib/dri".to_string());
     }
     if let Some(ref devices) = cuda_devices {
         env_vars.push(format!("export CUDA_VISIBLE_DEVICES={}", devices));
