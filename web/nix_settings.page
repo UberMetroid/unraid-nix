@@ -79,11 +79,15 @@ $is_nix_running = ($status_code === 0);
                 <?php endif; ?>
             </p>
         </div>
-        <div id="nix-daemon-controls">
+        <div id="nix-daemon-controls" style="display: flex; gap: 8px;">
             <?php if ($is_nix_running): ?>
-                <button class="nix-btn" onclick="toggleNixDaemon('stop')"><i class="fa fa-stop"></i> Stop Nix</button>
+                <button type="button" class="nix-btn-install" style="background: #232326; border: 1px solid #3a3a3d; color: #525256; cursor: not-allowed; font-weight: normal; margin: 0; padding: 6px 12px; display: inline-flex; align-items: center; gap: 6px;" disabled><i class="fa fa-play"></i> Start</button>
+                <button type="button" class="nix-btn" style="margin: 0; padding: 6px 12px;" onclick="toggleNixDaemon('stop')"><i class="fa fa-stop"></i> Stop</button>
+                <button type="button" class="nix-btn" style="margin: 0; padding: 6px 12px;" onclick="toggleNixDaemon('restart')"><i class="fa fa-refresh"></i> Restart</button>
             <?php else: ?>
-                <button class="nix-btn-install" onclick="toggleNixDaemon('start')"><i class="fa fa-play"></i> Start Nix</button>
+                <button type="button" class="nix-btn-install" style="margin: 0; padding: 6px 12px; display: inline-flex; align-items: center; gap: 6px;" onclick="toggleNixDaemon('start')"><i class="fa fa-play"></i> Start</button>
+                <button type="button" class="nix-btn" style="margin: 0; padding: 6px 12px; color: #525256; border-color: #2d2d30; cursor: not-allowed;" disabled><i class="fa fa-stop"></i> Stop</button>
+                <button type="button" class="nix-btn" style="margin: 0; padding: 6px 12px; color: #525256; border-color: #2d2d30; cursor: not-allowed;" disabled><i class="fa fa-refresh"></i> Restart</button>
             <?php endif; ?>
         </div>
     </div>

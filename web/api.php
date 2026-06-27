@@ -143,6 +143,22 @@ if ($action === 'nix-daemon-stop') {
     success();
 }
 
+if ($action === 'nix-daemon-restart') {
+    $output = [];
+    $code = 0;
+    exec("/usr/local/emhttp/plugins/nix/event/stopping_svcs 2>&1", $output, $code);
+    if ($code !== 0) {
+        error(implode("\n", $output));
+    }
+    $output2 = [];
+    $code2 = 0;
+    exec("/usr/local/emhttp/plugins/nix/event/disks_mounted 2>&1", $output2, $code2);
+    if ($code2 !== 0) {
+        error(implode("\n", $output2));
+    }
+    success();
+}
+
 // 7. Fetch Nix Daemon / Process Compose system logs
 if ($action === 'nix-sys-logs') {
     $log_type = isset($_GET['type']) ? $_GET['type'] : 'plugin';
