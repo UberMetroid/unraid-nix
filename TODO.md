@@ -1,0 +1,41 @@
+# unraid-nix Feature Roadmap & TODO List
+
+Below is the structured roadmap of features to be added to the `unraid-nix` plugin project:
+
+---
+
+## 1. Upgrade & Maintenance Controls
+- [ ] **Global Flake Update Scanner**:
+  - Implement a check in the backend to determine if installed flakes have updates available from the Nix registry/channel.
+  - Display a visual indicator/count of packages requiring updates.
+- [ ] **Global Rebuild**:
+  - Add a "Rebuild All Services" button that triggers a batch update and recompilation of all configured flakes.
+
+## 2. Subsystem Resource Dashboard
+- [ ] **Combined Subsystem Sparkline**:
+  - Place a dashboard header at the top of the **Flakes** tab.
+  - Render a real-time sparkline graph showing combined CPU, RAM, and GPU utilization for all running Nix flakes combined.
+
+## 3. Flakes Tab Card Layout
+- [ ] **Adaptive Flake Cards**:
+  - Refactor the current tabular services list into a grid of status cards, matching the size, format, and layout style of the Template Store.
+- [ ] **Expandable Details / Modals**:
+  - Provide an inline "Expand" toggle or a popup modal dialog for each card to show detailed stats (individual ports, exact bind-mounts, resource graphs, and service status logs) without cluttering the main grid view.
+
+## 4. Onboarding & Tour Guide
+- [ ] **First-Time Setup Walkthrough**:
+  - Implement a modal dialog/popup that triggers automatically for new installations.
+  - Guide the user through selecting a storage location, configuring sandboxing defaults, and setting initial CPU core quotas.
+- [ ] **Interactive Tour**:
+  - Provide a guided visual tour highlighting the key tabs (Flakes, Templates, Settings, Logs).
+
+## 5. Security & Isolation Tester
+- [ ] **Internal Isolation Tester Flake**:
+  - Create a lightweight test flake packaged with check scripts.
+  - When deployed, it runs tests *from the inside* of the chroot jail to verify isolation boundaries (checking if host `/etc/shadow` is hidden, host PIDs are invisible, and host IPC namespaces are isolated) and produces a security report.
+
+## 6. Diagnostic Logging & Troubleshooting
+- [ ] **One-Click Diagnostic Bundle**:
+  - Add a button in the **Logs** or **Settings** tab to zip and download all nix process logs, system startup logs, and config files.
+- [ ] **GitHub Issues Helper**:
+  - Provide clear instructions and links to easily post bug reports and upload the diagnostic zip directly to [UberMetroid/unraid-nix/issues](https://github.com/UberMetroid/unraid-nix/issues).
