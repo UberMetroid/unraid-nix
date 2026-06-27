@@ -84,11 +84,12 @@ pub fn render_dashboard_widget(api_port: u16) -> String {
                         while (tbody.rows.length > 1) {
                             tbody.deleteRow(1);
                         }
-                        // Append new service rows
-                        var temp = document.createElement('tbody');
-                        temp.innerHTML = html;
-                        while (temp.rows.length > 0) {
-                            tbody.appendChild(temp.rows[0]);
+                        // Parse rows within a table context to ensure correct browser DOM injection
+                        var temp = document.createElement('div');
+                        temp.innerHTML = '<table><tbody>' + html + '</tbody></table>';
+                        var rows = temp.querySelector('tbody').rows;
+                        while (rows.length > 0) {
+                            tbody.appendChild(rows[0]);
                         }
                     }
                 })
