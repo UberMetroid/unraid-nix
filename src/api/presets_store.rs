@@ -48,7 +48,7 @@ pub fn render_presets_store() -> String {
         <!-- Category pills -->
         <div class="nix-preset-pills" style="display: flex; gap: 8px; flex-wrap: wrap; padding-bottom: 5px; border-bottom: 1px solid rgba(255,255,255,0.05);">
             <button type="button" class="nix-preset-pill active" onclick="filterPresetCategory('media', this)">Media & Audio</button>
-            <button type="button" class="nix-preset-pill" onclick="filterPresetCategory('automation', this)">Automation (Servarr)</button>
+            <button type="button" class="nix-preset-pill" onclick="filterPresetCategory('automation', this)">ARR!</button>
             <button type="button" class="nix-preset-pill" onclick="filterPresetCategory('downloads', this)">Downloads</button>
             <button type="button" class="nix-preset-pill" onclick="filterPresetCategory('network', this)">Network & VPN</button>
             <button type="button" class="nix-preset-pill" onclick="filterPresetCategory('smarthome', this)">Smart Home</button>
