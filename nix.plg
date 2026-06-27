@@ -2,7 +2,7 @@
 <!DOCTYPE PLUGIN [
   <!ENTITY name      "nix">
   <!ENTITY author    "UberMetroid">
-  <!ENTITY version   "2026.06.26.52">
+  <!ENTITY version   "2026.06.26.53">
   <!ENTITY launch    "Settings/Nix">
   <!ENTITY plugdir   "/boot/config/plugins/&name;">
   <!ENTITY usrdir    "/usr/local/emhttp/plugins/&name;">
@@ -11,6 +11,8 @@
 
   <CHANGES>
     ## nix package manager plugin
+    ### 2026.06.26.53
+    - **Global Build-from-Source settings option**: Added a global "Allow Local Package Compilation" setting toggle, which defaults to Off. If disabled, it blocks all local compilation threads (`max-jobs = 0` in `nix.conf`) to enforce pure cache usage. Removed the local compilation toggle from the individual service configuration screen to safeguard host resources.
     ### 2026.06.26.52
     - **Intel QuickSync (QSV) Hardware Acceleration Support**: Appended the dynamically resolved Nix store path of the oneVPL GPU runtime (`vpl-gpu-rt`) to `LD_LIBRARY_PATH` inside the sandbox, enabling full Intel QSV hardware transcoding support for Jellyfin.
     ### 2026.06.26.51

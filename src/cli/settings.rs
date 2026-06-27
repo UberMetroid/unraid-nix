@@ -88,6 +88,7 @@ pub fn save_settings(args: &[String]) {
     let mut enable_sandbox = "no".to_string();
     let mut enable_cli = "no".to_string();
     let mut show_in_nav = "yes".to_string();
+    let mut allow_source_builds = "no".to_string();
 
     let mut i = 2;
     while i < args.len() {
@@ -115,6 +116,11 @@ pub fn save_settings(args: &[String]) {
             "--show-in-nav" => {
                 if i + 1 >= args.len() { eprintln!("Error: Missing show-in-nav"); exit(1); }
                 show_in_nav = args[i+1].clone();
+                i += 2;
+            }
+            "--allow-source-builds" => {
+                if i + 1 >= args.len() { eprintln!("Error: Missing allow-source-builds value"); exit(1); }
+                allow_source_builds = args[i+1].clone();
                 i += 2;
             }
             _ => { eprintln!("Unknown save-settings flag: {}", args[i]); exit(1); }
@@ -151,8 +157,8 @@ pub fn save_settings(args: &[String]) {
     // Write settings to ini config
     let _ = std::fs::create_dir_all("/boot/config/plugins/nix");
     let cfg_content = format!(
-        "NIX_STORE_PATH=\"{}\"\nAUTOSTART_FLAKES=\"{}\"\nENABLE_STORAGE_SANDBOX=\"{}\"\nENABLE_CLI_INSTALL=\"{}\"\nSHOW_IN_NAVIGATION=\"{}\"\n",
-        clean_store_path, autostart, enable_sandbox, enable_cli, show_in_nav
+        "NIX_STORE_PATH=\"{}\"\nAUTOSTART_FLAKES=\"{}\"\nENABLE_STORAGE_SANDBOX=\"{}\"\nENABLE_CLI_INSTALL=\"{}\"\nSHOW_IN_NAVIGATION=\"{}\"\nALLOW_SOURCE_BUILDS=\"{}\"\n",
+        clean_store_path, autostart, enable_sandbox, enable_cli, show_in_nav, allow_source_builds
     );
     if std::fs::write(cfg_file, cfg_content).is_err() {
         eprintln!("Failed to write nix.cfg to flash drive.");

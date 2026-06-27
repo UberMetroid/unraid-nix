@@ -175,15 +175,7 @@ $host_ips = get_host_ips_php();
                 </div>
             </div>
 
-            <div class="nix-form-group" style="margin-top: 15px;">
-                <label style="display: flex; align-items: center; gap: 8px; font-weight: 600; cursor: pointer; user-select: none; margin: 0;">
-                    <input type="checkbox" id="custom-compile-locally" value="1">
-                    <span style="color: #eee;">Compile Locally from Source</span>
-                </label>
-                <div style="font-size: 11px; color: #888; margin-top: 4px; margin-left: 20px; line-height: 1.4;">
-                    Disables binary caches, forcing Nix to compile the package directly on this server. Automatically detects and applies host CPU micro-architectural optimizations (e.g. <code>-march=native</code>). <span style="color: #e74c3c;">Warning: Installation will take significantly longer.</span>
-                </div>
-            </div>
+            <input type="hidden" id="custom-compile-locally" value="0">
 
             <div class="nix-form-group">
                 <label>Launch Command Override:</label>

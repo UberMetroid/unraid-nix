@@ -42,6 +42,7 @@ $autostart = isset($nix_cfg['AUTOSTART_FLAKES']) ? $nix_cfg['AUTOSTART_FLAKES'] 
 $enable_cli = isset($nix_cfg['ENABLE_CLI_INSTALL']) ? $nix_cfg['ENABLE_CLI_INSTALL'] : 'no';
 $show_in_nav = isset($nix_cfg['SHOW_IN_NAVIGATION']) ? $nix_cfg['SHOW_IN_NAVIGATION'] : 'yes';
 $enable_sandbox = isset($nix_cfg['ENABLE_STORAGE_SANDBOX']) ? $nix_cfg['ENABLE_STORAGE_SANDBOX'] : 'no';
+$allow_source_builds = isset($nix_cfg['ALLOW_SOURCE_BUILDS']) ? $nix_cfg['ALLOW_SOURCE_BUILDS'] : 'no';
 
 exec("/etc/rc.d/rc.nix-daemon status 2>/dev/null", $status_output, $status_code);
 $is_nix_running = ($status_code === 0);
@@ -117,6 +118,15 @@ $is_nix_running = ($status_code === 0);
             </select>
         </div>
 
+        <div class="nix-form-group">
+            <label for="settings-allow-source-builds">Allow Local Package Compilation (Build from Source):</label>
+            <select id="settings-allow-source-builds">
+                <option value="no" <?php echo $allow_source_builds === 'no' ? 'selected' : ''; ?>>No (Default - Nix Binary Caches only)</option>
+                <option value="yes" <?php echo $allow_source_builds === 'yes' ? 'selected' : ''; ?>>Yes (Allow compiling locally when cache misses)</option>
+            </select>
+            <div class="nix-field-help">Disables default enforcement of binary cache availability, allowing Nix to compile packages locally from source code. Turning this ON may cause high CPU usage and long installation times during packages builds.</div>
+        </div>
+
         <button type="submit" id="nix-settings-submit-btn" class="nix-btn-primary">Apply Settings</button>
     </form>
 </div>
@@ -140,6 +150,7 @@ function saveSettings(e) {
     var enableSandbox = $("#settings-enable-sandbox").val();
     var enableCli = $("#settings-enable-cli").val();
     var showInNav = $("#settings-show-in-nav").val();
+    var allowSourceBuilds = $("#settings-allow-source-builds").val();
     
     if (path.indexOf("/boot") === 0) {
         alert("Error: The Nix Store cannot be stored on your USB flash drive (/boot). Choose a pool disk or array share.");
@@ -155,7 +166,8 @@ function saveSettings(e) {
         autostart: auto,
         enable_sandbox: enableSandbox,
         enable_cli: enableCli,
-        show_in_nav: showInNav
+        show_in_nav: showInNav,
+        allow_source_builds: allowSourceBuilds
     }, function(resp) {
         if (resp.success) {
             alert("Settings applied successfully! Restart the Nix services for the changes to take effect.");

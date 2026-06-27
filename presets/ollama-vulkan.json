@@ -1,0 +1,15 @@
+{
+  "name": "ollama-vulkan",
+  "display_name": "Ollama (Vulkan / Intel Arc)",
+  "description": "Ollama Local LLM Servicer (Vulkan / Intel Arc GPU hardware accelerated version)",
+  "url": "https://ollama.ai/",
+  "command": "export OLLAMA_HOST=${BIND_ADDRESS:-0.0.0.0}:${PORT:-11434} && exec nix run nixpkgs#ollama-vulkan -- serve",
+  "default_ports": [
+    {
+      "host": 11434,
+      "container": 11434,
+      "label": "API"
+    }
+  ],
+  "icon": "fa-magic"
+}

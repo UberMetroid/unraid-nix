@@ -176,6 +176,7 @@ if ($action === 'save-settings') {
     $enable_sandbox = isset($_POST['enable_sandbox']) ? $_POST['enable_sandbox'] : 'no';
     $enable_cli = isset($_POST['enable_cli']) ? $_POST['enable_cli'] : 'no';
     $show_in_nav = isset($_POST['show_in_nav']) ? $_POST['show_in_nav'] : 'yes';
+    $allow_source_builds = isset($_POST['allow_source_builds']) ? $_POST['allow_source_builds'] : 'no';
     
     $output = [];
     $code = 0;
@@ -184,7 +185,8 @@ if ($action === 'save-settings') {
            "--autostart " . escapeshellarg($autostart) . " " .
            "--enable-sandbox " . escapeshellarg($enable_sandbox) . " " .
            "--enable-cli " . escapeshellarg($enable_cli) . " " .
-           "--show-in-nav " . escapeshellarg($show_in_nav);
+           "--show-in-nav " . escapeshellarg($show_in_nav) . " " .
+           "--allow-source-builds " . escapeshellarg($allow_source_builds);
            
     exec($cmd . " 2>&1", $output, $code);
     if ($code !== 0) {
