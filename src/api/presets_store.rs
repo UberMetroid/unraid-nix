@@ -198,7 +198,8 @@ fn get_preset_category_name(name: &str) -> &'static str {
        name_lower.contains("dashy") || name_lower.contains("flame") || name_lower.contains("organizr") {
         "dashboard"
     } else if name_lower.contains("emulatorjs") || name_lower.contains("romm") || name_lower.contains("pterodactyl") ||
-       name_lower.contains("pufferpanel") {
+       name_lower.contains("pufferpanel") || name_lower.contains("lancache") || name_lower.contains("minecraft-server") ||
+       name_lower.contains("steamcmd") {
         "gaming"
     } else if name_lower.contains("paperless-ngx") || name_lower.contains("stirling-pdf") || name_lower.contains("joplin-server") ||
        name_lower.contains("trilium-notes") || name_lower.contains("bookstack") || name_lower.contains("wiki-js") ||
@@ -235,17 +236,22 @@ fn get_preset_category_name(name: &str) -> &'static str {
        name_lower.contains("tailscale") || name_lower.contains("wireguard") || name_lower.contains("vpn") {
         "network"
     } else if name_lower.contains("home-assistant") || name_lower.contains("homeassistant") || name_lower.contains("hass") ||
-       name_lower.contains("zigbee") || name_lower.contains("mqtt") || name_lower.contains("esphome") {
+       name_lower.contains("zigbee") || name_lower.contains("mqtt") || name_lower.contains("esphome") ||
+       name_lower.contains("homebridge") || name_lower.contains("openhab") || name_lower.contains("jeedom") ||
+       name_lower.contains("deconz") || name_lower.contains("wled") || name_lower.contains("scrypted") ||
+       name_lower.contains("gladys") {
         "smarthome"
     } else if name_lower.contains("vaultwarden") || name_lower.contains("bitwarden") || name_lower.contains("keepass") ||
        name_lower.contains("fail2ban") || name_lower.contains("crowdsec") || name_lower.contains("authentik") ||
-       name_lower.contains("authelia") {
+       name_lower.contains("authelia") || name_lower.contains("headscale") || name_lower.contains("netbird") {
         "security"
     } else if name_lower.contains("nextcloud") || name_lower.contains("owncloud") ||
-       name_lower.contains("seafile") || name_lower.contains("filerun") {
+       name_lower.contains("seafile") || name_lower.contains("filerun") || name_lower.contains("immich") ||
+       name_lower.contains("photoprism") || name_lower.contains("komga") || name_lower.contains("uboquity") {
         "cloud"
     } else if name_lower.contains("syncthing") || name_lower.contains("rclone") || name_lower.contains("duplicati") ||
-       name_lower.contains("kopia") || name_lower.contains("backups") {
+       name_lower.contains("kopia") || name_lower.contains("backups") || name_lower.contains("duplicacy") ||
+       name_lower.contains("krusader") || name_lower.contains("filezilla") || name_lower.contains("archivebox") {
         "storage"
     } else if name_lower.contains("influx") || name_lower.contains("prometheus") || name_lower.contains("grafana") ||
        name_lower.contains("kuma") || name_lower.contains("netdata") || name_lower.contains("postgres") ||
@@ -286,7 +292,8 @@ fn get_preset_category_styling(name: &str, default_icon: &str) -> CategoryStylin
 
     // Gaming (Coral/Red)
     if name_lower.contains("emulatorjs") || name_lower.contains("romm") || name_lower.contains("pterodactyl") ||
-       name_lower.contains("pufferpanel") {
+       name_lower.contains("pufferpanel") || name_lower.contains("lancache") || name_lower.contains("minecraft-server") ||
+       name_lower.contains("steamcmd") {
         return CategoryStyling {
             icon: default_icon.to_string(),
             color: "#ff7675",
@@ -379,7 +386,10 @@ fn get_preset_category_styling(name: &str, default_icon: &str) -> CategoryStylin
 
     // Smart Home & IoT (Yellow)
     if name_lower.contains("home-assistant") || name_lower.contains("homeassistant") || name_lower.contains("hass") ||
-       name_lower.contains("zigbee") || name_lower.contains("mqtt") || name_lower.contains("esphome") {
+       name_lower.contains("zigbee") || name_lower.contains("mqtt") || name_lower.contains("esphome") ||
+       name_lower.contains("homebridge") || name_lower.contains("openhab") || name_lower.contains("jeedom") ||
+       name_lower.contains("deconz") || name_lower.contains("wled") || name_lower.contains("scrypted") ||
+       name_lower.contains("gladys") {
         return CategoryStyling {
             icon: default_icon.to_string(),
             color: "#f1c40f",
@@ -391,7 +401,7 @@ fn get_preset_category_styling(name: &str, default_icon: &str) -> CategoryStylin
     // Vaults & Passwords (Red)
     if name_lower.contains("vaultwarden") || name_lower.contains("bitwarden") || name_lower.contains("keepass") ||
        name_lower.contains("fail2ban") || name_lower.contains("crowdsec") || name_lower.contains("authentik") ||
-       name_lower.contains("authelia") {
+       name_lower.contains("authelia") || name_lower.contains("headscale") || name_lower.contains("netbird") {
         return CategoryStyling {
             icon: default_icon.to_string(),
             color: "#e74c3c",
@@ -402,7 +412,8 @@ fn get_preset_category_styling(name: &str, default_icon: &str) -> CategoryStylin
 
     // Cloud (Blue)
     if name_lower.contains("nextcloud") || name_lower.contains("owncloud") ||
-       name_lower.contains("seafile") || name_lower.contains("filerun") {
+       name_lower.contains("seafile") || name_lower.contains("filerun") || name_lower.contains("immich") ||
+       name_lower.contains("photoprism") || name_lower.contains("komga") || name_lower.contains("uboquity") {
         return CategoryStyling {
             icon: default_icon.to_string(),
             color: "#74b9ff",
@@ -413,7 +424,8 @@ fn get_preset_category_styling(name: &str, default_icon: &str) -> CategoryStylin
 
     // Sync & Backups (Teal)
     if name_lower.contains("syncthing") || name_lower.contains("rclone") || name_lower.contains("duplicati") ||
-       name_lower.contains("kopia") || name_lower.contains("backups") {
+       name_lower.contains("kopia") || name_lower.contains("backups") || name_lower.contains("duplicacy") ||
+       name_lower.contains("krusader") || name_lower.contains("filezilla") || name_lower.contains("archivebox") {
         return CategoryStyling {
             icon: default_icon.to_string(),
             color: "#1abc9c",

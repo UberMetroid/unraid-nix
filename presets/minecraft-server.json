@@ -1,0 +1,15 @@
+{
+  "name": "minecraft-server",
+  "display_name": "Minecraft Server",
+  "description": "Minecraft Java Edition dedicated server",
+  "url": "https://www.minecraft.net/",
+  "command": "exec nix run nixpkgs#minecraft-server",
+  "default_ports": [
+    {
+      "host": 25565,
+      "container": 25565,
+      "label": "Game Port"
+    }
+  ],
+  "icon": "fa-gamepad"
+}

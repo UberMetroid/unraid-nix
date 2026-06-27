@@ -45,7 +45,8 @@ fn get_static_config(name_lower: &str) -> StaticConfig {
 
     // Gaming (Coral/Red)
     if name_lower.contains("emulatorjs") || name_lower.contains("romm") || name_lower.contains("pterodactyl") ||
-       name_lower.contains("pufferpanel") {
+       name_lower.contains("pufferpanel") || name_lower.contains("lancache") || name_lower.contains("minecraft-server") ||
+       name_lower.contains("steamcmd") {
         return StaticConfig {
             icon: "fa-gamepad",
             color: "#ff7675",
@@ -165,9 +166,16 @@ fn get_static_config(name_lower: &str) -> StaticConfig {
 
     // Smart Home & IoT (Yellow)
     if name_lower.contains("home-assistant") || name_lower.contains("homeassistant") || name_lower.contains("hass") ||
-       name_lower.contains("zigbee") || name_lower.contains("mqtt") || name_lower.contains("esphome") {
+       name_lower.contains("zigbee") || name_lower.contains("mqtt") || name_lower.contains("esphome") ||
+       name_lower.contains("homebridge") || name_lower.contains("openhab") || name_lower.contains("jeedom") ||
+       name_lower.contains("deconz") || name_lower.contains("wled") || name_lower.contains("scrypted") ||
+       name_lower.contains("gladys") {
         let icon = if name_lower.contains("home-assistant") || name_lower.contains("homeassistant") || name_lower.contains("hass") {
             "fa-home"
+        } else if name_lower.contains("homebridge") || name_lower.contains("openhab") || name_lower.contains("jeedom") {
+            "fa-server"
+        } else if name_lower.contains("wled") {
+            "fa-lightbulb-o"
         } else {
             "fa-bolt"
         };
@@ -179,8 +187,10 @@ fn get_static_config(name_lower: &str) -> StaticConfig {
         };
     }
 
-    // Vaults & Passwords (Red)
-    if name_lower.contains("vaultwarden") || name_lower.contains("bitwarden") || name_lower.contains("keepass") {
+    // Security & Locks (Red)
+    if name_lower.contains("vaultwarden") || name_lower.contains("bitwarden") || name_lower.contains("keepass") ||
+       name_lower.contains("fail2ban") || name_lower.contains("crowdsec") || name_lower.contains("authentik") ||
+       name_lower.contains("authelia") || name_lower.contains("headscale") || name_lower.contains("netbird") {
         return StaticConfig {
             icon: "fa-lock",
             color: "#e74c3c",
@@ -191,7 +201,8 @@ fn get_static_config(name_lower: &str) -> StaticConfig {
 
     // Cloud (Blue)
     if name_lower.contains("nextcloud") || name_lower.contains("owncloud") ||
-       name_lower.contains("seafile") || name_lower.contains("filerun") {
+       name_lower.contains("seafile") || name_lower.contains("filerun") || name_lower.contains("immich") ||
+       name_lower.contains("photoprism") || name_lower.contains("komga") || name_lower.contains("uboquity") {
         return StaticConfig {
             icon: "fa-cloud",
             color: "#74b9ff",
@@ -202,9 +213,12 @@ fn get_static_config(name_lower: &str) -> StaticConfig {
 
     // Sync & Backups (Teal)
     if name_lower.contains("syncthing") || name_lower.contains("rclone") || name_lower.contains("duplicati") ||
-       name_lower.contains("kopia") || name_lower.contains("backups") {
+       name_lower.contains("kopia") || name_lower.contains("backups") || name_lower.contains("duplicacy") ||
+       name_lower.contains("krusader") || name_lower.contains("filezilla") || name_lower.contains("archivebox") {
         let icon = if name_lower.contains("syncthing") {
             "fa-refresh"
+        } else if name_lower.contains("krusader") || name_lower.contains("filezilla") {
+            "fa-folder-open-o"
         } else {
             "fa-cloud-upload"
         };

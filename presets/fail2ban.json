@@ -5,5 +5,5 @@
   "url": "https://www.fail2ban.org/",
   "command": "exec nix run nixpkgs#fail2ban",
   "default_ports": [],
-  "icon": "fa-server"
+  "icon": "fa-lock"
 }

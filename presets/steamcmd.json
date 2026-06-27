@@ -1,0 +1,15 @@
+{
+  "name": "steamcmd",
+  "display_name": "SteamCMD",
+  "description": "Command-line version of the Steam client to deploy dedicated game servers",
+  "url": "https://developer.valvesoftware.com/wiki/SteamCMD",
+  "command": "exec nix run nixpkgs#steamcmd",
+  "default_ports": [
+    {
+      "host": 27015,
+      "container": 27015,
+      "label": "Query Port"
+    }
+  ],
+  "icon": "fa-gamepad"
+}
