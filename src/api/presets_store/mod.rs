@@ -118,17 +118,20 @@ pub fn render_presets_store() -> String {
     <div class="nix-preset-store-header" style="display: flex; flex-direction: column; gap: 15px; margin-bottom: 20px;">
         <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px;">
             <div>
-                <h3 style="margin: 0;">Preset Service Store</h3>
-                <p class="nix-subtext" style="margin: 5px 0 0 0;">Browse and configure over "##.to_string();
+                <h3 style="margin: 0;">Template Library</h3>
+                <p class="nix-subtext" style="margin: 5px 0 0 0;">"##.to_string();
     
     html.push_str(&presets.len().to_string());
     
-    html.push_str(r##" pre-configured self-hosted templates.</p>
+    html.push_str(r##" verified templates ready for native deployment.</p>
             </div>
             <div style="display: flex; gap: 8px; align-items: center;">
-                <button type="button" class="nix-preset-pill active" onclick="filterPresetCategory('all', this)">All</button>
-                <button type="button" class="nix-preset-pill" onclick="filterPresetCategory('composed', this)">Composed</button>
-                <button type="button" class="nix-preset-pill" onclick="filterPresetCategory('standard', this)">Standard</button>
+                <!-- Scope Segmented Toggle -->
+                <div class="nix-scope-toggle" style="display: inline-flex; background: rgba(0,0,0,0.25); border: 1px solid rgba(255,255,255,0.08); border-radius: 6px; padding: 2px; gap: 2px; align-items: center;">
+                    <button type="button" class="nix-scope-btn active" onclick="filterPresetScope('all', this)">All</button>
+                    <button type="button" class="nix-scope-btn" onclick="filterPresetScope('composed', this)">Composed</button>
+                    <button type="button" class="nix-scope-btn" onclick="filterPresetScope('standard', this)">Standard</button>
+                </div>
                 
                 <!-- Search bar -->
                 <div style="position: relative; width: 250px; margin-left: 8px;">
@@ -140,6 +143,7 @@ pub fn render_presets_store() -> String {
 
         <!-- Category pills (Alphabetically Sorted) -->
         <div class="nix-preset-pills" style="display: flex; gap: 8px; flex-wrap: wrap; padding-bottom: 5px; border-bottom: 1px solid rgba(255,255,255,0.05);">
+            <button type="button" class="nix-preset-pill active" onclick="filterPresetCategory('all', this)">All</button>
             <button type="button" class="nix-preset-pill" onclick="filterPresetCategory('ai', this)">AI</button>
             <button type="button" class="nix-preset-pill" onclick="filterPresetCategory('automation', this)">Automation</button>
             <button type="button" class="nix-preset-pill" onclick="filterPresetCategory('backup', this)">Backup</button>
@@ -273,7 +277,17 @@ pub fn render_presets_store() -> String {
 
     html.push_str(r##"</div>
     <script>
+    var activeScope = 'all';
     var activeCategory = 'all';
+
+    function filterPresetScope(scope, btn) {
+        activeScope = scope;
+        document.querySelectorAll('.nix-scope-btn').forEach(function(el) {
+            el.classList.remove('active');
+        });
+        btn.classList.add('active');
+        applyPresetFilters();
+    }
 
     function filterPresetCategory(cat, btn) {
         activeCategory = cat;
@@ -285,16 +299,6 @@ pub fn render_presets_store() -> String {
     }
 
     function filterPresetsStore() {
-        var q = $("#nix-preset-search").val().trim();
-        if (q.length > 0 && activeCategory !== 'all') {
-            activeCategory = 'all';
-            document.querySelectorAll('.nix-preset-pill').forEach(function(pill) {
-                pill.classList.remove('active');
-                if (pill.getAttribute('onclick') && pill.getAttribute('onclick').indexOf("'all'") !== -1) {
-                    pill.classList.add('active');
-                }
-            });
-        }
         applyPresetFilters();
     }
 
@@ -309,18 +313,23 @@ pub fn render_presets_store() -> String {
             
             var matchesQuery = (name.indexOf(q) !== -1 || desc.indexOf(q) !== -1);
             
+            var matchesScope = false;
+            if (activeScope === 'all') {
+                matchesScope = true;
+            } else if (activeScope === 'composed') {
+                matchesScope = isComposed;
+            } else if (activeScope === 'standard') {
+                matchesScope = !isComposed;
+            }
+            
             var matchesCategory = false;
             if (activeCategory === 'all') {
                 matchesCategory = true;
-            } else if (activeCategory === 'composed') {
-                matchesCategory = isComposed;
-            } else if (activeCategory === 'standard') {
-                matchesCategory = !isComposed;
             } else {
                 matchesCategory = (category === activeCategory);
             }
             
-            if (matchesQuery && matchesCategory) {
+            if (matchesQuery && matchesScope && matchesCategory) {
                 card.style.display = 'flex';
             } else {
                 card.style.display = 'none';
@@ -328,7 +337,6 @@ pub fn render_presets_store() -> String {
         });
     }
 
-    // Apply default filters immediately on script execution
     setTimeout(applyPresetFilters, 50);
     </script>
     <style>
@@ -366,6 +374,37 @@ pub fn render_presets_store() -> String {
     .nix-store-link:hover {
         color: #fff !important;
         text-decoration: underline !important;
+    }
+    .nix-scope-btn {
+        border: 1px solid transparent;
+        background: transparent;
+        padding: 4px 10px;
+        border-radius: 4px;
+        font-size: 11px;
+        color: #a0a0a5;
+        cursor: pointer;
+        transition: all 0.15s ease;
+        margin: 0;
+        outline: none;
+    }
+    .nix-scope-btn:hover:not(.active) {
+        background: rgba(255, 255, 255, 0.05);
+        color: #fff;
+    }
+    .nix-scope-btn.active {
+        background: rgba(255, 255, 255, 0.08) !important;
+        color: #fff !important;
+        font-weight: 500;
+    }
+    .nix-scope-btn[onclick*="'composed'"].active {
+        background: rgba(224, 86, 253, 0.12) !important;
+        border: 1px solid rgba(224, 86, 253, 0.25) !important;
+        color: #e056fd !important;
+    }
+    .nix-scope-btn[onclick*="'standard'"].active {
+        background: rgba(0, 161, 255, 0.12) !important;
+        border: 1px solid rgba(0, 161, 255, 0.25) !important;
+        color: #00a1ff !important;
     }
     </style>
     "##);
