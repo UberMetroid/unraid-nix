@@ -39,11 +39,19 @@ pub fn render_verification_report(service: &str) -> String {
     let appdata = meta.get("appdata").and_then(|v| v.as_str()).unwrap_or("");
     let gpu = meta.get("gpu").and_then(|v| v.as_str()).unwrap_or("0");
     let is_gpu = gpu == "1" || gpu == "true";
+    let gpus = meta.get("gpus").and_then(|v| v.as_str()).unwrap_or("");
 
     let puid_label = if puid == "99" { "nobody (99)".to_string() } else { puid };
     let pgid_label = if pgid == "100" { "users (100)".to_string() } else { pgid };
-    let gpu_label = if is_gpu { "Enabled (Intel/AMD/Nvidia)" } else { "Disabled" };
-    let gpu_icon = if is_gpu { "fa-check success" } else { "fa-minus-circle warning" };
+    
+    let gpu_label = if !gpus.trim().is_empty() {
+        format!("Enabled (Exposing GPU: {})", gpus)
+    } else if is_gpu {
+        "Enabled (Exposing All GPUs)".to_string()
+    } else {
+        "Disabled".to_string()
+    };
+    let gpu_icon = if !gpus.trim().is_empty() || is_gpu { "fa-check success" } else { "fa-minus-circle warning" };
 
     let mut extra_binds_html = String::new();
     if let Some(extra_binds_val) = meta.get("extra_binds") {
@@ -86,6 +94,15 @@ pub fn render_verification_report(service: &str) -> String {
         ports_html = "<div style='color: #777;'><i class='fa fa-info-circle'></i> No port overrides (running on default ports)</div>".to_string();
     }
 
+    let sandbox_desc = if crate::sandbox::is_storage_sandbox_enabled() {
+        format!(
+            "Private mount namespace (unshare -m) chroot jail at /var/run/nix-chroot-{}",
+            name
+        )
+    } else {
+        "Disabled (running directly in host mount namespace)".to_string()
+    };
+
     format!(
         r#"<div class='nix-validation-report' style='margin-top: 20px; border: 1px solid #00a1ff; background: rgba(0, 161, 255, 0.04); border-radius: 6px; padding: 15px; font-family: "Clear Sans", sans-serif; animation: fadeIn 0.4s ease; text-align: left;'>
             <h4 style='margin: 0 0 12px 0; color: #00a1ff; display: flex; align-items: center; gap: 8px; font-size: 14px;'>
@@ -96,15 +113,15 @@ pub fn render_verification_report(service: &str) -> String {
                 <div><strong>Flake Package URI:</strong></div><div><i class='fa fa-check success'></i> {}</div>
                 <div><strong>Process Owner (PUID):</strong></div><div><i class='fa fa-check success'></i> {}</div>
                 <div><strong>Process Group (PGID):</strong></div><div><i class='fa fa-check success'></i> {}</div>
-                <div><strong>GPU Hardware Acceleration:</strong></div><div><i class='fa {}'></i> {}</div>
-                <div><strong>Sandbox Root Jail:</strong></div><div><i class='fa fa-check success'></i> /var/run/nix-chroot-{} (Isolated & Private)</div>
-                <div><strong>Database Appdata Path:</strong></div><div><i class='fa fa-check success'></i> {} (Natively Mounted)</div>
+                <div><strong>GPU Passthrough:</strong></div><div><i class='fa {}'></i> {}</div>
+                <div><strong>Storage Sandboxing:</strong></div><div><i class='fa fa-check success'></i> {}</div>
+                <div><strong>Appdata Bind-Mount:</strong></div><div><i class='fa fa-check success'></i> {} &rarr; /config</div>
             </div>
             <div style='display: grid; grid-template-columns: 180px 1fr; gap: 8px 12px; font-size: 12px; color: #eee;'>
                 <div><strong>Network Mappings:</strong></div><div>{}</div>
                 <div><strong>Shared Storage Paths:</strong></div><div>{}</div>
             </div>
         </div>"#,
-        name, uri, puid_label, pgid_label, gpu_icon, gpu_label, name, appdata, ports_html, extra_binds_html
+        name, uri, puid_label, pgid_label, gpu_icon, gpu_label, sandbox_desc, appdata, ports_html, extra_binds_html
     )
 }
