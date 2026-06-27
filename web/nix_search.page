@@ -4,13 +4,90 @@ Title="Templates"
 <link type="text/css" rel="stylesheet" href="/plugins/nix/styles_layout.css?v=<?php echo time(); ?>">
 <link type="text/css" rel="stylesheet" href="/plugins/nix/styles_widgets.css?v=<?php echo time(); ?>">
 <script src="/plugins/nix/nix.js"></script>
+
+<!-- Sub-navigation for Templates Tab -->
+<div style="display: flex; gap: 10px; margin-bottom: 20px;">
+    <button type="button" id="nix-subtab-presets" class="nix-tab-btn active" onclick="switchTemplatesView('presets')" style="border: none; cursor: pointer; font-size: 13px; font-weight: 500;">
+        <i class="fa fa-th-large"></i> Preset Templates
+    </button>
+    <button type="button" id="nix-subtab-nixpkgs" class="nix-tab-btn" onclick="switchTemplatesView('nixpkgs')" style="border: none; cursor: pointer; font-size: 13px; font-weight: 500;">
+        <i class="fa fa-search"></i> Search Nixpkgs Database
+    </button>
+</div>
+
+<!-- 1. Presets Store Section -->
 <div class="nix-section" id="nix-preset-store-section" style="margin-bottom: 25px;">
     <?php
     passthru("/usr/local/emhttp/plugins/nix/nix-helper render presets 2>/dev/null");
     ?>
 </div>
 
+<!-- 2. Nixpkgs Live Search Section -->
+<div class="nix-section" id="nix-nixpkgs-search-section" style="margin-bottom: 25px; display: none;">
+    <h3 style="margin-top: 0;"><i class="fa fa-search" style="color: #00a1ff; margin-right: 6px;"></i> Upstream Nixpkgs Package Search</h3>
+    <p class="nix-subtext">Search from over 80,000+ available package attributes in the NixOS unstable registry.</p>
+    
+    <div style="display: flex; gap: 8px; margin-bottom: 20px;">
+        <input type="text" id="nixpkgs-search-input" placeholder="e.g. caddy, pocketbase, rustc, go..." style="flex: 1; padding: 8px 12px; border-radius: 4px; border: 1px solid rgba(255,255,255,0.1); background: rgba(0,0,0,0.2); color: #fff; font-size: 13px; outline: none;" onkeydown="handleSearchKeydown(event)">
+        <button type="button" class="nix-btn-primary" onclick="performNixpkgsSearch()" style="margin: 0; padding: 0 20px;"><i class="fa fa-search"></i> Search</button>
+    </div>
+    
+    <div id="nixpkgs-search-results" style="min-height: 100px; position: relative;">
+        <div style="text-align: center; color: #666; padding: 40px 0; font-style: italic;">
+            Type a query above and click Search to look up packages...
+        </div>
+    </div>
+</div>
+
 <script>
+function switchTemplatesView(mode) {
+    if (mode === 'presets') {
+        $("#nix-subtab-presets").addClass("active");
+        $("#nix-subtab-nixpkgs").removeClass("active");
+        $("#nix-preset-store-section").show();
+        $("#nix-nixpkgs-search-section").hide();
+    } else {
+        $("#nix-subtab-nixpkgs").addClass("active");
+        $("#nix-subtab-presets").removeClass("active");
+        $("#nix-nixpkgs-search-section").show();
+        $("#nix-preset-store-section").hide();
+    }
+}
+
+function handleSearchKeydown(e) {
+    if (e.key === 'Enter') {
+        performNixpkgsSearch();
+    }
+}
+
+function performNixpkgsSearch() {
+    var query = $("#nixpkgs-search-input").val().trim();
+    if (!query) {
+        alert("Please enter a package name to search.");
+        return;
+    }
+    
+    var resultsContainer = $("#nixpkgs-search-results");
+    resultsContainer.html('<div style="text-align: center; padding: 40px 0; color: #aaa;"><i class="fa fa-spinner fa-spin fa-2x"></i><div style="margin-top: 10px;">Searching Nixpkgs registry...</div></div>');
+    
+    $.get('/plugins/nix/api.php', {
+        action: 'search',
+        q: query
+    }, function(html) {
+        if (html.trim() === '') {
+            resultsContainer.html('<div style="text-align: center; color: #e74c3c; padding: 40px 0;"><i class="fa fa-warning"></i> No packages matching "' + htmlEscape(query) + '" were found.</div>');
+        } else {
+            resultsContainer.html(html);
+        }
+    }).fail(function() {
+        resultsContainer.html('<div style="text-align: center; color: #e74c3c; padding: 40px 0;"><i class="fa fa-exclamation-triangle"></i> An error occurred while searching Nixpkgs.</div>');
+    });
+}
+
+function htmlEscape(str) {
+    return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+}
+
 function showServiceModal(pkg) {
     sessionStorage.setItem('nix_install_uri', pkg);
     if (window.initInstallForm) {
