@@ -28,6 +28,8 @@
       "minijackson",
       "purcell"
     ],
-    "programs": []
+    "programs": [
+      "caddy"
+    ]
   }
 }
