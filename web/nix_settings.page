@@ -109,10 +109,10 @@ $is_nix_running = ($status_code === 0);
     <div class="nix-form-group" style="margin-top: 15px; border-top: 1px solid rgba(255,255,255,0.05); padding-top: 15px;">
         <label for="settings-auto-gc">Automatic Weekly Garbage Collection (Nix GC):</label>
         <select id="settings-auto-gc">
-            <option value="no" <?php echo $auto_gc === 'no' ? 'selected' : ''; ?>>Disabled</option>
-            <option value="yes" <?php echo $auto_gc === 'yes' ? 'selected' : ''; ?>>Enabled (Every Sunday at 3:00 AM)</option>
+            <option value="no" <?php echo $auto_gc === 'no' ? 'selected' : ''; ?>>No</option>
+            <option value="yes" <?php echo $auto_gc === 'yes' ? 'selected' : ''; ?>>Yes</option>
         </select>
-        <div class="nix-field-help">If enabled, a background task automatically purges dangling build inputs and deleted package layers weekly to save disk space.</div>
+        <div class="nix-field-help">If enabled, Nix will mirror Unraid's weekly scheduler (configured under Settings > Scheduler) to automatically purge dangling build inputs and deleted package layers weekly to save disk space.</div>
     </div>
 </div>
 
