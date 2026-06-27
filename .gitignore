@@ -1,3 +1,7 @@
 /target/
 **/*.rs.bk
 Cargo.lock.bak
+
+# Compiled Rust binary — distributed via GitHub Releases, not the repo.
+# See BUILD.md and `.github/workflows/release.yml`.
+/nix-helper

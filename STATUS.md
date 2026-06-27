@@ -9,11 +9,11 @@ We have resolved the Jellyfin transcoding and GPU passthrough issue and pushed i
 ## 1. Accomplished Features & Refactoring
 
 * **GPU Hardware Acceleration / Passthrough**:
-  * Implemented host GPU/CUDA library detection and exposure in [builder.rs](file:///home/jeryd/Projects/ubermetroid/unraid-nix/src/sandbox/builder.rs).
-  * Created [nix-gpu-setup.sh](file:///home/jeryd/Projects/ubermetroid/unraid-nix/web/nix-gpu-setup.sh) to handle the discovery of NVIDIA/CUDA libraries on the host and populate symlinks in a clean path `/var/run/nix-nvidia-driver/lib` without shell escaping conflicts.
+  * Implemented host GPU/CUDA library detection and exposure in [`src/sandbox/builder.rs`](src/sandbox/builder.rs).
+  * Created [`web/nix-gpu-setup.sh`](web/nix-gpu-setup.sh) to handle the discovery of NVIDIA/CUDA libraries on the host and populate symlinks in a clean path `/var/run/nix-nvidia-driver/lib` without shell escaping conflicts.
   * Configured `nix-helper` to read-only bind-mount host library paths (`/usr/lib64`, `/lib64`, `/usr/lib`, `/lib`) and the symlink directory inside the chroot jail when storage sandboxing is enabled.
   * Added environment variables (`LD_LIBRARY_PATH=/run/opengl-driver/lib`, `LIBVA_DRIVERS_PATH=/usr/lib64/dri`) to allow Nix-built packages (such as `ffmpeg`) to load host drivers.
-  * Added unit test cases `test_build_bwrap_command_gpu` and `test_build_bwrap_command_gpu_sandboxed` in [builder_tests.rs](file:///home/jeryd/Projects/ubermetroid/unraid-nix/src/sandbox/builder_tests.rs) to verify output command matching.
+  * Added unit test cases `test_build_bwrap_command_gpu` and `test_build_bwrap_command_gpu_sandboxed` in [`src/sandbox/builder_tests.rs`](src/sandbox/builder_tests.rs) to verify output command matching.
 * **Remote Deployment & Verification**:
   * Built and deployed the updated `nix-helper` release binary and assets to the Unraid test host (`100.68.35.70`).
   * Reinstalled the Jellyfin service on the Unraid test host and verified that `ffmpeg -init_hw_device cuda=cu:0 -version` successfully initializes the host's dual RTX 4060 Ti GPUs from within the chroot jail.
