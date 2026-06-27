@@ -5,7 +5,7 @@ use crate::api::package::{get_cached_version, get_package_link_url};
 
 use super::cells::{
     render_app_cell, render_lan_ip_port_cell, render_volume_mappings_cell,
-    render_resources_cell, render_autostart_cell,
+    render_resources_cell, render_gpu_cell, render_autostart_cell,
 };
 
 pub fn render_service_row(
@@ -140,10 +140,12 @@ pub fn render_service_row(
         s.name
     );
 
-    let resources_html = render_resources_cell(&s.name, is_running, s.cpu, s.memory, &gpus_override, &legacy_gpu);
+    let resources_html = render_resources_cell(&s.name, is_running, s.cpu, s.memory);
+    let gpu_html = render_gpu_cell(&gpus_override, &legacy_gpu);
 
     format!(
         r#"<tr>
+            <td>{}</td>
             <td>{}</td>
             <td>{}</td>
             <td>{}</td>
@@ -161,6 +163,6 @@ pub fn render_service_row(
                 <div style="display: inline-block; vertical-align: middle;">{}</div>
             </td>
         </tr>"#,
-        app_html, lan_ip_port_html, volume_mappings_html, resources_html, start_btn, stop_btn, edit_btn, logs_btn, remove_btn, autostart_html
+        app_html, lan_ip_port_html, volume_mappings_html, resources_html, gpu_html, start_btn, stop_btn, edit_btn, logs_btn, remove_btn, autostart_html
     )
 }

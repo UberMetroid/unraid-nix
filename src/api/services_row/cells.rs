@@ -117,10 +117,50 @@ pub fn render_resources_cell(
     is_running: bool,
     cpu: Option<f32>,
     memory: Option<u64>,
+) -> String {
+    let mut res = String::new();
+    if is_running {
+        let cpu_val = cpu.unwrap_or(0.0);
+        let mem_val = memory.unwrap_or(0);
+        let mb = mem_val as f64 / 1_048_576.0;
+        
+        let cpu_str = format!("{:.1}%", cpu_val);
+        let mem_str = format!("{:.1} MB", mb);
+        
+        res.push_str(&format!(
+            r#"<div class="nix-stat-row" data-service="{}" data-type="cpu" style="display: flex; align-items: center; gap: 8px; margin-bottom: 2px;">
+                <svg class="nix-sparkline" style="width: 60px; height: 12px; overflow: visible; display: inline-block; vertical-align: middle;"></svg>
+                <span class="nix-stat-val" style="font-size: 11px; color: #00d5ff; font-family: monospace; font-weight: 500; min-width: 45px; text-align: right; display: inline-block;">{}</span>
+                <span style="font-size: 10px; color: #666; font-family: monospace;">CPU</span>
+               </div>
+               <div class="nix-stat-row" data-service="{}" data-type="ram" style="display: flex; align-items: center; gap: 8px; margin-bottom: 2px;">
+                <svg class="nix-sparkline" style="width: 60px; height: 12px; overflow: visible; display: inline-block; vertical-align: middle;"></svg>
+                <span class="nix-stat-val" style="font-size: 11px; color: #d946ef; font-family: monospace; font-weight: 500; min-width: 45px; text-align: right; display: inline-block;">{}</span>
+                <span style="font-size: 10px; color: #666; font-family: monospace;">RAM</span>
+               </div>
+               <div class="nix-stat-row" data-service="{}" data-type="io-in" style="display: flex; align-items: center; gap: 8px; margin-bottom: 2px;">
+                <svg class="nix-sparkline" style="width: 60px; height: 12px; overflow: visible; display: inline-block; vertical-align: middle;"></svg>
+                <span class="nix-stat-val" style="font-size: 11px; color: #2ecc71; font-family: monospace; font-weight: 500; min-width: 45px; text-align: right; display: inline-block;">0.0 B/s</span>
+                <span style="font-size: 10px; color: #666; font-family: monospace;">I/O In</span>
+               </div>
+               <div class="nix-stat-row" data-service="{}" data-type="io-out" style="display: flex; align-items: center; gap: 8px; margin-bottom: 4px;">
+                <svg class="nix-sparkline" style="width: 60px; height: 12px; overflow: visible; display: inline-block; vertical-align: middle;"></svg>
+                <span class="nix-stat-val" style="font-size: 11px; color: #e67e22; font-family: monospace; font-weight: 500; min-width: 45px; text-align: right; display: inline-block;">0.0 B/s</span>
+                <span style="font-size: 10px; color: #666; font-family: monospace;">I/O Out</span>
+               </div>"#,
+            name, cpu_str, name, mem_str, name, name
+        ));
+    } else {
+        res.push_str(r#"<span style="color: #777;">-</span>"#);
+    }
+    res
+}
+
+pub fn render_gpu_cell(
     gpus_override: &Option<String>,
     legacy_gpu: &Option<String>,
 ) -> String {
-    let gpus_display = match gpus_override {
+    match gpus_override {
         Some(ref g) if !g.trim().is_empty() => {
             let mut badges = Vec::new();
             for part in g.split(',') {
@@ -157,47 +197,7 @@ pub fn render_resources_cell(
                 r#"<span style="color: #777;">-</span>"#.to_string()
             }
         }
-    };
-
-    let mut res = String::new();
-    if is_running {
-        let cpu_val = cpu.unwrap_or(0.0);
-        let mem_val = memory.unwrap_or(0);
-        let mb = mem_val as f64 / 1_048_576.0;
-        
-        let cpu_str = format!("{:.1}%", cpu_val);
-        let mem_str = format!("{:.1} MB", mb);
-        
-        res.push_str(&format!(
-            r#"<div class="nix-stat-row" data-service="{}" data-type="cpu" style="display: flex; align-items: center; gap: 8px; margin-bottom: 2px;">
-                <svg class="nix-sparkline" style="width: 60px; height: 12px; overflow: visible; display: inline-block; vertical-align: middle;"></svg>
-                <span class="nix-stat-val" style="font-size: 11px; color: #00d5ff; font-family: monospace; font-weight: 500; min-width: 45px; text-align: right; display: inline-block;">{}</span>
-                <span style="font-size: 10px; color: #666; font-family: monospace;">CPU</span>
-               </div>
-               <div class="nix-stat-row" data-service="{}" data-type="ram" style="display: flex; align-items: center; gap: 8px; margin-bottom: 2px;">
-                <svg class="nix-sparkline" style="width: 60px; height: 12px; overflow: visible; display: inline-block; vertical-align: middle;"></svg>
-                <span class="nix-stat-val" style="font-size: 11px; color: #d946ef; font-family: monospace; font-weight: 500; min-width: 45px; text-align: right; display: inline-block;">{}</span>
-                <span style="font-size: 10px; color: #666; font-family: monospace;">RAM</span>
-               </div>
-               <div class="nix-stat-row" data-service="{}" data-type="io-in" style="display: flex; align-items: center; gap: 8px; margin-bottom: 2px;">
-                <svg class="nix-sparkline" style="width: 60px; height: 12px; overflow: visible; display: inline-block; vertical-align: middle;"></svg>
-                <span class="nix-stat-val" style="font-size: 11px; color: #2ecc71; font-family: monospace; font-weight: 500; min-width: 45px; text-align: right; display: inline-block;">0.0 B/s</span>
-                <span style="font-size: 10px; color: #666; font-family: monospace;">I/O In</span>
-               </div>
-               <div class="nix-stat-row" data-service="{}" data-type="io-out" style="display: flex; align-items: center; gap: 8px; margin-bottom: 4px;">
-                <svg class="nix-sparkline" style="width: 60px; height: 12px; overflow: visible; display: inline-block; vertical-align: middle;"></svg>
-                <span class="nix-stat-val" style="font-size: 11px; color: #e67e22; font-family: monospace; font-weight: 500; min-width: 45px; text-align: right; display: inline-block;">0.0 B/s</span>
-                <span style="font-size: 10px; color: #666; font-family: monospace;">I/O Out</span>
-               </div>"#,
-            name, cpu_str, name, mem_str, name, name
-        ));
     }
-    if gpus_display != r#"<span style="color: #777;">-</span>"# {
-        res.push_str(&gpus_display);
-    } else if !is_running {
-        res.push_str(r#"<span style="color: #777;">-</span>"#);
-    }
-    res
 }
 
 pub fn render_autostart_cell(name: &str, autostart_enabled: bool) -> String {

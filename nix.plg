@@ -2,7 +2,7 @@
 <!DOCTYPE PLUGIN [
   <!ENTITY name      "nix">
   <!ENTITY author    "UberMetroid">
-  <!ENTITY version   "2026.06.26.44">
+  <!ENTITY version   "2026.06.26.45">
   <!ENTITY launch    "Settings/Nix">
   <!ENTITY plugdir   "/boot/config/plugins/&name;">
   <!ENTITY usrdir    "/usr/local/emhttp/plugins/&name;">
@@ -11,6 +11,8 @@
 
   <CHANGES>
     ## nix package manager plugin
+    ### 2026.06.26.45
+    - **Dedicated GPU Table Column**: Created a dedicated "GPU" column next to the "Resources" column in the Active Flakes table. Resolves clutter inside the resources metrics cell by isolating hardware allocations to their own column.
     ### 2026.06.26.44
     - **Real-Time I/O Sparklines**: Added live network/disk I/O sparkline tracking (MB In and MB Out per service). Reads cumulative /proc/pid/io stats on the host, calculates delta throughput rates, and renders green (I/O In) and orange (I/O Out) moving charts under the RAM graph.
     ### 2026.06.26.43
