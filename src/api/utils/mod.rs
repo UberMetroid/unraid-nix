@@ -73,50 +73,6 @@ pub fn get_service_web_port(name: &str) -> Option<u16> {
     }
 }
 
-pub fn extract_home_path(command: &str) -> String {
-    if let Some(pos) = command.find("export HOME=") {
-        let start = pos + "export HOME=".len();
-        let sub = &command[start..];
-        
-        let mut end = sub.len();
-        for (i, c) in sub.char_indices() {
-            if c == ' ' || c == ';' || c == '&' || c == '"' || c == '\'' {
-                end = i;
-                break;
-            }
-        }
-        let path = sub[..end].trim();
-        if !path.is_empty() {
-            return path.to_string();
-        }
-    }
-    "-".to_string()
-}
-
-pub fn get_service_appdata_path(name: &str, command: &str) -> String {
-    let metadata_path = format!("/boot/config/plugins/nix/metadata/{}.json", name);
-    if let Ok(content) = std::fs::read_to_string(&metadata_path) {
-        if let Ok(val) = serde_json::from_str::<serde_json::Value>(&content) {
-            if let Some(appdata_val) = val.get("appdata").and_then(|a| a.as_str()) {
-                if !appdata_val.trim().is_empty() {
-                    return appdata_val.to_string();
-                }
-            }
-        }
-    }
-
-    if let Some(pos) = command.find("mount --bind ") {
-        let sub = &command[pos + "mount --bind ".len()..];
-        if let Some(end_pos) = sub.find(" /config") {
-            let path = sub[..end_pos].trim();
-            if !path.is_empty() {
-                return path.to_string();
-            }
-        }
-    }
-
-    extract_home_path(command)
-}
 
 pub fn extract_package_uri(command: &str) -> Option<String> {
     if let Some(pos) = command.find("nixpkgs#") {

@@ -89,29 +89,6 @@ pub fn render_lan_ip_port_cell(
     }
 }
 
-pub fn render_volume_mappings_cell(home_path: &str, extra_binds_vec: &[(String, String)]) -> String {
-    let mut volume_mappings = Vec::new();
-    if home_path != "-" && !home_path.is_empty() {
-        volume_mappings.push(format!(
-            r#"<div style="margin-bottom: 4px;"><span style="color: var(--nix-text-secondary); font-family: monospace;">/config</span> <i class="fa fa-arrow-right" style="margin: 0 4px; font-size: 10px; color: var(--nix-text-muted);"></i> <code>{}</code></div>"#,
-            home_path
-        ));
-    }
-    for (host, sandbox) in extra_binds_vec {
-        if !host.is_empty() && !sandbox.is_empty() {
-            volume_mappings.push(format!(
-                r#"<div style="margin-bottom: 4px;"><span style="color: var(--nix-text-secondary); font-family: monospace;">{}</span> <i class="fa fa-arrow-right" style="margin: 0 4px; font-size: 10px; color: var(--nix-text-muted);"></i> <code>{}</code></div>"#,
-                sandbox, host
-            ));
-        }
-    }
-
-    if volume_mappings.is_empty() {
-        "-".to_string()
-    } else {
-        volume_mappings.join("")
-    }
-}
 
 pub fn render_resources_cell(
     name: &str,
