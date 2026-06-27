@@ -3,7 +3,7 @@
   <!ENTITY name      "nix">
   <!ENTITY author    "UberMetroid">
   <!ENTITY version   "2026.06.26.53">
-  <!ENTITY launch    "Settings/Nix">
+  <!ENTITY launch    "Nix">
   <!ENTITY plugdir   "/boot/config/plugins/&name;">
   <!ENTITY usrdir    "/usr/local/emhttp/plugins/&name;">
 ]>
