@@ -64,10 +64,20 @@ pub fn render_service_row(s: &ServiceStatus, config: &Option<ProcessComposeConfi
     let metadata_file = format!("/boot/config/plugins/nix/metadata/{}.json", s.name);
     let mut bind_address_override = None;
     let mut extra_binds_vec = Vec::new();
+    let mut gpus_override = None;
+    let mut legacy_gpu = None;
 
     if let Ok(content) = std::fs::read_to_string(&metadata_file) {
         if let Ok(meta) = serde_json::from_str::<serde_json::Value>(&content) {
             bind_address_override = meta.get("bind_address")
+                .and_then(|v| v.as_str())
+                .map(|s| s.to_string());
+                
+            gpus_override = meta.get("gpus")
+                .and_then(|v| v.as_str())
+                .map(|s| s.to_string());
+
+            legacy_gpu = meta.get("gpu")
                 .and_then(|v| v.as_str())
                 .map(|s| s.to_string());
                 
@@ -224,8 +234,67 @@ pub fn render_service_row(s: &ServiceStatus, config: &Option<ProcessComposeConfi
         s.name
     );
 
+    let gpus_display = match gpus_override {
+        Some(ref g) if !g.trim().is_empty() => {
+            let mut badges = Vec::new();
+            for part in g.split(',') {
+                let p = part.trim();
+                if !p.is_empty() {
+                    let display_part = if p.starts_with("nvidia-") {
+                        p.replace("nvidia-", "GPU-")
+                    } else {
+                        p.to_string()
+                    };
+                    badges.push(format!(
+                        r#"<span style="background: rgba(0, 161, 255, 0.08); border: 1px solid rgba(0, 161, 255, 0.25); border-radius: 3px; padding: 2px 6px; font-size: 10px; color: #00a1ff; font-family: monospace; display: inline-block;">{}</span>"#,
+                        display_part
+                    ));
+                }
+            }
+            if badges.is_empty() {
+                r#"<span style="color: #777;">-</span>"#.to_string()
+            } else {
+                badges.join(" ")
+            }
+        }
+        _ => {
+            if let Some(ref lg) = legacy_gpu {
+                if lg == "1" || lg == "true" {
+                    r#"<span style="background: rgba(0, 161, 255, 0.08); border: 1px solid rgba(0, 161, 255, 0.25); border-radius: 3px; padding: 2px 6px; font-size: 10px; color: #00a1ff; font-family: monospace; display: inline-block;">All GPUs</span>"#.to_string()
+                } else {
+                    r#"<span style="color: #777;">-</span>"#.to_string()
+                }
+            } else {
+                r#"<span style="color: #777;">-</span>"#.to_string()
+            }
+        }
+    };
+
+    let resources_html = if is_running {
+        let cpu_str = if let Some(cpu) = s.cpu {
+            format!("{:.1}% CPU", cpu)
+        } else {
+            "0.0% CPU".to_string()
+        };
+        let mem_str = if let Some(mem) = s.memory {
+            let mb = mem as f64 / 1_048_576.0;
+            format!("{:.1} MB RAM", mb)
+        } else {
+            "0.0 MB RAM".to_string()
+        };
+        format!(
+            r#"<div style="font-size: 11px; color: #eee; font-family: monospace; line-height: 1.4;">{}</div>
+               <div style="font-size: 11px; color: #a0a0a5; font-family: monospace; line-height: 1.4;">{}</div>"#,
+            cpu_str, mem_str
+        )
+    } else {
+        r#"<span style="color: #777;">-</span>"#.to_string()
+    };
+
     format!(
         r#"<tr>
+            <td>{}</td>
+            <td>{}</td>
             <td>{}</td>
             <td>{}</td>
             <td>{}</td>
@@ -241,6 +310,6 @@ pub fn render_service_row(s: &ServiceStatus, config: &Option<ProcessComposeConfi
                 </div>
             </td>
         </tr>"#,
-        app_html, version_html, lan_ip_port_html, volume_mappings_html, autostart_html, start_btn, stop_btn, edit_btn, logs_btn, remove_btn
+        app_html, version_html, lan_ip_port_html, volume_mappings_html, gpus_display, resources_html, autostart_html, start_btn, stop_btn, edit_btn, logs_btn, remove_btn
     )
 }

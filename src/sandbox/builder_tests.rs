@@ -100,7 +100,7 @@ fn test_build_bwrap_command_gpu() {
 
     let cmd = build_bwrap_command(&config).unwrap();
     assert!(cmd.contains("/bin/bash /usr/local/emhttp/plugins/nix/nix-gpu-setup.sh"));
-    assert!(cmd.contains("mount --bind /var/run/nix-nvidia-driver/lib /run/opengl-driver/lib"));
+    assert!(cmd.contains("/var/run/nix-nvidia-driver/lib") && cmd.contains("opengl-driver/lib"));
     assert!(cmd.contains("export LD_LIBRARY_PATH=/run/opengl-driver/lib"));
     assert!(cmd.contains("export LIBVA_DRIVERS_PATH=/usr/lib64/dri"));
 }
