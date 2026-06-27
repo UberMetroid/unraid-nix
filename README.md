@@ -116,5 +116,9 @@ The Template Library allows you to deploy over 165+ pre-configured, self-hosted 
 
 * **Dedicated Templates Repository**: To allow rapid additions and updates to application templates without requiring a full plugin reinstall, all template definitions are housed in the dedicated **[unraid-nix-templates](https://github.com/UberMetroid/unraid-nix-templates)** repository.
 * **Automatic Background Sync**: The plugin automatically syncs the latest templates in the background from the templates repository whenever your Unraid storage array is mounted.
-* **Manual Force Sync**: If you want to force-sync the templates immediately (e.g., after a new pull request is merged), go to the **System Settings** subtab in the WebGUI and click **Force Sync Templates**.
+* **Manual Force Sync**: If you want to force-sync the templates immediately (e.g., after a new pull request is merged), go to the **Settings** subtab in the WebGUI and click **Force Sync Templates**.
 
+---
+
+## 📋 TODO / Future Roadmap
+- [ ] **Nix Services Dashboard Widget**: Add a premium, high-density widget to the main Unraid Dashboard tab showing aggregated CPU/RAM progress bars, running service details, and quick start/stop buttons.

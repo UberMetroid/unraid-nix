@@ -194,6 +194,7 @@ if ($action === 'save-settings') {
     $enable_pid_isolation = isset($_POST['enable_pid_isolation']) ? $_POST['enable_pid_isolation'] : 'yes';
     $enable_uts_isolation = isset($_POST['enable_uts_isolation']) ? $_POST['enable_uts_isolation'] : 'yes';
     $enable_ipc_isolation = isset($_POST['enable_ipc_isolation']) ? $_POST['enable_ipc_isolation'] : 'yes';
+    $auto_gc = isset($_POST['auto_gc']) ? $_POST['auto_gc'] : 'no';
     
     $output = [];
     $code = 0;
@@ -207,13 +208,31 @@ if ($action === 'save-settings') {
            "--filter-presets-by-hardware " . escapeshellarg($filter_presets_by_hardware) . " " .
            "--enable-pid-isolation " . escapeshellarg($enable_pid_isolation) . " " .
            "--enable-uts-isolation " . escapeshellarg($enable_uts_isolation) . " " .
-           "--enable-ipc-isolation " . escapeshellarg($enable_ipc_isolation);
+           "--enable-ipc-isolation " . escapeshellarg($enable_ipc_isolation) . " " .
+           "--auto-gc " . escapeshellarg($auto_gc);
            
     exec($cmd . " 2>&1", $output, $code);
     if ($code !== 0) {
         error(implode("\n", $output));
     }
     success();
+}
+
+// 9. Nix Store Garbage Collection
+if ($action === 'collect-garbage') {
+    $output = [];
+    $code = 0;
+    exec(". /nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh && nix-collect-garbage -d 2>&1", $output, $code);
+    if ($code !== 0) {
+        error(implode("\n", $output));
+    }
+    
+    // Get new size of /nix store
+    $du_out = [];
+    exec("du -sh /nix 2>/dev/null", $du_out);
+    $new_size = !empty($du_out) ? explode("\t", $du_out[0])[0] : 'Unknown';
+    
+    success(['new_size' => $new_size]);
 }
 
 error("Unknown API action.");

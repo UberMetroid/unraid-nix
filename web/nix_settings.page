@@ -46,6 +46,11 @@ $filter_presets_by_hardware = isset($nix_cfg['FILTER_PRESETS_BY_HARDWARE']) ? $n
 $enable_pid_isolation = isset($nix_cfg['ENABLE_PID_ISOLATION']) ? $nix_cfg['ENABLE_PID_ISOLATION'] : 'yes';
 $enable_uts_isolation = isset($nix_cfg['ENABLE_UTS_ISOLATION']) ? $nix_cfg['ENABLE_UTS_ISOLATION'] : 'yes';
 $enable_ipc_isolation = isset($nix_cfg['ENABLE_IPC_ISOLATION']) ? $nix_cfg['ENABLE_IPC_ISOLATION'] : 'yes';
+$auto_gc = isset($nix_cfg['AUTO_GC']) ? $nix_cfg['AUTO_GC'] : 'no';
+
+// Calculate Nix store size
+exec("du -sh /nix 2>/dev/null", $du_out);
+$store_size = !empty($du_out) ? explode("\t", $du_out[0])[0] : 'Unknown';
 
 exec("/etc/rc.d/rc.nix-daemon status 2>/dev/null", $status_output, $status_code);
 $is_nix_running = ($status_code === 0);
@@ -88,7 +93,30 @@ $is_nix_running = ($status_code === 0);
     </div>
 </div>
 
-<!-- 3. Flake Isolation Settings -->
+<!-- 3. Nix Store Disk Maintenance -->
+<div class="nix-section" style="margin-bottom: 20px;">
+    <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 15px;">
+        <div>
+            <h3 style="margin: 0 0 5px 0;">Nix Store Disk Maintenance</h3>
+            <p class="nix-subtext" style="margin: 0;">Clean up unused packages, old build derivations, and reclaim storage pool space.</p>
+        </div>
+        <div style="text-align: right;">
+            <div style="font-size: 12px; color: #888; margin-bottom: 6px;">Nix Store Size: <strong style="color: #fff; font-size: 13px;" id="nix-store-size-display"><?php echo htmlspecialchars($store_size); ?></strong></div>
+            <button type="button" id="nix-gc-btn" class="nix-btn" style="display: inline-flex; align-items: center; gap: 6px; margin: 0;" onclick="collectGarbage(this)"><i class="fa fa-trash"></i> Collect Garbage</button>
+        </div>
+    </div>
+    
+    <div class="nix-form-group" style="margin-top: 15px; border-top: 1px solid rgba(255,255,255,0.05); padding-top: 15px;">
+        <label for="settings-auto-gc">Automatic Weekly Garbage Collection (Nix GC):</label>
+        <select id="settings-auto-gc">
+            <option value="no" <?php echo $auto_gc === 'no' ? 'selected' : ''; ?>>Disabled</option>
+            <option value="yes" <?php echo $auto_gc === 'yes' ? 'selected' : ''; ?>>Enabled (Every Sunday at 3:00 AM)</option>
+        </select>
+        <div class="nix-field-help">If enabled, a background task automatically purges dangling build inputs and deleted package layers weekly to save disk space.</div>
+    </div>
+</div>
+
+<!-- 4. Flake Isolation Settings -->
 <div class="nix-section" style="margin-bottom: 20px;">
     <h3>Flake Isolation Settings</h3>
     <p class="nix-subtext">Configure namespace sandboxing rules to isolate guest processes from the Unraid host.</p>
@@ -130,7 +158,7 @@ $is_nix_running = ($status_code === 0);
     </div>
 </div>
 
-<!-- 4. Nix Package Manager Configuration -->
+<!-- 5. Nix Package Manager Configuration -->
 <div class="nix-section">
     <h3>Nix Configuration Settings</h3>
     <p class="nix-subtext">Configure local storage path bindings and system-level operations.</p>
@@ -203,6 +231,7 @@ function saveSettings(e) {
     var enablePidIsolation = $("#settings-enable-pid-isolation").val();
     var enableUtsIsolation = $("#settings-enable-uts-isolation").val();
     var enableIpcIsolation = $("#settings-enable-ipc-isolation").val();
+    var autoGc = $("#settings-auto-gc").val();
     var showInNav = $("#settings-show-in-nav").val();
     var allowSourceBuilds = $("#settings-allow-source-builds").val();
     var filterPresetsByHardware = $("#settings-filter-presets-by-hardware").val();
@@ -223,6 +252,7 @@ function saveSettings(e) {
         enable_pid_isolation: enablePidIsolation,
         enable_uts_isolation: enableUtsIsolation,
         enable_ipc_isolation: enableIpcIsolation,
+        auto_gc: autoGc,
         show_in_nav: showInNav,
         allow_source_builds: allowSourceBuilds,
         filter_presets_by_hardware: filterPresetsByHardware
@@ -275,6 +305,28 @@ function syncTemplates(btn) {
         }
     }, 'json').fail(function() {
         alert("Server returned an error while syncing.");
+        $btn.prop('disabled', false).html(originalHtml);
+    });
+}
+
+function collectGarbage(btn) {
+    var $btn = $(btn);
+    if ($btn.prop('disabled')) return;
+    
+    var originalHtml = $btn.html();
+    $btn.prop('disabled', true).html('<i class="fa fa-spinner fa-spin"></i> Cleaning...');
+    
+    $.post('/plugins/nix/api.php', { action: 'collect-garbage' }, function(response) {
+        if (response.success) {
+            alert("Garbage collection complete!");
+            $("#nix-store-size-display").text(response.new_size);
+            $btn.prop('disabled', false).html(originalHtml);
+        } else {
+            alert("Failed to collect garbage: " + response.error);
+            $btn.prop('disabled', false).html(originalHtml);
+        }
+    }, 'json').fail(function() {
+        alert("Server returned an error while collecting garbage.");
         $btn.prop('disabled', false).html(originalHtml);
     });
 }

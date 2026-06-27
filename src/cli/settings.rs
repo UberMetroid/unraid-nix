@@ -93,6 +93,7 @@ pub fn save_settings(args: &[String]) {
     let mut enable_pid_isolation = "yes".to_string();
     let mut enable_uts_isolation = "yes".to_string();
     let mut enable_ipc_isolation = "yes".to_string();
+    let mut auto_gc = "no".to_string();
 
     let mut i = 2;
     while i < args.len() {
@@ -147,6 +148,11 @@ pub fn save_settings(args: &[String]) {
                 enable_ipc_isolation = args[i+1].clone();
                 i += 2;
             }
+            "--auto-gc" => {
+                if i + 1 >= args.len() { eprintln!("Error: Missing auto-gc value"); exit(1); }
+                auto_gc = args[i+1].clone();
+                i += 2;
+            }
             _ => { eprintln!("Unknown save-settings flag: {}", args[i]); exit(1); }
         }
     }
@@ -181,12 +187,22 @@ pub fn save_settings(args: &[String]) {
     // Write settings to ini config
     let _ = std::fs::create_dir_all("/boot/config/plugins/nix");
     let cfg_content = format!(
-        "NIX_STORE_PATH=\"{}\"\nAUTOSTART_FLAKES=\"{}\"\nENABLE_STORAGE_SANDBOX=\"{}\"\nENABLE_CLI_INSTALL=\"{}\"\nSHOW_IN_NAVIGATION=\"{}\"\nALLOW_SOURCE_BUILDS=\"{}\"\nFILTER_PRESETS_BY_HARDWARE=\"{}\"\nENABLE_PID_ISOLATION=\"{}\"\nENABLE_UTS_ISOLATION=\"{}\"\nENABLE_IPC_ISOLATION=\"{}\"\n",
-        clean_store_path, autostart, enable_sandbox, enable_cli, show_in_nav, allow_source_builds, filter_presets_by_hardware, enable_pid_isolation, enable_uts_isolation, enable_ipc_isolation
+        "NIX_STORE_PATH=\"{}\"\nAUTOSTART_FLAKES=\"{}\"\nENABLE_STORAGE_SANDBOX=\"{}\"\nENABLE_CLI_INSTALL=\"{}\"\nSHOW_IN_NAVIGATION=\"{}\"\nALLOW_SOURCE_BUILDS=\"{}\"\nFILTER_PRESETS_BY_HARDWARE=\"{}\"\nENABLE_PID_ISOLATION=\"{}\"\nENABLE_UTS_ISOLATION=\"{}\"\nENABLE_IPC_ISOLATION=\"{}\"\nAUTO_GC=\"{}\"\n",
+        clean_store_path, autostart, enable_sandbox, enable_cli, show_in_nav, allow_source_builds, filter_presets_by_hardware, enable_pid_isolation, enable_uts_isolation, enable_ipc_isolation, auto_gc
     );
     if std::fs::write(cfg_file, cfg_content).is_err() {
         eprintln!("Failed to write nix.cfg to flash drive.");
         exit(1);
+    }
+
+    // Configure weekly cron job based on AUTO_GC setting
+    let cron_path = "/etc/cron.weekly/nix-gc";
+    if auto_gc == "yes" {
+        let cron_content = "#!/bin/sh\nif [ -f /nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh ]; then\n    . /nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh\n    nix-collect-garbage -d >/var/log/nix-gc.log 2>&1\nfi\n";
+        let _ = std::fs::write(cron_path, cron_content);
+        let _ = std::process::Command::new("chmod").args(&["+x", cron_path]).output();
+    } else {
+        let _ = std::fs::remove_file(cron_path);
     }
 
     // Update Unraid side navigation config registry
