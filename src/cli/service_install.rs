@@ -26,6 +26,7 @@ pub fn install_service(args: &[String]) {
     let mut bind_address = None;
     let mut env_vars_json = String::new();
     let mut compile_locally = false;
+    let mut command_override = String::new();
 
     let mut i = 2;
     while i < args.len() {
@@ -99,6 +100,11 @@ pub fn install_service(args: &[String]) {
             "--compile-locally" => {
                 compile_locally = true;
                 i += 1;
+            }
+            "--command-override" => {
+                if i + 1 >= args.len() { eprintln!("Error: Missing value for --command-override"); exit(1); }
+                command_override = args[i+1].clone();
+                i += 2;
             }
             _ => { eprintln!("Unknown install-service flag: {}", args[i]); exit(1); }
         }
@@ -179,7 +185,25 @@ pub fn install_service(args: &[String]) {
     let preset_path = format!("/usr/local/emhttp/plugins/nix/presets/{}.json", name_lower);
     let has_preset = std::path::Path::new(&preset_path).exists() || ["radarr", "sonarr", "jellyfin", "syncthing"].contains(&name_lower.as_str());
 
-    let cmd = if has_preset {
+    let cmd = if !command_override.trim().is_empty() {
+        match sandbox::build_bwrap_command(&sandbox::SandboxConfig {
+            name: name.clone(),
+            appdata_path: appdata.clone(),
+            media_path: media.clone(),
+            puid,
+            pgid,
+            enable_gpu: gpu,
+            gpus: gpus.clone(),
+            inner_command: command_override.clone(),
+            extra_binds: binds_vec.clone(),
+            port: port.clone(),
+            bind_address: bind_address.clone(),
+            host_init_commands: Vec::new(),
+        }) {
+            Ok(c) => c,
+            Err(e) => { eprintln!("Error building sandbox command: {}", e); exit(1); }
+        }
+    } else if has_preset {
         match config::get_service_command_preset(
             &name,
             &appdata,
@@ -301,6 +325,7 @@ pub fn install_service(args: &[String]) {
         "bind_address": bind_address.unwrap_or_default(),
         "env_vars": env_vars_json,
         "compile_locally": if compile_locally { "1" } else { "0" },
+        "command_override": command_override,
     });
     let meta_dir = "/boot/config/plugins/nix/metadata";
     let _ = std::fs::create_dir_all(meta_dir);

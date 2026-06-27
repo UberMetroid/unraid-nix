@@ -37,6 +37,7 @@ if ($action === 'install-cli') {
         $bind_address = isset($_POST['bind_address']) ? $_POST['bind_address'] : '';
         $env_vars = isset($_POST['env_vars']) ? $_POST['env_vars'] : '';
         $compile_locally = isset($_POST['compile_locally']) ? $_POST['compile_locally'] : '0';
+        $command_override = isset($_POST['command_override']) ? $_POST['command_override'] : '';
         $cmd = "/usr/local/emhttp/plugins/nix/nix-helper install-service " .
                "--uri " . escapeshellarg($uri) . " --appdata " . escapeshellarg($appdata) . " " .
                "--media " . escapeshellarg($media) . " --puid " . escapeshellarg($puid) . " " .
@@ -44,6 +45,9 @@ if ($action === 'install-cli') {
                "--gpus " . escapeshellarg($gpus) . " " .
                "--extra-binds " . escapeshellarg($extra_binds) . " --port " . escapeshellarg($port) . " " .
                "--bind-address " . escapeshellarg($bind_address) . " --env-vars " . escapeshellarg($env_vars);
+        if (!empty($command_override)) {
+            $cmd .= " --command-override " . escapeshellarg($command_override);
+        }
         $timeout_limit = 45;
         if ($compile_locally === '1') {
             $cmd .= " --compile-locally";

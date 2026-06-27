@@ -2,7 +2,7 @@
 <!DOCTYPE PLUGIN [
   <!ENTITY name      "nix">
   <!ENTITY author    "UberMetroid">
-  <!ENTITY version   "2026.06.26.40">
+  <!ENTITY version   "2026.06.26.41">
   <!ENTITY launch    "Settings/Nix">
   <!ENTITY plugdir   "/boot/config/plugins/&name;">
   <!ENTITY usrdir    "/usr/local/emhttp/plugins/&name;">
@@ -11,6 +11,8 @@
 
   <CHANGES>
     ## nix package manager plugin
+    ### 2026.06.26.41
+    - **Launch Command Overrides**: Added a "Launch Command Override" field to the installer form. Saves the custom execution instruction in service metadata, allowing users to customize command arguments while preserving sandbox protections and preventing overrides on re-saves.
     ### 2026.06.26.40
     - **Local Hardware-Optimized Compilation**: Integrated a "Compile Locally from Source" toggle in the GUI. Disables Nix binary caches and auto-injects optimization flags (NIX_CFLAGS_COMPILE=-march=native, RUSTFLAGS=-C target-cpu=native) for native hardware builds.
     ### 2026.06.26.39
