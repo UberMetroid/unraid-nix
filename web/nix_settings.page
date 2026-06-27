@@ -63,9 +63,37 @@ exec("/etc/rc.d/rc.nix-daemon status 2>/dev/null", $status_output, $status_code)
 $is_nix_running = ($status_code === 0);
 ?>
 
-<!-- 1. Core System Settings -->
+<!-- 1. Daemon (Operational status & controls at the absolute top) -->
 <div class="nix-section" style="margin-bottom: 20px;">
-    <h3>System Configuration</h3>
+    <div style="display: flex; align-items: center; justify-content: space-between;">
+        <div>
+            <h3 style="margin: 0 0 5px 0;">Daemon</h3>
+            <p class="nix-subtext" style="margin: 0;">
+                Status: 
+                <?php if ($is_nix_running): ?>
+                    <span class="status green">RUNNING</span>
+                <?php else: ?>
+                    <span class="status red">STOPPED</span>
+                <?php endif; ?>
+            </p>
+        </div>
+        <div id="nix-daemon-controls" style="display: flex; gap: 8px;">
+            <?php if ($is_nix_running): ?>
+                <button type="button" class="nix-btn-install" style="background: #232326; border: 1px solid #3a3a3d; color: #525256; cursor: not-allowed; font-weight: normal; margin: 0; padding: 6px 12px; display: inline-flex; align-items: center; gap: 6px;" disabled><i class="fa fa-play"></i> Start</button>
+                <button type="button" class="nix-btn" style="margin: 0; padding: 6px 12px;" onclick="toggleNixDaemon('stop')"><i class="fa fa-stop"></i> Stop</button>
+                <button type="button" class="nix-btn" style="margin: 0; padding: 6px 12px;" onclick="toggleNixDaemon('restart')"><i class="fa fa-refresh"></i> Restart</button>
+            <?php else: ?>
+                <button type="button" class="nix-btn-install" style="margin: 0; padding: 6px 12px; display: inline-flex; align-items: center; gap: 6px;" onclick="toggleNixDaemon('start')"><i class="fa fa-play"></i> Start</button>
+                <button type="button" class="nix-btn" style="margin: 0; padding: 6px 12px; color: #525256; border-color: #2d2d30; cursor: not-allowed;" disabled><i class="fa fa-stop"></i> Stop</button>
+                <button type="button" class="nix-btn" style="margin: 0; padding: 6px 12px; color: #525256; border-color: #2d2d30; cursor: not-allowed;" disabled><i class="fa fa-refresh"></i> Restart</button>
+            <?php endif; ?>
+        </div>
+    </div>
+</div>
+
+<!-- 2. Configuration -->
+<div class="nix-section" style="margin-bottom: 20px;">
+    <h3>Configuration</h3>
     <p class="nix-subtext">Define where packages are stored and how the environment boots.</p>
     
     <div class="nix-form-group">
@@ -78,7 +106,7 @@ $is_nix_running = ($status_code === 0);
     </div>
 
     <div class="nix-form-group">
-        <label for="settings-autostart">Autostart Services on Array Start:</label>
+        <label for="settings-autostart">Autostart Services:</label>
         <select id="settings-autostart">
             <option value="yes" <?php echo $autostart === 'yes' ? 'selected' : ''; ?>>Yes</option>
             <option value="no" <?php echo $autostart === 'no' ? 'selected' : ''; ?>>No</option>
@@ -86,7 +114,7 @@ $is_nix_running = ($status_code === 0);
     </div>
 
     <div class="nix-form-group">
-        <label for="settings-show-in-nav">Show in Navigation Header:</label>
+        <label for="settings-show-in-nav">Show in Navigation:</label>
         <select id="settings-show-in-nav">
             <option value="no" <?php echo $show_in_nav === 'no' ? 'selected' : ''; ?>>No (Show in Settings)</option>
             <option value="yes" <?php echo $show_in_nav === 'yes' ? 'selected' : ''; ?>>Yes (Show in Top Header)</option>
@@ -98,13 +126,41 @@ $is_nix_running = ($status_code === 0);
     </div>
 </div>
 
-<!-- 2. Flake Isolation Settings -->
+<!-- 3. Flakes -->
 <div class="nix-section" style="margin-bottom: 20px;">
-    <h3>Process Isolation</h3>
-    <p class="nix-subtext">Restrict namespace access to separate guest services from the Unraid host.</p>
+    <h3>Flakes</h3>
+    <p class="nix-subtext">Fine-tune build constraints and package display filters.</p>
+
+    <div class="nix-form-group">
+        <label for="settings-allow-source-builds">Allow Local Compilation:</label>
+        <select id="settings-allow-source-builds">
+            <option value="no" <?php echo $allow_source_builds === 'no' ? 'selected' : ''; ?>>No (Use pre-compiled cache only)</option>
+            <option value="yes" <?php echo $allow_source_builds === 'yes' ? 'selected' : ''; ?>>Yes (Compile locally on cache miss)</option>
+        </select>
+        <div class="nix-field-help">Compiling from source code may cause high CPU usage and long installation times.</div>
+    </div>
+
+    <div class="nix-form-group">
+        <label for="settings-filter-presets-by-hardware">Filter Presets by GPU:</label>
+        <select id="settings-filter-presets-by-hardware">
+            <option value="yes" <?php echo $filter_presets_by_hardware === 'yes' ? 'selected' : ''; ?>>Yes (Hide CUDA/ROCm/Vulkan templates if hardware is missing)</option>
+            <option value="no" <?php echo $filter_presets_by_hardware === 'no' ? 'selected' : ''; ?>>No (Show all template variants)</option>
+        </select>
+        <div class="nix-field-help">Hides templates that require acceleration cards if those cards are not detected in the system.</div>
+    </div>
+
+    <div style="margin-top: 15px; display: flex; justify-content: flex-end; border-top: 1px solid rgba(255,255,255,0.05); padding-top: 15px;">
+        <button type="button" class="nix-btn-primary" style="margin: 0; padding: 6px 18px; font-size: 12px; display: inline-flex; align-items: center; gap: 6px;" onclick="saveAllSettings(this)"><i class="fa fa-check"></i> Apply Flakes</button>
+    </div>
+</div>
+
+<!-- 4. Isolation -->
+<div class="nix-section" style="margin-bottom: 20px;">
+    <h3>Isolation</h3>
+    <p class="nix-subtext">Restrict namespace access to separate guest services from the host.</p>
     
     <div class="nix-form-group">
-        <label for="settings-enable-sandbox">Storage Sandboxing (Filesystem jail):</label>
+        <label for="settings-enable-sandbox">Storage Sandboxing (jail):</label>
         <select id="settings-enable-sandbox">
             <option value="no" <?php echo $enable_sandbox === 'no' ? 'selected' : ''; ?>>No (Native /mnt access)</option>
             <option value="yes" <?php echo $enable_sandbox === 'yes' ? 'selected' : ''; ?>>Yes (Isolate to mapped paths)</option>
@@ -144,63 +200,7 @@ $is_nix_running = ($status_code === 0);
     </div>
 </div>
 
-<!-- 3. Advanced Builder Options -->
-<div class="nix-section" style="margin-bottom: 20px;">
-    <h3>Advanced Options</h3>
-    <p class="nix-subtext">Fine-tune build constraints and package display filters.</p>
-
-    <div class="nix-form-group">
-        <label for="settings-allow-source-builds">Allow Local Compilation (Source Builds):</label>
-        <select id="settings-allow-source-builds">
-            <option value="no" <?php echo $allow_source_builds === 'no' ? 'selected' : ''; ?>>No (Use pre-compiled cache only)</option>
-            <option value="yes" <?php echo $allow_source_builds === 'yes' ? 'selected' : ''; ?>>Yes (Compile locally on cache miss)</option>
-        </select>
-        <div class="nix-field-help">Compiling from source code may cause high CPU usage and long installation times.</div>
-    </div>
-
-    <div class="nix-form-group">
-        <label for="settings-filter-presets-by-hardware">Filter Presets by GPU Hardware:</label>
-        <select id="settings-filter-presets-by-hardware">
-            <option value="yes" <?php echo $filter_presets_by_hardware === 'yes' ? 'selected' : ''; ?>>Yes (Hide CUDA/ROCm/Vulkan templates if hardware is missing)</option>
-            <option value="no" <?php echo $filter_presets_by_hardware === 'no' ? 'selected' : ''; ?>>No (Show all template variants)</option>
-        </select>
-        <div class="nix-field-help">Hides templates that require acceleration cards if those cards are not detected in the system.</div>
-    </div>
-
-    <div style="margin-top: 15px; display: flex; justify-content: flex-end; border-top: 1px solid rgba(255,255,255,0.05); padding-top: 15px;">
-        <button type="button" class="nix-btn-primary" style="margin: 0; padding: 6px 18px; font-size: 12px; display: inline-flex; align-items: center; gap: 6px;" onclick="saveAllSettings(this)"><i class="fa fa-check"></i> Apply Advanced</button>
-    </div>
-</div>
-
-<!-- 4. Nix System Daemon Status & Control -->
-<div class="nix-section" style="margin-bottom: 20px;">
-    <div style="display: flex; align-items: center; justify-content: space-between;">
-        <div>
-            <h3 style="margin: 0 0 5px 0;">System Daemon</h3>
-            <p class="nix-subtext" style="margin: 0;">
-                Status: 
-                <?php if ($is_nix_running): ?>
-                    <span class="status green">RUNNING</span>
-                <?php else: ?>
-                    <span class="status red">STOPPED</span>
-                <?php endif; ?>
-            </p>
-        </div>
-        <div id="nix-daemon-controls" style="display: flex; gap: 8px;">
-            <?php if ($is_nix_running): ?>
-                <button type="button" class="nix-btn-install" style="background: #232326; border: 1px solid #3a3a3d; color: #525256; cursor: not-allowed; font-weight: normal; margin: 0; padding: 6px 12px; display: inline-flex; align-items: center; gap: 6px;" disabled><i class="fa fa-play"></i> Start</button>
-                <button type="button" class="nix-btn" style="margin: 0; padding: 6px 12px;" onclick="toggleNixDaemon('stop')"><i class="fa fa-stop"></i> Stop</button>
-                <button type="button" class="nix-btn" style="margin: 0; padding: 6px 12px;" onclick="toggleNixDaemon('restart')"><i class="fa fa-refresh"></i> Restart</button>
-            <?php else: ?>
-                <button type="button" class="nix-btn-install" style="margin: 0; padding: 6px 12px; display: inline-flex; align-items: center; gap: 6px;" onclick="toggleNixDaemon('start')"><i class="fa fa-play"></i> Start</button>
-                <button type="button" class="nix-btn" style="margin: 0; padding: 6px 12px; color: #525256; border-color: #2d2d30; cursor: not-allowed;" disabled><i class="fa fa-stop"></i> Stop</button>
-                <button type="button" class="nix-btn" style="margin: 0; padding: 6px 12px; color: #525256; border-color: #2d2d30; cursor: not-allowed;" disabled><i class="fa fa-refresh"></i> Restart</button>
-            <?php endif; ?>
-        </div>
-    </div>
-</div>
-
-<!-- 5. System Maintenance & Cleanup -->
+<!-- 5. Maintenance -->
 <div class="nix-section" style="margin-bottom: 20px;">
     <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 15px; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 15px;">
         <div>
@@ -336,7 +336,6 @@ function toggleNixDaemon(action) {
     }, 'json');
 }
 
-// Keep syncTemplates and collectGarbage handlers intact
 function syncTemplates(btn) {
     var $btn = $(btn);
     if ($btn.prop('disabled')) return;
