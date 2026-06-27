@@ -61,6 +61,7 @@ pub fn render_presets_store() -> String {
             <button type="button" class="nix-preset-pill" onclick="filterPresetCategory('arr', this)">Servarr</button>
             <button type="button" class="nix-preset-pill" onclick="filterPresetCategory('smarthome', this)">Smart Home</button>
             <button type="button" class="nix-preset-pill" onclick="filterPresetCategory('storage', this)">Sync & Backups</button>
+            <button type="button" class="nix-preset-pill" onclick="filterPresetCategory('all', this)">All</button>
         </div>
     </div>
     
@@ -128,7 +129,7 @@ pub fn render_presets_store() -> String {
             var category = card.getAttribute('data-category');
             
             var matchesQuery = (name.indexOf(q) !== -1 || desc.indexOf(q) !== -1);
-            var matchesCategory = (category === activeCategory);
+            var matchesCategory = (activeCategory === 'all' || category === activeCategory);
             
             if (matchesQuery && matchesCategory) {
                 card.style.display = 'flex';
