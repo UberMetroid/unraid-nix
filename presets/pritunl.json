@@ -1,0 +1,15 @@
+{
+  "name": "pritunl",
+  "display_name": "Pritunl (Manual)",
+  "description": "Enterprise grade open-source VPN server [Requires manual configuration/custom wrapper to run on Unraid].",
+  "url": "https://pritunl.com/",
+  "command": "exec nix run nixpkgs#pritunl-client",
+  "default_ports": [
+    {
+      "host": 1195,
+      "container": 1195,
+      "label": "VPN Port"
+    }
+  ],
+  "icon": "fa-key"
+}

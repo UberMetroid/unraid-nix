@@ -1,0 +1,15 @@
+{
+  "name": "guacamole",
+  "display_name": "Apache Guacamole (Manual)",
+  "description": "Apache Guacamole Remote Desktop Gateway [Requires manual configuration/custom wrapper to run on Unraid].",
+  "url": "https://guacamole.apache.org/",
+  "command": "exec nix run nixpkgs#guacamole-client",
+  "default_ports": [
+    {
+      "host": 8080,
+      "container": 8080,
+      "label": "HTTP"
+    }
+  ],
+  "icon": "fa-server"
+}

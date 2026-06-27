@@ -1,0 +1,15 @@
+{
+  "name": "humhub",
+  "display_name": "HumHub (Manual)",
+  "description": "Flexible open-source social network software for private communities [Requires manual configuration/custom wrapper to run on Unraid].",
+  "url": "https://www.humhub.org/",
+  "command": "exec nix run nixpkgs#humhub",
+  "default_ports": [
+    {
+      "host": 8082,
+      "container": 80,
+      "label": "Web GUI"
+    }
+  ],
+  "icon": "fa-share-alt"
+}

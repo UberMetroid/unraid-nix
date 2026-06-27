@@ -1,0 +1,15 @@
+{
+  "name": "kutt",
+  "display_name": "Kutt (Manual)",
+  "description": "Kutt URL Shortener Portal [Requires manual configuration/custom wrapper to run on Unraid].",
+  "url": "https://kutt.it/",
+  "command": "exec nix run nixpkgs#kutt",
+  "default_ports": [
+    {
+      "host": 3000,
+      "container": 3000,
+      "label": "HTTP"
+    }
+  ],
+  "icon": "fa-share-alt"
+}

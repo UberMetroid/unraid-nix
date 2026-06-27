@@ -1,0 +1,15 @@
+{
+  "name": "wled",
+  "display_name": "WLED (Manual)",
+  "description": "WLED LED Strip Controller [Requires manual configuration/custom wrapper to run on Unraid].",
+  "url": "https://github.com/Aircoookie/WLED",
+  "command": "exec nix run nixpkgs#wled",
+  "default_ports": [
+    {
+      "host": 80,
+      "container": 80,
+      "label": "HTTP"
+    }
+  ],
+  "icon": "fa-lightbulb-o"
+}

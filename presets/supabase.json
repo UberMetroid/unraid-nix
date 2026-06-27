@@ -1,0 +1,15 @@
+{
+  "name": "supabase",
+  "display_name": "Supabase (Manual)",
+  "description": "Supabase Backend Suite [Requires manual configuration/custom wrapper to run on Unraid].",
+  "url": "https://supabase.com/",
+  "command": "exec nix run nixpkgs#supabase-cli",
+  "default_ports": [
+    {
+      "host": 8000,
+      "container": 8000,
+      "label": "HTTP"
+    }
+  ],
+  "icon": "fa-server"
+}

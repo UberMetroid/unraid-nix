@@ -1,0 +1,15 @@
+{
+  "name": "immich",
+  "display_name": "Immich (Manual)",
+  "description": "Immich Photo/Video Backup [Requires manual configuration/custom wrapper to run on Unraid].",
+  "url": "https://immich.app/",
+  "command": "exec nix run nixpkgs#immich",
+  "default_ports": [
+    {
+      "host": 2283,
+      "container": 2283,
+      "label": "HTTP"
+    }
+  ],
+  "icon": "fa-cloud"
+}

@@ -1,0 +1,15 @@
+{
+  "name": "rocketchat",
+  "display_name": "Rocket.Chat (Manual)",
+  "description": "Collaborative hub and omnichannel customer service platform [Requires manual configuration/custom wrapper to run on Unraid].",
+  "url": "https://rocket.chat/",
+  "command": "exec nix run nixpkgs#rocketchat-desktop",
+  "default_ports": [
+    {
+      "host": 3000,
+      "container": 3000,
+      "label": "Web GUI"
+    }
+  ],
+  "icon": "fa-comments"
+}

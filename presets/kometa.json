@@ -1,0 +1,9 @@
+{
+  "name": "kometa",
+  "display_name": "Kometa (Manual)",
+  "description": "Kometa (formerly Plex Meta Manager) [Requires manual configuration/custom wrapper to run on Unraid].",
+  "url": "https://kometa.wiki/",
+  "command": "exec nix run nixpkgs#kometa",
+  "default_ports": [],
+  "icon": "fa-server"
+}

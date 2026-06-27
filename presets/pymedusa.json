@@ -1,0 +1,15 @@
+{
+  "name": "pymedusa",
+  "display_name": "PyMedusa (Manual)",
+  "description": "PyMedusa TV Manager [Requires manual configuration/custom wrapper to run on Unraid].",
+  "url": "https://pymedusa.com/",
+  "command": "exec nix run nixpkgs#pymedusa",
+  "default_ports": [
+    {
+      "host": 8081,
+      "container": 8081,
+      "label": "HTTP"
+    }
+  ],
+  "icon": "fa-server"
+}

@@ -1,0 +1,15 @@
+{
+  "name": "anythingllm",
+  "display_name": "AnythingLLM (Manual)",
+  "description": "AnythingLLM Workspace Builder [Requires manual configuration/custom wrapper to run on Unraid].",
+  "url": "https://anythingllm.com/",
+  "command": "exec nix run nixpkgs#anythingllm",
+  "default_ports": [
+    {
+      "host": 3001,
+      "container": 3001,
+      "label": "HTTP"
+    }
+  ],
+  "icon": "fa-magic"
+}

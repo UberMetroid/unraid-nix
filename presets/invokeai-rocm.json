@@ -3,7 +3,7 @@
   "display_name": "InvokeAI (ROCm)",
   "description": "Creative engine for Stable Diffusion models (AMD ROCm GPU hardware accelerated version)",
   "url": "https://github.com/invoke-ai/InvokeAI",
-  "command": "exec nix run github:nixified-ai/flake/2aeb76f52f72c7a242f20e9bc47cfaa2ed65915d#invokeai-amd -- --host 0.0.0.0 --port 9090 --root /config",
+  "command": "exec nix run github:nixified-ai/flake#invokeai-amd -- --host 0.0.0.0 --port 9090 --root /config",
   "default_ports": [
     {
       "host": 9090,

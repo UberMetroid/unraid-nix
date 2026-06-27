@@ -1,0 +1,15 @@
+{
+  "name": "homarr",
+  "display_name": "Homarr (Manual)",
+  "description": "Homarr Server Dashboard [Requires manual configuration/custom wrapper to run on Unraid].",
+  "url": "https://homarr.dev/",
+  "command": "exec nix run nixpkgs#homarr",
+  "default_ports": [
+    {
+      "host": 7575,
+      "container": 7575,
+      "label": "HTTP"
+    }
+  ],
+  "icon": "fa-tachometer"
+}

@@ -1,0 +1,15 @@
+{
+  "name": "nocodb",
+  "display_name": "NocoDB (Manual)",
+  "description": "NocoDB Airtable Substitute [Requires manual configuration/custom wrapper to run on Unraid].",
+  "url": "https://nocodb.com/",
+  "command": "exec nix run nixpkgs#nocodb",
+  "default_ports": [
+    {
+      "host": 8080,
+      "container": 8080,
+      "label": "HTTP"
+    }
+  ],
+  "icon": "fa-server"
+}

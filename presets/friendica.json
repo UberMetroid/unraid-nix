@@ -1,0 +1,15 @@
+{
+  "name": "friendica",
+  "display_name": "Friendica (Manual)",
+  "description": "Decentralized federated social network platform [Requires manual configuration/custom wrapper to run on Unraid].",
+  "url": "https://friendi.ca/",
+  "command": "exec nix run nixpkgs#friendica",
+  "default_ports": [
+    {
+      "host": 8083,
+      "container": 80,
+      "label": "Web GUI"
+    }
+  ],
+  "icon": "fa-share-alt"
+}

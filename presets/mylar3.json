@@ -1,0 +1,15 @@
+{
+  "name": "mylar3",
+  "display_name": "Mylar 3 (Manual)",
+  "description": "Mylar 3 Comics Manager [Requires manual configuration/custom wrapper to run on Unraid].",
+  "url": "https://github.com/mylar3/mylar3",
+  "command": "exec nix run nixpkgs#mylar3",
+  "default_ports": [
+    {
+      "host": 8090,
+      "container": 8090,
+      "label": "HTTP"
+    }
+  ],
+  "icon": "fa-server"
+}

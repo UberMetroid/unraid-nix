@@ -1,0 +1,20 @@
+{
+  "name": "emby",
+  "display_name": "Emby (Manual)",
+  "description": "Emby Media Server [Requires manual configuration/custom wrapper to run on Unraid].",
+  "url": "https://emby.media/",
+  "command": "exec nix run nixpkgs#emby",
+  "default_ports": [
+    {
+      "host": 8096,
+      "container": 8096,
+      "label": "HTTP"
+    },
+    {
+      "host": 8920,
+      "container": 8920,
+      "label": "HTTPS"
+    }
+  ],
+  "icon": "fa-play-circle"
+}

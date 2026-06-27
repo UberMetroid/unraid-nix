@@ -1,0 +1,15 @@
+{
+  "name": "flame",
+  "display_name": "Flame (Manual)",
+  "description": "Flame Lightweight Dashboard [Requires manual configuration/custom wrapper to run on Unraid].",
+  "url": "https://github.com/pawelmalak/flame",
+  "command": "exec nix run nixpkgs#flame",
+  "default_ports": [
+    {
+      "host": 5005,
+      "container": 5005,
+      "label": "HTTP"
+    }
+  ],
+  "icon": "fa-tachometer"
+}

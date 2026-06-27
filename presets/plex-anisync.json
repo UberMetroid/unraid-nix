@@ -1,0 +1,9 @@
+{
+  "name": "plex-anisync",
+  "display_name": "Plex-Anisync",
+  "description": "Plex to Anilist Sync",
+  "url": "https://github.com/RickDB/Plex-Anisync",
+  "command": "exec nix run nixpkgs#plex-anisync",
+  "default_ports": [],
+  "icon": "fa-play-circle"
+}

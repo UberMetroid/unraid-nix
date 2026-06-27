@@ -1,0 +1,15 @@
+{
+  "name": "ghost",
+  "display_name": "Ghost (Manual)",
+  "description": "Ghost Blogging Platform [Requires manual configuration/custom wrapper to run on Unraid].",
+  "url": "https://ghost.org/",
+  "command": "exec nix run nixpkgs#ghost",
+  "default_ports": [
+    {
+      "host": 2368,
+      "container": 2368,
+      "label": "HTTP"
+    }
+  ],
+  "icon": "fa-pencil-square-o"
+}

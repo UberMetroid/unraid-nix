@@ -1,0 +1,15 @@
+{
+  "name": "leantime",
+  "display_name": "Leantime (Manual)",
+  "description": "Leantime Project Management [Requires manual configuration/custom wrapper to run on Unraid].",
+  "url": "https://leantime.io/",
+  "command": "exec nix run nixpkgs#leantime",
+  "default_ports": [
+    {
+      "host": 80,
+      "container": 80,
+      "label": "HTTP"
+    }
+  ],
+  "icon": "fa-file-text-o"
+}

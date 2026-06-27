@@ -1,0 +1,15 @@
+{
+  "name": "actual-budget",
+  "display_name": "Actual Budget (Manual)",
+  "description": "Actual Local Finance Tracker [Requires manual configuration/custom wrapper to run on Unraid].",
+  "url": "https://actualbudget.org/",
+  "command": "exec nix run nixpkgs#actual-budget",
+  "default_ports": [
+    {
+      "host": 5006,
+      "container": 5006,
+      "label": "HTTP"
+    }
+  ],
+  "icon": "fa-server"
+}

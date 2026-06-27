@@ -1,0 +1,15 @@
+{
+  "name": "mysql",
+  "display_name": "MySQL",
+  "description": "MySQL SQL Server",
+  "url": "https://www.mysql.com/",
+  "command": "exec nix run nixpkgs#mysql",
+  "default_ports": [
+    {
+      "host": 3306,
+      "container": 3306,
+      "label": "MySQL Port"
+    }
+  ],
+  "icon": "fa-database"
+}

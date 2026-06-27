@@ -1,0 +1,20 @@
+{
+  "name": "uboquity",
+  "display_name": "Uboquity (Manual)",
+  "description": "Uboquity Comics Server [Requires manual configuration/custom wrapper to run on Unraid].",
+  "url": "https://vaemnis.net/uboquity/",
+  "command": "exec nix run nixpkgs#uboquity",
+  "default_ports": [
+    {
+      "host": 2202,
+      "container": 2202,
+      "label": "HTTP"
+    },
+    {
+      "host": 2203,
+      "container": 2203,
+      "label": "Admin"
+    }
+  ],
+  "icon": "fa-cloud"
+}

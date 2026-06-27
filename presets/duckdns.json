@@ -1,0 +1,9 @@
+{
+  "name": "duckdns",
+  "display_name": "DuckDNS (Manual)",
+  "description": "DuckDNS DDNS Updater [Requires manual configuration/custom wrapper to run on Unraid].",
+  "url": "https://www.duckdns.org/",
+  "command": "exec nix run nixpkgs#duckdns",
+  "default_ports": [],
+  "icon": "fa-server"
+}

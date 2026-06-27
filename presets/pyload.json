@@ -1,0 +1,15 @@
+{
+  "name": "pyload",
+  "display_name": "PyLoad (Manual)",
+  "description": "PyLoad Downloader [Requires manual configuration/custom wrapper to run on Unraid].",
+  "url": "https://pyload.net/",
+  "command": "exec nix run nixpkgs#pyload",
+  "default_ports": [
+    {
+      "host": 8000,
+      "container": 8000,
+      "label": "HTTP"
+    }
+  ],
+  "icon": "fa-server"
+}

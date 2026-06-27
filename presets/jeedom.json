@@ -1,0 +1,15 @@
+{
+  "name": "jeedom",
+  "display_name": "Jeedom (Manual)",
+  "description": "Jeedom Automation Core [Requires manual configuration/custom wrapper to run on Unraid].",
+  "url": "https://www.jeedom.com/",
+  "command": "exec nix run nixpkgs#jeedom",
+  "default_ports": [
+    {
+      "host": 80,
+      "container": 80,
+      "label": "HTTP"
+    }
+  ],
+  "icon": "fa-home"
+}

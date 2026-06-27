@@ -1,0 +1,15 @@
+{
+  "name": "airsonic-advanced",
+  "display_name": "Airsonic Advanced (Manual)",
+  "description": "Airsonic Streamer [Requires manual configuration/custom wrapper to run on Unraid].",
+  "url": "https://github.com/airsonic-advanced/airsonic-advanced",
+  "command": "exec nix run nixpkgs#airsonic-advanced",
+  "default_ports": [
+    {
+      "host": 4040,
+      "container": 4040,
+      "label": "HTTP"
+    }
+  ],
+  "icon": "fa-music"
+}

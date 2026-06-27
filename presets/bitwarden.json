@@ -1,0 +1,15 @@
+{
+  "name": "bitwarden",
+  "display_name": "Bitwarden (Manual)",
+  "description": "Enterprise password management server backend [Requires manual configuration/custom wrapper to run on Unraid].",
+  "url": "https://bitwarden.com/",
+  "command": "exec nix run nixpkgs#bitwarden-desktop",
+  "default_ports": [
+    {
+      "host": 8000,
+      "container": 8000,
+      "label": "Web GUI"
+    }
+  ],
+  "icon": "fa-lock"
+}

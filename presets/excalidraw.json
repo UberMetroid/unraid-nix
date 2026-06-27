@@ -1,0 +1,15 @@
+{
+  "name": "excalidraw",
+  "display_name": "Excalidraw (Manual)",
+  "description": "Excalidraw Drawing Canvas [Requires manual configuration/custom wrapper to run on Unraid].",
+  "url": "https://excalidraw.com/",
+  "command": "exec nix run nixpkgs#excalidraw",
+  "default_ports": [
+    {
+      "host": 3000,
+      "container": 3000,
+      "label": "HTTP"
+    }
+  ],
+  "icon": "fa-file-text-o"
+}

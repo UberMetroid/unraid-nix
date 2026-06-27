@@ -1,0 +1,15 @@
+{
+  "name": "petio",
+  "display_name": "Petio (Manual)",
+  "description": "Petio Requests Portal [Requires manual configuration/custom wrapper to run on Unraid].",
+  "url": "https://petio.tv/",
+  "command": "exec nix run nixpkgs#petio",
+  "default_ports": [
+    {
+      "host": 7777,
+      "container": 7777,
+      "label": "HTTP"
+    }
+  ],
+  "icon": "fa-server"
+}

@@ -1,0 +1,15 @@
+{
+  "name": "etherpad",
+  "display_name": "Etherpad (Manual)",
+  "description": "Etherpad Document Collaboration [Requires manual configuration/custom wrapper to run on Unraid].",
+  "url": "https://etherpad.org/",
+  "command": "exec nix run nixpkgs#etherpad",
+  "default_ports": [
+    {
+      "host": 9001,
+      "container": 9001,
+      "label": "HTTP"
+    }
+  ],
+  "icon": "fa-file-text-o"
+}

@@ -1,0 +1,15 @@
+{
+  "name": "cloudbeaver",
+  "display_name": "CloudBeaver (Manual)",
+  "description": "CloudBeaver DB Administrator [Requires manual configuration/custom wrapper to run on Unraid].",
+  "url": "https://cloudbeaver.io/",
+  "command": "exec nix run nixpkgs#cloudbeaver",
+  "default_ports": [
+    {
+      "host": 8978,
+      "container": 8978,
+      "label": "HTTP"
+    }
+  ],
+  "icon": "fa-server"
+}

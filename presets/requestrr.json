@@ -1,0 +1,15 @@
+{
+  "name": "requestrr",
+  "display_name": "Requestrr (Manual)",
+  "description": "Requestrr Discord Requests Bot [Requires manual configuration/custom wrapper to run on Unraid].",
+  "url": "https://github.com/darkalfx/requestrr",
+  "command": "exec nix run nixpkgs#requestrr",
+  "default_ports": [
+    {
+      "host": 4545,
+      "container": 4545,
+      "label": "HTTP"
+    }
+  ],
+  "icon": "fa-server"
+}

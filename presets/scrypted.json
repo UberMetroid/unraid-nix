@@ -1,0 +1,15 @@
+{
+  "name": "scrypted",
+  "display_name": "Scrypted (Manual)",
+  "description": "Scrypted Camera Server [Requires manual configuration/custom wrapper to run on Unraid].",
+  "url": "https://www.scrypted.app/",
+  "command": "exec nix run nixpkgs#scrypted",
+  "default_ports": [
+    {
+      "host": 10443,
+      "container": 10443,
+      "label": "HTTPS Web"
+    }
+  ],
+  "icon": "fa-bolt"
+}

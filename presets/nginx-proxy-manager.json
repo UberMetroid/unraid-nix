@@ -1,0 +1,25 @@
+{
+  "name": "nginx-proxy-manager",
+  "display_name": "Nginx Proxy Manager (Manual)",
+  "description": "Nginx Proxy Manager GUI [Requires manual configuration/custom wrapper to run on Unraid].",
+  "url": "https://nginxproxymanager.com/",
+  "command": "exec nix run nixpkgs#nginx-proxy-manager",
+  "default_ports": [
+    {
+      "host": 81,
+      "container": 81,
+      "label": "Admin Web"
+    },
+    {
+      "host": 80,
+      "container": 80,
+      "label": "HTTP"
+    },
+    {
+      "host": 443,
+      "container": 443,
+      "label": "HTTPS"
+    }
+  ],
+  "icon": "fa-exchange"
+}

@@ -1,0 +1,15 @@
+{
+  "name": "jdownloader2",
+  "display_name": "JDownloader 2 (Manual)",
+  "description": "JDownloader 2 Web GUI [Requires manual configuration/custom wrapper to run on Unraid].",
+  "url": "https://jdownloader.org/",
+  "command": "exec nix run nixpkgs#jdownloader",
+  "default_ports": [
+    {
+      "host": 5800,
+      "container": 5800,
+      "label": "Web GUI"
+    }
+  ],
+  "icon": "fa-server"
+}

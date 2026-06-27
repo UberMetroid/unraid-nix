@@ -1,0 +1,9 @@
+{
+  "name": "singlefile",
+  "display_name": "SingleFile (Manual)",
+  "description": "SingleFile Page Archiver CLI [Requires manual configuration/custom wrapper to run on Unraid].",
+  "url": "https://github.com/gildas-lormeau/SingleFile",
+  "command": "exec nix run nixpkgs#singlefile",
+  "default_ports": [],
+  "icon": "fa-server"
+}

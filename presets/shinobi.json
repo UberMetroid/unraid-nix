@@ -1,0 +1,15 @@
+{
+  "name": "shinobi",
+  "display_name": "Shinobi (Manual)",
+  "description": "Shinobi NVR Security Web [Requires manual configuration/custom wrapper to run on Unraid].",
+  "url": "https://shinobi.video/",
+  "command": "exec nix run nixpkgs#shinobi",
+  "default_ports": [
+    {
+      "host": 8080,
+      "container": 8080,
+      "label": "HTTP"
+    }
+  ],
+  "icon": "fa-server"
+}

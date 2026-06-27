@@ -1,0 +1,15 @@
+{
+  "name": "lobe-chat",
+  "display_name": "Lobe Chat (Manual)",
+  "description": "Modern multi-agent LLM chat UI framework with plugin support [Requires manual configuration/custom wrapper to run on Unraid].",
+  "url": "https://github.com/lobehub/lobe-chat",
+  "command": "exec nix run nixpkgs#lobe-chat",
+  "default_ports": [
+    {
+      "host": 3210,
+      "container": 3210,
+      "label": "Web GUI"
+    }
+  ],
+  "icon": "fa-server"
+}

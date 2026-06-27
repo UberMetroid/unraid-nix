@@ -1,14 +1,14 @@
 {
   "name": "owncloud",
-  "display_name": "ownCloud Infinite Scale",
-  "description": "Modern Go-based single-binary ownCloud Server",
+  "display_name": "OwnCloud",
+  "description": "OwnCloud File Storage",
   "url": "https://owncloud.com/",
-  "command": "exec nix run nixpkgs#ocis -- server",
+  "command": "exec nix run nixpkgs#owncloud",
   "default_ports": [
     {
-      "host": 9200,
-      "container": 9200,
-      "label": "Web GUI"
+      "host": 80,
+      "container": 80,
+      "label": "HTTP"
     }
   ],
   "icon": "fa-cloud"

@@ -1,0 +1,15 @@
+{
+  "name": "filerun",
+  "display_name": "Filerun (Manual)",
+  "description": "Filerun File Storage Manager [Requires manual configuration/custom wrapper to run on Unraid].",
+  "url": "https://filerun.com/",
+  "command": "exec nix run nixpkgs#filerun",
+  "default_ports": [
+    {
+      "host": 80,
+      "container": 80,
+      "label": "HTTP"
+    }
+  ],
+  "icon": "fa-cloud"
+}

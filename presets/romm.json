@@ -1,0 +1,15 @@
+{
+  "name": "romm",
+  "display_name": "RomM (Manual)",
+  "description": "RomM Rom Manager [Requires manual configuration/custom wrapper to run on Unraid].",
+  "url": "https://github.com/rommapp/romm",
+  "command": "exec nix run nixpkgs#romm",
+  "default_ports": [
+    {
+      "host": 8080,
+      "container": 8080,
+      "label": "HTTP"
+    }
+  ],
+  "icon": "fa-gamepad"
+}
