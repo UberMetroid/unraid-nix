@@ -119,14 +119,6 @@ $is_nix_running = ($status_code === 0);
         </div>
 
         <div class="nix-form-group">
-            <label for="settings-enable-cli">Show CLI Package Installation option in Flake Store:</label>
-            <select id="settings-enable-cli">
-                <option value="no" <?php echo $enable_cli === 'no' ? 'selected' : ''; ?>>No (Services only)</option>
-                <option value="yes" <?php echo $enable_cli === 'yes' ? 'selected' : ''; ?>>Yes (Show CLI option)</option>
-            </select>
-        </div>
-
-        <div class="nix-form-group">
             <label for="settings-show-in-nav">Show Nix tab in Main Navigation Menu:</label>
             <select id="settings-show-in-nav">
                 <option value="no" <?php echo $show_in_nav === 'no' ? 'selected' : ''; ?>>No (Show in Settings)</option>
@@ -173,7 +165,6 @@ function saveSettings(e) {
     var path = $("#settings-store-path").val();
     var auto = $("#settings-autostart").val();
     var enableSandbox = $("#settings-enable-sandbox").val();
-    var enableCli = $("#settings-enable-cli").val();
     var showInNav = $("#settings-show-in-nav").val();
     var allowSourceBuilds = $("#settings-allow-source-builds").val();
     var filterPresetsByHardware = $("#settings-filter-presets-by-hardware").val();
@@ -191,7 +182,6 @@ function saveSettings(e) {
         store_path: path,
         autostart: auto,
         enable_sandbox: enableSandbox,
-        enable_cli: enableCli,
         show_in_nav: showInNav,
         allow_source_builds: allowSourceBuilds,
         filter_presets_by_hardware: filterPresetsByHardware
