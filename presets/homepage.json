@@ -1,0 +1,15 @@
+{
+  "name": "homepage",
+  "display_name": "Homepage Dashboard",
+  "description": "A highly customizable dashboard with Docker and service API integrations.",
+  "url": "https://gethomepage.dev/",
+  "command": "exec nix run nixpkgs#homepage-dashboard",
+  "default_ports": [
+    {
+      "host": 3000,
+      "container": 3000,
+      "label": "Web GUI"
+    }
+  ],
+  "icon": "fa-tachometer"
+}
