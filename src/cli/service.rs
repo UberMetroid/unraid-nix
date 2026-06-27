@@ -68,6 +68,7 @@ pub fn autostart(args: &[String]) {
             .args(&["-c", ". /nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh && nix run nixpkgs#process-compose -- -p 29704 project update -f /boot/config/plugins/nix/process-compose.yml 2>&1"])
             .stdin(std::process::Stdio::null())
             .output();
+        crate::store::log_event("INFO", &format!("Service '{}' autostart set to '{}'.", name, toggle));
         println!("Autostart updated successfully.");
     } else {
         eprintln!("Error: Service {} not found in configuration.", name);
@@ -103,6 +104,7 @@ pub fn remove_service(args: &[String]) {
             .stdin(std::process::Stdio::null())
             .output();
         let _ = std::fs::remove_file(format!("/boot/config/plugins/nix/metadata/{}.json", name));
+        crate::store::log_event("INFO", &format!("Service '{}' successfully removed.", name));
         println!("Service {} successfully removed.", name);
     } else {
         eprintln!("Error: Service {} not found in configuration.", name);
@@ -117,9 +119,11 @@ pub fn install(args: &[String]) {
     }
     let package = &args[2];
     if let Err(e) = search::install_package(package) {
+        crate::store::log_event("ERROR", &format!("CLI package installation failed for '{}': {}", package, e));
         eprintln!("Installation failed: {}", e);
         exit(1);
     }
+    crate::store::log_event("INFO", &format!("CLI package '{}' successfully installed/added.", package));
     println!("Successfully installed package: {}", package);
 }
 

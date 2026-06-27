@@ -10,8 +10,9 @@ Title="Logs"
         <div>
             <label for="nix-log-select" style="margin-right: 10px; color: #eee; font-size: 13px;">Select Log:</label>
             <select id="nix-log-select" onchange="loadLogs()" style="background: #141416; border: 1px solid #2d2d30; color: #fff; padding: 6px 12px; border-radius: 4px; width: auto; display: inline-block;">
-                <option value="daemon">Nix Daemon (/var/log/nix-daemon.log)</option>
-                <option value="compose">Process Compose Supervisor (/var/log/nix-process-compose.log)</option>
+                <option value="plugin" selected>Nix Plugin Operations (/var/log/nix-plugin.log)</option>
+                <option value="compose">Process Supervisor (/var/log/nix-process-compose.log)</option>
+                <option value="daemon">Low-level Nix Daemon Socket (/var/log/nix-daemon.log)</option>
             </select>
             <button class="nix-btn" onclick="loadLogs()" style="margin-left: 10px; padding: 6px 12px; display: inline-block;"><i class="fa fa-refresh"></i> Refresh</button>
         </div>

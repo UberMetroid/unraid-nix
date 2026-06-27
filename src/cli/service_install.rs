@@ -333,8 +333,10 @@ pub fn install_service(args: &[String]) {
 
     // 7. Restart supervisor daemon to load and start the new service definition
     if let Err(e) = super::supervisor::restart_nix_supervisor() {
+        crate::store::log_event("ERROR", &format!("Failed to restart supervisor after installing service '{}': {}", name, e));
         eprintln!("Error restarting supervisor: {}", e);
         exit(1);
     }
+    crate::store::log_event("INFO", &format!("Service '{}' installed/updated successfully. URI: {}", name, uri));
     println!("Service successfully installed.");
 }

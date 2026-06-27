@@ -145,12 +145,14 @@ if ($action === 'nix-daemon-stop') {
 
 // 7. Fetch Nix Daemon / Process Compose system logs
 if ($action === 'nix-sys-logs') {
-    $log_type = isset($_GET['type']) ? $_GET['type'] : 'daemon';
+    $log_type = isset($_GET['type']) ? $_GET['type'] : 'plugin';
     $file = '';
-    if ($log_type === 'daemon') {
-        $file = '/var/log/nix-daemon.log';
+    if ($log_type === 'plugin') {
+        $file = '/var/log/nix-plugin.log';
     } elseif ($log_type === 'compose') {
         $file = '/var/log/nix-process-compose.log';
+    } elseif ($log_type === 'daemon') {
+        $file = '/var/log/nix-daemon.log';
     } else {
         error("Invalid log type.");
     }
