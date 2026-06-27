@@ -1,0 +1,60 @@
+Menu="Nix:7"
+Title="About"
+---
+<link type="text/css" rel="stylesheet" href="/plugins/nix/styles_layout.css?v=<?php echo time(); ?>">
+<link type="text/css" rel="stylesheet" href="/plugins/nix/styles_widgets.css?v=<?php echo time(); ?>">
+<script src="/plugins/nix/nix.js"></script>
+
+<div class="nix-section" style="margin-top: 10px; max-width: 1000px; line-height: 1.6;">
+    <div style="display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid rgba(255,255,255,0.08); padding-bottom: 15px; margin-bottom: 20px;">
+        <div>
+            <h2 style="margin: 0; font-size: 20px;">Nix on Unraid</h2>
+            <p class="nix-subtext" style="margin: 5px 0 0 0;">Declarative, sandboxed package management and supervisor engine.</p>
+        </div>
+        <a href="https://github.com/UberMetroid/unraid-nix" target="_blank" class="nix-btn-primary" style="text-decoration: none; display: inline-flex; align-items: center; gap: 8px;">
+            <i class="fa fa-github" style="font-size: 16px;"></i> GitHub Project
+        </a>
+    </div>
+
+    <!-- How it works -->
+    <div style="margin-bottom: 25px;">
+        <h3 style="color: #00a1ff; margin-bottom: 10px;"><i class="fa fa-info-circle"></i> How Nix Works</h3>
+        <p style="color: #eee;">
+            Nix is a unique package manager that treats package installations as mathematical functions. Unlike traditional package managers (like <code>apt</code> or <code>pacman</code>) which overwrite shared directories like <code>/usr/bin</code> or <code>/lib</code>, Nix stores all packages in isolation inside the <strong>Nix Store</strong> (<code>/nix/store</code>).
+        </p>
+        <ul style="color: #a0a0a5; padding-left: 20px; margin-top: 8px;">
+            <li style="margin-bottom: 8px;"><strong>Immutable Packages:</strong> Every package directory in the Nix store is prefixed with a cryptographic hash of all its inputs (source code, dependencies, compiler options). This prevents conflicts and guarantees reproducibility.</li>
+            <li style="margin-bottom: 8px;"><strong>Jailed Sandboxing:</strong> Background services run inside isolated filesystem namespaces (chroot jails), limiting access to your raw host shares unless directories are explicitly mapped in the service configuration.</li>
+            <li style="margin-bottom: 8px;"><strong>Process Supervision:</strong> Services are managed in user-space by <code>process-compose</code>, a lightweight, non-systemd supervisor that handles startup ordering, process recovery, and resource tracking.</li>
+        </ul>
+    </div>
+
+    <!-- Performance Tuning -->
+    <div style="margin-bottom: 25px; background: rgba(0, 161, 255, 0.02); border: 1px solid rgba(0, 161, 255, 0.15); border-radius: 6px; padding: 18px;">
+        <h3 style="color: #00a1ff; margin-top: 0; margin-bottom: 12px;"><i class="fa fa-bolt"></i> Performance & Health Guidelines</h3>
+        <p style="color: #eee; margin-bottom: 15px;">To ensure maximum storage health, high speeds, and optimal CPU load on your Unraid server, follow these best practices:</p>
+        
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px;">
+            <div style="background: rgba(0,0,0,0.15); border: 1px solid rgba(255,255,255,0.03); border-radius: 4px; padding: 12px;">
+                <h4 style="margin: 0 0 6px 0; color: #fff; font-size: 13px;"><i class="fa fa-hdd-o" style="color: #e67e22;"></i> 1. Store Location (Crucial)</h4>
+                <p style="margin: 0; font-size: 11.5px; color: #a0a0a5; line-height: 1.5;">
+                    Always configure your Nix Store on a fast **SSD pool share** (such as cache, nvme, or system shares). Do **NOT** store the Nix directories on your USB flash drive (<code>/boot</code>) as the high write frequency of package evaluations will wear out the flash storage and cause array lockups.
+                </p>
+            </div>
+            
+            <div style="background: rgba(0,0,0,0.15); border: 1px solid rgba(255,255,255,0.03); border-radius: 4px; padding: 12px;">
+                <h4 style="margin: 0 0 6px 0; color: #fff; font-size: 13px;"><i class="fa fa-cloud-download" style="color: #2ecc71;"></i> 2. Prefer Cache Builds</h4>
+                <p style="margin: 0; font-size: 11.5px; color: #a0a0a5; line-height: 1.5;">
+                    Keep <strong>Allow Package Compilation</strong> set to <strong>No</strong> under System Settings. This forces Nix to strictly use pre-built binary caches (caches.nixos.org). This avoids compiling packages locally from source code, saving enormous CPU cycles and preventing long build wait times.
+                </p>
+            </div>
+
+            <div style="background: rgba(0,0,0,0.15); border: 1px solid rgba(255,255,255,0.03); border-radius: 4px; padding: 12px;">
+                <h4 style="margin: 0 0 6px 0; color: #fff; font-size: 13px;"><i class="fa fa-shield" style="color: #d946ef;"></i> 3. Sandbox Isolation</h4>
+                <p style="margin: 0; font-size: 11.5px; color: #a0a0a5; line-height: 1.5;">
+                    Keep <strong>Enable Storage Sandboxing</strong> active. When active, Nix background processes are strictly locked out of your disks except for your configured `appdata` directories or mapped paths, protecting user shares from accidental writes.
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
