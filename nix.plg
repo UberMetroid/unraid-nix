@@ -2,7 +2,7 @@
 <!DOCTYPE PLUGIN [
   <!ENTITY name      "nix">
   <!ENTITY author    "UberMetroid">
-  <!ENTITY version   "2026.06.26.46">
+  <!ENTITY version   "2026.06.26.47">
   <!ENTITY launch    "Settings/Nix">
   <!ENTITY plugdir   "/boot/config/plugins/&name;">
   <!ENTITY usrdir    "/usr/local/emhttp/plugins/&name;">
@@ -11,6 +11,8 @@
 
   <CHANGES>
     ## nix package manager plugin
+    ### 2026.06.26.47
+    - **Removed Volume Mappings Column**: Removed the static "Volume Mappings" column from the dashboard table. Simplifies the row layout and provides more horizontal space for dynamic performance metrics and sparklines.
     ### 2026.06.26.46
     - **Tab Renamed to Flakes**: Renamed the "Active Flakes" tab title and section header to "Flakes" for cleaner navigation and consistency.
     ### 2026.06.26.45

@@ -1,10 +1,10 @@
 use crate::process::ServiceStatus;
 use crate::config::ProcessComposeConfig;
-use crate::api::utils::{HostAddr, get_service_web_port, get_service_appdata_path, extract_package_uri};
+use crate::api::utils::{HostAddr, get_service_web_port, extract_package_uri};
 use crate::api::package::{get_cached_version, get_package_link_url};
 
 use super::cells::{
-    render_app_cell, render_lan_ip_port_cell, render_volume_mappings_cell,
+    render_app_cell, render_lan_ip_port_cell,
     render_resources_cell, render_gpu_cell, render_autostart_cell,
 };
 
@@ -99,14 +99,6 @@ pub fn render_service_row(
 
     let lan_ip_port_html = render_lan_ip_port_cell(port_num, is_running, host_ips, &bind_address_override);
 
-    let home_path = config
-        .as_ref()
-        .and_then(|c| c.processes.get(&s.name))
-        .map(|p| get_service_appdata_path(&s.name, &p.command))
-        .unwrap_or_else(|| "-".to_string());
-
-    let volume_mappings_html = render_volume_mappings_cell(&home_path, &extra_binds_vec);
-
     let autostart_enabled = config
         .as_ref()
         .and_then(|c| c.processes.get(&s.name))
@@ -149,7 +141,6 @@ pub fn render_service_row(
             <td>{}</td>
             <td>{}</td>
             <td>{}</td>
-            <td>{}</td>
             <td>
                 <div class="nix-actions-wrapper">
                     {}
@@ -163,6 +154,6 @@ pub fn render_service_row(
                 <div style="display: inline-block; vertical-align: middle;">{}</div>
             </td>
         </tr>"#,
-        app_html, lan_ip_port_html, volume_mappings_html, resources_html, gpu_html, start_btn, stop_btn, edit_btn, logs_btn, remove_btn, autostart_html
+        app_html, lan_ip_port_html, resources_html, gpu_html, start_btn, stop_btn, edit_btn, logs_btn, remove_btn, autostart_html
     )
 }

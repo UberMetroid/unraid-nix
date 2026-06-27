@@ -25,8 +25,8 @@ pub fn render_services_table(api_port: u16) -> String {
                 <tr>
                     <th>Application</th>
                     <th>IP:Port</th>
-                    <th>Volume Mappings</th>
                     <th>Resources</th>
+                    <th>GPU</th>
                     <th>Actions</th>
                     <th>Autostart</th>
                 </tr>
