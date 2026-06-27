@@ -1,0 +1,29 @@
+{
+  "name": "ocis",
+  "display_name": "ownCloud Infinite Scale",
+  "description": "ownCloud Infinite Scale (oCIS) is the modern, high-performance Golang rewrite of the ownCloud file sharing platform, running natively as a single binary.",
+  "url": "https://owncloud.com/",
+  "command": "exec nix run nixpkgs#ocis -- server",
+  "default_ports": [
+    {
+      "host": 9200,
+      "container": 9200,
+      "label": "HTTP WebGUI"
+    }
+  ],
+  "icon": "fa-cloud",
+  "meta": {
+    "version": "5.0.9",
+    "license": "Apache-2.0",
+    "platforms": [
+      "aarch64-linux",
+      "x86_64-linux"
+    ],
+    "maintainers": [
+      "xinyangli"
+    ],
+    "programs": [
+      "ocis"
+    ]
+  }
+}
