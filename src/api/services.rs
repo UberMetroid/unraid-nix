@@ -8,10 +8,12 @@ pub fn render_services_table(api_port: u16) -> String {
         return r#"<div class="alert alert-warning"><i class="fa fa-exclamation-triangle"></i> Nix process supervisor (process-compose) is not running. Start the array to launch the services.</div>"#.to_string();
     }
 
-    let statuses = match get_services_status(api_port) {
+    let mut statuses = match get_services_status(api_port) {
         Ok(s) => s,
         Err(e) => return format!(r#"<div class="alert alert-danger"><i class="fa fa-times"></i> Error connecting to supervisor API: {}</div>"#, e),
     };
+
+    statuses.sort_by(|a, b| a.name.to_lowercase().cmp(&b.name.to_lowercase()));
 
     let config_path = "/boot/config/plugins/nix/process-compose.yml";
     let config = crate::config::load_config(config_path).ok();
