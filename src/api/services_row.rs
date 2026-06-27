@@ -18,17 +18,6 @@ pub fn render_service_row(s: &ServiceStatus, config: &Option<ProcessComposeConfi
         r#"<span style="color: #f1c40f;">●</span> failed"#
     };
 
-    let app_html = format!(
-        r#"<div style="display: flex; align-items: center; gap: 8px;">
-            <img src="/plugins/nix/api.php?action=get-icon&service={}" style="width: 24px; height: 24px; border-radius: 4px;" />
-            <div style="display: flex; flex-direction: column; gap: 2px;">
-                <strong>{}</strong>
-                <span style="font-size: 11px; color: #a0a0a5;">{}</span>
-            </div>
-        </div>"#,
-        s.name, s.name, status_subtext
-    );
-
     let cmd = config
         .as_ref()
         .and_then(|c| c.processes.get(&s.name))
@@ -38,30 +27,33 @@ pub fn render_service_row(s: &ServiceStatus, config: &Option<ProcessComposeConfi
     let uri = extract_package_uri(cmd).unwrap_or_else(|| format!("nixpkgs#{}", s.name));
     let version = get_cached_version(&uri);
 
-    let version_html = if version != "unknown" {
+    let version_badge = if version != "unknown" {
         if let Some(link_url) = get_package_link_url(&uri) {
             format!(
-                r#"<div style="display: flex; flex-direction: column; gap: 2px;">
-                    <strong><a href="{}" target="_blank" style="color: #00a1ff; text-decoration: none;">{} <i class="fa fa-external-link" style="font-size: 9px; margin-left: 1px;"></i></a></strong>
-                    <span style="color: #2ecc71; font-weight: 500; font-size: 11px;">up-to-date</span>
-                </div>"#,
+                r#"<div style="font-size: 11px; color: #a0a0a5; margin-top: -1px; margin-bottom: -1px;">v<a href="{}" target="_blank" style="color: #00a1ff; text-decoration: none;">{} <i class="fa fa-external-link" style="font-size: 8px;"></i></a> <span style="color: #2ecc71; font-weight: 500;">(up-to-date)</span></div>"#,
                 link_url, version
             )
         } else {
             format!(
-                r#"<div style="display: flex; flex-direction: column; gap: 2px;">
-                    <strong>{}</strong>
-                    <span style="color: #2ecc71; font-weight: 500; font-size: 11px;">up-to-date</span>
-                </div>"#,
+                r#"<div style="font-size: 11px; color: #a0a0a5; margin-top: -1px; margin-bottom: -1px;">v{} <span style="color: #2ecc71; font-weight: 500;">(up-to-date)</span></div>"#,
                 version
             )
         }
     } else {
-        r#"<div style="display: flex; flex-direction: column; gap: 2px;">
-            <strong>-</strong>
-            <span style="color: #2ecc71; font-weight: 500; font-size: 11px;">up-to-date</span>
-        </div>"#.to_string()
+        "".to_string()
     };
+
+    let app_html = format!(
+        r#"<div style="display: flex; align-items: center; gap: 10px;">
+            <img src="/plugins/nix/api.php?action=get-icon&service={}" style="width: 28px; height: 28px; border-radius: 4px;" />
+            <div style="display: flex; flex-direction: column; gap: 2px;">
+                <strong style="font-size: 13px;">{}</strong>
+                {}
+                <div style="font-size: 11px; color: #a0a0a5;">{}</div>
+            </div>
+        </div>"#,
+        s.name, s.name, version_badge, status_subtext
+    );
 
     let port_num = get_service_web_port(&s.name);
     let metadata_file = format!("/boot/config/plugins/nix/metadata/{}.json", s.name);
@@ -273,25 +265,32 @@ pub fn render_service_row(s: &ServiceStatus, config: &Option<ProcessComposeConfi
         }
     };
 
-    let resources_html = if is_running {
-        let cpu_str = if let Some(cpu) = s.cpu {
-            format!("{:.1}% CPU", cpu)
-        } else {
-            "0.0% CPU".to_string()
-        };
-        let mem_str = if let Some(mem) = s.memory {
-            let mb = mem as f64 / 1_048_576.0;
-            format!("{:.1} MB RAM", mb)
-        } else {
-            "0.0 MB RAM".to_string()
-        };
-        format!(
-            r#"<div style="font-size: 11px; color: #eee; font-family: monospace; line-height: 1.4;">{}</div>
-               <div style="font-size: 11px; color: #a0a0a5; font-family: monospace; line-height: 1.4;">{}</div>"#,
-            cpu_str, mem_str
-        )
-    } else {
-        r#"<span style="color: #777;">-</span>"#.to_string()
+    let resources_html = {
+        let mut res = String::new();
+        if is_running {
+            let cpu_str = if let Some(cpu) = s.cpu {
+                format!("{:.1}% CPU", cpu)
+            } else {
+                "0.0% CPU".to_string()
+            };
+            let mem_str = if let Some(mem) = s.memory {
+                let mb = mem as f64 / 1_048_576.0;
+                format!("{:.1} MB RAM", mb)
+            } else {
+                "0.0 MB RAM".to_string()
+            };
+            res.push_str(&format!(
+                r#"<div style="font-size: 11px; color: #eee; font-family: monospace; line-height: 1.4;">{}</div>
+                   <div style="font-size: 11px; color: #a0a0a5; font-family: monospace; line-height: 1.4; margin-bottom: 4px;">{}</div>"#,
+                cpu_str, mem_str
+            ));
+        }
+        if gpus_display != r#"<span style="color: #777;">-</span>"# {
+            res.push_str(&gpus_display);
+        } else if !is_running {
+            res.push_str(r#"<span style="color: #777;">-</span>"#);
+        }
+        res
     };
 
     format!(
@@ -300,19 +299,19 @@ pub fn render_service_row(s: &ServiceStatus, config: &Option<ProcessComposeConfi
             <td>{}</td>
             <td>{}</td>
             <td>{}</td>
-            <td>{}</td>
-            <td>{}</td>
-            <td>{}</td>
             <td>
-                <div class="nix-actions-wrapper">
-                    {}
-                    {}
-                    {}
-                    {}
-                    {}
+                <div style="display: flex; align-items: center; gap: 15px;">
+                    <div>{}</div>
+                    <div class="nix-actions-wrapper">
+                        {}
+                        {}
+                        {}
+                        {}
+                        {}
+                    </div>
                 </div>
             </td>
         </tr>"#,
-        app_html, version_html, lan_ip_port_html, volume_mappings_html, gpus_display, resources_html, autostart_html, start_btn, stop_btn, edit_btn, logs_btn, remove_btn
+        app_html, lan_ip_port_html, volume_mappings_html, resources_html, autostart_html, start_btn, stop_btn, edit_btn, logs_btn, remove_btn
     )
 }
