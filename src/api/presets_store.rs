@@ -36,16 +36,7 @@ pub fn render_presets_store() -> String {
                 <h3 style="margin: 0;">Preset Service Store</h3>
                 <p class="nix-subtext" style="margin: 5px 0 0 0;">Browse and configure over 200+ pre-configured self-hosted templates.</p>
             </div>
-            <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
-                <!-- Sort Dropdown -->
-                <div style="display: flex; align-items: center; gap: 6px;">
-                    <span style="font-size: 11px; color: #a0a0a5; text-transform: uppercase; letter-spacing: 0.5px;">Sort By</span>
-                    <select id="nix-preset-sort" onchange="sortPresetsStore(this.value)" style="padding: 6px 10px; border-radius: 4px; border: 1px solid rgba(255,255,255,0.1); background: rgba(0,0,0,0.3); color: #fff; font-size: 12px; outline: none; cursor: pointer;">
-                        <option value="az">Name (A-Z)</option>
-                        <option value="za">Name (Z-A)</option>
-                        <option value="category">Category</option>
-                    </select>
-                </div>
+            <div style="display: flex; gap: 10px; align-items: center;">
                 <!-- Search bar -->
                 <div style="position: relative; width: 250px;">
                     <input type="text" id="nix-preset-search" placeholder="Search templates..." onkeyup="filterPresetsStore()" style="width: 100%; padding: 6px 12px 6px 30px; border-radius: 4px; border: 1px solid rgba(255,255,255,0.1); background: rgba(0,0,0,0.2); color: #fff; font-size: 13px; outline: none; transition: border-color 0.15s ease;">
@@ -79,7 +70,7 @@ pub fn render_presets_store() -> String {
             let category_name = get_preset_category_name(&p.name);
             
             html.push_str(&format!(
-                r#"<div class="nix-preset-card" data-name="{}" data-desc="{}" data-category="{}" style="background: rgba(255, 255, 255, 0.02); border: 1px solid rgba(255, 255, 255, 0.05); border-radius: 6px; padding: 16px; display: flex; flex-direction: column; justify-content: space-between; transition: all 0.2s ease-in-out; height: 180px;">
+                r#"<div class="nix-preset-card" data-name="{}" data-desc="{}" data-category="{}" style="background: rgba(255, 255, 255, 0.02); border: 1px solid rgba(255, 255, 255, 0.05); border-radius: 6px; padding: 16px; display: flex; flex-direction: column; justify-content: space-between; transition: transform 0.2s ease, border-color 0.2s ease, background 0.2s ease, box-shadow 0.2s ease; height: 180px;">
                     <div>
                         <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 12px;">
                             <div style="width: 32px; height: 32px; border-radius: 4px; background: {}; border: 1px solid {}; display: flex; align-items: center; justify-content: center; color: {}; flex-shrink: 0;">
@@ -139,29 +130,6 @@ pub fn render_presets_store() -> String {
             } else {
                 card.style.display = 'none';
             }
-        });
-    }
-
-    function sortPresetsStore(criteria) {
-        var grid = document.querySelector('.nix-presets-grid');
-        var cards = Array.from(grid.querySelectorAll('.nix-preset-card'));
-        
-        cards.sort(function(a, b) {
-            if (criteria === 'az') {
-                return a.querySelector('strong').textContent.toLowerCase().localeCompare(b.querySelector('strong').textContent.toLowerCase());
-            } else if (criteria === 'za') {
-                return b.querySelector('strong').textContent.toLowerCase().localeCompare(a.querySelector('strong').textContent.toLowerCase());
-            } else if (criteria === 'category') {
-                var catA = a.getAttribute('data-category').toLowerCase();
-                var catB = b.getAttribute('data-category').toLowerCase();
-                if (catA !== catB) return catA.localeCompare(catB);
-                return a.querySelector('strong').textContent.toLowerCase().localeCompare(b.querySelector('strong').textContent.toLowerCase());
-            }
-            return 0;
-        });
-        
-        cards.forEach(function(card) {
-            grid.appendChild(card);
         });
     }
     </script>
