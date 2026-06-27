@@ -2,7 +2,7 @@
 <!DOCTYPE PLUGIN [
   <!ENTITY name      "nix">
   <!ENTITY author    "UberMetroid">
-  <!ENTITY version   "2026.06.26.48">
+  <!ENTITY version   "2026.06.26.49">
   <!ENTITY launch    "Settings/Nix">
   <!ENTITY plugdir   "/boot/config/plugins/&name;">
   <!ENTITY usrdir    "/usr/local/emhttp/plugins/&name;">
@@ -11,6 +11,8 @@
 
   <CHANGES>
     ## nix package manager plugin
+    ### 2026.06.26.49
+    - **Ollama GPU Presets**: Split Ollama into three separate template presets in the store: CPU-only (`ollama`), NVIDIA GPU accelerated (`ollama-cuda`), and AMD GPU accelerated (`ollama-rocm`). This allows users to easily search and install the hardware-optimized version matching their system setup.
     ### 2026.06.26.48
     - **Real-Time GPU Utilization Sparklines**: Added live GPU core utilization tracking (SM %) per service. Traverses the Linux process tree to recursively find descendant process PIDs (including child workers like Ollama runners or Jellyfin ffmpeg transcoders), parses GPU utilization metrics from `nvidia-smi pmon`, and renders live cyan/blue sparkline graphs inside the dedicated GPU column.
     ### 2026.06.26.47

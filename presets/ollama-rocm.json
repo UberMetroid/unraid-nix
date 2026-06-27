@@ -1,0 +1,15 @@
+{
+  "name": "ollama-rocm",
+  "display_name": "Ollama (ROCm)",
+  "description": "Ollama Local LLM Servicer (AMD GPU hardware accelerated version)",
+  "url": "https://ollama.ai/",
+  "command": "export OLLAMA_HOST=${BIND_ADDRESS:-0.0.0.0}:${PORT:-11434} && exec nix run nixpkgs#ollama-rocm -- serve",
+  "default_ports": [
+    {
+      "host": 11434,
+      "container": 11434,
+      "label": "API"
+    }
+  ],
+  "icon": "fa-magic"
+}

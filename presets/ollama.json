@@ -1,7 +1,7 @@
 {
   "name": "ollama",
-  "display_name": "Ollama",
-  "description": "Ollama Local LLM Servicer",
+  "display_name": "Ollama (CPU)",
+  "description": "Ollama Local LLM Servicer (CPU version, runs on any hardware)",
   "url": "https://ollama.ai/",
   "command": "export OLLAMA_HOST=${BIND_ADDRESS:-0.0.0.0}:${PORT:-11434} && exec nix run nixpkgs#ollama -- serve",
   "default_ports": [
