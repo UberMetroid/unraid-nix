@@ -46,6 +46,13 @@ if ($action === 'render-services') {
     exit;
 }
 
+// 2d. Render dashboard widget (outputs HTML directly, bypasses JSON header)
+if ($action === 'get_dashboard') {
+    header('Content-Type: text/html');
+    passthru("/usr/local/emhttp/plugins/nix/nix-helper render dashboard 2>/dev/null");
+    exit;
+}
+
 // 2c. Detect host GPUs (outputs JSON)
 if ($action === 'detect-gpus') {
     passthru("/usr/local/emhttp/plugins/nix/nix-helper detect-gpus");

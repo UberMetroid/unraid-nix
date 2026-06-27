@@ -246,7 +246,7 @@ pub fn render_service_row(s: &ServiceStatus, config: &Option<ProcessComposeConfi
                         p.to_string()
                     };
                     badges.push(format!(
-                        r#"<span style="background: rgba(0, 161, 255, 0.08); border: 1px solid rgba(0, 161, 255, 0.25); border-radius: 3px; padding: 2px 6px; font-size: 10px; color: #00a1ff; font-family: monospace; display: inline-block;">{}</span>"#,
+                        r#"<div style="margin-bottom: 4px;"><span style="background: rgba(0, 161, 255, 0.08); border: 1px solid rgba(0, 161, 255, 0.25); border-radius: 3px; padding: 2px 6px; font-size: 10px; color: #00a1ff; font-family: monospace; display: inline-block;">{}</span></div>"#,
                         display_part
                     ));
                 }
@@ -254,13 +254,13 @@ pub fn render_service_row(s: &ServiceStatus, config: &Option<ProcessComposeConfi
             if badges.is_empty() {
                 r#"<span style="color: #777;">-</span>"#.to_string()
             } else {
-                badges.join(" ")
+                badges.join("")
             }
         }
         _ => {
             if let Some(ref lg) = legacy_gpu {
                 if lg == "1" || lg == "true" {
-                    r#"<span style="background: rgba(0, 161, 255, 0.08); border: 1px solid rgba(0, 161, 255, 0.25); border-radius: 3px; padding: 2px 6px; font-size: 10px; color: #00a1ff; font-family: monospace; display: inline-block;">All GPUs</span>"#.to_string()
+                    r#"<div style="margin-bottom: 4px;"><span style="background: rgba(0, 161, 255, 0.08); border: 1px solid rgba(0, 161, 255, 0.25); border-radius: 3px; padding: 2px 6px; font-size: 10px; color: #00a1ff; font-family: monospace; display: inline-block;">All GPUs</span></div>"#.to_string()
                 } else {
                     r#"<span style="color: #777;">-</span>"#.to_string()
                 }
