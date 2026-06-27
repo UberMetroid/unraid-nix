@@ -31,10 +31,28 @@ function loadLogs() {
     
     $.get('/plugins/nix/api.php?action=nix-sys-logs&type=' + type, function(resp) {
         if (resp.success) {
-            container.textContent = resp.content;
+            var rawText = resp.content;
+            var escaped = $('<div>').text(rawText).html();
+            
+            // Highlight bracket log levels
+            escaped = escaped.replace(/\[ERROR\]/g, '<span style="color: #ef4444; font-weight: bold;">[ERROR]</span>');
+            escaped = escaped.replace(/\[FATAL\]/g, '<span style="color: #ef4444; font-weight: bold;">[FATAL]</span>');
+            escaped = escaped.replace(/\[ERR\]/g, '<span style="color: #ef4444; font-weight: bold;">[ERR]</span>');
+            
+            escaped = escaped.replace(/\[WARN\]/g, '<span style="color: #f59e0b; font-weight: bold;">[WARN]</span>');
+            escaped = escaped.replace(/\[WARNING\]/g, '<span style="color: #f59e0b; font-weight: bold;">[WARNING]</span>');
+            escaped = escaped.replace(/\[WRN\]/g, '<span style="color: #f59e0b; font-weight: bold;">[WRN]</span>');
+            
+            escaped = escaped.replace(/\[INFO\]/g, '<span style="color: #00d5ff; font-weight: bold;">[INFO]</span>');
+            escaped = escaped.replace(/\[INF\]/g, '<span style="color: #00d5ff; font-weight: bold;">[INF]</span>');
+            
+            escaped = escaped.replace(/\[DEBUG\]/g, '<span style="color: #888888;">[DEBUG]</span>');
+            escaped = escaped.replace(/\[DBG\]/g, '<span style="color: #888888;">[DBG]</span>');
+            
+            container.innerHTML = escaped;
             container.scrollTop = container.scrollHeight;
         } else {
-            container.textContent = "Error loading logs: " + resp.error;
+            container.innerHTML = "<span style='color: #ef4444;'>Error loading logs: " + $('<div>').text(resp.error).html() + "</span>";
         }
     }, 'json');
 }
