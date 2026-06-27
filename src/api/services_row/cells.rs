@@ -1,4 +1,5 @@
 use crate::api::utils::HostAddr;
+use crate::process::GpuStat;
 use super::static_config::get_service_fa_config;
 
 pub fn render_app_cell(name: &str, version_badge: &str, status_subtext: &str) -> String {
@@ -157,9 +158,61 @@ pub fn render_resources_cell(
 }
 
 pub fn render_gpu_cell(
+    name: &str,
     gpus_override: &Option<String>,
     legacy_gpu: &Option<String>,
+    gpu_stats: &Option<std::collections::HashMap<i32, GpuStat>>,
 ) -> String {
+    let mut target_gpus = Vec::new();
+    if let Some(ref g) = gpus_override {
+        for part in g.split(',') {
+            let p = part.trim();
+            if !p.is_empty() {
+                let idx_str: String = p.chars().filter(|c| c.is_digit(10)).collect();
+                if let Ok(idx) = idx_str.parse::<i32>() {
+                    target_gpus.push(idx);
+                }
+            }
+        }
+    }
+    
+    if target_gpus.is_empty() {
+        if let Some(ref lg) = legacy_gpu {
+            if lg == "1" || lg == "true" {
+                if let Some(ref stats) = gpu_stats {
+                    let mut keys: Vec<i32> = stats.keys().cloned().collect();
+                    keys.sort();
+                    target_gpus = keys;
+                }
+            }
+        }
+    }
+    
+    if !target_gpus.is_empty() {
+        let mut rows = Vec::new();
+        for &gpu_idx in &target_gpus {
+            let sm_val = if let Some(ref stats) = gpu_stats {
+                if let Some(stat) = stats.get(&gpu_idx) {
+                    stat.sm
+                } else {
+                    0
+                }
+            } else {
+                0
+            };
+            
+            rows.push(format!(
+                r#"<div class="nix-stat-row" data-service="{}" data-type="gpu-{}" style="display: flex; align-items: center; gap: 8px; margin-bottom: 2px;">
+                    <svg class="nix-sparkline" style="width: 60px; height: 12px; overflow: visible; display: inline-block; vertical-align: middle;"></svg>
+                    <span class="nix-stat-val" style="font-size: 11px; color: #00a1ff; font-family: monospace; font-weight: 500; min-width: 45px; text-align: right; display: inline-block;">{}%</span>
+                    <span style="font-size: 10px; color: #666; font-family: monospace;">GPU-{}</span>
+                   </div>"#,
+                name, gpu_idx, sm_val, gpu_idx
+            ));
+        }
+        return rows.join("");
+    }
+    
     match gpus_override {
         Some(ref g) if !g.trim().is_empty() => {
             let mut badges = Vec::new();

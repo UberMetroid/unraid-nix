@@ -229,6 +229,33 @@ $(function() {
                         drawSparkline(ioOutSvg, svcHist.ioOut, 0, maxIoOut, '#e67e22');
                     }
                 }
+
+                var gpuStats = svc.gpu_stats || {};
+                var gpuRows = $('.nix-stat-row[data-service="' + name + '"]');
+                gpuRows.each(function() {
+                    var row = $(this);
+                    var type = row.data('type');
+                    if (type && type.startsWith('gpu-')) {
+                        var gpuIdx = parseInt(type.replace('gpu-', ''), 10);
+                        var statVal = gpuStats[gpuIdx] ? gpuStats[gpuIdx].sm : 0;
+                        
+                        var historyKey = 'gpu_' + gpuIdx;
+                        if (!svcHist[historyKey]) {
+                            svcHist[historyKey] = [];
+                        }
+                        
+                        svcHist[historyKey].push(statVal);
+                        if (svcHist[historyKey].length > 20) svcHist[historyKey].shift();
+                        
+                        row.find('.nix-stat-val').text(statVal + '%');
+                        var gpuSvg = row.find('.nix-sparkline')[0];
+                        if (gpuSvg) {
+                            var maxGpu = Math.max.apply(null, svcHist[historyKey]);
+                            maxGpu = Math.max(10, maxGpu);
+                            drawSparkline(gpuSvg, svcHist[historyKey], 0, maxGpu, '#00a1ff');
+                        }
+                    }
+                });
             });
         });
     }

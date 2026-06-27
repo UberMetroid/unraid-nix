@@ -133,7 +133,7 @@ pub fn render_service_row(
     );
 
     let resources_html = render_resources_cell(&s.name, is_running, s.cpu, s.memory);
-    let gpu_html = render_gpu_cell(&gpus_override, &legacy_gpu);
+    let gpu_html = render_gpu_cell(&s.name, &gpus_override, &legacy_gpu, &s.gpu_stats);
 
     format!(
         r#"<tr>
