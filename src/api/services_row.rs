@@ -457,18 +457,18 @@ pub fn render_service_row(s: &ServiceStatus, config: &Option<ProcessComposeConfi
             <td>{}</td>
             <td>{}</td>
             <td>
-                <div style="display: flex; align-items: center; gap: 15px;">
-                    <div>{}</div>
-                    <div class="nix-actions-wrapper">
-                        {}
-                        {}
-                        {}
-                        {}
-                        {}
-                    </div>
+                <div class="nix-actions-wrapper">
+                    {}
+                    {}
+                    {}
+                    {}
+                    {}
                 </div>
             </td>
+            <td>
+                <div style="display: inline-block; vertical-align: middle;">{}</div>
+            </td>
         </tr>"#,
-        app_html, lan_ip_port_html, volume_mappings_html, resources_html, autostart_html, start_btn, stop_btn, edit_btn, logs_btn, remove_btn
+        app_html, lan_ip_port_html, volume_mappings_html, resources_html, start_btn, stop_btn, edit_btn, logs_btn, remove_btn, autostart_html
     )
 }

@@ -28,6 +28,7 @@ pub fn render_services_table(api_port: u16) -> String {
                     <th>Volume Mappings</th>
                     <th>Resources</th>
                     <th>Actions</th>
+                    <th>Autostart</th>
                 </tr>
             </thead>
             <tbody>"#.to_string();
