@@ -16,6 +16,7 @@ struct PresetInfo {
     icon: Option<String>,
     #[serde(skip)]
     is_composed: bool,
+    composed_parts: Option<Vec<String>>,
 }
 
 fn should_filter_presets() -> bool {
@@ -140,6 +141,15 @@ pub fn render_presets_store() -> String {
                 get_preset_category_name(&p.name)
             };
             
+            let subtitle_html = if let Some(ref parts) = p.composed_parts {
+                let tags: Vec<String> = parts.iter().map(|part| {
+                    format!(r#"<span style="font-size: 9px; padding: 1px 4px; border-radius: 3px; background: rgba(224, 86, 253, 0.12); border: 1px solid rgba(224, 86, 253, 0.25); color: #e056fd; font-family: monospace;">{}</span>"#, part)
+                }).collect();
+                format!(r#"<div style="display: flex; flex-wrap: wrap; gap: 4px; margin-top: 2px;">{}</div>"#, tags.join(""))
+            } else {
+                format!(r#"<span style="font-size: 10px; color: #a0a0a5; font-family: monospace;">nixpkgs#{}</span>"#, p.name)
+            };
+            
             html.push_str(&format!(
                 r#"<div class="nix-preset-card" data-name="{}" data-desc="{}" data-category="{}" style="background: rgba(255, 255, 255, 0.02); border: 1px solid rgba(255, 255, 255, 0.05); border-radius: 6px; padding: 16px; display: flex; flex-direction: column; justify-content: space-between; transition: transform 0.2s ease, border-color 0.2s ease, background 0.2s ease, box-shadow 0.2s ease; height: 180px;">
                     <div>
@@ -147,23 +157,23 @@ pub fn render_presets_store() -> String {
                             <div style="width: 32px; height: 32px; border-radius: 4px; background: {}; border: 1px solid {}; display: flex; align-items: center; justify-content: center; color: {}; flex-shrink: 0;">
                                 <i class="fa {}" style="font-size: 15px;"></i>
                             </div>
-                            <div style="display: flex; flex-direction: column; overflow: hidden;">
+                            <div style="display: flex; flex-direction: column; overflow: hidden; width: 100%;">
                                 <strong style="font-size: 14px; color: #fff; text-overflow: ellipsis; white-space: nowrap; overflow: hidden;" title="{}">{}</strong>
-                                <span style="font-size: 10px; color: #a0a0a5; font-family: monospace;">nixpkgs#{}</span>
+                                {}
                             </div>
                         </div>
                         <p style="font-size: 12px; color: #a0a0a5; line-height: 1.5; margin: 0; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; height: 54px;">{}</p>
                     </div>
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 12px; padding-top: 8px; border-top: 1px solid rgba(255,255,255,0.03);">
                         <a href="{}" target="_blank" style="font-size: 11px; color: #00a1ff; text-decoration: none; display: inline-flex; align-items: center; gap: 4px;" onclick="event.stopPropagation();">
-                            <i class="fa fa-globe"></i> Website
+                             <i class="fa fa-globe"></i> Website
                         </a>
                         <button type="button" class="nix-btn-install" style="margin: 0; padding: 4px 10px; font-size: 11px; border-radius: 3px;" onclick="showServiceModal('nixpkgs#{}')">
                             <i class="fa fa-plus" style="margin-right: 4px;"></i> Add Service
                         </button>
                     </div>
                 </div>"#,
-                p.name, p.description.to_lowercase(), category_name, styling.bg, styling.border, styling.color, styling.icon, p.display_name, p.display_name, p.name, p.description, p.url, p.name
+                p.name, p.description.to_lowercase(), category_name, styling.bg, styling.border, styling.color, styling.icon, p.display_name, p.display_name, subtitle_html, p.description, p.url, p.name
             ));
         }
     }

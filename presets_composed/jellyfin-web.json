@@ -11,5 +11,9 @@
       "label": "Web GUI"
     }
   ],
-  "icon": "fa-television"
+  "icon": "fa-television",
+  "composed_parts": [
+    "caddy",
+    "jellyfin-web"
+  ]
 }
