@@ -12,7 +12,7 @@
   <CHANGES>
     ## nix package manager plugin
     ### 2026.06.26.31
-    - **Presets Deployment & Resolution Fix**: Enabled automatic download and installation of the 220+ template presets during plugin installation, and updated the nix-helper service installer to dynamically resolve custom template command configurations.
+    - **Presets Deployment and Resolution Fix**: Enabled automatic download and installation of the 220+ template presets during plugin installation, and updated the nix-helper service installer to dynamically resolve custom template command configurations.
     ### 2026.06.26.30
     - **Form Field Layout Reordering**: Moved PUID and PGID configuration fields to the top of the background service options panel, directly above the Configuration Location input field.
     ### 2026.06.26.29
