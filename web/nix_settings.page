@@ -132,7 +132,7 @@ $is_nix_running = ($status_code === 0);
     <p class="nix-subtext">Fine-tune build constraints and package display filters.</p>
 
     <div class="nix-form-group">
-        <label for="settings-allow-source-builds">Allow Local Compilation:</label>
+        <label for="settings-allow-source-builds">Local Flake Compilation:</label>
         <select id="settings-allow-source-builds">
             <option value="no" <?php echo $allow_source_builds === 'no' ? 'selected' : ''; ?>>No (Use pre-compiled cache only)</option>
             <option value="yes" <?php echo $allow_source_builds === 'yes' ? 'selected' : ''; ?>>Yes (Compile locally on cache miss)</option>
@@ -141,7 +141,7 @@ $is_nix_running = ($status_code === 0);
     </div>
 
     <div class="nix-form-group">
-        <label for="settings-filter-presets-by-hardware">Filter Presets by GPU:</label>
+        <label for="settings-filter-presets-by-hardware">GPU Preset Filtering:</label>
         <select id="settings-filter-presets-by-hardware">
             <option value="yes" <?php echo $filter_presets_by_hardware === 'yes' ? 'selected' : ''; ?>>Yes (Hide CUDA/ROCm/Vulkan templates if hardware is missing)</option>
             <option value="no" <?php echo $filter_presets_by_hardware === 'no' ? 'selected' : ''; ?>>No (Show all template variants)</option>
@@ -160,7 +160,7 @@ $is_nix_running = ($status_code === 0);
     <p class="nix-subtext">Restrict namespace access to separate guest services from the host.</p>
     
     <div class="nix-form-group">
-        <label for="settings-enable-sandbox">Storage Sandboxing (jail):</label>
+        <label for="settings-enable-sandbox">Storage Isolation (jail):</label>
         <select id="settings-enable-sandbox">
             <option value="no" <?php echo $enable_sandbox === 'no' ? 'selected' : ''; ?>>No (Native /mnt access)</option>
             <option value="yes" <?php echo $enable_sandbox === 'yes' ? 'selected' : ''; ?>>Yes (Isolate to mapped paths)</option>
@@ -223,7 +223,7 @@ $is_nix_running = ($status_code === 0);
     </div>
     
     <div class="nix-form-group" style="margin-top: 15px; border-top: 1px solid rgba(255,255,255,0.05); padding-top: 15px;">
-        <label for="settings-auto-gc">Automatic Weekly Cleanup (GC):</label>
+        <label for="settings-auto-gc">Weekly Cleanup (GC):</label>
         <select id="settings-auto-gc">
             <option value="no" <?php echo $auto_gc === 'no' ? 'selected' : ''; ?>>No</option>
             <option value="yes" <?php echo $auto_gc === 'yes' ? 'selected' : ''; ?>>Yes</option>
