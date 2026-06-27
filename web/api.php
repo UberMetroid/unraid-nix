@@ -195,6 +195,7 @@ if ($action === 'save-settings') {
     $enable_uts_isolation = isset($_POST['enable_uts_isolation']) ? $_POST['enable_uts_isolation'] : 'yes';
     $enable_ipc_isolation = isset($_POST['enable_ipc_isolation']) ? $_POST['enable_ipc_isolation'] : 'yes';
     $auto_gc = isset($_POST['auto_gc']) ? $_POST['auto_gc'] : 'no';
+    $store_quota = isset($_POST['store_quota']) ? $_POST['store_quota'] : '30';
     
     $output = [];
     $code = 0;
@@ -209,7 +210,8 @@ if ($action === 'save-settings') {
            "--enable-pid-isolation " . escapeshellarg($enable_pid_isolation) . " " .
            "--enable-uts-isolation " . escapeshellarg($enable_uts_isolation) . " " .
            "--enable-ipc-isolation " . escapeshellarg($enable_ipc_isolation) . " " .
-           "--auto-gc " . escapeshellarg($auto_gc);
+           "--auto-gc " . escapeshellarg($auto_gc) . " " .
+           "--store-quota " . escapeshellarg($store_quota);
            
     exec($cmd . " 2>&1", $output, $code);
     if ($code !== 0) {
@@ -233,6 +235,14 @@ if ($action === 'collect-garbage') {
     $new_size = !empty($du_out) ? explode("\t", $du_out[0])[0] : 'Unknown';
     
     success(['new_size' => $new_size]);
+}
+
+// 9b. Get Nix Store Size (unblocking page load)
+if ($action === 'get-store-size') {
+    $du_out = [];
+    exec("du -sh /nix 2>/dev/null", $du_out);
+    $size = !empty($du_out) ? explode("\t", $du_out[0])[0] : 'Unknown';
+    success(['size' => $size]);
 }
 
 error("Unknown API action.");

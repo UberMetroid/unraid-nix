@@ -47,10 +47,20 @@ $enable_pid_isolation = isset($nix_cfg['ENABLE_PID_ISOLATION']) ? $nix_cfg['ENAB
 $enable_uts_isolation = isset($nix_cfg['ENABLE_UTS_ISOLATION']) ? $nix_cfg['ENABLE_UTS_ISOLATION'] : 'yes';
 $enable_ipc_isolation = isset($nix_cfg['ENABLE_IPC_ISOLATION']) ? $nix_cfg['ENABLE_IPC_ISOLATION'] : 'yes';
 $auto_gc = isset($nix_cfg['AUTO_GC']) ? $nix_cfg['AUTO_GC'] : 'no';
+$store_quota = isset($nix_cfg['NIX_STORE_QUOTA']) ? $nix_cfg['NIX_STORE_QUOTA'] : '30';
 
-// Calculate Nix store size
-exec("du -sh /nix 2>/dev/null", $du_out);
-$store_size = !empty($du_out) ? explode("\t", $du_out[0])[0] : 'Unknown';
+$num_flakes = 0;
+$meta_dir = "/boot/config/plugins/nix/metadata";
+if (is_dir($meta_dir)) {
+    $meta_files = glob($meta_dir . "/*.json");
+    if ($meta_files !== false) {
+        $num_flakes = count($meta_files);
+    }
+}
+$suggested_quota = 15 + ($num_flakes * 3);
+
+// Calculate Nix store size (calculated asynchronously via AJAX)
+$store_size = '<i class="fa fa-spinner fa-spin"></i> Calculating...';
 
 exec("/etc/rc.d/rc.nix-daemon status 2>/dev/null", $status_output, $status_code);
 $is_nix_running = ($status_code === 0);
@@ -101,7 +111,7 @@ $is_nix_running = ($status_code === 0);
             <p class="nix-subtext" style="margin: 0;">Clean up unused packages, old build derivations, and reclaim storage pool space.</p>
         </div>
         <div style="text-align: right;">
-            <div style="font-size: 12px; color: #888; margin-bottom: 6px;">Nix Store Size: <strong style="color: #fff; font-size: 13px;" id="nix-store-size-display"><?php echo htmlspecialchars($store_size); ?></strong></div>
+            <div style="font-size: 12px; color: #888; margin-bottom: 6px;">Nix Store Size: <strong style="color: #fff; font-size: 13px;" id="nix-store-size-display"><?php echo $store_size; ?></strong></div>
             <button type="button" id="nix-gc-btn" class="nix-btn" style="display: inline-flex; align-items: center; gap: 6px; margin: 0;" onclick="collectGarbage(this)"><i class="fa fa-trash"></i> Collect Garbage</button>
         </div>
     </div>
@@ -113,6 +123,17 @@ $is_nix_running = ($status_code === 0);
             <option value="yes" <?php echo $auto_gc === 'yes' ? 'selected' : ''; ?>>Yes</option>
         </select>
         <div class="nix-field-help">If enabled, Nix will mirror Unraid's weekly scheduler (configured under Settings > Scheduler) to automatically purge dangling build inputs and deleted package layers weekly to save disk space.</div>
+    </div>
+
+    <div class="nix-form-group" style="margin-top: 15px;">
+        <label for="settings-store-quota">Target Nix Store Size Quota (GB):</label>
+        <div style="display: flex; align-items: center; gap: 10px;">
+            <input type="number" id="settings-store-quota" min="10" value="<?php echo htmlspecialchars($store_quota); ?>" style="width: 100px; padding: 6px; border-radius: 4px; border: 1px solid rgba(255,255,255,0.1); background: rgba(0,0,0,0.2); color: #fff; text-align: center;">
+            <span style="font-size: 12px; color: #888;">
+                Suggested: <strong><?php echo $suggested_quota; ?> GB</strong> (based on <?php echo $num_flakes; ?> configured flakes)
+            </span>
+        </div>
+        <div class="nix-field-help">Target size threshold for the Nix store directory. If the store size exceeds this limit, cleanup tasks will automatically trigger garbage collection to free up pool space.</div>
     </div>
 </div>
 
@@ -216,6 +237,16 @@ $(function() {
     if (typeof $.fn.fileTreeAttach === 'function') {
         $("#settings-store-path").fileTreeAttach();
     }
+    
+    $.get('/plugins/nix/api.php', { action: 'get-store-size' }, function(resp) {
+        if (resp.success) {
+            $("#nix-store-size-display").text(resp.size);
+        } else {
+            $("#nix-store-size-display").text("Unknown");
+        }
+    }, 'json').fail(function() {
+        $("#nix-store-size-display").text("Error");
+    });
 });
 
 function saveSettings(e) {
@@ -232,6 +263,7 @@ function saveSettings(e) {
     var enableUtsIsolation = $("#settings-enable-uts-isolation").val();
     var enableIpcIsolation = $("#settings-enable-ipc-isolation").val();
     var autoGc = $("#settings-auto-gc").val();
+    var storeQuota = $("#settings-store-quota").val();
     var showInNav = $("#settings-show-in-nav").val();
     var allowSourceBuilds = $("#settings-allow-source-builds").val();
     var filterPresetsByHardware = $("#settings-filter-presets-by-hardware").val();
@@ -253,6 +285,7 @@ function saveSettings(e) {
         enable_uts_isolation: enableUtsIsolation,
         enable_ipc_isolation: enableIpcIsolation,
         auto_gc: autoGc,
+        store_quota: storeQuota,
         show_in_nav: showInNav,
         allow_source_builds: allowSourceBuilds,
         filter_presets_by_hardware: filterPresetsByHardware
