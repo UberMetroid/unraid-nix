@@ -10,16 +10,16 @@ fn get_sorted_statuses(api_port: u16) -> Result<Vec<crate::process::ServiceStatu
 /// Renders ONLY the service rows as HTML (used for initial widget render).
 pub fn render_dashboard_rows(api_port: u16) -> String {
     if !is_supervisor_running() {
-        return r#"<tr><td><span class="left" style="color: #999;">Supervisor not running</span></td></tr>"#.to_string();
+        return r#"<tr><td colspan="4" style="padding: 8px; text-align: center; color: #999;">Supervisor not running</td></tr>"#.to_string();
     }
 
     let statuses = match get_sorted_statuses(api_port) {
         Ok(s) => s,
-        Err(_) => return r#"<tr><td><span class="left" style="color: #e74c3c;">Error reading statuses</span></td></tr>"#.to_string(),
+        Err(_) => return r#"<tr><td colspan="4" style="padding: 8px; text-align: center; color: #e74c3c;">Error reading statuses</td></tr>"#.to_string(),
     };
 
     if statuses.is_empty() {
-        return r#"<tr><td><span class="left" style="color: #999;">No configured services</span></td></tr>"#.to_string();
+        return r#"<tr><td colspan="4" style="padding: 8px; text-align: center; color: #999;">No configured services</td></tr>"#.to_string();
     }
 
     let host_ips = get_host_ips();
@@ -35,17 +35,17 @@ pub fn render_dashboard_rows(api_port: u16) -> String {
         let port = get_service_web_port(&s.name);
         let name_link_html = if let Some(p) = port {
             format!(
-                r#"<a href="http://{}:{}/" target="_blank" title="Open Web UI" style="text-decoration: none; color: inherit; display: inline-flex; align-items: center;">
-                    <img src="/plugins/nix/api.php?action=get-icon&service={}" style="width: 14px; height: 14px; margin-right: 6px; vertical-align: middle; border-radius: 2px;" />
+                r#"<a href="http://{}:{}/" target="_blank" title="Open Web UI" style="text-decoration: none; color: inherit; display: inline-flex; align-items: center; gap: 6px;">
+                    <img src="/plugins/nix/api.php?action=get-icon&service={}" style="width: 16px; height: 16px; border-radius: 2px; vertical-align: middle;" />
                     <span style="vertical-align: middle; font-weight: 500;">{}</span>
-                    <i class="fa fa-external-link" style="font-size: 8px; margin-left: 4px; color: #00a1ff; opacity: 0.7;"></i>
+                    <i class="fa fa-external-link" style="font-size: 8px; color: #00a1ff; opacity: 0.7; vertical-align: middle;"></i>
                 </a>"#,
                 ip_str, p, s.name, s.name
             )
         } else {
             format!(
-                r#"<span style="display: inline-flex; align-items: center;">
-                    <img src="/plugins/nix/api.php?action=get-icon&service={}" style="width: 14px; height: 14px; margin-right: 6px; vertical-align: middle; border-radius: 2px;" />
+                r#"<span style="display: inline-flex; align-items: center; gap: 6px;">
+                    <img src="/plugins/nix/api.php?action=get-icon&service={}" style="width: 16px; height: 16px; border-radius: 2px; vertical-align: middle;" />
                     <span style="vertical-align: middle; font-weight: 500;">{}</span>
                 </span>"#,
                 s.name, s.name
@@ -57,23 +57,27 @@ pub fn render_dashboard_rows(api_port: u16) -> String {
         let btn_title = if is_running { "Stop Service" } else { "Start Service" };
 
         let gpu_indicator = if s.gpu_active.unwrap_or(false) {
-            r#"<i class="fa fa-microchip nix-dash-gpu-active" style="margin-left: 6px; font-size: 10px; color: #00a1ff; vertical-align: middle;" title="GPU Active"></i>"#
+            r#"<i class="fa fa-microchip nix-dash-gpu-active" style="font-size: 11px; color: #00a1ff; vertical-align: middle;" title="GPU Active"></i>"#
         } else {
-            ""
+            r#"<span style="color: #666;">-</span>"#
         };
 
         html.push_str(&format!(
-            r#"<tr data-service="{}">
-                <td>
-                    <span class="left">{}</span>
-                    <span class="right" style="display: flex; align-items: center; gap: 4px;">
-                        <span class="status-dot" style="background: {}; display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 5px; box-shadow: {};"></span>
-                        <span class="status-text" style="vertical-align: middle;">{}</span>
-                        <span class="gpu-wrapper">{}</span>
-                        <button type="button" class="nix-dash-toggle-btn" onclick="toggleDashService('{}', '{}')" title="{}" style="background: none; border: none; padding: 2px 6px; cursor: pointer; color: #a0a0a5; outline: none; margin-left: 8px; display: inline-flex; align-items: center; justify-content: center;">
-                            <i class="fa {}" style="font-size: 11px; transition: color 0.15s ease;"></i>
-                        </button>
-                    </span>
+            r#"<tr data-service="{}" style="border-bottom: 1px solid rgba(255, 255, 255, 0.03);">
+                <td style="padding: 8px; vertical-align: middle;">
+                    {}
+                </td>
+                <td style="padding: 8px; vertical-align: middle;">
+                    <span class="status-dot" style="background: {}; display: inline-block; width: 6px; height: 6px; border-radius: 50%; margin-right: 6px; box-shadow: {}; vertical-align: middle;"></span>
+                    <span class="status-text" style="font-size: 11px; vertical-align: middle;">{}</span>
+                </td>
+                <td style="padding: 8px; vertical-align: middle; text-align: center;" class="gpu-wrapper">
+                    {}
+                </td>
+                <td style="padding: 8px; vertical-align: middle; text-align: right;">
+                    <button type="button" class="nix-dash-toggle-btn" onclick="toggleDashService('{}', '{}')" title="{}" style="background: none; border: none; padding: 4px; cursor: pointer; color: #a0a0a5; outline: none; display: inline-flex; align-items: center; justify-content: center;">
+                        <i class="fa {}" style="font-size: 10px; transition: color 0.15s ease;"></i>
+                    </button>
                 </td>
             </tr>"#,
             s.name, name_link_html, status_color, shadow, status_text, gpu_indicator, s.name, btn_action, btn_title, btn_icon
@@ -109,18 +113,37 @@ pub fn render_dashboard_widget(api_port: u16) -> String {
                     </div>
                 </div>
             </td>
-        </tr>"#);
+        </tr>
+        <tr>
+            <td style="padding: 0 10px 10px 10px;">
+                <table class="nix-dash-table" style="width: 100%; border-collapse: collapse; margin-top: 5px;">
+                    <thead>
+                        <tr style="border-bottom: 1px solid rgba(255, 255, 255, 0.08); text-align: left; font-size: 10px; color: #a0a0a5; text-transform: uppercase; letter-spacing: 0.5px;">
+                            <th style="padding: 6px 8px;">Service</th>
+                            <th style="padding: 6px 8px;">Status</th>
+                            <th style="padding: 6px 8px; text-align: center;">GPU</th>
+                            <th style="padding: 6px 8px; text-align: right;">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody class="nix-dash-rows">"#);
         
     html.push_str(&rows_html);
     
     html.push_str(r#"</tbody>
+                </table>
+            </td>
+        </tr>
+    </tbody>
     <style>
+    .nix-dash-table tr { background: transparent; transition: background 0.15s ease; }
+    .nix-dash-table tr:hover { background: rgba(255, 255, 255, 0.015); }
     .nix-dash-toggle-btn:hover i.fa-play { color: #2ecc71 !important; text-shadow: 0 0 4px #2ecc71; }
     .nix-dash-toggle-btn:hover i.fa-stop { color: #e74c3c !important; text-shadow: 0 0 4px #e74c3c; }
     .nix-dash-gpu-active {
         animation: nix-gpu-pulse 1.6s infinite ease-in-out;
         color: #00a1ff !important;
         text-shadow: 0 0 6px #00a1ff, 0 0 12px rgba(0, 161, 255, 0.4);
+        display: inline-block;
     }
     @keyframes nix-gpu-pulse {
         0% { transform: scale(1); opacity: 1; }
@@ -164,7 +187,7 @@ pub fn render_dashboard_widget(api_port: u16) -> String {
 
     if (typeof window.refreshNixDash === 'undefined') {
         window.refreshNixDash = function() {
-            var tbody = document.querySelector('tbody[title="Nix Services"]');
+            var tbody = document.querySelector('tbody.nix-dash-rows');
             if (!tbody) {
                 clearInterval(window.nixDashTimer);
                 delete window.nixDashTimer;
@@ -196,10 +219,10 @@ pub fn render_dashboard_widget(api_port: u16) -> String {
                                 if (gpuWrap) {
                                     if (s.gpu_active) {
                                         if (!gpuWrap.querySelector('.nix-dash-gpu-active')) {
-                                            gpuWrap.innerHTML = '<i class="fa fa-microchip nix-dash-gpu-active" style="margin-left: 6px; font-size: 10px; color: #00a1ff; vertical-align: middle;" title="GPU Active"></i>';
+                                            gpuWrap.innerHTML = '<i class="fa fa-microchip nix-dash-gpu-active" style="font-size: 11px; color: #00a1ff; vertical-align: middle;" title="GPU Active"></i>';
                                         }
                                     } else {
-                                        gpuWrap.innerHTML = '';
+                                        gpuWrap.innerHTML = '<span style="color: #666;">-</span>';
                                     }
                                 }
                                 if (btn && btnIcon && !btnIcon.classList.contains('fa-spinner')) {
