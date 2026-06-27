@@ -10,5 +10,6 @@
       "container": 8086,
       "label": "API"
     }
-  ]
+  ],
+  "icon": "fa-database"
 }

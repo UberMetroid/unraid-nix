@@ -10,5 +10,6 @@
       "container": 5000,
       "label": "Web GUI"
     }
-  ]
+  ],
+  "icon": "fa-key"
 }

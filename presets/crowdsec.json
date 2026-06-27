@@ -10,5 +10,6 @@
       "container": 8080,
       "label": "LAPI"
     }
-  ]
+  ],
+  "icon": "fa-server"
 }

@@ -10,5 +10,6 @@
       "container": 8787,
       "label": "HTTP"
     }
-  ]
+  ],
+  "icon": "fa-book"
 }

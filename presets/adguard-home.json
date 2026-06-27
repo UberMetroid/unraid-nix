@@ -20,5 +20,6 @@
       "container": 53,
       "label": "DNS"
     }
-  ]
+  ],
+  "icon": "fa-shield"
 }

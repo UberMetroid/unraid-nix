@@ -20,5 +20,6 @@
       "container": 21027,
       "label": "Local Discovery (UDP)"
     }
-  ]
+  ],
+  "icon": "fa-refresh"
 }

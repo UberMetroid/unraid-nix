@@ -9,6 +9,9 @@ pub fn render(args: &[String]) {
         "services" => {
             println!("{}", api::render_services_table(29704));
         }
+        "presets" => {
+            println!("{}", api::render_presets_store());
+        }
         "search" => {
             let query = if args.len() >= 4 { &args[3] } else { "" };
             println!("{}", api::render_search_results(query));

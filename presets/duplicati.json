@@ -10,5 +10,6 @@
       "container": 8200,
       "label": "Web GUI"
     }
-  ]
+  ],
+  "icon": "fa-cloud-upload"
 }

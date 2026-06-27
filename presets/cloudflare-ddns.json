@@ -4,5 +4,6 @@
   "description": "Cloudflare Dynamic DNS Updater",
   "url": "https://github.com/favonia/cloudflare-ddns",
   "command": "exec nix run nixpkgs#cloudflare-ddns",
-  "default_ports": []
+  "default_ports": [],
+  "icon": "fa-server"
 }

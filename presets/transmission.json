@@ -15,5 +15,6 @@
       "container": 51413,
       "label": "Peer Port"
     }
-  ]
+  ],
+  "icon": "fa-download"
 }

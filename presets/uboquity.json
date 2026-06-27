@@ -15,5 +15,6 @@
       "container": 2203,
       "label": "Admin"
     }
-  ]
+  ],
+  "icon": "fa-server"
 }

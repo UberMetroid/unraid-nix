@@ -10,5 +10,6 @@
       "container": 3001,
       "label": "HTTP"
     }
-  ]
+  ],
+  "icon": "fa-server"
 }

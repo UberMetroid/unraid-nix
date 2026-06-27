@@ -4,5 +4,6 @@
   "description": "DDclient DDNS Client",
   "url": "https://ddclient.net/",
   "command": "exec nix run nixpkgs#ddclient",
-  "default_ports": []
+  "default_ports": [],
+  "icon": "fa-server"
 }

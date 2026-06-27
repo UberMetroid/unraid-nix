@@ -15,5 +15,6 @@
       "container": 58846,
       "label": "Daemon"
     }
-  ]
+  ],
+  "icon": "fa-download"
 }

@@ -25,5 +25,6 @@
       "container": 7359,
       "label": "Discovery (UDP)"
     }
-  ]
+  ],
+  "icon": "fa-play-circle"
 }

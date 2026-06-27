@@ -10,5 +10,6 @@
       "container": 6379,
       "label": "Redis Port"
     }
-  ]
+  ],
+  "icon": "fa-database"
 }

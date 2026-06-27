@@ -10,5 +10,6 @@
       "container": 80,
       "label": "HTTP"
     }
-  ]
+  ],
+  "icon": "fa-refresh"
 }

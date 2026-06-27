@@ -10,5 +10,6 @@
       "container": 8090,
       "label": "HTTP"
     }
-  ]
+  ],
+  "icon": "fa-server"
 }

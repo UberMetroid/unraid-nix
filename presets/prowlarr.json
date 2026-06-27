@@ -10,5 +10,6 @@
       "container": 9696,
       "label": "HTTP"
     }
-  ]
+  ],
+  "icon": "fa-search"
 }

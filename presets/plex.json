@@ -10,5 +10,6 @@
       "container": 32400,
       "label": "PMS HTTP"
     }
-  ]
+  ],
+  "icon": "fa-play-circle"
 }

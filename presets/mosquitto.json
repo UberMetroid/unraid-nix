@@ -15,5 +15,6 @@
       "container": 9001,
       "label": "WebSockets"
     }
-  ]
+  ],
+  "icon": "fa-server"
 }

@@ -15,5 +15,6 @@
       "container": 8920,
       "label": "HTTPS"
     }
-  ]
+  ],
+  "icon": "fa-play-circle"
 }

@@ -4,5 +4,6 @@
   "description": "Doplarr Discord Requests Bot",
   "url": "https://github.com/nuxsh/doplarr",
   "command": "exec nix run nixpkgs#doplarr",
-  "default_ports": []
+  "default_ports": [],
+  "icon": "fa-server"
 }

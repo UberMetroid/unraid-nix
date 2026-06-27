@@ -10,5 +10,6 @@
       "container": 6767,
       "label": "HTTP"
     }
-  ]
+  ],
+  "icon": "fa-closed-captioning"
 }

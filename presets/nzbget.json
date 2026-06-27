@@ -10,5 +10,6 @@
       "container": 6789,
       "label": "HTTP"
     }
-  ]
+  ],
+  "icon": "fa-download"
 }

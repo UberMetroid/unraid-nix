@@ -10,5 +10,6 @@
       "container": 10443,
       "label": "HTTPS Web"
     }
-  ]
+  ],
+  "icon": "fa-server"
 }

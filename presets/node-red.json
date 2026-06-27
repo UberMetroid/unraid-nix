@@ -10,5 +10,6 @@
       "container": 1880,
       "label": "HTTP"
     }
-  ]
+  ],
+  "icon": "fa-code-fork"
 }

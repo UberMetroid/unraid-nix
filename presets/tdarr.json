@@ -15,5 +15,6 @@
       "container": 8266,
       "label": "Server"
     }
-  ]
+  ],
+  "icon": "fa-server"
 }

@@ -10,5 +10,6 @@
       "container": 8091,
       "label": "Web GUI"
     }
-  ]
+  ],
+  "icon": "fa-bolt"
 }

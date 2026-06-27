@@ -15,5 +15,6 @@
       "container": 22,
       "label": "SSH"
     }
-  ]
+  ],
+  "icon": "fa-server"
 }

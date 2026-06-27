@@ -10,5 +10,6 @@
       "container": 19999,
       "label": "Web GUI"
     }
-  ]
+  ],
+  "icon": "fa-bar-chart"
 }

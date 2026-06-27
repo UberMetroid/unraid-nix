@@ -4,5 +4,6 @@
   "description": "Telegraf Collector Agent",
   "url": "https://www.influxdata.com/time-series-platform/telegraf/",
   "command": "exec nix run nixpkgs#telegraf -- --config /config/telegraf.conf",
-  "default_ports": []
+  "default_ports": [],
+  "icon": "fa-server"
 }

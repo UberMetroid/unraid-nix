@@ -10,5 +10,6 @@
       "container": 5432,
       "label": "Postgres Port"
     }
-  ]
+  ],
+  "icon": "fa-database"
 }

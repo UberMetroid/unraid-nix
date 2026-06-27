@@ -4,6 +4,14 @@ Title="Flake Store"
 <link type="text/css" rel="stylesheet" href="/plugins/nix/styles_layout.css?v=<?php echo time(); ?>">
 <link type="text/css" rel="stylesheet" href="/plugins/nix/styles_widgets.css?v=<?php echo time(); ?>">
 <script src="/plugins/nix/nix.js"></script>
+<div class="nix-section" id="nix-preset-store-section" style="margin-bottom: 25px;">
+    <?php
+    passthru("/usr/local/emhttp/plugins/nix/nix-helper render presets 2>/dev/null");
+    ?>
+</div>
+
+<hr style="border: 0; border-top: 1px solid rgba(255, 255, 255, 0.08); margin: 30px 0;">
+
 <div class="nix-section">
     <h3>Search Nixpkgs Registry</h3>
     <p class="nix-subtext">Search the official Nix repository containing over 100,000 native packages.</p>
@@ -15,7 +23,7 @@ Title="Flake Store"
 
     <div id="nix-search-results" class="nix-results-container">
         <!-- Rendered dynamically by AJAX -->
-        <p class="text-muted text-center">Enter a query and click search.</p>
+        <p class="text-muted text-center">Enter a query and click search to lookup extra CLI tools.</p>
     </div>
 </div>
 

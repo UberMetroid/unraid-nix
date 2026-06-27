@@ -15,5 +15,6 @@
       "container": 4000,
       "label": "Streaming"
     }
-  ]
+  ],
+  "icon": "fa-server"
 }

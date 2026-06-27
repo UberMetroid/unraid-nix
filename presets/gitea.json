@@ -5,7 +5,16 @@
   "url": "https://gitea.io/",
   "command": "exec nix run nixpkgs#gitea -- web --work-path /config",
   "default_ports": [
-    { "host": 3000, "container": 3000, "label": "HTTP" },
-    { "host": 2222, "container": 22, "label": "SSH" }
-  ]
+    {
+      "host": 3000,
+      "container": 3000,
+      "label": "HTTP"
+    },
+    {
+      "host": 2222,
+      "container": 22,
+      "label": "SSH"
+    }
+  ],
+  "icon": "fa-server"
 }

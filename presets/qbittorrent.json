@@ -15,5 +15,6 @@
       "container": 6881,
       "label": "BT Port"
     }
-  ]
+  ],
+  "icon": "fa-download"
 }

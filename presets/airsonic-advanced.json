@@ -10,5 +10,6 @@
       "container": 4040,
       "label": "HTTP"
     }
-  ]
+  ],
+  "icon": "fa-music"
 }

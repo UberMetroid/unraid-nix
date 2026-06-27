@@ -15,5 +15,6 @@
       "container": 8080,
       "label": "Inform Port"
     }
-  ]
+  ],
+  "icon": "fa-server"
 }

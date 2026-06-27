@@ -15,5 +15,6 @@
       "container": 9000,
       "label": "Native"
     }
-  ]
+  ],
+  "icon": "fa-database"
 }

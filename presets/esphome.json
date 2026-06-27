@@ -10,5 +10,6 @@
       "container": 6052,
       "label": "HTTP"
     }
-  ]
+  ],
+  "icon": "fa-bolt"
 }

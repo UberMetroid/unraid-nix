@@ -46,6 +46,13 @@ if ($action === 'render-services') {
     exit;
 }
 
+// 2c. Render presets store grid (outputs HTML directly)
+if ($action === 'render-presets') {
+    header('Content-Type: text/html');
+    passthru("/usr/local/emhttp/plugins/nix/nix-helper render presets 2>&1");
+    exit;
+}
+
 // 2d. Render dashboard widget (outputs HTML directly, bypasses JSON header)
 if ($action === 'get_dashboard') {
     header('Content-Type: text/html');

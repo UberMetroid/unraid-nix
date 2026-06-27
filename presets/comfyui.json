@@ -10,5 +10,6 @@
       "container": 8188,
       "label": "Web GUI"
     }
-  ]
+  ],
+  "icon": "fa-server"
 }

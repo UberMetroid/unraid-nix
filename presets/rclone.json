@@ -4,5 +4,6 @@
   "description": "Rclone Storage Utility",
   "url": "https://rclone.org/",
   "command": "exec nix run nixpkgs#rclone",
-  "default_ports": []
+  "default_ports": [],
+  "icon": "fa-cloud-upload"
 }

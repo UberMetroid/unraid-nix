@@ -4,5 +4,6 @@
   "description": "Recyclarr Sync Tool",
   "url": "https://recyclarr.dev/",
   "command": "exec nix run nixpkgs#recyclarr",
-  "default_ports": []
+  "default_ports": [],
+  "icon": "fa-server"
 }
