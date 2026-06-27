@@ -1,6 +1,0 @@
-Menu="Dashboard:30"
-Title="Nix Services"
----
-<?php
-passthru("/usr/local/emhttp/plugins/nix/nix-helper render dashboard 2>/dev/null");
-?>
