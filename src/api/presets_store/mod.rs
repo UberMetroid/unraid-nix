@@ -126,6 +126,9 @@ pub fn render_presets_store() -> String {
     html.push_str(r##" verified templates ready for native deployment.</p>
             </div>
             <div style="display: flex; gap: 8px; align-items: center;">
+                <!-- Sync templates -->
+                <button type="button" class="nix-btn" onclick="syncTemplates(this)" style="display: inline-flex; align-items: center; gap: 6px; margin: 0; padding: 5px 10px; font-size: 11px;"><i class="fa fa-refresh"></i> Sync</button>
+
                 <!-- Scope Filters -->
                 <button type="button" class="nix-scope-btn" onclick="filterPresetScope('composed', this)">Composed</button>
                 <button type="button" class="nix-scope-btn" onclick="filterPresetScope('standard', this)">Standard</button>

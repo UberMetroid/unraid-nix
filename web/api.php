@@ -171,6 +171,17 @@ if ($action === 'nix-sys-logs') {
     exit;
 }
 
+// 7b. Sync Preset Templates from Templates repository
+if ($action === 'sync-templates') {
+    $output = [];
+    $code = 0;
+    exec("/usr/local/emhttp/plugins/nix/nix-helper sync-templates 2>&1", $output, $code);
+    if ($code !== 0) {
+        error(implode("\n", $output));
+    }
+    success();
+}
+
 // 8. Save Configuration Settings
 if ($action === 'save-settings') {
     $store_path = isset($_POST['store_path']) ? $_POST['store_path'] : '';

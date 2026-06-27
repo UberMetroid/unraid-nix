@@ -31,6 +31,7 @@ pub fn print_usage() {
     println!("  get-metadata <name>                    Outputs JSON service metadata");
     println!("  detect-gpus                            Outputs JSON list of detected host GPUs");
     println!("  get-icon <name>                        Outputs the absolute path of a service logo in the Nix store");
+    println!("  sync-templates                         Syncs preset templates from the templates repository");
 }
 
 pub fn run(args: Vec<String>) {
@@ -38,6 +39,7 @@ pub fn run(args: Vec<String>) {
     match subcommand {
         "setup-store" => store::setup_store(&args),
         "teardown-store" => store::teardown_store(),
+        "sync-templates" => store::sync_templates(),
         "render" => render::render(&args),
         "service" => service::service_action(&args),
         "autostart" => service::autostart(&args),

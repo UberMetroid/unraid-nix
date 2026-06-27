@@ -18,5 +18,26 @@ function showServiceModal(pkg) {
     }
     $('#tab4').trigger('click');
 }
+
+function syncTemplates(btn) {
+    var $btn = $(btn);
+    if ($btn.prop('disabled')) return;
+    
+    var originalHtml = $btn.html();
+    $btn.prop('disabled', true).html('<i class="fa fa-spinner fa-spin"></i> Syncing...');
+    
+    $.post('/plugins/nix/api.php', { action: 'sync-templates' }, function(response) {
+        if (response.success) {
+            alert("Templates successfully updated!");
+            location.reload();
+        } else {
+            alert("Failed to sync templates: " + response.error);
+            $btn.prop('disabled', false).html(originalHtml);
+        }
+    }, 'json').fail(function() {
+        alert("Server returned an error while syncing.");
+        $btn.prop('disabled', false).html(originalHtml);
+    });
+}
 </script>
 

@@ -317,13 +317,15 @@
           curl -sSf -L -o "&usrdir;/images/$file" "${GITHUB_RAW}/web/images/$file"
       done
 
-      # 3b. Download and extract preset templates
-      echo "--> Downloading and extracting preset templates..."
-      mkdir -p "&usrdir;/presets"
-      curl -sSf -L -o /tmp/unraid-nix-main.zip "https://github.com/UberMetroid/unraid-nix/archive/refs/heads/main.zip"
-      unzip -q -o /tmp/unraid-nix-main.zip -d /tmp
-      cp -r /tmp/unraid-nix-main/presets/* "&usrdir;/presets/"
-      rm -rf /tmp/unraid-nix-main.zip /tmp/unraid-nix-main
+       # 3b. Download and extract preset templates
+       echo "--> Downloading preset templates from unraid-nix-templates..."
+       mkdir -p "&usrdir;/presets"
+       mkdir -p "&usrdir;/presets_composed"
+       curl -sSf -L -o /tmp/templates.zip "https://github.com/UberMetroid/unraid-nix-templates/archive/refs/heads/main.zip"
+       unzip -q -o /tmp/templates.zip -d /tmp
+       cp -rf /tmp/unraid-nix-templates-main/presets/* "&usrdir;/presets/" 2>/dev/null
+       cp -rf /tmp/unraid-nix-templates-main/presets_composed/* "&usrdir;/presets_composed/" 2>/dev/null
+       rm -rf /tmp/templates.zip /tmp/unraid-nix-templates-main
 
       # Check if SHOW_IN_NAVIGATION is no in nix.cfg and modify Nix.page
       CFG_FILE="&plugdir;/nix.cfg"
