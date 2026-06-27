@@ -94,6 +94,29 @@ pub fn render_verification_report(service: &str) -> String {
         ports_html = "<div><i class='fa fa-check success'></i> Running on default ports (no overrides)</div>".to_string();
     }
 
+    let mut env_vars_html = String::new();
+    if let Some(env_vars_val) = meta.get("env_vars") {
+        let envs_list = if env_vars_val.is_string() {
+            let s = env_vars_val.as_str().unwrap_or("");
+            serde_json::from_str::<Value>(s).ok()
+        } else {
+            Some(env_vars_val.clone())
+        };
+
+        if let Some(Value::Object(map)) = envs_list {
+            for (k, v) in map {
+                let v_str = if let Some(s) = v.as_str() { s.to_string() } else { v.to_string() };
+                env_vars_html.push_str(&format!(
+                    "<div style='margin-bottom:4px;'><i class='fa fa-check success'></i> <code>{}</code> = <code>{}</code></div>",
+                    k, v_str
+                ));
+            }
+        }
+    }
+    if env_vars_html.is_empty() {
+        env_vars_html = "<div><i class='fa fa-check success'></i> None configured</div>".to_string();
+    }
+
     let sandbox_desc = if crate::sandbox::is_storage_sandbox_enabled() {
         format!(
             "Private mount namespace (unshare -m) chroot jail at /var/run/nix-chroot-{}",
@@ -119,9 +142,10 @@ pub fn render_verification_report(service: &str) -> String {
             </div>
             <div style='display: grid; grid-template-columns: 180px 1fr; gap: 8px 12px; font-size: 12px; color: #eee;'>
                 <div><strong>Network Mappings:</strong></div><div>{}</div>
+                <div><strong>Environment Variables:</strong></div><div>{}</div>
                 <div><strong>Shared Storage Paths:</strong></div><div>{}</div>
             </div>
         </div>"#,
-        name, uri, puid_label, pgid_label, gpu_icon, gpu_label, sandbox_desc, appdata, ports_html, extra_binds_html
+        name, uri, puid_label, pgid_label, gpu_icon, gpu_label, sandbox_desc, appdata, ports_html, env_vars_html, extra_binds_html
     )
 }

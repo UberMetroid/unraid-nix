@@ -190,7 +190,20 @@ pub fn add_service(args: &[String]) {
         cfg.log_configuration = Some(config::LogConfiguration {
             add_timestamp: Some(true),
             fields_order: Some(vec!["time".to_string(), "level".to_string(), "message".to_string()]),
+            rotation: Some(config::Rotation {
+                max_size_mb: Some(10),
+                max_backups: Some(3),
+                compress: Some(true),
+            }),
         });
+    } else if let Some(ref mut log_cfg) = cfg.log_configuration {
+        if log_cfg.rotation.is_none() {
+            log_cfg.rotation = Some(config::Rotation {
+                max_size_mb: Some(10),
+                max_backups: Some(3),
+                compress: Some(true),
+            });
+        }
     }
 
     let log_location = Some(format!("/var/log/nix-services/{}.log", name));

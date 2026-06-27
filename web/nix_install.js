@@ -6,6 +6,7 @@ window.initInstallForm = function() {
     $("#nix-ports-container").empty();
     $("#custom-bind-address").val("0.0.0.0");
     $("#nix-extra-binds-container").empty();
+    $("#nix-env-vars-container").empty();
     $("#nix-install-section h3").text("Configure Flake");
     $("#nix-install-section .nix-subtext").text("Run or daemonize any custom flake from GitHub or a local directory.");
     $("#nix-install-submit-btn").text("Install Flake");
@@ -43,6 +44,16 @@ window.initInstallForm = function() {
             try {
                 var binds = typeof editData.extra_binds === 'string' ? JSON.parse(editData.extra_binds) : editData.extra_binds;
                 if (Array.isArray(binds)) { binds.forEach(function(b) { addBindRow(b.host, b.sandbox); }); }
+            } catch(e) {}
+        }
+        if (editData.env_vars) {
+            try {
+                var envs = typeof editData.env_vars === 'string' ? JSON.parse(editData.env_vars) : editData.env_vars;
+                if (envs && typeof envs === 'object') {
+                    Object.keys(envs).forEach(function(k) {
+                        addEnvVarRow(k, envs[k]);
+                    });
+                }
             } catch(e) {}
         }
         $("#nix-install-section h3").text("Configure Flake: " + editData.name);
@@ -162,6 +173,14 @@ function installCustomFlake(e) {
             return (host && sandbox) ? { host: host, sandbox: sandbox } : null;
         }).get();
         params.extra_binds = JSON.stringify(extraBinds);
+
+        var envVars = {};
+        $(".nix-env-row").each(function() {
+            var k = $(this).find(".nix-env-key").val().trim();
+            var v = $(this).find(".nix-env-val").val().trim();
+            if (k) { envVars[k] = v; }
+        });
+        params.env_vars = JSON.stringify(envVars);
     }
     $.each(params, (k, v) => form.append($('<input>', { type: 'hidden', name: k, value: v })));
     
@@ -964,4 +983,16 @@ function updatePresetInfo() {
             if (!$("#custom-uri").prop('readonly')) $("#nix-ports-container").empty();
         }
     }
+}
+
+function addEnvVarRow(key, value) {
+    key = key || '';
+    value = value || '';
+    var row = $('<div class="nix-env-row" style="display: flex; gap: 10px; align-items: center; margin-bottom: 6px;">' +
+        '<input type="text" class="nix-env-key" placeholder="VARIABLE_NAME" value="' + key + '" style="flex: 1; background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.08); border-radius: 4px; padding: 6px; color: #fff;" autocomplete="off" spellcheck="false">' +
+        '<span style="color: #666;">=</span>' +
+        '<input type="text" class="nix-env-val" placeholder="Value" value="' + value + '" style="flex: 1.5; background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.08); border-radius: 4px; padding: 6px; color: #fff;" autocomplete="off" spellcheck="false">' +
+        '<button type="button" class="nix-btn" style="margin: 0; padding: 6px 10px; color: #e74c3c; border-color: #e74c3c; background: transparent; cursor: pointer;" onclick="$(this).parent().remove()"><i class="fa fa-trash"></i></button>' +
+        '</div>');
+    $("#nix-env-vars-container").append(row);
 }

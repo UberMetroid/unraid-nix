@@ -35,13 +35,14 @@ if ($action === 'install-cli') {
         $extra_binds = isset($_POST['extra_binds']) ? $_POST['extra_binds'] : '';
         $port = isset($_POST['port']) ? $_POST['port'] : '';
         $bind_address = isset($_POST['bind_address']) ? $_POST['bind_address'] : '';
+        $env_vars = isset($_POST['env_vars']) ? $_POST['env_vars'] : '';
         $cmd = "/usr/local/emhttp/plugins/nix/nix-helper install-service " .
                "--uri " . escapeshellarg($uri) . " --appdata " . escapeshellarg($appdata) . " " .
                "--media " . escapeshellarg($media) . " --puid " . escapeshellarg($puid) . " " .
                "--pgid " . escapeshellarg($pgid) . " --gpu " . escapeshellarg($gpu) . " " .
                "--gpus " . escapeshellarg($gpus) . " " .
                "--extra-binds " . escapeshellarg($extra_binds) . " --port " . escapeshellarg($port) . " " .
-               "--bind-address " . escapeshellarg($bind_address);
+               "--bind-address " . escapeshellarg($bind_address) . " --env-vars " . escapeshellarg($env_vars);
         $title = "Installing Nix Service: " . htmlspecialchars($uri);
     } else { echo "Invalid installation type."; exit; }
 } else { echo "Unknown action."; exit; }

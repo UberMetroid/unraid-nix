@@ -2,7 +2,7 @@
 <!DOCTYPE PLUGIN [
   <!ENTITY name      "nix">
   <!ENTITY author    "UberMetroid">
-  <!ENTITY version   "2026.06.26.36">
+  <!ENTITY version   "2026.06.26.37">
   <!ENTITY launch    "Settings/Nix">
   <!ENTITY plugdir   "/boot/config/plugins/&name;">
   <!ENTITY usrdir    "/usr/local/emhttp/plugins/&name;">
@@ -11,6 +11,8 @@
 
   <CHANGES>
     ## nix package manager plugin
+    ### 2026.06.26.37
+    - **Custom Environment Variables and Log Rotation**: Implemented dynamic custom environment variable input panels in the install form, saving variables to metadata and injecting them into the service definition. Configured default global log rotation constraints (10MB caps, 3 backups) in process-compose to prevent host RAM log exhaustion.
     ### 2026.06.26.36
     - **Report UX Styling Fix**: Replaced the neutral info icons with positive green checkmarks for default ports and unconfigured storage states in the post-install verification report, resolving visual ambiguity.
     ### 2026.06.26.35

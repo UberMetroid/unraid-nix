@@ -24,6 +24,7 @@ pub fn install_service(args: &[String]) {
     let mut extra_binds_json = String::new();
     let mut port = None;
     let mut bind_address = None;
+    let mut env_vars_json = String::new();
 
     let mut i = 2;
     while i < args.len() {
@@ -87,6 +88,11 @@ pub fn install_service(args: &[String]) {
                 if i + 1 >= args.len() { eprintln!("Error: Missing value for --gpus"); exit(1); }
                 let val = args[i+1].clone();
                 gpus = if val.trim().is_empty() || val == "-" { None } else { Some(val) };
+                i += 2;
+            }
+            "--env-vars" => {
+                if i + 1 >= args.len() { eprintln!("Error: Missing value for --env-vars"); exit(1); }
+                env_vars_json = args[i+1].clone();
                 i += 2;
             }
             _ => { eprintln!("Unknown install-service flag: {}", args[i]); exit(1); }
@@ -192,8 +198,35 @@ pub fn install_service(args: &[String]) {
         cfg.log_configuration = Some(config::LogConfiguration {
             add_timestamp: Some(true),
             fields_order: Some(vec!["time".to_string(), "level".to_string(), "message".to_string()]),
+            rotation: Some(config::Rotation {
+                max_size_mb: Some(10),
+                max_backups: Some(3),
+                compress: Some(true),
+            }),
         });
+    } else if let Some(ref mut log_cfg) = cfg.log_configuration {
+        if log_cfg.rotation.is_none() {
+            log_cfg.rotation = Some(config::Rotation {
+                max_size_mb: Some(10),
+                max_backups: Some(3),
+                compress: Some(true),
+            });
+        }
     }
+
+    let mut env_list = Vec::new();
+    if !env_vars_json.is_empty() {
+        if let Ok(serde_json::Value::Object(map)) = serde_json::from_str::<serde_json::Value>(&env_vars_json) {
+            for (k, v) in map {
+                if let Some(val_str) = v.as_str() {
+                    env_list.push(format!("{}={}", k, val_str));
+                } else {
+                    env_list.push(format!("{}={}", k, v));
+                }
+            }
+        }
+    }
+    let env_opt = if env_list.is_empty() { None } else { Some(env_list) };
 
     let log_location = Some(format!("/var/log/nix-services/{}.log", name));
     cfg.processes.insert(name.clone(), config::ProcessDefinition {
@@ -203,7 +236,7 @@ pub fn install_service(args: &[String]) {
             backoff_seconds: Some(5),
             max_restarts: None,
         }),
-        environment: None,
+        environment: env_opt,
         log_location,
         log_configuration: None,
     });
@@ -225,6 +258,7 @@ pub fn install_service(args: &[String]) {
         "extra_binds": extra_binds_json,
         "port": port.unwrap_or_default(),
         "bind_address": bind_address.unwrap_or_default(),
+        "env_vars": env_vars_json,
     });
     let meta_dir = "/boot/config/plugins/nix/metadata";
     let _ = std::fs::create_dir_all(meta_dir);

@@ -14,6 +14,7 @@ pub fn load_config(file_path: &str) -> Result<ProcessComposeConfig, String> {
                     "level".to_string(),
                     "message".to_string(),
                 ]),
+                rotation: None,
             }),
             processes: std::collections::HashMap::new(),
         });

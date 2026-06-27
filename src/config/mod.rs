@@ -18,6 +18,17 @@ pub struct ProcessComposeConfig {
     pub processes: HashMap<String, ProcessDefinition>,
 }
 
+/// Rotation settings for process-compose logging.
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+pub struct Rotation {
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub max_size_mb: Option<u64>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub max_backups: Option<u32>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub compress: Option<bool>,
+}
+
 /// Logger settings for process-compose.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 pub struct LogConfiguration {
@@ -25,6 +36,8 @@ pub struct LogConfiguration {
     pub add_timestamp: Option<bool>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub fields_order: Option<Vec<String>>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub rotation: Option<Rotation>,
 }
 
 /// Defines a single process/service managed by process-compose.
@@ -83,6 +96,7 @@ mod tests {
                     "level".to_string(),
                     "message".to_string(),
                 ]),
+                rotation: None,
             }),
             processes,
         };
