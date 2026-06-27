@@ -49,6 +49,7 @@ exec("/etc/rc.d/rc.nix-daemon status 2>/dev/null", $status_output, $status_code)
 $is_nix_running = ($status_code === 0);
 ?>
 
+<!-- 1. Nix System Daemon Status & Control -->
 <div class="nix-section" style="margin-bottom: 20px;">
     <div style="display: flex; align-items: center; justify-content: space-between;">
         <div>
@@ -72,8 +73,22 @@ $is_nix_running = ($status_code === 0);
     </div>
 </div>
 
+<!-- 2. Template Library Maintenance & Sync -->
+<div class="nix-section" style="margin-bottom: 20px;">
+    <div style="display: flex; align-items: center; justify-content: space-between;">
+        <div>
+            <h3 style="margin: 0 0 5px 0;">Template Library Maintenance</h3>
+            <p class="nix-subtext" style="margin: 0;">Sync and update self-hosted app templates from the remote templates repository.</p>
+        </div>
+        <div>
+            <button type="button" id="nix-sync-btn" class="nix-btn" style="display: inline-flex; align-items: center; gap: 6px; margin: 0;" onclick="syncTemplates(this)"><i class="fa fa-refresh"></i> Force Sync Templates</button>
+        </div>
+    </div>
+</div>
+
+<!-- 3. Nix Package Manager Configuration -->
 <div class="nix-section">
-    <h3>Nix Package Manager Settings</h3>
+    <h3>Nix Configuration Settings</h3>
     <p class="nix-subtext">Configure local storage path bindings and system-level operations.</p>
     
     <form id="nix-settings-form" onsubmit="saveSettings(event)">
@@ -137,10 +152,7 @@ $is_nix_running = ($status_code === 0);
             <div class="nix-field-help">Automatically filter the Preset Store to show only packages compatible with your system's hardware. For example, ROCm AMD templates will be hidden if no AMD GPU is detected.</div>
         </div>
 
-        <div style="display: flex; gap: 10px; margin-top: 15px;">
-            <button type="submit" id="nix-settings-submit-btn" class="nix-btn-primary" style="flex: 1; margin: 0;">Apply Settings</button>
-            <button type="button" id="nix-sync-btn" class="nix-btn" style="flex: 1; display: inline-flex; align-items: center; justify-content: center; gap: 6px; margin: 0;" onclick="syncTemplates(this)"><i class="fa fa-refresh"></i> Force Sync Templates</button>
-        </div>
+        <button type="submit" id="nix-settings-submit-btn" class="nix-btn-primary" style="margin-top: 15px; width: 100%;">Save Configurations</button>
     </form>
 </div>
 
@@ -236,4 +248,3 @@ function syncTemplates(btn) {
     });
 }
 </script>
-
