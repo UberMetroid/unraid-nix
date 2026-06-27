@@ -267,7 +267,8 @@ fn get_preset_category_name(name: &str) -> &'static str {
        name_lower.contains("ghost") || name_lower.contains("linkding") ||
        name_lower.contains("linkwarden") || name_lower.contains("wallabag") ||
        name_lower.contains("shiori") || name_lower.contains("yourls") ||
-       name_lower.contains("kutt") {
+       name_lower.contains("kutt") || name_lower.contains("humhub") ||
+       name_lower.contains("friendica") {
         "social"
     } else if name_lower.contains("duplicati") || name_lower.contains("duplicacy") || name_lower.contains("kopia") ||
        name_lower.contains("backups") || name_lower.contains("archivebox") || name_lower.contains("restic") ||
@@ -476,7 +477,8 @@ fn get_preset_category_styling(name: &str, default_icon: &str) -> CategoryStylin
        name_lower.contains("ghost") || name_lower.contains("linkding") ||
        name_lower.contains("linkwarden") || name_lower.contains("wallabag") ||
        name_lower.contains("shiori") || name_lower.contains("yourls") ||
-       name_lower.contains("kutt") {
+       name_lower.contains("kutt") || name_lower.contains("humhub") ||
+       name_lower.contains("friendica") {
         return CategoryStyling {
             icon: default_icon.to_string(),
             color: "#ff9ff3",

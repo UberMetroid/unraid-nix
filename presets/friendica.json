@@ -1,0 +1,15 @@
+{
+  "name": "friendica",
+  "display_name": "Friendica",
+  "description": "Decentralized federated social network platform",
+  "url": "https://friendi.ca/",
+  "command": "exec nix run nixpkgs#friendica",
+  "default_ports": [
+    {
+      "host": 8083,
+      "container": 80,
+      "label": "Web GUI"
+    }
+  ],
+  "icon": "fa-share-alt"
+}

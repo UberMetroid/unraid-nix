@@ -218,7 +218,7 @@ function handleOverridePortClick() { addPortRow('', '', '', false); }
 function populatePortRows(portStr, presetName) {
     $("#nix-ports-container").empty();
     if (!portStr) return;
-                                                    var labels = {
+                                                        var labels = {
         'actual-budget:5006': 'HTTP',
         'adguard-home:3000': 'Setup',
         'adguard-home:53': 'DNS',
@@ -279,6 +279,7 @@ function populatePortRows(portStr, presetName) {
         'fooocus:7865': 'Web GUI',
         'forgejo:22': 'SSH',
         'forgejo:3000': 'HTTP',
+        'friendica:80': 'Web GUI',
         'frigate:5000': 'HTTP',
         'gatus:8080': 'HTTP',
         'ghost:2368': 'HTTP',
@@ -302,6 +303,7 @@ function populatePortRows(portStr, presetName) {
         'home-assistant:8123': 'Web GUI',
         'homebridge:8581': 'Web GUI',
         'homepage:3000': 'HTTP',
+        'humhub:80': 'Web GUI',
         'immich:2283': 'HTTP',
         'influxdb:8086': 'API',
         'invokeai:9090': 'Web GUI',
@@ -483,7 +485,7 @@ function updatePresetInfo() {
         $("#custom-uri").parent().after('<div id="nix-preset-info-box" style="margin-top: 10px; display: none;"></div>');
         infoBox = $("#nix-preset-info-box");
     }
-                                                    var presets = {
+                                                        var presets = {
         "actual-budget": "Actual Budget",
         "adguard-home": "AdGuard Home",
         "agent-dvr": "Agent DVR",
@@ -542,6 +544,7 @@ function updatePresetInfo() {
         "focalboard": "Focalboard",
         "fooocus": "Fooocus",
         "forgejo": "Forgejo",
+        "friendica": "Friendica",
         "frigate": "Frigate NVR",
         "gatus": "Gatus",
         "ghost": "Ghost",
@@ -563,6 +566,7 @@ function updatePresetInfo() {
         "home-assistant": "Home Assistant",
         "homebridge": "Homebridge",
         "homepage": "Homepage",
+        "humhub": "HumHub",
         "immich": "Immich",
         "influxdb": "InfluxDB",
         "invokeai": "InvokeAI",
@@ -767,6 +771,7 @@ function updatePresetInfo() {
         "focalboard": "fa-file-text-o",
         "fooocus": "fa-server",
         "forgejo": "fa-server",
+        "friendica": "fa-share-alt",
         "frigate": "fa-server",
         "gatus": "fa-server",
         "ghost": "fa-pencil-square-o",
@@ -788,6 +793,7 @@ function updatePresetInfo() {
         "home-assistant": "fa-home",
         "homebridge": "fa-home",
         "homepage": "fa-tachometer",
+        "humhub": "fa-share-alt",
         "immich": "fa-cloud",
         "influxdb": "fa-database",
         "invokeai": "fa-server",

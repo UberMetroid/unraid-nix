@@ -245,7 +245,8 @@ fn get_static_config(name_lower: &str) -> StaticConfig {
        name_lower.contains("ghost") || name_lower.contains("linkding") ||
        name_lower.contains("linkwarden") || name_lower.contains("wallabag") ||
        name_lower.contains("shiori") || name_lower.contains("yourls") ||
-       name_lower.contains("kutt") {
+       name_lower.contains("kutt") || name_lower.contains("humhub") ||
+       name_lower.contains("friendica") {
         let icon = if name_lower.contains("wordpress") || name_lower.contains("ghost") {
             "fa-pencil-square-o"
         } else if name_lower.contains("linkding") || name_lower.contains("linkwarden") || name_lower.contains("shiori") {
