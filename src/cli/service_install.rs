@@ -139,7 +139,11 @@ pub fn install_service(args: &[String]) {
     }
 
     // 4. Load presets for known servers or fallback to custom sandbox builder
-    let cmd = if ["radarr", "sonarr", "jellyfin", "syncthing"].contains(&name.to_lowercase().as_str()) {
+    let name_lower = name.to_lowercase();
+    let preset_path = format!("/usr/local/emhttp/plugins/nix/presets/{}.json", name_lower);
+    let has_preset = std::path::Path::new(&preset_path).exists() || ["radarr", "sonarr", "jellyfin", "syncthing"].contains(&name_lower.as_str());
+
+    let cmd = if has_preset {
         match config::get_service_command_preset(
             &name,
             &appdata,
