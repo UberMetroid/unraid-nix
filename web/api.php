@@ -228,21 +228,7 @@ if ($action === 'collect-garbage') {
     if ($code !== 0) {
         error(implode("\n", $output));
     }
-    
-    // Get new size of /nix store
-    $du_out = [];
-    exec("du -sh /nix 2>/dev/null", $du_out);
-    $new_size = !empty($du_out) ? explode("\t", $du_out[0])[0] : 'Unknown';
-    
-    success(['new_size' => $new_size]);
-}
-
-// 9b. Get Nix Store Size (unblocking page load)
-if ($action === 'get-store-size') {
-    $du_out = [];
-    exec("du -sh /nix 2>/dev/null", $du_out);
-    $size = !empty($du_out) ? explode("\t", $du_out[0])[0] : 'Unknown';
-    success(['size' => $size]);
+    success();
 }
 
 error("Unknown API action.");

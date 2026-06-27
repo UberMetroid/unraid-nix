@@ -59,8 +59,7 @@ if (is_dir($meta_dir)) {
 }
 $suggested_quota = 15 + ($num_flakes * 3);
 
-// Calculate Nix store size (calculated asynchronously via AJAX)
-$store_size = '<i class="fa fa-spinner fa-spin"></i> Calculating...';
+
 
 exec("/etc/rc.d/rc.nix-daemon status 2>/dev/null", $status_output, $status_code);
 $is_nix_running = ($status_code === 0);
@@ -111,7 +110,6 @@ $is_nix_running = ($status_code === 0);
             <p class="nix-subtext" style="margin: 0;">Clean up unused packages, old build derivations, and reclaim storage pool space.</p>
         </div>
         <div style="text-align: right;">
-            <div style="font-size: 12px; color: #888; margin-bottom: 6px;">Nix Store Size: <strong style="color: #fff; font-size: 13px;" id="nix-store-size-display"><?php echo $store_size; ?></strong></div>
             <button type="button" id="nix-gc-btn" class="nix-btn" style="display: inline-flex; align-items: center; gap: 6px; margin: 0;" onclick="collectGarbage(this)"><i class="fa fa-trash"></i> Collect Garbage</button>
         </div>
     </div>
@@ -247,16 +245,6 @@ $(function() {
     if (typeof $.fn.fileTreeAttach === 'function') {
         $("#settings-store-path").fileTreeAttach();
     }
-    
-    $.get('/plugins/nix/api.php', { action: 'get-store-size' }, function(resp) {
-        if (resp.success) {
-            $("#nix-store-size-display").text(resp.size);
-        } else {
-            $("#nix-store-size-display").text("Unknown");
-        }
-    }, 'json').fail(function() {
-        $("#nix-store-size-display").text("Error");
-    });
 });
 
 function saveSettings(e) {
@@ -362,7 +350,6 @@ function collectGarbage(btn) {
     $.post('/plugins/nix/api.php', { action: 'collect-garbage' }, function(response) {
         if (response.success) {
             alert("Garbage collection complete!");
-            $("#nix-store-size-display").text(response.new_size);
             $btn.prop('disabled', false).html(originalHtml);
         } else {
             alert("Failed to collect garbage: " + response.error);
