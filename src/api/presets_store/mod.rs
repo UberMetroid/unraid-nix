@@ -89,9 +89,12 @@ pub fn render_presets_store() -> String {
                 <h3 style="margin: 0;">Preset Service Store</h3>
                 <p class="nix-subtext" style="margin: 5px 0 0 0;">Browse and configure over 200+ pre-configured self-hosted templates.</p>
             </div>
-            <div style="display: flex; gap: 10px; align-items: center;">
+            <div style="display: flex; gap: 8px; align-items: center;">
+                <button type="button" class="nix-preset-pill active" onclick="filterPresetCategory('all', this)">All</button>
+                <button type="button" class="nix-preset-pill" onclick="filterPresetCategory('composed', this)">Composed</button>
+                
                 <!-- Search bar -->
-                <div style="position: relative; width: 250px;">
+                <div style="position: relative; width: 250px; margin-left: 8px;">
                     <input type="text" id="nix-preset-search" placeholder="Search templates..." onkeyup="filterPresetsStore()" style="width: 100%; padding: 6px 12px 6px 30px; border-radius: 4px; border: 1px solid rgba(255,255,255,0.1); background: rgba(0,0,0,0.2); color: #fff; font-size: 13px; outline: none; transition: border-color 0.15s ease;">
                     <i class="fa fa-search" style="position: absolute; left: 10px; top: 9px; color: #666; font-size: 12px;"></i>
                 </div>
@@ -100,7 +103,7 @@ pub fn render_presets_store() -> String {
 
         <!-- Category pills (Alphabetically Sorted) -->
         <div class="nix-preset-pills" style="display: flex; gap: 8px; flex-wrap: wrap; padding-bottom: 5px; border-bottom: 1px solid rgba(255,255,255,0.05);">
-            <button type="button" class="nix-preset-pill active" onclick="filterPresetCategory('ai', this)">AI</button>
+            <button type="button" class="nix-preset-pill" onclick="filterPresetCategory('ai', this)">AI</button>
             <button type="button" class="nix-preset-pill" onclick="filterPresetCategory('automation', this)">Automation</button>
             <button type="button" class="nix-preset-pill" onclick="filterPresetCategory('backup', this)">Backup</button>
             <button type="button" class="nix-preset-pill" onclick="filterPresetCategory('cloud', this)">Cloud</button>
@@ -118,8 +121,6 @@ pub fn render_presets_store() -> String {
             <button type="button" class="nix-preset-pill" onclick="filterPresetCategory('social', this)">Social Media</button>
             <button type="button" class="nix-preset-pill" onclick="filterPresetCategory('sync', this)">Sync</button>
             <button type="button" class="nix-preset-pill" onclick="filterPresetCategory('vpn', this)">VPN</button>
-            <button type="button" class="nix-preset-pill" onclick="filterPresetCategory('all', this)" style="margin-left: auto;">All</button>
-            <button type="button" class="nix-preset-pill" onclick="filterPresetCategory('composed', this)">Composed</button>
         </div>
     </div>
     
@@ -180,7 +181,7 @@ pub fn render_presets_store() -> String {
 
     html.push_str(r##"</div>
     <script>
-    var activeCategory = 'ai';
+    var activeCategory = 'all';
 
     function filterPresetCategory(cat, btn) {
         activeCategory = cat;
