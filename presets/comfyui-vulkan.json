@@ -3,7 +3,7 @@
   "display_name": "ComfyUI (Vulkan / Intel Arc)",
   "description": "ComfyUI Node Diffusion Editor (Vulkan / Intel Arc GPU hardware accelerated version)",
   "url": "https://github.com/comfyanonymous/ComfyUI",
-  "command": "exec nix run nixpkgs#comfyui-vulkan",
+  "command": "exec nix run github:utensils/comfyui-nix#xpu -- --listen 0.0.0.0 --port 8188 --user-directory /config",
   "default_ports": [
     {
       "host": 8188,

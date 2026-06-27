@@ -3,7 +3,7 @@
   "display_name": "InvokeAI (Vulkan / Intel Arc)",
   "description": "Creative engine for Stable Diffusion models (Vulkan / Intel Arc GPU hardware accelerated version)",
   "url": "https://github.com/invoke-ai/InvokeAI",
-  "command": "exec nix run nixpkgs#invokeai-vulkan -- --host 0.0.0.0 --port 9090 --root /config",
+  "command": "exec nix run github:nixified-ai/flake#invokeai-cpu -- --host 0.0.0.0 --port 9090 --root /config",
   "default_ports": [
     {
       "host": 9090,

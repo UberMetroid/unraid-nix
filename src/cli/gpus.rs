@@ -1,6 +1,59 @@
-use std::process::Command;
+use std::process::{Command, Stdio};
 use std::fs;
 use serde_json::json;
+
+pub struct DetectedGpus {
+    pub has_nvidia: bool,
+    pub has_amd: bool,
+    pub has_intel: bool,
+}
+
+pub fn get_detected_gpus() -> DetectedGpus {
+    let mut has_nvidia = false;
+    let mut has_amd = false;
+    let mut has_intel = false;
+
+    // 1. Try running nvidia-smi
+    if let Ok(output) = Command::new("nvidia-smi")
+        .args(&["--query-gpu=index", "--format=csv,noheader,nounits"])
+        .stdin(Stdio::null())
+        .output() {
+        if output.status.success() {
+            has_nvidia = true;
+        }
+    }
+
+    // 2. Scan /sys/class/drm for other GPUs
+    if let Ok(entries) = fs::read_dir("/sys/class/drm") {
+        for entry in entries.flatten() {
+            let name = entry.file_name().to_string_lossy().to_string();
+            if name.starts_with("renderD") {
+                let uevent_path = entry.path().join("device/uevent");
+                if uevent_path.exists() {
+                    if let Ok(content) = fs::read_to_string(&uevent_path) {
+                        for line in content.lines() {
+                            if line.starts_with("DRIVER=") {
+                                let driver = line.trim_start_matches("DRIVER=").to_string();
+                                match driver.as_str() {
+                                    "i915" | "xe" => { has_intel = true; }
+                                    "amdgpu" | "radeon" => { has_amd = true; }
+                                    "nvidia" => { has_nvidia = true; }
+                                    _ => {}
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    DetectedGpus {
+        has_nvidia,
+        has_amd,
+        has_intel,
+    }
+}
 
 /// Scans the host system to identify all available GPU devices.
 /// Queries nvidia-smi for NVIDIA GPUs and scans /sys/class/drm for Intel/AMD DRM render nodes.
@@ -11,6 +64,7 @@ pub fn detect_gpus(_args: &[String]) {
     // 1. Try running nvidia-smi
     if let Ok(output) = Command::new("nvidia-smi")
         .args(&["--query-gpu=index,name,uuid,pci.bus_id", "--format=csv,noheader,nounits"])
+        .stdin(Stdio::null())
         .output() {
         if output.status.success() {
             let stdout = String::from_utf8_lossy(&output.stdout);

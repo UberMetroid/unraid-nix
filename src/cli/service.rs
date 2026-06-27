@@ -66,6 +66,7 @@ pub fn autostart(args: &[String]) {
 
         let _ = std::process::Command::new("sh")
             .args(&["-c", ". /nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh && nix run nixpkgs#process-compose -- -p 29704 project update -f /boot/config/plugins/nix/process-compose.yml 2>&1"])
+            .stdin(std::process::Stdio::null())
             .output();
         println!("Autostart updated successfully.");
     } else {
@@ -99,6 +100,7 @@ pub fn remove_service(args: &[String]) {
         let _ = process::send_service_action(29704, name, "stop");
         let _ = std::process::Command::new("sh")
             .args(&["-c", ". /nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh && nix run nixpkgs#process-compose -- -p 29704 project update -f /boot/config/plugins/nix/process-compose.yml 2>&1"])
+            .stdin(std::process::Stdio::null())
             .output();
         let _ = std::fs::remove_file(format!("/boot/config/plugins/nix/metadata/{}.json", name));
         println!("Service {} successfully removed.", name);

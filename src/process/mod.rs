@@ -84,6 +84,7 @@ pub fn is_supervisor_running() -> bool {
             Command::new("kill")
                 .arg("-0")
                 .arg(pid.to_string())
+                .stdin(std::process::Stdio::null())
                 .status()
                 .map(|s| s.success())
                 .unwrap_or(false)
@@ -96,8 +97,9 @@ pub fn get_gpu_active_services() -> std::collections::HashSet<String> {
 
     let output = Command::new("nvidia-smi")
         .args(&["--query-compute-apps=pid", "--format=csv,noheader,nounits"])
+        .stdin(std::process::Stdio::null())
         .output();
-
+ 
     if let Ok(out) = output {
         if out.status.success() {
             let stdout = String::from_utf8_lossy(&out.stdout);
@@ -114,7 +116,7 @@ pub fn get_gpu_active_services() -> std::collections::HashSet<String> {
                             let start = pos + "nix-chroot-".len();
                             let service_name = &target_str[start..];
                             if !service_name.is_empty() {
-                                active_services.insert(service_name.to_string());
+                                  active_services.insert(service_name.to_string());
                             }
                         }
                     }
@@ -193,6 +195,7 @@ fn get_nvidia_pmon_stats() -> std::collections::HashMap<i32, Vec<(i32, GpuStat)>
     let mut stats = std::collections::HashMap::new();
     let output = Command::new("nvidia-smi")
         .args(&["pmon", "-c", "1"])
+        .stdin(std::process::Stdio::null())
         .output();
     if let Ok(out) = output {
         if let Ok(stdout_str) = String::from_utf8(out.stdout) {

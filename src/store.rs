@@ -64,6 +64,7 @@ pub fn create_builder_accounts() -> Result<(), String> {
         let status = Command::new("sh")
             .arg("-c")
             .arg(&cmd)
+            .stdin(std::process::Stdio::null())
             .status()
             .map_err(|e| {
                 let err_msg = format!("Failed to execute builder user/group command: {}", e);
@@ -103,6 +104,7 @@ pub fn mount_nix_store(persistent_path: &str) -> Result<(), String> {
     let is_mounted = Command::new("mountpoint")
         .arg("-q")
         .arg("/nix")
+        .stdin(std::process::Stdio::null())
         .status()
         .map(|s| s.success())
         .unwrap_or(false);
@@ -113,6 +115,7 @@ pub fn mount_nix_store(persistent_path: &str) -> Result<(), String> {
             .arg("--bind")
             .arg(persistent_path)
             .arg("/nix")
+            .stdin(std::process::Stdio::null())
             .status()
             .map_err(|e| {
                 let err_msg = format!("Failed to execute mount command: {}", e);
@@ -138,6 +141,7 @@ pub fn unmount_nix_store() -> Result<(), String> {
     let is_mounted = Command::new("mountpoint")
         .arg("-q")
         .arg("/nix")
+        .stdin(std::process::Stdio::null())
         .status()
         .map(|s| s.success())
         .unwrap_or(false);
@@ -147,6 +151,7 @@ pub fn unmount_nix_store() -> Result<(), String> {
         let status = Command::new("umount")
             .arg("-l")
             .arg("/nix")
+            .stdin(std::process::Stdio::null())
             .status()
             .map_err(|e| {
                 let err_msg = format!("Failed to execute umount command: {}", e);

@@ -4,7 +4,7 @@
 /// and managing CLI packages in the user profile via 'nix profile'.
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
-use std::process::Command;
+use std::process::{Command, Stdio};
 
 /// Structured result representing a found Nix package.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
@@ -93,6 +93,7 @@ fn fetch_bulk_metadata(keys: &[String]) -> Result<HashMap<String, serde_json::Va
         .arg("--json")
         .arg("--expr")
         .arg(&nix_expr)
+        .stdin(Stdio::null())
         .output()
         .map_err(|e| format!("Failed to run nix eval: {}", e))?;
 
@@ -158,6 +159,7 @@ pub fn search_packages(query: &str) -> Result<Vec<SearchResult>, String> {
         .arg("--json")
         .arg("nixpkgs")
         .arg(query)
+        .stdin(Stdio::null())
         .output()
         .map_err(|e| format!("Failed to run nix search: {}", e))?;
 
@@ -176,6 +178,7 @@ pub fn install_package(package_name: &str) -> Result<(), String> {
         .arg("profile")
         .arg("install")
         .arg(package_name)
+        .stdin(Stdio::null())
         .status()
         .map_err(|e| format!("Failed to run nix profile install: {}", e))?;
 

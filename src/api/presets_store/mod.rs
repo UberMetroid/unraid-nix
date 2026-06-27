@@ -16,14 +16,51 @@ struct PresetInfo {
     icon: Option<String>,
 }
 
+fn should_filter_presets() -> bool {
+    if let Ok(content) = std::fs::read_to_string("/boot/config/plugins/nix/nix.cfg") {
+        for line in content.lines() {
+            if line.starts_with("FILTER_PRESETS_BY_HARDWARE=") {
+                let val = line.trim_start_matches("FILTER_PRESETS_BY_HARDWARE=").trim_matches('"');
+                return val == "yes";
+            }
+        }
+    }
+    true // Defaults to true
+}
+
 pub fn render_presets_store() -> String {
     let presets_dir = "/usr/local/emhttp/plugins/nix/presets";
     let mut presets = Vec::new();
+
+    let filter_enabled = should_filter_presets();
+    let detected_gpus = if filter_enabled {
+        crate::cli::gpus::get_detected_gpus()
+    } else {
+        crate::cli::gpus::DetectedGpus {
+            has_nvidia: true,
+            has_amd: true,
+            has_intel: true,
+        }
+    };
 
     if let Ok(entries) = fs::read_dir(presets_dir) {
         for entry in entries.flatten() {
             let path = entry.path();
             if path.extension().and_then(|s| s.to_str()) == Some("json") {
+                let filename = path.file_name().and_then(|s| s.to_str()).unwrap_or("");
+                
+                if filter_enabled {
+                    if filename.ends_with("-cuda.json") && !detected_gpus.has_nvidia {
+                        continue;
+                    }
+                    if filename.ends_with("-rocm.json") && !detected_gpus.has_amd {
+                        continue;
+                    }
+                    if filename.ends_with("-vulkan.json") && !detected_gpus.has_intel {
+                        continue;
+                    }
+                }
+
                 if let Ok(content) = fs::read_to_string(&path) {
                     if let Ok(preset) = serde_json::from_str::<PresetInfo>(&content) {
                         presets.push(preset);

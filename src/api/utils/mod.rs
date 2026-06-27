@@ -149,6 +149,7 @@ pub fn get_host_ips() -> Vec<HostAddr> {
     let mut ips = Vec::new();
     let output = Command::new("ip")
         .args(&["-o", "-4", "addr", "show"])
+        .stdin(std::process::Stdio::null())
         .output();
 
     if let Ok(out) = output {

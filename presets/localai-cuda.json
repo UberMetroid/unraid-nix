@@ -3,7 +3,7 @@
   "display_name": "LocalAI (CUDA)",
   "description": "LocalAI LLM API Server (NVIDIA CUDA GPU hardware accelerated version)",
   "url": "https://localai.io/",
-  "command": "exec nix run nixpkgs#localai-cuda",
+  "command": "exec nix run nixpkgs#local-ai",
   "default_ports": [
     {
       "host": 8080,

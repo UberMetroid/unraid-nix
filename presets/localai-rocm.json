@@ -3,7 +3,7 @@
   "display_name": "LocalAI (ROCm)",
   "description": "LocalAI LLM API Server (AMD ROCm GPU hardware accelerated version)",
   "url": "https://localai.io/",
-  "command": "exec nix run nixpkgs#localai-rocm",
+  "command": "exec nix run nixpkgs#local-ai",
   "default_ports": [
     {
       "host": 8080,

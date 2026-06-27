@@ -3,7 +3,7 @@
   "display_name": "ComfyUI (CUDA)",
   "description": "ComfyUI Node Diffusion Editor (NVIDIA CUDA GPU hardware accelerated version)",
   "url": "https://github.com/comfyanonymous/ComfyUI",
-  "command": "exec nix run nixpkgs#comfyui-cuda",
+  "command": "exec nix run github:utensils/comfyui-nix#cuda -- --listen 0.0.0.0 --port 8188 --user-directory /config",
   "default_ports": [
     {
       "host": 8188,

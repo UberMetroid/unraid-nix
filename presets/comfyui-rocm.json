@@ -3,7 +3,7 @@
   "display_name": "ComfyUI (ROCm)",
   "description": "ComfyUI Node Diffusion Editor (AMD ROCm GPU hardware accelerated version)",
   "url": "https://github.com/comfyanonymous/ComfyUI",
-  "command": "exec nix run nixpkgs#comfyui-rocm",
+  "command": "exec nix run github:utensils/comfyui-nix#rocm -- --listen 0.0.0.0 --port 8188 --user-directory /config",
   "default_ports": [
     {
       "host": 8188,

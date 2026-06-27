@@ -8,6 +8,7 @@ pub fn resolve_package_version(uri: &str) -> String {
     );
     let output = Command::new("sh")
         .args(&["-c", &cmd])
+        .stdin(std::process::Stdio::null())
         .output();
 
     if let Ok(out) = output {
@@ -25,6 +26,7 @@ pub fn resolve_package_version(uri: &str) -> String {
     );
     let output_name = Command::new("sh")
         .args(&["-c", &cmd_name])
+        .stdin(std::process::Stdio::null())
         .output();
         
     if let Ok(out) = output_name {

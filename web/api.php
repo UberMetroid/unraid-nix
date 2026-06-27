@@ -177,6 +177,7 @@ if ($action === 'save-settings') {
     $enable_cli = isset($_POST['enable_cli']) ? $_POST['enable_cli'] : 'no';
     $show_in_nav = isset($_POST['show_in_nav']) ? $_POST['show_in_nav'] : 'yes';
     $allow_source_builds = isset($_POST['allow_source_builds']) ? $_POST['allow_source_builds'] : 'no';
+    $filter_presets_by_hardware = isset($_POST['filter_presets_by_hardware']) ? $_POST['filter_presets_by_hardware'] : 'yes';
     
     $output = [];
     $code = 0;
@@ -186,7 +187,8 @@ if ($action === 'save-settings') {
            "--enable-sandbox " . escapeshellarg($enable_sandbox) . " " .
            "--enable-cli " . escapeshellarg($enable_cli) . " " .
            "--show-in-nav " . escapeshellarg($show_in_nav) . " " .
-           "--allow-source-builds " . escapeshellarg($allow_source_builds);
+           "--allow-source-builds " . escapeshellarg($allow_source_builds) . " " .
+           "--filter-presets-by-hardware " . escapeshellarg($filter_presets_by_hardware);
            
     exec($cmd . " 2>&1", $output, $code);
     if ($code !== 0) {
