@@ -10,15 +10,15 @@ Title="Logs"
     <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 15px;">
         <h3 style="margin: 0;">Logs</h3>
         <div>
-            <label for="nix-log-select" style="margin-right: 10px; color: #eee; font-size: 13px;">Select Log:</label>
-            <select id="nix-log-select" onchange="loadLogs()" style="background: #141416; border: 1px solid #2d2d30; color: #fff; padding: 6px 12px; border-radius: 4px; width: auto; display: inline-block;">
+            <label for="nix-log-select" style="margin-right: 10px; color: var(--nix-text-bright); font-size: 13px;">Select Log:</label>
+            <select id="nix-log-select" onchange="loadLogs()" style="background: var(--nix-bg-secondary); border: 1px solid var(--nix-border-primary); color: var(--nix-text-primary); padding: 6px 12px; border-radius: 4px; width: auto; display: inline-block;">
                 <option value="plugin" selected>Nix Plugin Operations (/var/log/nix-plugin.log)</option>
                 <option value="compose">Process Supervisor (/var/log/nix-process-compose.log)</option>
                 <option value="daemon">Low-level Nix Daemon Socket (/var/log/nix-daemon.log)</option>
             </select>
             <div style="display: inline-flex; align-items: center; gap: 10px; margin-left: 15px; vertical-align: middle;">
-                <span style="color: #bbb; font-size: 13px;">Filter:</span>
-                <label style="color: #00d5ff; font-size: 13px; cursor: pointer; display: inline-flex; align-items: center; gap: 4px; user-select: none;">
+                <span style="color: var(--nix-text-secondary); font-size: 13px;">Filter:</span>
+                <label style="color: var(--nix-accent); font-size: 13px; cursor: pointer; display: inline-flex; align-items: center; gap: 4px; user-select: none;">
                     <input type="checkbox" id="nix-log-filter-info" checked onchange="loadLogs()" style="margin: 0; vertical-align: middle;"> Info
                 </label>
                 <label style="color: #f59e0b; font-size: 13px; cursor: pointer; display: inline-flex; align-items: center; gap: 4px; user-select: none;">
@@ -27,7 +27,7 @@ Title="Logs"
                 <label style="color: #ef4444; font-size: 13px; cursor: pointer; display: inline-flex; align-items: center; gap: 4px; user-select: none;">
                     <input type="checkbox" id="nix-log-filter-error" checked onchange="loadLogs()" style="margin: 0; vertical-align: middle;"> Error
                 </label>
-                <label style="color: #888888; font-size: 13px; cursor: pointer; display: inline-flex; align-items: center; gap: 4px; user-select: none;">
+                <label style="color: var(--nix-text-secondary); font-size: 13px; cursor: pointer; display: inline-flex; align-items: center; gap: 4px; user-select: none;">
                     <input type="checkbox" id="nix-log-filter-debug" checked onchange="loadLogs()" style="margin: 0; vertical-align: middle;"> Debug
                 </label>
             </div>
@@ -35,8 +35,8 @@ Title="Logs"
         </div>
     </div>
     
-    <div style="background: #111; border: 1px solid #2d2d30; border-radius: 4px; padding: 15px; margin-top: 10px;">
-        <pre id="nix-log-content" style="margin: 0; color: #eee; font-family: monospace; font-size: 12px; white-space: pre-wrap; height: 500px; overflow-y: auto;"></pre>
+    <div style="background: var(--nix-console-bg); border: 1px solid var(--nix-border-primary); border-radius: 4px; padding: 15px; margin-top: 10px;">
+        <pre id="nix-log-content" style="margin: 0; color: var(--nix-text-primary); font-family: monospace; font-size: 12px; white-space: pre-wrap; height: 500px; overflow-y: auto;"></pre>
     </div>
 </div>
 
@@ -115,11 +115,11 @@ function loadLogs() {
             escaped = escaped.replace(/\[WARNING\]/g, '<span style="color: #f59e0b; font-weight: bold;">[WARNING]</span>');
             escaped = escaped.replace(/\[WRN\]/g, '<span style="color: #f59e0b; font-weight: bold;">[WRN]</span>');
             
-            escaped = escaped.replace(/\[INFO\]/g, '<span style="color: #00d5ff; font-weight: bold;">[INFO]</span>');
-            escaped = escaped.replace(/\[INF\]/g, '<span style="color: #00d5ff; font-weight: bold;">[INF]</span>');
+            escaped = escaped.replace(/\[INFO\]/g, '<span style="color: var(--nix-accent); font-weight: bold;">[INFO]</span>');
+            escaped = escaped.replace(/\[INF\]/g, '<span style="color: var(--nix-accent); font-weight: bold;">[INF]</span>');
             
-            escaped = escaped.replace(/\[DEBUG\]/g, '<span style="color: #888888;">[DEBUG]</span>');
-            escaped = escaped.replace(/\[DBG\]/g, '<span style="color: #888888;">[DBG]</span>');
+            escaped = escaped.replace(/\[DEBUG\]/g, '<span style="color: var(--nix-text-muted);">[DEBUG]</span>');
+            escaped = escaped.replace(/\[DBG\]/g, '<span style="color: var(--nix-text-muted);">[DBG]</span>');
             
             container.innerHTML = escaped;
             container.scrollTop = container.scrollHeight;
