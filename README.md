@@ -84,6 +84,11 @@ To ensure absolute filesystem security without breaking Unraid's FUSE-based syst
   It then bind-mounts *only* the specific folders mapped in the service's configuration (plus essential system directories like `/dev`, `/proc`, `/sys`, `/nix`, `/tmp`, and core DNS/hosts config files).
   Finally, the service is chrooted into this jail, making `/var/run/nix-chroot-[service]` its absolute `/` root directory.
 * **Host System Obfuscation**: Because Unraid system folders like `/bin`, `/usr`, `/lib`, `/var`, `/home`, `/root`, and `/boot` are never created or mapped inside the jail, they are completely invisible to the Nix flake. If a user opens the file explorer inside Radarr or Sonarr, they will only see the folders they explicitly shared (like `/config` and `/downloads`), keeping your host server completely hidden and secure.
+* **Process & Hostname Isolation (UTS, PID, IPC)**: In addition to filesystem chrooting, the plugin supports granular namespace isolation (configurable via **Settings**):
+  * **PID Isolation (`unshare -p --fork`)**: Runs the service inside a private process namespace (where it runs as PID 1), preventing it from observing or signaling host Unraid system processes.
+  * **UTS Isolation (`unshare -u`)**: Provides a virtual host namespace, hiding the host's actual server hostname and setting it to `nix-sandbox-[service]`.
+  * **IPC Isolation (`unshare -i`)**: Restricts access to the host's System V IPC channels and POSIX message queues.
+* **Per-Flake Network Isolation (`unshare -n`)**: For private services, you can enable **Network Isolation** in the Configuration tab. This strips the service's network interfaces, leaving only loopback (`127.0.0.1`) active, completely blocking WAN and LAN access.
 * **Zero RAM/CPU Cost**: Since directory mounts are just filesystem pointers (bind-mounts) and the jail uses a RAM-disk containing only empty mount folders, this sandboxing model uses **less than 10 KB of RAM** per service and incurs zero performance penalty.
 
 ---
