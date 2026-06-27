@@ -218,7 +218,7 @@ function handleOverridePortClick() { addPortRow('', '', '', false); }
 function populatePortRows(portStr, presetName) {
     $("#nix-ports-container").empty();
     if (!portStr) return;
-                                                        var labels = {
+                                                            var labels = {
         'actual-budget:5006': 'HTTP',
         'adguard-home:3000': 'Setup',
         'adguard-home:53': 'DNS',
@@ -485,7 +485,7 @@ function updatePresetInfo() {
         $("#custom-uri").parent().after('<div id="nix-preset-info-box" style="margin-top: 10px; display: none;"></div>');
         infoBox = $("#nix-preset-info-box");
     }
-                                                        var presets = {
+                                                            var presets = {
         "actual-budget": "Actual Budget",
         "adguard-home": "AdGuard Home",
         "agent-dvr": "Agent DVR",
