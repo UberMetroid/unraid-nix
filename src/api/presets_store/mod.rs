@@ -92,6 +92,7 @@ pub fn render_presets_store() -> String {
             <div style="display: flex; gap: 8px; align-items: center;">
                 <button type="button" class="nix-preset-pill active" onclick="filterPresetCategory('all', this)">All</button>
                 <button type="button" class="nix-preset-pill" onclick="filterPresetCategory('composed', this)">Composed</button>
+                <button type="button" class="nix-preset-pill" onclick="filterPresetCategory('standard', this)">Standard</button>
                 
                 <!-- Search bar -->
                 <div style="position: relative; width: 250px; margin-left: 8px;">
@@ -152,7 +153,7 @@ pub fn render_presets_store() -> String {
             };
             
             html.push_str(&format!(
-                r#"<div class="nix-preset-card" data-name="{}" data-desc="{}" data-category="{}" style="background: rgba(255, 255, 255, 0.02); border: 1px solid rgba(255, 255, 255, 0.05); border-radius: 6px; padding: 16px; display: flex; flex-direction: column; justify-content: space-between; transition: transform 0.2s ease, border-color 0.2s ease, background 0.2s ease, box-shadow 0.2s ease; height: 180px;">
+                r#"<div class="nix-preset-card" data-name="{}" data-desc="{}" data-category="{}" data-is-composed="{}" style="background: rgba(255, 255, 255, 0.02); border: 1px solid rgba(255, 255, 255, 0.05); border-radius: 6px; padding: 16px; display: flex; flex-direction: column; justify-content: space-between; transition: transform 0.2s ease, border-color 0.2s ease, background 0.2s ease, box-shadow 0.2s ease; height: 180px;">
                     <div>
                         <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 12px;">
                             <div style="width: 32px; height: 32px; border-radius: 4px; background: {}; border: 1px solid {}; display: flex; align-items: center; justify-content: center; color: {}; flex-shrink: 0;">
@@ -174,7 +175,7 @@ pub fn render_presets_store() -> String {
                         </button>
                     </div>
                 </div>"#,
-                p.name, p.description.to_lowercase(), category_name, styling.bg, styling.border, styling.color, styling.icon, p.display_name, p.display_name, subtitle_html, p.description, p.url, p.name
+                p.name, p.description.to_lowercase(), category_name, if p.is_composed { "true" } else { "false" }, styling.bg, styling.border, styling.color, styling.icon, p.display_name, p.display_name, subtitle_html, p.description, p.url, p.name
             ));
         }
     }
@@ -213,9 +214,20 @@ pub fn render_presets_store() -> String {
             var name = card.getAttribute('data-name');
             var desc = card.getAttribute('data-desc');
             var category = card.getAttribute('data-category');
+            var isComposed = card.getAttribute('data-is-composed') === 'true';
             
             var matchesQuery = (name.indexOf(q) !== -1 || desc.indexOf(q) !== -1);
-            var matchesCategory = (activeCategory === 'all' || category === activeCategory);
+            
+            var matchesCategory = false;
+            if (activeCategory === 'all') {
+                matchesCategory = true;
+            } else if (activeCategory === 'composed') {
+                matchesCategory = isComposed;
+            } else if (activeCategory === 'standard') {
+                matchesCategory = !isComposed;
+            } else {
+                matchesCategory = (category === activeCategory);
+            }
             
             if (matchesQuery && matchesCategory) {
                 card.style.display = 'flex';
