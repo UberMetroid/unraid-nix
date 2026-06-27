@@ -81,6 +81,7 @@ pub fn parse_sandbox_args(args: &[String]) -> Result<String, String> {
         extra_binds,
         port,
         bind_address,
+        host_init_commands: Vec::new(),
     })
 }
 

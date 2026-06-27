@@ -19,7 +19,11 @@ pub fn get_metadata_json(name: &str) -> String {
     let meta_file = format!("/boot/config/plugins/nix/metadata/{}.json", name);
     if let Ok(content) = std::fs::read_to_string(&meta_file) {
         if let Ok(v) = serde_json::from_str::<Value>(&content) {
-            return serde_json::to_string(&v).unwrap_or_default();
+            let result = serde_json::json!({
+                "success": true,
+                "metadata": v
+            });
+            return serde_json::to_string(&result).unwrap_or_default();
         }
     }
 

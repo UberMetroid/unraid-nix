@@ -1,0 +1,9 @@
+{
+  "name": "radarr",
+  "display_name": "Radarr",
+  "description": "Radarr Movie Manager",
+  "url": "https://radarr.video/",
+  "default_ports": [
+    { "host": 7878, "container": 7878, "label": "HTTP" }
+  ]
+}

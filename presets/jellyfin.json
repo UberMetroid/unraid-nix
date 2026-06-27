@@ -1,0 +1,12 @@
+{
+  "name": "jellyfin",
+  "display_name": "Jellyfin",
+  "description": "Jellyfin Media Server",
+  "url": "https://jellyfin.org/",
+  "default_ports": [
+    { "host": 8096, "container": 8096, "label": "HTTP" },
+    { "host": 8920, "container": 8920, "label": "HTTPS" },
+    { "host": 1900, "container": 1900, "label": "DLNA (UDP)" },
+    { "host": 7359, "container": 7359, "label": "Discovery (UDP)" }
+  ]
+}

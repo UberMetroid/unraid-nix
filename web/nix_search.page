@@ -1,8 +1,8 @@
 Menu="Nix:2"
 Title="Flake Store"
 ---
-<link type="text/css" rel="stylesheet" href="/plugins/nix/styles_layout.css">
-<link type="text/css" rel="stylesheet" href="/plugins/nix/styles_widgets.css">
+<link type="text/css" rel="stylesheet" href="/plugins/nix/styles_layout.css?v=<?php echo time(); ?>">
+<link type="text/css" rel="stylesheet" href="/plugins/nix/styles_widgets.css?v=<?php echo time(); ?>">
 <script src="/plugins/nix/nix.js"></script>
 <div class="nix-section">
     <h3>Search Nixpkgs Registry</h3>
@@ -37,20 +37,40 @@ function executeSearch() {
 
 function installPackage(btn, pkg) {
     if (!confirm("Are you sure you want to install CLI package: " + pkg + "?")) return;
-    var $btn = $(btn);
-    var originalText = $btn.text();
-    $btn.prop('disabled', true).html('<i class="fa fa-spinner fa-spin"></i> Installing...');
-    $.post('/plugins/nix/api.php', { action: 'install-cli', package: pkg }, function(resp) {
-        if (resp.success) {
-            alert(pkg + " successfully installed in your global Nix profile!");
-        } else {
-            alert("Installation failed: " + resp.error);
-        }
-        $btn.prop('disabled', false).text(originalText);
-    }, 'json').fail(function() {
-        alert("Server error occurred.");
-        $btn.prop('disabled', false).text(originalText);
+    
+    var width = 900;
+    var height = 600;
+    var left = (window.screen.width - width) / 2;
+    var top = (window.screen.height - height) / 2;
+    var popupName = 'nix_install_popup_' + Date.now();
+    var popup = window.open('', popupName, `scrollbars=yes,resizable=yes,status=no,location=no,toolbar=no,menubar=no,width=${width},height=${height},left=${left},top=${top}`);
+    
+    if (!popup) {
+        alert("Popup blocker prevented opening the installation console. Please allow popups for this site.");
+        return;
+    }
+    
+    var form = $('<form>', {
+        method: 'POST',
+        action: '/plugins/nix/stream.php',
+        target: popupName
     });
+    
+    // Append CSRF token required by Unraid webGUI
+    form.append($('<input>', { type: 'hidden', name: 'csrf_token', value: window.csrf_token || '' }));
+    form.append($('<input>', { type: 'hidden', name: 'action', value: 'install-cli' }));
+    form.append($('<input>', { type: 'hidden', name: 'package', value: pkg }));
+    
+    $('body').append(form);
+    form.submit();
+    form.remove();
+    
+    var timer = setInterval(function() {
+        if (popup.closed) {
+            clearInterval(timer);
+            window.location.reload();
+        }
+    }, 1000);
 }
 
 function showServiceModal(pkg) {

@@ -1,0 +1,9 @@
+{
+  "name": "sonarr",
+  "display_name": "Sonarr",
+  "description": "Sonarr TV Show Manager",
+  "url": "https://sonarr.tv/",
+  "default_ports": [
+    { "host": 8989, "container": 8989, "label": "HTTP" }
+  ]
+}

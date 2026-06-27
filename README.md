@@ -19,19 +19,23 @@ To install this plugin on your Unraid server:
 
 ---
 
-## 1. How It Works (Unraid RAM/Persistence Split)
+## 1. How Nix Works under Unraid
 
-Unraid runs its root operating system entirely in RAM, rebuilding it on every boot from your flash drive. To work within this architecture safely:
+Unraid runs its root operating system entirely in RAM (RAMFS), rebuilding it on every boot from your flash drive. To support this architecture cleanly, the plugin splits Nix files into persistent and ephemeral locations:
 
-1. **Persistent Files (Flash Drive):**
+1. **Persistent Configuration (Flash Drive):**
    * Path: `/boot/config/plugins/nix/`
-   * Stores settings (`nix.cfg`), the service orchestration file (`process-compose.yml`), and the plugin package manager (`nix.plg`).
-2. **RAM Runtime Files (RAMFS):**
+   * Stores global settings (`nix.cfg`), the service orchestration file (`process-compose.yml`), and service-specific metadata JSON.
+2. **Ephemeral WebUI Templates (RAMFS):**
    * Path: `/usr/local/emhttp/plugins/nix/`
-   * Wiped on reboot. The `nix.plg` installer extracts the WebGUI templates and the compiled Rust helper (`nix-helper`) back here on boot.
-3. **The Nix Store (Storage Array/Cache):**
-   * Path: `/nix` (bind-mounted to your persistent fast pool, e.g., `/mnt/cache/system/nix`).
-   * Contains your installed packages, channels, and operational files. Nothing is lost on reboot.
+   * Re-extracted from `nix.plg` on boot. Contains WebGUI templates and the compiled Rust helper (`nix-helper`).
+3. **The Nix Store (Persistent Storage Pool):**
+   * Path: `/nix` (bind-mounted to a persistent fast storage pool, e.g., `/mnt/cache/system/nix` or `/mnt/user/system/nix`).
+   * This is where Nix installs packages, channels, and runtime configurations. On boot, the plugin automatically mounts this directory to `/nix` on the host, ensuring your packages persist across reboots.
+
+### Native, Zero-Overhead Execution
+Because Nix packages compile all library paths (`rpath`) and dynamic linkers directly to absolute paths inside `/nix/store/`, they are completely self-contained. They do **not** depend on Unraid's host system folders (like `/usr/lib/`, `/bin/`, or `/lib/`) to execute.
+As a result, Nix flakes run directly on the Unraid CPU/Linux kernel at native host speeds without the CPU, RAM, or network overhead of Docker virtualization or virtual machines.
 
 ---
 
@@ -54,26 +58,41 @@ tail -f /var/log/nix-process-compose.log /var/log/nix-services/*.log
 
 ---
 
-## 3. Sandboxing & Share Security
+## 3. How Unraid Handles Shares under Nix
 
-To ensure security and filesystem isolation while fully respecting Unraid's RAM-based `rootfs` architecture, Nix services run inside an isolated private mount namespace (`unshare -m`).
+Nix services integrate natively with Unraid's storage architecture, respecting its layout, pools, and caching rules:
 
-### Design & Security Principles:
-- **Respect Unraid's Architecture & Permissions:** The plugin strictly respects Unraid's storage layout, shares, and networking stack. It must never bypass access controls, user shares permission scopes, or system capabilities that Unraid does not normally grant to applications.
-- **Privilege Dropping:** All background services drop root privileges to match Unraid's standard `nobody:users` ownership (via `PUID=99` and `PGID=100`) using `setpriv` before executing the flake. Any files created by these services will automatically belong to `nobody:users`, preventing permission issues on your shares.
-- **Selective Storage Sandboxing:** When **Storage Sandboxing** is enabled in Settings, the plugin mounts a private `tmpfs` over `/mnt` inside the namespace to completely hide all disks, pools, and unmapped user shares. It then selectively re-exposes (via recursive bind-mounting) *only* the directories explicitly mapped in the service's configuration (plus remote shares and unassigned devices under `/mnt/disks` and `/mnt/remotes`). This prevents any Nix flake from reading/writing to unmapped storage directories.
+### A. Unified User Shares (`/mnt/user/...`)
+When you map an Unraid user share (like `/mnt/user/media` or `/mnt/user/downloads`) into a Nix service, all disk operations are handled by Unraid's **FUSE filesystem layer (`shfs`)**:
+* **Cache & Mover**: If a share is set to use a cache pool, writes from the Nix service are written to the cache pool first. Unraid's background **Mover** script will later relocate them to the array disks without interrupting the Nix service.
+* **Allocation Rules**: Disk allocation methods (High-water, Fill-Up, Most-Free) and split levels configured in the Unraid WebGUI are automatically honored.
+
+### B. High-Performance Pools & ZFS (`/mnt/cache/...` / `/mnt/zfs/...`)
+For heavy database applications (like Radarr/Sonarr's SQLite databases), running database queries over Unraid's FUSE layer (`/mnt/user`) can result in high CPU I/O wait and SQLite database locks.
+* To bypass FUSE overhead, you can map your application data (`/config`) directly to your SSD cache pool or ZFS pool (e.g. `/mnt/cache/appdata/radarr` or `/mnt/zfs/appdata/radarr`). 
+* This allows the database to read/write at native SSD/NVMe speeds while keeping the media library mapped through the FUSE layer under `/mnt/user/media`.
 
 ---
 
-## 4. Running Rust Unit Tests
+## 4. Chroot Jail Sandboxing & Security
+
+To ensure absolute filesystem security without breaking Unraid's FUSE-based system, Nix services utilize a combination of **Mount Namespaces (`unshare -m`)** and a **Chroot Jail**:
+
+### Design & Security Principles:
+* **Privilege Dropping**: All background services drop root privileges to match Unraid's standard `nobody:users` ownership (via `PUID=99` and `PGID=100`). Files created or modified by these services will automatically belong to `nobody:users`, preventing permission issues on your shares.
+* **Restricted Root Directory (Chroot)**: When **Storage Sandboxing** is enabled in Settings, the plugin mounts a private, empty RAM-disk (`tmpfs`) at `/var/run/nix-chroot-[service]`.
+  It then bind-mounts *only* the specific folders mapped in the service's configuration (plus essential system directories like `/dev`, `/proc`, `/sys`, `/nix`, `/tmp`, and core DNS/hosts config files).
+  Finally, the service is chrooted into this jail, making `/var/run/nix-chroot-[service]` its absolute `/` root directory.
+* **Host System Obfuscation**: Because Unraid system folders like `/bin`, `/usr`, `/lib`, `/var`, `/home`, `/root`, and `/boot` are never created or mapped inside the jail, they are completely invisible to the Nix flake. If a user opens the file explorer inside Radarr or Sonarr, they will only see the folders they explicitly shared (like `/config` and `/downloads`), keeping your host server completely hidden and secure.
+* **Zero RAM/CPU Cost**: Since directory mounts are just filesystem pointers (bind-mounts) and the jail uses a RAM-disk containing only empty mount folders, this sandboxing model uses **less than 10 KB of RAM** per service and incurs zero performance penalty.
+
+---
+
+## 5. Running Rust Unit Tests
 
 All business logic (parsers, sandbox generators, API clients) has comprehensive unit test coverage. To execute the test suite:
 
-1. Enter the source directory:
-   ```bash
-   cd src/
-   ```
-2. Run cargo tests:
+1. Run cargo tests in the root directory:
    ```bash
    cargo test
    ```

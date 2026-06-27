@@ -69,9 +69,11 @@ pub fn render_search_results(query: &str) -> String {
             let description_cell = format!("<div>{}</div>{}", r.description, meta_html);
 
             let short_name = r.package_name.replace("nixpkgs#", "");
+            let link_url = crate::api::package::get_package_link_url(&r.package_name)
+                .unwrap_or_else(|| format!("https://search.nixos.org/packages?channel=unstable&show={}&query={}", short_name, short_name));
             let package_link = format!(
-                r#"<a href="https://search.nixos.org/packages?channel=unstable&query={}" target="_blank" style="color: #00a1ff; text-decoration: none;"><code>{}</code> <i class="fa fa-external-link" style="font-size: 10px; margin-left: 2px;"></i></a>"#,
-                short_name, short_name
+                r#"<a href="{}" target="_blank" style="color: #00a1ff; text-decoration: none;"><code>{}</code> <i class="fa fa-external-link" style="font-size: 10px; margin-left: 2px;"></i></a>"#,
+                link_url, short_name
             );
 
             html.push_str(&format!(

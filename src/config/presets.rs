@@ -19,16 +19,31 @@ pub fn get_service_command_preset(
         Some(media.to_string())
     };
 
+    let mut host_init_commands = Vec::new();
+
     let inner_command = match name.to_lowercase().as_str() {
         "radarr" | "sonarr" => {
             let default_port = if name.to_lowercase() == "radarr" { 7878 } else { 8989 };
             let mappings = port.as_ref().map(|s| parse_ports(s)).unwrap_or_default();
             let p = mappings.first().map(|m| m.host).unwrap_or(default_port);
             let addr = bind_address.clone().unwrap_or_else(|| "*".to_string());
-            format!(
-                "mkdir -p /config && [ ! -f /config/config.xml ] && echo '<Config><Port>{}</Port><BindAddress>{}</BindAddress></Config>' > /config/config.xml; sed -i 's|<Port>[^<]*</Port>|<Port>{}</Port>|g' /config/config.xml; sed -i 's|<BindAddress>[^<]*</BindAddress>|<BindAddress>{}</BindAddress>|g' /config/config.xml; nix run nixpkgs#{}",
-                p, addr, p, addr, name.to_lowercase()
-            )
+            
+            host_init_commands.push(format!("mkdir -p {}", appdata));
+            host_init_commands.push(format!(
+                "if [ ! -f {}/config.xml ]; then echo '<Config><Port>{}</Port><BindAddress>{}</BindAddress></Config>' > {}/config.xml; fi",
+                appdata, p, addr, appdata
+            ));
+            host_init_commands.push(format!(
+                "sed -i 's|<Port>[^<]*</Port>|<Port>{}</Port>|g' {}/config.xml",
+                p, appdata
+            ));
+            host_init_commands.push(format!(
+                "sed -i 's|<BindAddress>[^<]*</BindAddress>|<BindAddress>{}</BindAddress>|g' {}/config.xml",
+                addr, appdata
+            ));
+            host_init_commands.push(format!("chown -R {}:{} {}", puid, pgid, appdata));
+
+            format!("exec nix run nixpkgs#{}", name.to_lowercase())
         }
         "jellyfin" => {
             let mappings = port.as_ref().map(|s| parse_ports(s)).unwrap_or_default();
@@ -43,16 +58,36 @@ pub fn get_service_command_preset(
                 }
             }
             
-            let mut bind_opts = format!(" --port {}", http_port);
-            if let Some(ref addr) = bind_address {
-                if !addr.trim().is_empty() {
-                    bind_opts.push_str(&format!(" --bind-to-address {}", addr));
-                }
-            }
-            format!(
-                "mkdir -p /config/config && [ ! -f /config/config/system.xml ] && echo '<ServerConfiguration><HttpsPortNumber>{}</HttpsPortNumber></ServerConfiguration>' > /config/config/system.xml; sed -i 's|<HttpsPortNumber>[^<]*</HttpsPortNumber>|<HttpsPortNumber>{}</HttpsPortNumber>|g' /config/config/system.xml; nix run nixpkgs#jellyfin -- --datadir /config/data --cachedir /config/cache --configdir /config/config{}",
-                https_port, https_port, bind_opts
-            )
+            let addr = bind_address.clone().unwrap_or_else(|| "0.0.0.0".to_string());
+            
+            host_init_commands.push(format!("mkdir -p {}/config", appdata));
+            host_init_commands.push(format!(
+                "if [ ! -f {}/config/network.xml ]; then echo '<?xml version=\"1.0\" encoding=\"utf-8\"?><NetworkConfiguration><LocalPortNumber>8096</LocalPortNumber><HttpsPortNumber>8920</HttpsPortNumber><EnableHttps>false</EnableHttps><PublicPort>8096</PublicPort><PublicHttpsPort>8920</PublicHttpsPort><BindToAddress>0.0.0.0</BindToAddress></NetworkConfiguration>' > {}/config/network.xml; fi",
+                appdata, appdata
+            ));
+            host_init_commands.push(format!(
+                "sed -i 's|<LocalPortNumber>[^<]*</LocalPortNumber>|<LocalPortNumber>{}</LocalPortNumber>|g' {}/config/network.xml",
+                http_port, appdata
+            ));
+            host_init_commands.push(format!(
+                "sed -i 's|<HttpsPortNumber>[^<]*</HttpsPortNumber>|<HttpsPortNumber>{}</HttpsPortNumber>|g' {}/config/network.xml",
+                https_port, appdata
+            ));
+            host_init_commands.push(format!(
+                "sed -i 's|<PublicPort>[^<]*</PublicPort>|<PublicPort>{}</PublicPort>|g' {}/config/network.xml",
+                http_port, appdata
+            ));
+            host_init_commands.push(format!(
+                "sed -i 's|<PublicHttpsPort>[^<]*</PublicHttpsPort>|<PublicHttpsPort>{}</PublicHttpsPort>|g' {}/config/network.xml",
+                https_port, appdata
+            ));
+            host_init_commands.push(format!(
+                "sed -i 's|<BindToAddress>[^<]*</BindToAddress>|<BindToAddress>{}</BindToAddress>|g' {}/config/network.xml",
+                addr, appdata
+            ));
+            host_init_commands.push(format!("chown -R {}:{} {}", puid, pgid, appdata));
+
+            format!("exec nix run nixpkgs#jellyfin -- --datadir /config/data --cachedir /config/cache --configdir /config/config")
         }
         "syncthing" => {
             let mappings = port.as_ref().map(|s| parse_ports(s)).unwrap_or_default();
@@ -72,28 +107,26 @@ pub fn get_service_command_preset(
             
             let addr = bind_address.clone().unwrap_or_else(|| "0.0.0.0".to_string());
             
-            let mut patch_cmds = Vec::new();
+            host_init_commands.push(format!("mkdir -p {}", appdata));
             if sync_port != 22000 {
-                patch_cmds.push(format!("sed -i 's|<listenAddress>tcp://:[^<]*</listenAddress>|<listenAddress>tcp://:{}</listenAddress>|g' /config/config.xml", sync_port));
-                patch_cmds.push(format!("sed -i 's|<listenAddress>default</listenAddress>|<listenAddress>tcp://:{}</listenAddress>|g' /config/config.xml", sync_port));
+                host_init_commands.push(format!(
+                    "sed -i 's|<listenAddress>tcp://:[^<]*</listenAddress>|<listenAddress>tcp://:{}</listenAddress>|g' {}/config.xml",
+                    sync_port, appdata
+                ));
+                host_init_commands.push(format!(
+                    "sed -i 's|<listenAddress>default</listenAddress>|<listenAddress>tcp://:{}</listenAddress>|g' {}/config.xml",
+                    sync_port, appdata
+                ));
             }
             if local_ann_port != 21027 {
-                patch_cmds.push(format!("sed -i 's|<localAnnouncePort>[^<]*</localAnnouncePort>|<localAnnouncePort>{}</localAnnouncePort>|g' /config/config.xml", local_ann_port));
+                host_init_commands.push(format!(
+                    "sed -i 's|<localAnnouncePort>[^<]*</localAnnouncePort>|<localAnnouncePort>{}</localAnnouncePort>|g' {}/config.xml",
+                    local_ann_port, appdata
+                ));
             }
-            
-            let patch_str = if patch_cmds.is_empty() {
-                "".to_string()
-            } else {
-                format!(
-                    "mkdir -p /config && [ -f /config/config.xml ] && {}; ",
-                    patch_cmds.join(" && ")
-                )
-            };
-            
-            format!(
-                "{}nix run nixpkgs#syncthing -- --home=/config --gui-address=http://{}:{}",
-                patch_str, addr, gui_port
-            )
+            host_init_commands.push(format!("chown -R {}:{} {}", puid, pgid, appdata));
+
+            format!("exec nix run nixpkgs#syncthing -- --home=/config --gui-address=http://{}:{}", addr, gui_port)
         }
         _ => return Err(format!("Unknown preset template: {}", name)),
     };
@@ -109,5 +142,6 @@ pub fn get_service_command_preset(
         extra_binds,
         port,
         bind_address,
+        host_init_commands,
     })
 }

@@ -1,9 +1,11 @@
 Menu="Nix:3"
 Title="Install Flake"
 ---
-<link type="text/css" rel="stylesheet" href="/plugins/nix/styles_layout.css">
-<link type="text/css" rel="stylesheet" href="/plugins/nix/styles_widgets.css">
+<link type="text/css" rel="stylesheet" href="/plugins/nix/styles_layout.css?v=<?php echo time(); ?>">
+<link type="text/css" rel="stylesheet" href="/plugins/nix/styles_widgets.css?v=<?php echo time(); ?>">
+<link type="text/css" rel="stylesheet" href="/plugins/dynamix/styles/jquery.filetree.css">
 <script src="/plugins/nix/nix.js"></script>
+<script src="/plugins/dynamix/javascript/jquery.filetree.js"></script>
 
 <?php
 function detect_appdata_root() {
@@ -126,7 +128,7 @@ $host_ips = get_host_ips_php();
                 <label for="custom-appdata">Configuration Location:</label>
                 <div style="position: relative;">
                     <input type="text" id="custom-appdata" autocomplete="off" spellcheck="false" placeholder="<?php echo !empty($appdata_root) ? htmlspecialchars($appdata_root) . '/service-name' : '/path/to/appdata/service-name'; ?>" data-pickcloseonfile="true" data-pickfilter="HIDE_FILES_FILTER" data-pickroot="/mnt" data-pickfolders="true" style="padding-right: 30px;">
-                    <i class="fa fa-folder-open nix-folder-picker-btn" style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); cursor: pointer; color: #aaa;" onclick="$('#custom-appdata').trigger('click')"></i>
+                    <i class="fa fa-folder-open nix-folder-picker-btn" style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); color: #aaa; cursor: pointer;"></i>
                 </div>
                 <div class="nix-field-help" style="color: #e74c3c;"><i class="fa fa-warning"></i> Do NOT use your USB boot drive (/boot) as it will wear out the flash storage.</div>
             </div>
@@ -170,4 +172,4 @@ $host_ips = get_host_ips_php();
 <script>
 window.NIX_APPDATA_ROOT = <?php echo json_encode($appdata_root); ?>;
 </script>
-<script src="/plugins/nix/nix_install.js"></script>
+<script src="/plugins/nix/nix_install.js?v=<?php echo time(); ?>"></script>

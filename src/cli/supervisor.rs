@@ -29,7 +29,7 @@ pub fn restart_nix_supervisor() -> Result<(), String> {
     if std::path::Path::new(cfg_file).exists() {
         let _ = std::fs::create_dir_all("/var/log/nix-services");
         let cmd = format!(
-            ". /nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh && nohup nix run nixpkgs#process-compose -- -p 29704 -f {} --tui=false --keep-project > /var/log/nix-process-compose.log 2>&1 & echo \\$! > /var/run/nix-process-compose.pid",
+            "nohup sh -c \". /nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh && exec nix run nixpkgs#process-compose -- -p 29704 -f {} --tui=false --keep-project\" > /var/log/nix-process-compose.log 2>&1 < /dev/null & echo $! > /var/run/nix-process-compose.pid",
             cfg_file
         );
         let status = std::process::Command::new("sh")

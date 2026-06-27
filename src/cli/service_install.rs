@@ -159,6 +159,7 @@ pub fn install_service(args: &[String]) {
             extra_binds: binds_vec.clone(),
             port: port.clone(),
             bind_address: bind_address.clone(),
+            host_init_commands: Vec::new(),
         }) {
             Ok(c) => c,
             Err(e) => { eprintln!("Error building sandbox command: {}", e); exit(1); }

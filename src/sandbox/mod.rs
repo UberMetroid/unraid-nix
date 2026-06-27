@@ -48,6 +48,7 @@ pub struct SandboxConfig {
     pub extra_binds: Vec<(String, String)>,
     pub port: Option<String>,
     pub bind_address: Option<String>,
+    pub host_init_commands: Vec<String>,
 }
 
 pub fn is_storage_sandbox_enabled() -> bool {

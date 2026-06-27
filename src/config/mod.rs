@@ -108,8 +108,8 @@ mod tests {
 
         let cmd_jellyfin = get_service_command_preset("jellyfin", "/mnt/cache/appdata/jellyfin", "-", 99, 100, false, Vec::new(), Some("8097:8096,8921:8920".to_string()), Some("10.0.0.5".to_string())).unwrap();
         assert!(cmd_jellyfin.contains("sed -i 's|<HttpsPortNumber>[^<]*</HttpsPortNumber>|<HttpsPortNumber>8921</HttpsPortNumber>|g'"));
-        assert!(cmd_jellyfin.contains("--port 8097"));
-        assert!(cmd_jellyfin.contains("--bind-to-address 10.0.0.5"));
+        assert!(cmd_jellyfin.contains("sed -i 's|<LocalPortNumber>[^<]*</LocalPortNumber>|<LocalPortNumber>8097</LocalPortNumber>|g'"));
+        assert!(cmd_jellyfin.contains("sed -i 's|<BindToAddress>[^<]*</BindToAddress>|<BindToAddress>10.0.0.5</BindToAddress>|g'"));
 
         let err = get_service_command_preset("invalid", "/tmp", "/tmp", 99, 100, false, Vec::new(), None, None);
         assert!(err.is_err());
