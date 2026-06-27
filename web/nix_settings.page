@@ -59,91 +59,46 @@ if (is_dir($meta_dir)) {
 }
 $suggested_quota = 15 + ($num_flakes * 3);
 
-
-
 exec("/etc/rc.d/rc.nix-daemon status 2>/dev/null", $status_output, $status_code);
 $is_nix_running = ($status_code === 0);
 ?>
 
-<!-- 1. Nix System Daemon Status & Control -->
+<!-- 1. Core System Settings -->
 <div class="nix-section" style="margin-bottom: 20px;">
-    <div style="display: flex; align-items: center; justify-content: space-between;">
-        <div>
-            <h3 style="margin: 0 0 5px 0;">Nix System Daemon</h3>
-            <p class="nix-subtext" style="margin: 0;">
-                Daemon Status: 
-                <?php if ($is_nix_running): ?>
-                    <span class="status green">RUNNING</span>
-                <?php else: ?>
-                    <span class="status red">STOPPED</span>
-                <?php endif; ?>
-            </p>
-        </div>
-        <div id="nix-daemon-controls" style="display: flex; gap: 8px;">
-            <?php if ($is_nix_running): ?>
-                <button type="button" class="nix-btn-install" style="background: #232326; border: 1px solid #3a3a3d; color: #525256; cursor: not-allowed; font-weight: normal; margin: 0; padding: 6px 12px; display: inline-flex; align-items: center; gap: 6px;" disabled><i class="fa fa-play"></i> Start</button>
-                <button type="button" class="nix-btn" style="margin: 0; padding: 6px 12px;" onclick="toggleNixDaemon('stop')"><i class="fa fa-stop"></i> Stop</button>
-                <button type="button" class="nix-btn" style="margin: 0; padding: 6px 12px;" onclick="toggleNixDaemon('restart')"><i class="fa fa-refresh"></i> Restart</button>
-            <?php else: ?>
-                <button type="button" class="nix-btn-install" style="margin: 0; padding: 6px 12px; display: inline-flex; align-items: center; gap: 6px;" onclick="toggleNixDaemon('start')"><i class="fa fa-play"></i> Start</button>
-                <button type="button" class="nix-btn" style="margin: 0; padding: 6px 12px; color: #525256; border-color: #2d2d30; cursor: not-allowed;" disabled><i class="fa fa-stop"></i> Stop</button>
-                <button type="button" class="nix-btn" style="margin: 0; padding: 6px 12px; color: #525256; border-color: #2d2d30; cursor: not-allowed;" disabled><i class="fa fa-refresh"></i> Restart</button>
-            <?php endif; ?>
-        </div>
-    </div>
-</div>
-
-<!-- 2. Template Library Maintenance & Sync -->
-<div class="nix-section" style="margin-bottom: 20px;">
-    <div style="display: flex; align-items: center; justify-content: space-between;">
-        <div>
-            <h3 style="margin: 0 0 5px 0;">Template Library Maintenance</h3>
-            <p class="nix-subtext" style="margin: 0;">Sync and update self-hosted app templates from the remote templates repository.</p>
-        </div>
-        <div>
-            <button type="button" id="nix-sync-btn" class="nix-btn" style="display: inline-flex; align-items: center; gap: 6px; margin: 0;" onclick="syncTemplates(this)"><i class="fa fa-refresh"></i> Force Sync Templates</button>
-        </div>
-    </div>
-</div>
-
-<!-- 3. Nix Store Disk Maintenance -->
-<div class="nix-section" style="margin-bottom: 20px;">
-    <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 15px;">
-        <div>
-            <h3 style="margin: 0 0 5px 0;">Nix Store Disk Maintenance</h3>
-            <p class="nix-subtext" style="margin: 0;">Clean up unused packages, old build derivations, and reclaim storage pool space.</p>
-        </div>
-        <div style="text-align: right;">
-            <button type="button" id="nix-gc-btn" class="nix-btn" style="display: inline-flex; align-items: center; gap: 6px; margin: 0;" onclick="collectGarbage(this)"><i class="fa fa-trash"></i> Collect Garbage</button>
-        </div>
-    </div>
+    <h3>Core System Settings</h3>
+    <p class="nix-subtext">Configure local storage path bindings and system-level boot operations.</p>
     
-    <div class="nix-form-group" style="margin-top: 15px; border-top: 1px solid rgba(255,255,255,0.05); padding-top: 15px;">
-        <label for="settings-auto-gc">Automatic Weekly Garbage Collection (Nix GC):</label>
-        <select id="settings-auto-gc">
-            <option value="no" <?php echo $auto_gc === 'no' ? 'selected' : ''; ?>>No</option>
-            <option value="yes" <?php echo $auto_gc === 'yes' ? 'selected' : ''; ?>>Yes</option>
-        </select>
-        <div class="nix-field-help">If enabled, Nix will mirror Unraid's weekly scheduler (configured under Settings > Scheduler) to automatically purge dangling build inputs and deleted package layers weekly to save disk space.</div>
+    <div class="nix-form-group">
+        <label for="settings-store-path">Nix Store Storage Location:</label>
+        <div style="position: relative;">
+            <input type="text" id="settings-store-path" autocomplete="off" spellcheck="false" value="<?php echo htmlspecialchars($store_path); ?>" placeholder="/mnt/cache/system/nix" data-pickcloseonfile="true" data-pickfilter="HIDE_FILES_FILTER" data-pickroot="/mnt" data-pickfolders="true" required style="padding-right: 30px;">
+            <i class="fa fa-folder-open nix-folder-picker-btn" style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); color: #aaa; pointer-events: none;"></i>
+        </div>
+        <div class="nix-field-help">This is where the persistent `/nix` directory will be bind-mounted. Do NOT use your USB boot drive `/boot`.</div>
     </div>
 
-    <div class="nix-form-group" style="margin-top: 15px;">
-        <label for="settings-store-quota">Target Nix Store Size Quota (GB):</label>
-        <div style="display: flex; align-items: center; gap: 10px;">
-            <input type="number" id="settings-store-quota" min="10" value="<?php echo htmlspecialchars($store_quota); ?>" style="width: 100px; padding: 6px; border-radius: 4px; border: 1px solid rgba(255,255,255,0.1); background: rgba(0,0,0,0.2); color: #fff; text-align: center;">
-            <span style="font-size: 12px; color: #888;">
-                Suggested: <strong><?php echo $suggested_quota; ?> GB</strong> (based on <?php echo $num_flakes; ?> configured flakes)
-            </span>
-        </div>
-        <div class="nix-field-help">Target size threshold for the Nix store directory. If the store size exceeds this limit, cleanup tasks will automatically trigger garbage collection to free up pool space.</div>
+    <div class="nix-form-group">
+        <label for="settings-autostart">Autostart Nix Flakes Services on Array Start:</label>
+        <select id="settings-autostart">
+            <option value="yes" <?php echo $autostart === 'yes' ? 'selected' : ''; ?>>Yes</option>
+            <option value="no" <?php echo $autostart === 'no' ? 'selected' : ''; ?>>No</option>
+        </select>
+    </div>
+
+    <div class="nix-form-group">
+        <label for="settings-show-in-nav">Show Nix tab in Main Navigation Menu:</label>
+        <select id="settings-show-in-nav">
+            <option value="no" <?php echo $show_in_nav === 'no' ? 'selected' : ''; ?>>No (Show in Settings)</option>
+            <option value="yes" <?php echo $show_in_nav === 'yes' ? 'selected' : ''; ?>>Yes (Show in Top Navigation)</option>
+        </select>
     </div>
 
     <div style="margin-top: 15px; display: flex; justify-content: flex-end; border-top: 1px solid rgba(255,255,255,0.05); padding-top: 15px;">
-        <button type="button" class="nix-btn-primary" style="margin: 0; padding: 6px 18px; font-size: 12px; display: inline-flex; align-items: center; gap: 6px;" onclick="saveAllSettings(this)"><i class="fa fa-check"></i> Apply Maintenance Settings</button>
+        <button type="button" class="nix-btn-primary" style="margin: 0; padding: 6px 18px; font-size: 12px; display: inline-flex; align-items: center; gap: 6px;" onclick="saveAllSettings(this)"><i class="fa fa-check"></i> Apply System Settings</button>
     </div>
 </div>
 
-<!-- 4. Flake Isolation Settings -->
+<!-- 2. Flake Isolation Settings -->
 <div class="nix-section" style="margin-bottom: 20px;">
     <h3>Flake Isolation Settings</h3>
     <p class="nix-subtext">Configure namespace sandboxing rules to isolate guest processes from the Unraid host.</p>
@@ -189,60 +144,110 @@ $is_nix_running = ($status_code === 0);
     </div>
 </div>
 
-<!-- 5. Nix Package Manager Configuration -->
-<div class="nix-section">
-    <h3>Nix Configuration Settings</h3>
-    <p class="nix-subtext">Configure local storage path bindings and system-level operations.</p>
-    
-    <form id="nix-settings-form" onsubmit="saveSettings(event)">
-        <div class="nix-form-group">
-            <label for="settings-store-path">Nix Configuration Location:</label>
-            <div style="position: relative;">
-                <input type="text" id="settings-store-path" autocomplete="off" spellcheck="false" value="<?php echo htmlspecialchars($store_path); ?>" placeholder="/mnt/cache/system/nix" data-pickcloseonfile="true" data-pickfilter="HIDE_FILES_FILTER" data-pickroot="/mnt" data-pickfolders="true" required style="padding-right: 30px;">
-                <i class="fa fa-folder-open nix-folder-picker-btn" style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); color: #aaa; pointer-events: none;"></i>
-            </div>
-            <div class="nix-field-help">This is where the persistent `/nix` directory will be bind-mounted. Do NOT use your USB boot drive `/boot`.</div>
-        </div>
+<!-- 3. Advanced Builder Options -->
+<div class="nix-section" style="margin-bottom: 20px;">
+    <h3>Advanced Builder Options</h3>
+    <p class="nix-subtext">Configure compilation constraints and interface display filters.</p>
 
-        <div class="nix-form-group">
-            <label for="settings-autostart">Autostart Nix Flakes Services on Array Start:</label>
-            <select id="settings-autostart">
-                <option value="yes" <?php echo $autostart === 'yes' ? 'selected' : ''; ?>>Yes</option>
-                <option value="no" <?php echo $autostart === 'no' ? 'selected' : ''; ?>>No</option>
-            </select>
-        </div>
+    <div class="nix-form-group">
+        <label for="settings-allow-source-builds">Allow Local Package Compilation (Build from Source):</label>
+        <select id="settings-allow-source-builds">
+            <option value="no" <?php echo $allow_source_builds === 'no' ? 'selected' : ''; ?>>No (Default - Nix Binary Caches only)</option>
+            <option value="yes" <?php echo $allow_source_builds === 'yes' ? 'selected' : ''; ?>>Yes (Allow compiling locally when cache misses)</option>
+        </select>
+        <div class="nix-field-help">Disables default enforcement of binary cache availability, allowing Nix to compile packages locally from source code. Turning this ON may cause high CPU usage and long installation times during package builds.</div>
+    </div>
 
-        <div class="nix-form-group">
-            <label for="settings-show-in-nav">Show Nix tab in Main Navigation Menu:</label>
-            <select id="settings-show-in-nav">
-                <option value="no" <?php echo $show_in_nav === 'no' ? 'selected' : ''; ?>>No (Show in Settings)</option>
-                <option value="yes" <?php echo $show_in_nav === 'yes' ? 'selected' : ''; ?>>Yes (Show in Top Navigation)</option>
-            </select>
-        </div>
+    <div class="nix-form-group">
+        <label for="settings-filter-presets-by-hardware">Filter Preset Store based on Host GPU Hardware:</label>
+        <select id="settings-filter-presets-by-hardware">
+            <option value="yes" <?php echo $filter_presets_by_hardware === 'yes' ? 'selected' : ''; ?>>Yes (Hide CUDA/ROCm/Vulkan presets if hardware is missing)</option>
+            <option value="no" <?php echo $filter_presets_by_hardware === 'no' ? 'selected' : ''; ?>>No (Show all template variants)</option>
+        </select>
+        <div class="nix-field-help">Automatically filter the Preset Store to show only packages compatible with your system's hardware. For example, ROCm AMD templates will be hidden if no AMD GPU is detected.</div>
+    </div>
 
-        <div class="nix-form-group">
-            <label for="settings-allow-source-builds">Allow Local Package Compilation (Build from Source):</label>
-            <select id="settings-allow-source-builds">
-                <option value="no" <?php echo $allow_source_builds === 'no' ? 'selected' : ''; ?>>No (Default - Nix Binary Caches only)</option>
-                <option value="yes" <?php echo $allow_source_builds === 'yes' ? 'selected' : ''; ?>>Yes (Allow compiling locally when cache misses)</option>
-            </select>
-            <div class="nix-field-help">Disables default enforcement of binary cache availability, allowing Nix to compile packages locally from source code. Turning this ON may cause high CPU usage and long installation times during packages builds.</div>
-        </div>
-
-        <div class="nix-form-group">
-            <label for="settings-filter-presets-by-hardware">Filter Preset Store based on Host GPU Hardware:</label>
-            <select id="settings-filter-presets-by-hardware">
-                <option value="yes" <?php echo $filter_presets_by_hardware === 'yes' ? 'selected' : ''; ?>>Yes (Hide CUDA/ROCm/Vulkan presets if hardware is missing)</option>
-                <option value="no" <?php echo $filter_presets_by_hardware === 'no' ? 'selected' : ''; ?>>No (Show all template variants)</option>
-            </select>
-            <div class="nix-field-help">Automatically filter the Preset Store to show only packages compatible with your system's hardware. For example, ROCm AMD templates will be hidden if no AMD GPU is detected.</div>
-        </div>
-
-        <div style="margin-top: 15px; display: flex; justify-content: flex-end; border-top: 1px solid rgba(255,255,255,0.05); padding-top: 15px;">
-            <button type="submit" id="nix-settings-submit-btn" class="nix-btn-primary" style="margin: 0; padding: 6px 18px; font-size: 12px; display: inline-flex; align-items: center; gap: 6px;"><i class="fa fa-check"></i> Apply Nix Settings</button>
-        </div>
-    </form>
+    <div style="margin-top: 15px; display: flex; justify-content: flex-end; border-top: 1px solid rgba(255,255,255,0.05); padding-top: 15px;">
+        <button type="button" class="nix-btn-primary" style="margin: 0; padding: 6px 18px; font-size: 12px; display: inline-flex; align-items: center; gap: 6px;" onclick="saveAllSettings(this)"><i class="fa fa-check"></i> Apply Builder Settings</button>
+    </div>
 </div>
+
+<!-- 4. Nix System Daemon Status & Control -->
+<div class="nix-section" style="margin-bottom: 20px;">
+    <div style="display: flex; align-items: center; justify-content: space-between;">
+        <div>
+            <h3 style="margin: 0 0 5px 0;">Nix System Daemon</h3>
+            <p class="nix-subtext" style="margin: 0;">
+                Daemon Status: 
+                <?php if ($is_nix_running): ?>
+                    <span class="status green">RUNNING</span>
+                <?php else: ?>
+                    <span class="status red">STOPPED</span>
+                <?php endif; ?>
+            </p>
+        </div>
+        <div id="nix-daemon-controls" style="display: flex; gap: 8px;">
+            <?php if ($is_nix_running): ?>
+                <button type="button" class="nix-btn-install" style="background: #232326; border: 1px solid #3a3a3d; color: #525256; cursor: not-allowed; font-weight: normal; margin: 0; padding: 6px 12px; display: inline-flex; align-items: center; gap: 6px;" disabled><i class="fa fa-play"></i> Start</button>
+                <button type="button" class="nix-btn" style="margin: 0; padding: 6px 12px;" onclick="toggleNixDaemon('stop')"><i class="fa fa-stop"></i> Stop</button>
+                <button type="button" class="nix-btn" style="margin: 0; padding: 6px 12px;" onclick="toggleNixDaemon('restart')"><i class="fa fa-refresh"></i> Restart</button>
+            <?php else: ?>
+                <button type="button" class="nix-btn-install" style="margin: 0; padding: 6px 12px; display: inline-flex; align-items: center; gap: 6px;" onclick="toggleNixDaemon('start')"><i class="fa fa-play"></i> Start</button>
+                <button type="button" class="nix-btn" style="margin: 0; padding: 6px 12px; color: #525256; border-color: #2d2d30; cursor: not-allowed;" disabled><i class="fa fa-stop"></i> Stop</button>
+                <button type="button" class="nix-btn" style="margin: 0; padding: 6px 12px; color: #525256; border-color: #2d2d30; cursor: not-allowed;" disabled><i class="fa fa-refresh"></i> Restart</button>
+            <?php endif; ?>
+        </div>
+    </div>
+</div>
+
+<!-- 5. System Maintenance & Cleanup -->
+<div class="nix-section" style="margin-bottom: 20px;">
+    <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 15px; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 15px;">
+        <div>
+            <h3 style="margin: 0 0 5px 0;">Template Library Sync</h3>
+            <p class="nix-subtext" style="margin: 0;">Sync and update self-hosted app templates from the remote templates repository.</p>
+        </div>
+        <div>
+            <button type="button" id="nix-sync-btn" class="nix-btn" style="display: inline-flex; align-items: center; gap: 6px; margin: 0;" onclick="syncTemplates(this)"><i class="fa fa-refresh"></i> Force Sync Templates</button>
+        </div>
+    </div>
+
+    <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 15px;">
+        <div>
+            <h3 style="margin: 0 0 5px 0;">Nix Store Disk Maintenance</h3>
+            <p class="nix-subtext" style="margin: 0;">Clean up unused packages, old build derivations, and reclaim storage pool space.</p>
+        </div>
+        <div style="text-align: right;">
+            <button type="button" id="nix-gc-btn" class="nix-btn" style="display: inline-flex; align-items: center; gap: 6px; margin: 0;" onclick="collectGarbage(this)"><i class="fa fa-trash"></i> Collect Garbage</button>
+        </div>
+    </div>
+    
+    <div class="nix-form-group" style="margin-top: 15px; border-top: 1px solid rgba(255,255,255,0.05); padding-top: 15px;">
+        <label for="settings-auto-gc">Automatic Weekly Garbage Collection (Nix GC):</label>
+        <select id="settings-auto-gc">
+            <option value="no" <?php echo $auto_gc === 'no' ? 'selected' : ''; ?>>No</option>
+            <option value="yes" <?php echo $auto_gc === 'yes' ? 'selected' : ''; ?>>Yes</option>
+        </select>
+        <div class="nix-field-help">If enabled, Nix will mirror Unraid's weekly scheduler (configured under Settings > Scheduler) to automatically purge dangling build inputs and deleted package layers weekly to save disk space.</div>
+    </div>
+
+    <div class="nix-form-group" style="margin-top: 15px;">
+        <label for="settings-store-quota">Target Nix Store Size Quota (GB):</label>
+        <div style="display: flex; align-items: center; gap: 10px;">
+            <input type="number" id="settings-store-quota" min="10" value="<?php echo htmlspecialchars($store_quota); ?>" style="width: 100px; padding: 6px; border-radius: 4px; border: 1px solid rgba(255,255,255,0.1); background: rgba(0,0,0,0.2); color: #fff; text-align: center;">
+            <span style="font-size: 12px; color: #888;">
+                Suggested: <strong><?php echo $suggested_quota; ?> GB</strong> (based on <?php echo $num_flakes; ?> configured flakes)
+            </span>
+        </div>
+        <div class="nix-field-help">Target size threshold for the Nix store directory. If the store size exceeds this limit, cleanup tasks will automatically trigger garbage collection to free up pool space.</div>
+    </div>
+
+    <div style="margin-top: 15px; display: flex; justify-content: flex-end; border-top: 1px solid rgba(255,255,255,0.05); padding-top: 15px;">
+        <button type="button" class="nix-btn-primary" style="margin: 0; padding: 6px 18px; font-size: 12px; display: inline-flex; align-items: center; gap: 6px;" onclick="saveAllSettings(this)"><i class="fa fa-check"></i> Apply Maintenance Settings</button>
+    </div>
+</div>
+
+<form id="nix-settings-form" onsubmit="saveSettings(event)" style="display: none;"></form>
 
 <script>
 $(function() {
@@ -252,11 +257,15 @@ $(function() {
 });
 
 function saveSettings(e) {
-    e.preventDefault();
-    var submitBtn = $("#nix-settings-submit-btn");
-    if (submitBtn.prop('disabled')) {
-        return;
-    }
+    if (e) e.preventDefault();
+    
+    var submitBtn = $(".nix-btn-primary");
+    var originalHtmls = [];
+    submitBtn.each(function(i, btn) {
+        var $b = $(btn);
+        originalHtmls.push($b.html());
+        $b.prop('disabled', true).html('<i class="fa fa-spinner fa-spin"></i> Saving...');
+    });
     
     var path = $("#settings-store-path").val();
     var auto = $("#settings-autostart").val();
@@ -272,11 +281,11 @@ function saveSettings(e) {
     
     if (path.indexOf("/boot") === 0) {
         alert("Error: The Nix Store cannot be stored on your USB flash drive (/boot). Choose a pool disk or array share.");
+        submitBtn.each(function(i, btn) {
+            $(btn).prop('disabled', false).html(originalHtmls[i]);
+        });
         return;
     }
-    
-    var originalBtnText = submitBtn.text();
-    submitBtn.prop('disabled', true).html('<i class="fa fa-spinner fa-spin"></i> Processing...');
     
     $.post('/plugins/nix/api.php', {
         action: 'save-settings',
@@ -301,11 +310,15 @@ function saveSettings(e) {
             }
         } else {
             alert("Failed to save settings: " + resp.error);
-            submitBtn.prop('disabled', false).text(originalBtnText);
+            submitBtn.each(function(i, btn) {
+                $(btn).prop('disabled', false).html(originalHtmls[i]);
+            });
         }
     }, 'json').fail(function() {
         alert("Server returned an error.");
-        submitBtn.prop('disabled', false).text(originalBtnText);
+        submitBtn.each(function(i, btn) {
+            $(btn).prop('disabled', false).html(originalHtmls[i]);
+        });
     });
 }
 
@@ -366,6 +379,6 @@ function collectGarbage(btn) {
 }
 
 function saveAllSettings(btn) {
-    $("#nix-settings-form").submit();
+    saveSettings();
 }
 </script>
