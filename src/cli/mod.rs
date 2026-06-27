@@ -15,7 +15,8 @@ pub fn print_usage() {
     println!("  teardown-store                         Stops services and cleanly unmounts /nix");
     println!("  render services                        Outputs HTML services dashboard table");
     println!("  render search <query>                  Outputs HTML packages search table");
-    println!("  render dashboard                       Outputs HTML dashboard widget rows");
+    println!("  render dashboard                       Outputs HTML dashboard widget structure");
+    println!("  render dashboard-rows                  Outputs HTML dashboard widget service rows");
     println!("  service <start|stop|restart> <name>    Sends action triggers to process-compose");
     println!("  autostart <name> <on|off>              Toggles the autostart setting for a service");
     println!("  remove-service <name>                  Deletes a service definition from the config");

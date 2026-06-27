@@ -16,6 +16,9 @@ pub fn render(args: &[String]) {
         "dashboard" => {
             println!("{}", api::render_dashboard_widget(29704));
         }
+        "dashboard-rows" => {
+            println!("{}", api::render_dashboard_rows(29704));
+        }
         "report" => {
             let service = if args.len() >= 4 { &args[3] } else { "" };
             println!("{}", api::render_verification_report(service));
