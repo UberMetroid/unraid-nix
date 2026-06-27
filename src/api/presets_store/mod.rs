@@ -117,8 +117,8 @@ pub fn render_presets_store() -> String {
             <button type="button" class="nix-preset-pill" onclick="filterPresetCategory('social', this)">Social Media</button>
             <button type="button" class="nix-preset-pill" onclick="filterPresetCategory('sync', this)">Sync</button>
             <button type="button" class="nix-preset-pill" onclick="filterPresetCategory('vpn', this)">VPN</button>
+            <button type="button" class="nix-preset-pill" onclick="filterPresetCategory('all', this)" style="margin-left: auto;">All</button>
             <button type="button" class="nix-preset-pill" onclick="filterPresetCategory('composed', this)">Composed</button>
-            <button type="button" class="nix-preset-pill" onclick="filterPresetCategory('all', this)">All</button>
         </div>
     </div>
     
