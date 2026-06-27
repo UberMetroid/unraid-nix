@@ -3,7 +3,7 @@
   "display_name": "Rocket.Chat",
   "description": "Collaborative hub and omnichannel customer service platform",
   "url": "https://rocket.chat/",
-  "command": "exec nix run nixpkgs#rocketchat",
+  "command": "exec nix run nixpkgs#rocketchat-desktop",
   "default_ports": [
     {
       "host": 3000,

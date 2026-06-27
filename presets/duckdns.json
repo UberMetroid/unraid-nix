@@ -1,9 +1,0 @@
-{
-  "name": "duckdns",
-  "display_name": "DuckDNS",
-  "description": "DuckDNS DDNS Updater",
-  "url": "https://www.duckdns.org/",
-  "command": "exec nix run nixpkgs#duckdns",
-  "default_ports": [],
-  "icon": "fa-server"
-}

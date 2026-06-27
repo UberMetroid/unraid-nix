@@ -1,9 +1,0 @@
-{
-  "name": "kometa",
-  "display_name": "Kometa",
-  "description": "Kometa (formerly Plex Meta Manager)",
-  "url": "https://kometa.wiki/",
-  "command": "exec nix run nixpkgs#kometa",
-  "default_ports": [],
-  "icon": "fa-server"
-}

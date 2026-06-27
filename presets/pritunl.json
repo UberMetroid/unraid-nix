@@ -3,7 +3,7 @@
   "display_name": "Pritunl",
   "description": "Enterprise grade open-source VPN server",
   "url": "https://pritunl.com/",
-  "command": "exec nix run nixpkgs#pritunl",
+  "command": "exec nix run nixpkgs#pritunl-client",
   "default_ports": [
     {
       "host": 1195,

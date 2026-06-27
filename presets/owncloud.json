@@ -3,7 +3,7 @@
   "display_name": "OwnCloud",
   "description": "OwnCloud File Storage",
   "url": "https://owncloud.com/",
-  "command": "exec nix run nixpkgs#owncloud",
+  "command": "exec nix run nixpkgs#owncloud-client",
   "default_ports": [
     {
       "host": 80,

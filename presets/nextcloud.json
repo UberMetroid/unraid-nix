@@ -3,7 +3,7 @@
   "display_name": "Nextcloud",
   "description": "Nextcloud Productivity Platform",
   "url": "https://nextcloud.com/",
-  "command": "exec nix run nixpkgs#nextcloud",
+  "command": "exec nix run nixpkgs#nextcloud32",
   "default_ports": [
     {
       "host": 80,

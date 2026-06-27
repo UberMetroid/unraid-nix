@@ -3,7 +3,7 @@
   "display_name": "Seafile",
   "description": "Seafile Cloud Collaboration",
   "url": "https://www.seafile.com/",
-  "command": "exec nix run nixpkgs#seafile",
+  "command": "exec nix run nixpkgs#seafile-client",
   "default_ports": [
     {
       "host": 8000,

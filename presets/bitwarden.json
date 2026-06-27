@@ -3,7 +3,7 @@
   "display_name": "Bitwarden",
   "description": "Enterprise password management server backend",
   "url": "https://bitwarden.com/",
-  "command": "exec nix run nixpkgs#bitwarden",
+  "command": "exec nix run nixpkgs#bitwarden-cli",
   "default_ports": [
     {
       "host": 8000,

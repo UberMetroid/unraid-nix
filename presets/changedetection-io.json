@@ -3,7 +3,7 @@
   "display_name": "ChangeDetection.io",
   "description": "ChangeDetection Monitor",
   "url": "https://changedetection.io/",
-  "command": "exec nix run nixpkgs#changedetection",
+  "command": "exec nix run nixpkgs#changedetection-io",
   "default_ports": [
     {
       "host": 5000,
