@@ -16,6 +16,43 @@ Title="About"
         </a>
     </div>
 
+    <!-- Why Nix on Unraid specifically -->
+    <div style="margin-bottom: 25px;">
+        <h3 style="color: #ff9f43; margin-bottom: 10px;"><i class="fa fa-server"></i> Why Nix on Unraid?</h3>
+        <p style="color: #eee; margin-bottom: 12px;">
+            While Docker and VMs are the standard way to run applications on Unraid, Nix provides a powerful third alternative—<strong>Native Bare-Metal Services</strong>. Here is why Nix is uniquely beneficial on Unraid:
+        </p>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(450px, 1fr)); gap: 16px;">
+            <div style="background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.05); border-radius: 4px; padding: 14px;">
+                <strong style="color: #fff; font-size: 13px; display: block; margin-bottom: 6px;"><i class="fa fa-flash" style="color: #ff9f43;"></i> 1. Zero-Overhead Bare-Metal Performance</strong>
+                <span style="font-size: 11.5px; color: #a0a0a5; line-height: 1.5; display: block;">
+                    Unlike Docker containers or virtual machines, Nix services run natively as standard processes directly on Unraid's host CPU. There are no virtualized network bridges, overlay filesystems, or container namespace layers, resulting in lower RAM usage, absolute bare-metal CPU throughput, and instantaneous startup times.
+                </span>
+            </div>
+            
+            <div style="background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.05); border-radius: 4px; padding: 14px;">
+                <strong style="color: #fff; font-size: 13px; display: block; margin-bottom: 6px;"><i class="fa fa-repeat" style="color: #ff9f43;"></i> 2. Persistence on a RAM-based OS</strong>
+                <span style="font-size: 11.5px; color: #a0a0a5; line-height: 1.5; display: block;">
+                    Unraid runs entirely from a RAM disk loaded from your USB flash drive during boot. Any manually installed packages or modified libraries in directories like <code>/usr/bin</code> or <code>/lib</code> are lost on reboot. Nix installs everything in <code>/nix/store</code> on a persistent array/cache pool, ensuring all packages, tools, and configurations survive reboots without modifying your Slackware system files.
+                </span>
+            </div>
+
+            <div style="background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.05); border-radius: 4px; padding: 14px;">
+                <strong style="color: #fff; font-size: 13px; display: block; margin-bottom: 6px;"><i class="fa fa-tachometer" style="color: #ff9f43;"></i> 3. Direct Hardware Access</strong>
+                <span style="font-size: 11.5px; color: #a0a0a5; line-height: 1.5; display: block;">
+                    Because Nix processes run natively, they have direct access to host hardware—including Nvidia, Intel, and AMD GPU nodes (<code>/dev/dri</code>)—without requiring complex Docker passthrough configurations, runtime flags, or special container drivers.
+                </span>
+            </div>
+
+            <div style="background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.05); border-radius: 4px; padding: 14px;">
+                <strong style="color: #fff; font-size: 13px; display: block; margin-bottom: 6px;"><i class="fa fa-puzzle-piece" style="color: #ff9f43;"></i> 4. Over 80,000 Packages</strong>
+                <span style="font-size: 11.5px; color: #a0a0a5; line-height: 1.5; display: block;">
+                    Nixpkgs is the largest package repository in the world. Instead of waiting for community developers to build and package specialized command-line tools or developer runtimes as Docker containers, you can search and run any of them instantly on Unraid.
+                </span>
+            </div>
+        </div>
+    </div>
+
     <!-- How it works -->
     <div style="margin-bottom: 25px;">
         <h3 style="color: #00a1ff; margin-bottom: 10px;"><i class="fa fa-info-circle"></i> How Nix Works</h3>
