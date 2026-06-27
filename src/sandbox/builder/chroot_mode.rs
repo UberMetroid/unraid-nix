@@ -78,8 +78,15 @@ pub fn build_chroot_command(
     let mounts_str = mounts_cmd.join(" && ").replace("\"", "\\\"");
     
     let mut env_vars = vec!["export HOME=/config".to_string()];
+    let mut ld_paths = Vec::new();
     if has_nvidia {
-        env_vars.push("export LD_LIBRARY_PATH=/run/opengl-driver/lib".to_string());
+        ld_paths.push("/run/opengl-driver/lib".to_string());
+    }
+    if has_render {
+        ld_paths.push("$(nix build --no-link --print-out-paths nixpkgs#vpl-gpu-rt 2>/dev/null || true)/lib".to_string());
+    }
+    if !ld_paths.is_empty() {
+        env_vars.push(format!("export LD_LIBRARY_PATH={}", ld_paths.join(":")));
     }
     if has_render {
         env_vars.push("export LIBVA_DRIVERS_PATH=/usr/lib64/dri:$(nix build --no-link --print-out-paths nixpkgs#intel-media-driver 2>/dev/null || true)/lib/dri".to_string());

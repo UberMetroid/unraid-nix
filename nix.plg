@@ -2,7 +2,7 @@
 <!DOCTYPE PLUGIN [
   <!ENTITY name      "nix">
   <!ENTITY author    "UberMetroid">
-  <!ENTITY version   "2026.06.26.51">
+  <!ENTITY version   "2026.06.26.52">
   <!ENTITY launch    "Settings/Nix">
   <!ENTITY plugdir   "/boot/config/plugins/&name;">
   <!ENTITY usrdir    "/usr/local/emhttp/plugins/&name;">
@@ -11,6 +11,8 @@
 
   <CHANGES>
     ## nix package manager plugin
+    ### 2026.06.26.52
+    - **Intel QuickSync (QSV) Hardware Acceleration Support**: Appended the dynamically resolved Nix store path of the oneVPL GPU runtime (`vpl-gpu-rt`) to `LD_LIBRARY_PATH` inside the sandbox, enabling full Intel QSV hardware transcoding support for Jellyfin.
     ### 2026.06.26.51
     - **Dynamic Intel VA-API Driver Fallback**: Configured `LIBVA_DRIVERS_PATH` inside the sandbox to search both host directories and dynamically build/resolve the Nix store path of `nixpkgs#intel-media-driver` (`iHD_drv_video.so`), enabling native Intel iGPU transcoding for Jellyfin.
     - **Nix Builder Resource Limits**: Dynamic CPU and concurrency limits written to default `nix.conf` based on host logical core count to prevent memory exhaustion / OOM locks during local source compilation.

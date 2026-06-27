@@ -100,7 +100,7 @@ fn test_build_bwrap_command_gpu() {
     let cmd = build_bwrap_command(&config).unwrap();
     assert!(cmd.contains("/bin/bash /usr/local/emhttp/plugins/nix/nix-gpu-setup.sh"));
     assert!(cmd.contains("/var/run/nix-nvidia-driver/lib") && cmd.contains("opengl-driver/lib"));
-    assert!(cmd.contains("export LD_LIBRARY_PATH=/run/opengl-driver/lib"));
+    assert!(cmd.contains("export LD_LIBRARY_PATH=/run/opengl-driver/lib:$(nix build --no-link --print-out-paths nixpkgs#vpl-gpu-rt 2>/dev/null || true)/lib"));
     assert!(cmd.contains("export LIBVA_DRIVERS_PATH=/usr/lib64/dri:$(nix build --no-link --print-out-paths nixpkgs#intel-media-driver 2>/dev/null || true)/lib/dri"));
 }
 
@@ -129,7 +129,7 @@ fn test_build_bwrap_command_gpu_sandboxed() {
     assert!(cmd.contains("/bin/bash /usr/local/emhttp/plugins/nix/nix-gpu-setup.sh"));
     assert!(cmd.contains("mount --bind /var/run/nix-nvidia-driver/lib /var/run/nix-chroot-test-gpu-app/run/opengl-driver/lib"));
     assert!(cmd.contains("mount --bind -o ro /usr/lib64 /var/run/nix-chroot-test-gpu-app/usr/lib64"));
-    assert!(cmd.contains("export LD_LIBRARY_PATH=/run/opengl-driver/lib"));
+    assert!(cmd.contains("export LD_LIBRARY_PATH=/run/opengl-driver/lib:$(nix build --no-link --print-out-paths nixpkgs#vpl-gpu-rt 2>/dev/null || true)/lib"));
     assert!(cmd.contains("export LIBVA_DRIVERS_PATH=/usr/lib64/dri:$(nix build --no-link --print-out-paths nixpkgs#intel-media-driver 2>/dev/null || true)/lib/dri"));
 }
 
