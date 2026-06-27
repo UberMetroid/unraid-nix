@@ -30,14 +30,41 @@ pub fn render_presets_store() -> String {
     presets.sort_by(|a, b| a.display_name.to_lowercase().cmp(&b.display_name.to_lowercase()));
 
     let mut html = r##"
-    <div class="nix-preset-store-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 15px;">
-        <div>
-            <h3 style="margin: 0;">Preset Service Store</h3>
-            <p class="nix-subtext" style="margin: 5px 0 0 0;">Browse and configure over 200+ pre-configured self-hosted templates.</p>
+    <div class="nix-preset-store-header" style="display: flex; flex-direction: column; gap: 15px; margin-bottom: 20px;">
+        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px;">
+            <div>
+                <h3 style="margin: 0;">Preset Service Store</h3>
+                <p class="nix-subtext" style="margin: 5px 0 0 0;">Browse and configure over 200+ pre-configured self-hosted templates.</p>
+            </div>
+            <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+                <!-- Sort Dropdown -->
+                <div style="display: flex; align-items: center; gap: 6px;">
+                    <span style="font-size: 11px; color: #a0a0a5; text-transform: uppercase; letter-spacing: 0.5px;">Sort By</span>
+                    <select id="nix-preset-sort" onchange="sortPresetsStore(this.value)" style="padding: 6px 10px; border-radius: 4px; border: 1px solid rgba(255,255,255,0.1); background: rgba(0,0,0,0.3); color: #fff; font-size: 12px; outline: none; cursor: pointer;">
+                        <option value="az">Name (A-Z)</option>
+                        <option value="za">Name (Z-A)</option>
+                        <option value="category">Category</option>
+                    </select>
+                </div>
+                <!-- Search bar -->
+                <div style="position: relative; width: 250px;">
+                    <input type="text" id="nix-preset-search" placeholder="Search templates..." onkeyup="filterPresetsStore()" style="width: 100%; padding: 6px 12px 6px 30px; border-radius: 4px; border: 1px solid rgba(255,255,255,0.1); background: rgba(0,0,0,0.2); color: #fff; font-size: 13px; outline: none; transition: border-color 0.15s ease;">
+                    <i class="fa fa-search" style="position: absolute; left: 10px; top: 9px; color: #666; font-size: 12px;"></i>
+                </div>
+            </div>
         </div>
-        <div style="position: relative; width: 300px;">
-            <input type="text" id="nix-preset-search" placeholder="Search templates (e.g. plex, database)..." onkeyup="filterPresetsStore()" style="width: 100%; padding: 8px 12px 8px 32px; border-radius: 4px; border: 1px solid rgba(255,255,255,0.1); background: rgba(0,0,0,0.2); color: #fff; font-size: 13px; outline: none; transition: border-color 0.15s ease;">
-            <i class="fa fa-search" style="position: absolute; left: 10px; top: 11px; color: #666; font-size: 13px;"></i>
+
+        <!-- Category pills -->
+        <div class="nix-preset-pills" style="display: flex; gap: 8px; flex-wrap: wrap; padding-bottom: 5px; border-bottom: 1px solid rgba(255,255,255,0.05);">
+            <button type="button" class="nix-preset-pill active" onclick="filterPresetCategory('all', this)">All</button>
+            <button type="button" class="nix-preset-pill" onclick="filterPresetCategory('media', this)">Media & Audio</button>
+            <button type="button" class="nix-preset-pill" onclick="filterPresetCategory('automation', this)">Automation (Servarr)</button>
+            <button type="button" class="nix-preset-pill" onclick="filterPresetCategory('downloads', this)">Downloads</button>
+            <button type="button" class="nix-preset-pill" onclick="filterPresetCategory('network', this)">Network & VPN</button>
+            <button type="button" class="nix-preset-pill" onclick="filterPresetCategory('smarthome', this)">Smart Home</button>
+            <button type="button" class="nix-preset-pill" onclick="filterPresetCategory('security', this)">Security & Locks</button>
+            <button type="button" class="nix-preset-pill" onclick="filterPresetCategory('storage', this)">Sync & Backups</button>
+            <button type="button" class="nix-preset-pill" onclick="filterPresetCategory('database', this)">Databases</button>
         </div>
     </div>
     
@@ -48,10 +75,11 @@ pub fn render_presets_store() -> String {
         html.push_str(r#"<div style="grid-column: 1 / -1; text-align: center; color: #888; padding: 45px 0;">No preset files found on system.</div>"#);
     } else {
         for p in presets {
-            let cfg = get_preset_category_styling(&p.name, p.icon.as_deref().unwrap_or("fa-server"));
+            let styling = get_preset_category_styling(&p.name, p.icon.as_deref().unwrap_or("fa-server"));
+            let category_name = get_preset_category_name(&p.name);
             
             html.push_str(&format!(
-                r#"<div class="nix-preset-card" data-name="{}" data-desc="{}" style="background: rgba(255, 255, 255, 0.02); border: 1px solid rgba(255, 255, 255, 0.05); border-radius: 6px; padding: 16px; display: flex; flex-direction: column; justify-content: space-between; transition: all 0.2s ease-in-out; height: 180px;">
+                r#"<div class="nix-preset-card" data-name="{}" data-desc="{}" data-category="{}" style="background: rgba(255, 255, 255, 0.02); border: 1px solid rgba(255, 255, 255, 0.05); border-radius: 6px; padding: 16px; display: flex; flex-direction: column; justify-content: space-between; transition: all 0.2s ease-in-out; height: 180px;">
                     <div>
                         <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 12px;">
                             <div style="width: 32px; height: 32px; border-radius: 4px; background: {}; border: 1px solid {}; display: flex; align-items: center; justify-content: center; color: {}; flex-shrink: 0;">
@@ -73,24 +101,67 @@ pub fn render_presets_store() -> String {
                         </button>
                     </div>
                 </div>"#,
-                p.name, p.description.to_lowercase(), cfg.bg, cfg.border, cfg.color, cfg.icon, p.display_name, p.display_name, p.name, p.description, p.url, p.name
+                p.name, p.description.to_lowercase(), category_name, styling.bg, styling.border, styling.color, styling.icon, p.display_name, p.display_name, p.name, p.description, p.url, p.name
             ));
         }
     }
 
     html.push_str(r##"</div>
     <script>
+    var activeCategory = 'all';
+
+    function filterPresetCategory(cat, btn) {
+        activeCategory = cat;
+        document.querySelectorAll('.nix-preset-pill').forEach(function(pill) {
+            pill.classList.remove('active');
+        });
+        btn.classList.add('active');
+        applyPresetFilters();
+    }
+
     function filterPresetsStore() {
+        applyPresetFilters();
+    }
+
+    function applyPresetFilters() {
         var q = $("#nix-preset-search").val().toLowerCase().trim();
         var cards = document.querySelectorAll('.nix-preset-card');
         cards.forEach(function(card) {
             var name = card.getAttribute('data-name');
             var desc = card.getAttribute('data-desc');
-            if (name.indexOf(q) !== -1 || desc.indexOf(q) !== -1) {
+            var category = card.getAttribute('data-category');
+            
+            var matchesQuery = (name.indexOf(q) !== -1 || desc.indexOf(q) !== -1);
+            var matchesCategory = (activeCategory === 'all' || category === activeCategory);
+            
+            if (matchesQuery && matchesCategory) {
                 card.style.display = 'flex';
             } else {
                 card.style.display = 'none';
             }
+        });
+    }
+
+    function sortPresetsStore(criteria) {
+        var grid = document.querySelector('.nix-presets-grid');
+        var cards = Array.from(grid.querySelectorAll('.nix-preset-card'));
+        
+        cards.sort(function(a, b) {
+            if (criteria === 'az') {
+                return a.querySelector('strong').textContent.toLowerCase().localeCompare(b.querySelector('strong').textContent.toLowerCase());
+            } else if (criteria === 'za') {
+                return b.querySelector('strong').textContent.toLowerCase().localeCompare(a.querySelector('strong').textContent.toLowerCase());
+            } else if (criteria === 'category') {
+                var catA = a.getAttribute('data-category').toLowerCase();
+                var catB = b.getAttribute('data-category').toLowerCase();
+                if (catA !== catB) return catA.localeCompare(catB);
+                return a.querySelector('strong').textContent.toLowerCase().localeCompare(b.querySelector('strong').textContent.toLowerCase());
+            }
+            return 0;
+        });
+        
+        cards.forEach(function(card) {
+            grid.appendChild(card);
         });
     }
     </script>
@@ -104,6 +175,28 @@ pub fn render_presets_store() -> String {
     #nix-preset-search:focus {
         border-color: rgba(0, 161, 255, 0.5) !important;
     }
+    .nix-preset-pill {
+        background: rgba(255, 255, 255, 0.03);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 12px;
+        padding: 4px 12px;
+        color: #a0a0a5;
+        font-size: 11px;
+        cursor: pointer;
+        outline: none;
+        transition: all 0.15s ease;
+        margin: 0;
+    }
+    .nix-preset-pill:hover {
+        background: rgba(255, 255, 255, 0.08);
+        color: #fff;
+    }
+    .nix-preset-pill.active {
+        background: rgba(0, 161, 255, 0.1) !important;
+        border-color: rgba(0, 161, 255, 0.3) !important;
+        color: #00a1ff !important;
+        font-weight: 500;
+    }
     </style>
     "##);
 
@@ -115,6 +208,43 @@ struct CategoryStyling {
     color: &'static str,
     bg: &'static str,
     border: &'static str,
+}
+
+fn get_preset_category_name(name: &str) -> &'static str {
+    let name_lower = name.to_lowercase();
+    if name_lower.contains("jellyfin") || name_lower.contains("plex") || name_lower.contains("emby") ||
+       name_lower.contains("navidrome") || name_lower.contains("airsonic") || name_lower.contains("subsonic") || name_lower.contains("lidarr") {
+        "media"
+    } else if name_lower.contains("sonarr") || name_lower.contains("sickrage") || name_lower.contains("sickchill") ||
+       name_lower.contains("radarr") || name_lower.contains("couchpotato") || name_lower.contains("readarr") ||
+       name_lower.contains("calibre") || name_lower.contains("audiobookshelf") || name_lower.contains("bazarr") ||
+       name_lower.contains("prowlarr") || name_lower.contains("jackett") {
+        "automation"
+    } else if name_lower.contains("transmission") || name_lower.contains("sabnzbd") || name_lower.contains("nzbget") || 
+       name_lower.contains("qbittorrent") || name_lower.contains("deluge") || name_lower.contains("rtorrent") || name_lower.contains("aria2") {
+        "downloads"
+    } else if name_lower.contains("pihole") || name_lower.contains("pi-hole") || name_lower.contains("adguard") ||
+       name_lower.contains("nginx") || name_lower.contains("traefik") || name_lower.contains("caddy") || name_lower.contains("npm") ||
+       name_lower.contains("tailscale") || name_lower.contains("wireguard") || name_lower.contains("vpn") {
+        "network"
+    } else if name_lower.contains("home-assistant") || name_lower.contains("homeassistant") || name_lower.contains("hass") ||
+       name_lower.contains("node-red") || name_lower.contains("nodered") || name_lower.contains("zigbee") ||
+       name_lower.contains("mqtt") || name_lower.contains("esphome") {
+        "smarthome"
+    } else if name_lower.contains("vaultwarden") || name_lower.contains("bitwarden") || name_lower.contains("keepass") {
+        "security"
+    } else if name_lower.contains("syncthing") || name_lower.contains("nextcloud") || name_lower.contains("owncloud") ||
+       name_lower.contains("seafile") || name_lower.contains("rclone") || name_lower.contains("duplicati") ||
+       name_lower.contains("kopia") || name_lower.contains("backups") {
+        "storage"
+    } else if name_lower.contains("influx") || name_lower.contains("prometheus") || name_lower.contains("grafana") ||
+       name_lower.contains("kuma") || name_lower.contains("netdata") || name_lower.contains("postgres") ||
+       name_lower.contains("mysql") || name_lower.contains("mariadb") || name_lower.contains("redis") ||
+       name_lower.contains("mongo") {
+        "database"
+    } else {
+        "default"
+    }
 }
 
 fn get_preset_category_styling(name: &str, default_icon: &str) -> CategoryStyling {
