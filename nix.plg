@@ -2,7 +2,7 @@
 <!DOCTYPE PLUGIN [
   <!ENTITY name      "nix">
   <!ENTITY author    "UberMetroid">
-  <!ENTITY version   "2026.06.26.31">
+  <!ENTITY version   "2026.06.26.32">
   <!ENTITY launch    "Settings/Nix">
   <!ENTITY plugdir   "/boot/config/plugins/&name;">
   <!ENTITY usrdir    "/usr/local/emhttp/plugins/&name;">
@@ -11,6 +11,8 @@
 
   <CHANGES>
     ## nix package manager plugin
+    ### 2026.06.26.32
+    - **Deployment Manifest Fix**: Corrected the file list in nix.plg to ensure all CSS stylesheets, JS dictionaries, log streamers, and helper PHP controllers are properly deployed to the emhttp plugins directory.
     ### 2026.06.26.31
     - **Presets Deployment and Resolution Fix**: Enabled automatic download and installation of the 220+ template presets during plugin installation, and updated the nix-helper service installer to dynamically resolve custom template command configurations.
     ### 2026.06.26.30
@@ -264,7 +266,7 @@
 
       # 3. Download and install WebGUI pages
       echo "--> Downloading Dynamix WebGUI pages and assets..."
-      for file in Nix.page nix_services.page nix_search.page nix_install.page nix_logs.page nix_settings.page nix_dashboard.page api.php styles.css nix.js; do
+      for file in Nix.page nix_services.page nix_search.page nix_install.page nix_logs.page nix_settings.page api.php api_service.php nix.js nix_install.js stream.js stream.php nix-gpu-setup.sh styles_layout.css styles_widgets.css; do
           curl -sSf -L -o "&usrdir;/$file" "${GITHUB_RAW}/web/$file"
       done
       mkdir -p "&usrdir;/images"
