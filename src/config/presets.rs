@@ -178,5 +178,6 @@ pub fn get_service_command_preset(
         port,
         bind_address,
         host_init_commands,
+        enable_network_isolation: false,
     })
 }

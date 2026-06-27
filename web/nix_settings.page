@@ -39,11 +39,13 @@ function detect_default_store_path() {
 // Set defaults
 $store_path = isset($nix_cfg['NIX_STORE_PATH']) ? $nix_cfg['NIX_STORE_PATH'] : detect_default_store_path();
 $autostart = isset($nix_cfg['AUTOSTART_FLAKES']) ? $nix_cfg['AUTOSTART_FLAKES'] : 'yes';
-$enable_cli = isset($nix_cfg['ENABLE_CLI_INSTALL']) ? $nix_cfg['ENABLE_CLI_INSTALL'] : 'no';
 $show_in_nav = isset($nix_cfg['SHOW_IN_NAVIGATION']) ? $nix_cfg['SHOW_IN_NAVIGATION'] : 'yes';
 $enable_sandbox = isset($nix_cfg['ENABLE_STORAGE_SANDBOX']) ? $nix_cfg['ENABLE_STORAGE_SANDBOX'] : 'no';
 $allow_source_builds = isset($nix_cfg['ALLOW_SOURCE_BUILDS']) ? $nix_cfg['ALLOW_SOURCE_BUILDS'] : 'no';
 $filter_presets_by_hardware = isset($nix_cfg['FILTER_PRESETS_BY_HARDWARE']) ? $nix_cfg['FILTER_PRESETS_BY_HARDWARE'] : 'yes';
+$enable_pid_isolation = isset($nix_cfg['ENABLE_PID_ISOLATION']) ? $nix_cfg['ENABLE_PID_ISOLATION'] : 'yes';
+$enable_uts_isolation = isset($nix_cfg['ENABLE_UTS_ISOLATION']) ? $nix_cfg['ENABLE_UTS_ISOLATION'] : 'yes';
+$enable_ipc_isolation = isset($nix_cfg['ENABLE_IPC_ISOLATION']) ? $nix_cfg['ENABLE_IPC_ISOLATION'] : 'yes';
 
 exec("/etc/rc.d/rc.nix-daemon status 2>/dev/null", $status_output, $status_code);
 $is_nix_running = ($status_code === 0);
@@ -86,7 +88,49 @@ $is_nix_running = ($status_code === 0);
     </div>
 </div>
 
-<!-- 3. Nix Package Manager Configuration -->
+<!-- 3. Flake Isolation Settings -->
+<div class="nix-section" style="margin-bottom: 20px;">
+    <h3>Flake Isolation Settings</h3>
+    <p class="nix-subtext">Configure namespace sandboxing rules to isolate guest processes from the Unraid host.</p>
+    
+    <div class="nix-form-group">
+        <label for="settings-enable-sandbox">Enable Storage Sandboxing (Filesystem Isolation):</label>
+        <select id="settings-enable-sandbox">
+            <option value="no" <?php echo $enable_sandbox === 'no' ? 'selected' : ''; ?>>No (Native /mnt access)</option>
+            <option value="yes" <?php echo $enable_sandbox === 'yes' ? 'selected' : ''; ?>>Yes (Isolate /mnt to mapped paths)</option>
+        </select>
+        <div class="nix-field-help">When enabled, Nix services run inside a private chroot jail and can only access paths explicitly mapped in their configuration.</div>
+    </div>
+
+    <div class="nix-form-group">
+        <label for="settings-enable-pid-isolation">Enable Process (PID) Isolation by Default:</label>
+        <select id="settings-enable-pid-isolation">
+            <option value="yes" <?php echo $enable_pid_isolation === 'yes' ? 'selected' : ''; ?>>Yes (Hide other system processes)</option>
+            <option value="no" <?php echo $enable_pid_isolation === 'no' ? 'selected' : ''; ?>>No (Show host process list)</option>
+        </select>
+        <div class="nix-field-help">Isolates the process list namespace so that each service runs as PID 1, preventing it from inspecting or signaling host OS processes.</div>
+    </div>
+
+    <div class="nix-form-group">
+        <label for="settings-enable-uts-isolation">Enable Hostname (UTS) Isolation by Default:</label>
+        <select id="settings-enable-uts-isolation">
+            <option value="yes" <?php echo $enable_uts_isolation === 'yes' ? 'selected' : ''; ?>>Yes (Use sandboxed virtual hostname)</option>
+            <option value="no" <?php echo $enable_uts_isolation === 'no' ? 'selected' : ''; ?>>No (Inherit Unraid system hostname)</option>
+        </select>
+        <div class="nix-field-help">Isolates UTS namespace, hiding the host's actual server hostname from running processes.</div>
+    </div>
+
+    <div class="nix-form-group">
+        <label for="settings-enable-ipc-isolation">Enable IPC Isolation by Default:</label>
+        <select id="settings-enable-ipc-isolation">
+            <option value="yes" <?php echo $enable_ipc_isolation === 'yes' ? 'selected' : ''; ?>>Yes (Isolate Inter-Process Communication)</option>
+            <option value="no" <?php echo $enable_ipc_isolation === 'no' ? 'selected' : ''; ?>>No (Share host IPC channels)</option>
+        </select>
+        <div class="nix-field-help">Restricts access to host System V IPC resources and POSIX message queues.</div>
+    </div>
+</div>
+
+<!-- 4. Nix Package Manager Configuration -->
 <div class="nix-section">
     <h3>Nix Configuration Settings</h3>
     <p class="nix-subtext">Configure local storage path bindings and system-level operations.</p>
@@ -107,15 +151,6 @@ $is_nix_running = ($status_code === 0);
                 <option value="yes" <?php echo $autostart === 'yes' ? 'selected' : ''; ?>>Yes</option>
                 <option value="no" <?php echo $autostart === 'no' ? 'selected' : ''; ?>>No</option>
             </select>
-        </div>
-
-        <div class="nix-form-group">
-            <label for="settings-enable-sandbox">Enable Storage Sandboxing for Nix Services:</label>
-            <select id="settings-enable-sandbox">
-                <option value="no" <?php echo $enable_sandbox === 'no' ? 'selected' : ''; ?>>No (Native /mnt access)</option>
-                <option value="yes" <?php echo $enable_sandbox === 'yes' ? 'selected' : ''; ?>>Yes (Isolate /mnt to mapped paths)</option>
-            </select>
-            <div class="nix-field-help">When enabled, Nix services can only access directories that are explicitly mapped in their configuration (plus remote shares and unassigned devices). This protects your other Unraid disks and user shares.</div>
         </div>
 
         <div class="nix-form-group">
@@ -165,6 +200,9 @@ function saveSettings(e) {
     var path = $("#settings-store-path").val();
     var auto = $("#settings-autostart").val();
     var enableSandbox = $("#settings-enable-sandbox").val();
+    var enablePidIsolation = $("#settings-enable-pid-isolation").val();
+    var enableUtsIsolation = $("#settings-enable-uts-isolation").val();
+    var enableIpcIsolation = $("#settings-enable-ipc-isolation").val();
     var showInNav = $("#settings-show-in-nav").val();
     var allowSourceBuilds = $("#settings-allow-source-builds").val();
     var filterPresetsByHardware = $("#settings-filter-presets-by-hardware").val();
@@ -182,6 +220,9 @@ function saveSettings(e) {
         store_path: path,
         autostart: auto,
         enable_sandbox: enableSandbox,
+        enable_pid_isolation: enablePidIsolation,
+        enable_uts_isolation: enableUtsIsolation,
+        enable_ipc_isolation: enableIpcIsolation,
         show_in_nav: showInNav,
         allow_source_builds: allowSourceBuilds,
         filter_presets_by_hardware: filterPresetsByHardware

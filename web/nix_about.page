@@ -62,7 +62,7 @@ Title="About"
     <div style="margin-bottom: 25px;">
         <h3 style="color: #2ecc71; margin-bottom: 10px;"><i class="fa fa-code-fork"></i> Preset Templates & Syncing</h3>
         <p style="color: #eee;">
-            All templates in the Template Library are synced dynamically from our dedicated community repository: **<a href="https://github.com/UberMetroid/unraid-nix-templates" target="_blank" style="color: #00a1ff; text-decoration: underline;">unraid-nix-templates</a>**.
+            All templates in the Template Library are synced dynamically from our dedicated community repository: <strong><a href="https://github.com/UberMetroid/unraid-nix-templates" target="_blank" style="color: #00a1ff; text-decoration: underline;">unraid-nix-templates</a></strong>.
         </p>
         <ul style="color: #a0a0a5; padding-left: 20px; margin-top: 8px; line-height: 1.6;">
             <li style="margin-bottom: 8px;">
@@ -99,7 +99,7 @@ Title="About"
             <div style="background: rgba(0,0,0,0.15); border: 1px solid rgba(255,255,255,0.03); border-radius: 4px; padding: 12px;">
                 <h4 style="margin: 0 0 6px 0; color: #fff; font-size: 13px;"><i class="fa fa-hdd-o" style="color: #e67e22;"></i> 1. Store Location (Crucial)</h4>
                 <p style="margin: 0; font-size: 11.5px; color: #a0a0a5; line-height: 1.5;">
-                    Always configure your Nix Store on a fast **SSD pool share** (such as cache, nvme, or system shares). Do **NOT** store the Nix directories on your USB flash drive (<code>/boot</code>) as the high write frequency of package evaluations will wear out the flash storage and cause array lockups.
+                    Always configure your Nix Store on a fast <strong>SSD pool share</strong> (such as cache, nvme, or system shares). Do <strong>NOT</strong> store the Nix directories on your USB flash drive (<code>/boot</code>) as the high write frequency of package evaluations will wear out the flash storage and cause array lockups.
                 </p>
             </div>
             

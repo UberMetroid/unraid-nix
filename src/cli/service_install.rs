@@ -27,6 +27,7 @@ pub fn install_service(args: &[String]) {
     let mut env_vars_json = String::new();
     let mut compile_locally = false;
     let mut command_override = String::new();
+    let mut network_isolation = false;
 
     let mut i = 2;
     while i < args.len() {
@@ -96,6 +97,18 @@ pub fn install_service(args: &[String]) {
                 if i + 1 >= args.len() { eprintln!("Error: Missing value for --env-vars"); exit(1); }
                 env_vars_json = args[i+1].clone();
                 i += 2;
+            }
+            "--network-isolation" => {
+                if i + 1 < args.len() && (args[i+1] == "1" || args[i+1] == "true" || args[i+1] == "yes") {
+                    network_isolation = true;
+                    i += 2;
+                } else if i + 1 < args.len() && (args[i+1] == "0" || args[i+1] == "false" || args[i+1] == "no") {
+                    network_isolation = false;
+                    i += 2;
+                } else {
+                    network_isolation = true;
+                    i += 1;
+                }
             }
             "--compile-locally" => {
                 compile_locally = true;
@@ -199,6 +212,7 @@ pub fn install_service(args: &[String]) {
             port: port.clone(),
             bind_address: bind_address.clone(),
             host_init_commands: Vec::new(),
+            enable_network_isolation: network_isolation,
         }) {
             Ok(c) => c,
             Err(e) => { eprintln!("Error building sandbox command: {}", e); exit(1); }
@@ -233,6 +247,7 @@ pub fn install_service(args: &[String]) {
             port: port.clone(),
             bind_address: bind_address.clone(),
             host_init_commands: Vec::new(),
+            enable_network_isolation: network_isolation,
         }) {
             Ok(c) => c,
             Err(e) => { eprintln!("Error building sandbox command: {}", e); exit(1); }
@@ -326,6 +341,7 @@ pub fn install_service(args: &[String]) {
         "env_vars": env_vars_json,
         "compile_locally": if compile_locally { "1" } else { "0" },
         "command_override": command_override,
+        "network_isolation": if network_isolation { "1" } else { "0" },
     });
     let meta_dir = "/boot/config/plugins/nix/metadata";
     let _ = std::fs::create_dir_all(meta_dir);

@@ -73,6 +73,7 @@ if ($action === 'install-custom') {
         $extra_binds = isset($_POST['extra_binds']) ? $_POST['extra_binds'] : '';
         $port = isset($_POST['port']) ? $_POST['port'] : '';
         $bind_address = isset($_POST['bind_address']) ? $_POST['bind_address'] : '';
+        $network_isolation = isset($_POST['network_isolation']) ? $_POST['network_isolation'] : '0';
         
         $output = [];
         $code = 0;
@@ -86,7 +87,8 @@ if ($action === 'install-custom') {
                "--gpus " . escapeshellarg($gpus) . " " .
                "--extra-binds " . escapeshellarg($extra_binds) . " " .
                "--port " . escapeshellarg($port) . " " .
-               "--bind-address " . escapeshellarg($bind_address);
+               "--bind-address " . escapeshellarg($bind_address) . " " .
+               "--network-isolation " . escapeshellarg($network_isolation);
                
         exec($cmd . " 2>&1", $output, $code);
         if ($code !== 0) {

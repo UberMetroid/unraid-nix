@@ -9,6 +9,7 @@ window.initInstallForm = function() {
     $("#nix-env-vars-container").empty();
     $("#custom-compile-locally").prop('checked', false);
     $("#custom-command-override").val("");
+    $("#custom-network-isolation").prop('checked', false);
     $("#nix-install-section h3").text("Configure Flake");
     $("#nix-install-section .nix-subtext").text("Run or daemonize any custom flake from GitHub or a local directory.");
     $("#nix-install-submit-btn").text("Install Flake");
@@ -24,6 +25,7 @@ window.initInstallForm = function() {
         $("#custom-appdata").val(editData.appdata);
         $("#custom-puid").val(editData.puid);
         $("#custom-pgid").val(editData.pgid);
+        $("#custom-network-isolation").prop('checked', editData.network_isolation === '1' || editData.network_isolation === 'true' || editData.network_isolation === 'yes');
         
         if (editData.gpu === '1' || editData.gpu === 'true') {
             window.legacyGpuEnabled = true;
@@ -164,9 +166,11 @@ function installCustomFlake(e) {
     var form = $('<form>', { method: 'POST', action: '/plugins/nix/stream.php', target: popupName });
     var params = { csrf_token: window.csrf_token || '', action: 'install-custom', uri: uri, type: type };
     if (type === 'service') {
+        var networkIsolation = $("#custom-network-isolation").is(":checked") ? "1" : "0";
         Object.assign(params, {
             appdata: $("#custom-appdata").val(), media: '', puid: $("#custom-puid").val(), pgid: $("#custom-pgid").val(),
-            gpu: gpuVal, gpus: selectedGpus, bind_address: $("#custom-bind-address").val()
+            gpu: gpuVal, gpus: selectedGpus, bind_address: $("#custom-bind-address").val(),
+            network_isolation: networkIsolation
         });
         var ports = $(".nix-port-row").map(function() {
             var host = $(this).find(".nix-port-host").val();

@@ -75,6 +75,10 @@ pub fn build_chroot_command(
         mounts_cmd.push(format!("if [ -d /lib ]; then mkdir -p {}/lib && mount --bind -o ro /lib {}/lib; fi", chroot_dir, chroot_dir));
     }
     
+    if crate::sandbox::is_uts_isolation_enabled() {
+        mounts_cmd.push(format!("hostname nix-sandbox-{}", config.name));
+    }
+    
     let mounts_str = mounts_cmd.join(" && ").replace("\"", "\\\"");
     
     let mut env_vars = vec!["export HOME=/config".to_string()];
@@ -110,8 +114,25 @@ pub fn build_chroot_command(
     
     let bash_path = find_nix_bash();
     
+    let mut unshare_flags = vec!["-m".to_string()];
+    if crate::sandbox::is_pid_isolation_enabled() {
+        unshare_flags.push("-p".to_string());
+        unshare_flags.push("--fork".to_string());
+    }
+    if crate::sandbox::is_uts_isolation_enabled() {
+        unshare_flags.push("-u".to_string());
+    }
+    if crate::sandbox::is_ipc_isolation_enabled() {
+        unshare_flags.push("-i".to_string());
+    }
+    if config.enable_network_isolation {
+        unshare_flags.push("-n".to_string());
+    }
+    let unshare_flags_str = unshare_flags.join(" ");
+    
     let runuser_cmd = format!(
-        "exec unshare -m sh -c \"mount --make-rprivate / && {} && exec chroot --userspec={}:{} --groups={} {} {} -c \\\"{} && . /nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh && {}\\\"\"",
+        "exec unshare {} sh -c \"mount --make-rprivate / && {} && exec chroot --userspec={}:{} --groups={} {} {} -c \\\"{} && . /nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh && {}\\\"\"",
+        unshare_flags_str,
         mounts_str,
         config.puid,
         config.pgid,

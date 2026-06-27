@@ -169,6 +169,16 @@ $host_ips = get_host_ips_php();
             </div>
 
             <div class="nix-form-group">
+                <label style="font-weight: 600; margin-bottom: 8px; display: block;">Per-Flake Isolation Settings:</label>
+                <div style="background: rgba(255, 255, 255, 0.02); border: 1px solid rgba(255,255,255,0.08); border-radius: 4px; padding: 12px; display: flex; flex-direction: column; gap: 10px;">
+                    <label style="color: #eee; font-size: 13px; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; user-select: none;">
+                        <input type="checkbox" id="custom-network-isolation" style="margin: 0; vertical-align: middle;"> Enable Network Isolation (Block LAN/WAN Internet access)
+                    </label>
+                    <div class="nix-field-help" style="margin: 0 0 0 20px; color: #888; font-size: 11px;">Restricts the service's access to loopback (127.0.0.1) only, isolating it completely from LAN and the Internet.</div>
+                </div>
+            </div>
+
+            <div class="nix-form-group">
                 <label style="font-weight: 600; margin-bottom: 8px; display: block;">GPU Device Access:</label>
                 <div id="nix-gpus-list" style="background: rgba(255, 255, 255, 0.02); border: 1px solid rgba(255,255,255,0.08); border-radius: 4px; padding: 12px; display: flex; flex-direction: column; gap: 10px;">
                     <div style="font-size: 11px; color: #888; font-style: italic;" id="nix-gpus-loading">Scanning host for GPU devices...</div>

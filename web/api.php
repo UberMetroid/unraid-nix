@@ -191,6 +191,9 @@ if ($action === 'save-settings') {
     $show_in_nav = isset($_POST['show_in_nav']) ? $_POST['show_in_nav'] : 'yes';
     $allow_source_builds = isset($_POST['allow_source_builds']) ? $_POST['allow_source_builds'] : 'no';
     $filter_presets_by_hardware = isset($_POST['filter_presets_by_hardware']) ? $_POST['filter_presets_by_hardware'] : 'yes';
+    $enable_pid_isolation = isset($_POST['enable_pid_isolation']) ? $_POST['enable_pid_isolation'] : 'yes';
+    $enable_uts_isolation = isset($_POST['enable_uts_isolation']) ? $_POST['enable_uts_isolation'] : 'yes';
+    $enable_ipc_isolation = isset($_POST['enable_ipc_isolation']) ? $_POST['enable_ipc_isolation'] : 'yes';
     
     $output = [];
     $code = 0;
@@ -201,7 +204,10 @@ if ($action === 'save-settings') {
            "--enable-cli " . escapeshellarg($enable_cli) . " " .
            "--show-in-nav " . escapeshellarg($show_in_nav) . " " .
            "--allow-source-builds " . escapeshellarg($allow_source_builds) . " " .
-           "--filter-presets-by-hardware " . escapeshellarg($filter_presets_by_hardware);
+           "--filter-presets-by-hardware " . escapeshellarg($filter_presets_by_hardware) . " " .
+           "--enable-pid-isolation " . escapeshellarg($enable_pid_isolation) . " " .
+           "--enable-uts-isolation " . escapeshellarg($enable_uts_isolation) . " " .
+           "--enable-ipc-isolation " . escapeshellarg($enable_ipc_isolation);
            
     exec($cmd . " 2>&1", $output, $code);
     if ($code !== 0) {

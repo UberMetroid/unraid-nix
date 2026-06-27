@@ -15,10 +15,11 @@ fn test_build_bwrap_command_basic() {
         port: Some("8080".to_string()),
         bind_address: Some("127.0.0.1".to_string()),
         host_init_commands: Vec::new(),
+        enable_network_isolation: false,
     };
 
     let cmd = build_bwrap_command(&config).unwrap();
-    assert!(cmd.starts_with("exec unshare -m sh -c "));
+    assert!(cmd.contains("exec unshare "));
     assert!(cmd.contains("mount --bind /mnt/cache/appdata/test-app /config"));
     assert!(cmd.contains("mount --bind /mnt/user/downloads /downloads"));
     assert!(cmd.contains("exec setpriv --reuid=99 --regid=100") || cmd.contains("exec chroot --userspec=99:100"));
@@ -42,6 +43,7 @@ fn test_build_bwrap_command_missing_appdata() {
         port: None,
         bind_address: None,
         host_init_commands: Vec::new(),
+        enable_network_isolation: false,
     };
 
     let err = build_bwrap_command(&config);
@@ -65,12 +67,13 @@ fn test_build_bwrap_command_storage_sandboxed() {
         port: Some("8080".to_string()),
         bind_address: Some("127.0.0.1".to_string()),
         host_init_commands: Vec::new(),
+        enable_network_isolation: false,
     };
 
     let cmd = build_bwrap_command(&config).unwrap();
     std::env::remove_var("NIX_FORCE_STORAGE_SANDBOX");
 
-    assert!(cmd.starts_with("exec unshare -m sh -c "));
+    assert!(cmd.contains("exec unshare "));
     assert!(cmd.contains("mount -t tmpfs tmpfs /var/run/nix-chroot-test-app"));
     assert!(cmd.contains("mount --bind /nix /var/run/nix-chroot-test-app/nix"));
     assert!(cmd.contains("mount --bind /mnt/cache/appdata/test-app /var/run/nix-chroot-test-app/config"));
@@ -95,6 +98,7 @@ fn test_build_bwrap_command_gpu() {
         port: None,
         bind_address: None,
         host_init_commands: Vec::new(),
+        enable_network_isolation: false,
     };
 
     let cmd = build_bwrap_command(&config).unwrap();
@@ -121,6 +125,7 @@ fn test_build_bwrap_command_gpu_sandboxed() {
         port: None,
         bind_address: None,
         host_init_commands: Vec::new(),
+        enable_network_isolation: false,
     };
 
     let cmd = build_bwrap_command(&config).unwrap();
@@ -148,6 +153,7 @@ fn test_build_bwrap_command_gpu_isolated() {
         port: None,
         bind_address: None,
         host_init_commands: Vec::new(),
+        enable_network_isolation: false,
     };
 
     let cmd = build_bwrap_command(&config).unwrap();

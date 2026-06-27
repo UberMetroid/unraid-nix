@@ -50,6 +50,7 @@ pub struct SandboxConfig {
     pub port: Option<String>,
     pub bind_address: Option<String>,
     pub host_init_commands: Vec<String>,
+    pub enable_network_isolation: bool,
 }
 
 pub fn is_storage_sandbox_enabled() -> bool {
@@ -65,4 +66,45 @@ pub fn is_storage_sandbox_enabled() -> bool {
         }
     }
     false
+}
+
+pub fn is_pid_isolation_enabled() -> bool {
+    if let Ok(content) = std::fs::read_to_string("/boot/config/plugins/nix/nix.cfg") {
+        for line in content.lines() {
+            if line.starts_with("ENABLE_PID_ISOLATION=") {
+                let val = line.trim_start_matches("ENABLE_PID_ISOLATION=").trim_matches('"');
+                return val == "yes";
+            }
+        }
+        // If config file exists but option is not defined, default to yes
+        return true;
+    }
+    // If no config file, default to true
+    true
+}
+
+pub fn is_uts_isolation_enabled() -> bool {
+    if let Ok(content) = std::fs::read_to_string("/boot/config/plugins/nix/nix.cfg") {
+        for line in content.lines() {
+            if line.starts_with("ENABLE_UTS_ISOLATION=") {
+                let val = line.trim_start_matches("ENABLE_UTS_ISOLATION=").trim_matches('"');
+                return val == "yes";
+            }
+        }
+        return true;
+    }
+    true
+}
+
+pub fn is_ipc_isolation_enabled() -> bool {
+    if let Ok(content) = std::fs::read_to_string("/boot/config/plugins/nix/nix.cfg") {
+        for line in content.lines() {
+            if line.starts_with("ENABLE_IPC_ISOLATION=") {
+                let val = line.trim_start_matches("ENABLE_IPC_ISOLATION=").trim_matches('"');
+                return val == "yes";
+            }
+        }
+        return true;
+    }
+    true
 }

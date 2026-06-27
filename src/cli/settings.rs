@@ -90,6 +90,9 @@ pub fn save_settings(args: &[String]) {
     let mut show_in_nav = "yes".to_string();
     let mut allow_source_builds = "no".to_string();
     let mut filter_presets_by_hardware = "yes".to_string();
+    let mut enable_pid_isolation = "yes".to_string();
+    let mut enable_uts_isolation = "yes".to_string();
+    let mut enable_ipc_isolation = "yes".to_string();
 
     let mut i = 2;
     while i < args.len() {
@@ -129,6 +132,21 @@ pub fn save_settings(args: &[String]) {
                 filter_presets_by_hardware = args[i+1].clone();
                 i += 2;
             }
+            "--enable-pid-isolation" => {
+                if i + 1 >= args.len() { eprintln!("Error: Missing enable-pid-isolation value"); exit(1); }
+                enable_pid_isolation = args[i+1].clone();
+                i += 2;
+            }
+            "--enable-uts-isolation" => {
+                if i + 1 >= args.len() { eprintln!("Error: Missing enable-uts-isolation value"); exit(1); }
+                enable_uts_isolation = args[i+1].clone();
+                i += 2;
+            }
+            "--enable-ipc-isolation" => {
+                if i + 1 >= args.len() { eprintln!("Error: Missing enable-ipc-isolation value"); exit(1); }
+                enable_ipc_isolation = args[i+1].clone();
+                i += 2;
+            }
             _ => { eprintln!("Unknown save-settings flag: {}", args[i]); exit(1); }
         }
     }
@@ -163,8 +181,8 @@ pub fn save_settings(args: &[String]) {
     // Write settings to ini config
     let _ = std::fs::create_dir_all("/boot/config/plugins/nix");
     let cfg_content = format!(
-        "NIX_STORE_PATH=\"{}\"\nAUTOSTART_FLAKES=\"{}\"\nENABLE_STORAGE_SANDBOX=\"{}\"\nENABLE_CLI_INSTALL=\"{}\"\nSHOW_IN_NAVIGATION=\"{}\"\nALLOW_SOURCE_BUILDS=\"{}\"\nFILTER_PRESETS_BY_HARDWARE=\"{}\"\n",
-        clean_store_path, autostart, enable_sandbox, enable_cli, show_in_nav, allow_source_builds, filter_presets_by_hardware
+        "NIX_STORE_PATH=\"{}\"\nAUTOSTART_FLAKES=\"{}\"\nENABLE_STORAGE_SANDBOX=\"{}\"\nENABLE_CLI_INSTALL=\"{}\"\nSHOW_IN_NAVIGATION=\"{}\"\nALLOW_SOURCE_BUILDS=\"{}\"\nFILTER_PRESETS_BY_HARDWARE=\"{}\"\nENABLE_PID_ISOLATION=\"{}\"\nENABLE_UTS_ISOLATION=\"{}\"\nENABLE_IPC_ISOLATION=\"{}\"\n",
+        clean_store_path, autostart, enable_sandbox, enable_cli, show_in_nav, allow_source_builds, filter_presets_by_hardware, enable_pid_isolation, enable_uts_isolation, enable_ipc_isolation
     );
     if std::fs::write(cfg_file, cfg_content).is_err() {
         eprintln!("Failed to write nix.cfg to flash drive.");

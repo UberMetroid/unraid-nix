@@ -13,6 +13,7 @@ pub fn parse_sandbox_args(args: &[String]) -> Result<String, String> {
     let mut extra_binds = Vec::new();
     let mut port = None;
     let mut bind_address = None;
+    let mut network_isolation = false;
 
     let mut i = 2;
     while i < args.len() {
@@ -72,6 +73,10 @@ pub fn parse_sandbox_args(args: &[String]) -> Result<String, String> {
                 gpus = Some(args[i+1].clone());
                 i += 2;
             }
+            "--network-isolation" => {
+                network_isolation = true;
+                i += 1;
+            }
             _ => return Err(format!("Unknown sandbox flag: {}", args[i])),
         }
     }
@@ -89,6 +94,7 @@ pub fn parse_sandbox_args(args: &[String]) -> Result<String, String> {
         port,
         bind_address,
         host_init_commands: Vec::new(),
+        enable_network_isolation: network_isolation,
     })
 }
 

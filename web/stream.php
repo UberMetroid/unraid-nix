@@ -38,13 +38,15 @@ if ($action === 'install-cli') {
         $env_vars = isset($_POST['env_vars']) ? $_POST['env_vars'] : '';
         $compile_locally = isset($_POST['compile_locally']) ? $_POST['compile_locally'] : '0';
         $command_override = isset($_POST['command_override']) ? $_POST['command_override'] : '';
+        $network_isolation = isset($_POST['network_isolation']) ? $_POST['network_isolation'] : '0';
         $cmd = "/usr/local/emhttp/plugins/nix/nix-helper install-service " .
                "--uri " . escapeshellarg($uri) . " --appdata " . escapeshellarg($appdata) . " " .
                "--media " . escapeshellarg($media) . " --puid " . escapeshellarg($puid) . " " .
                "--pgid " . escapeshellarg($pgid) . " --gpu " . escapeshellarg($gpu) . " " .
                "--gpus " . escapeshellarg($gpus) . " " .
                "--extra-binds " . escapeshellarg($extra_binds) . " --port " . escapeshellarg($port) . " " .
-               "--bind-address " . escapeshellarg($bind_address) . " --env-vars " . escapeshellarg($env_vars);
+               "--bind-address " . escapeshellarg($bind_address) . " --env-vars " . escapeshellarg($env_vars) . " " .
+               "--network-isolation " . escapeshellarg($network_isolation);
         if (!empty($command_override)) {
             $cmd .= " --command-override " . escapeshellarg($command_override);
         }
