@@ -181,6 +181,10 @@ $is_nix_running = ($status_code === 0);
         </select>
         <div class="nix-field-help">Restricts access to host System V IPC resources and POSIX message queues.</div>
     </div>
+
+    <div style="margin-top: 15px; display: flex; justify-content: flex-end; border-top: 1px solid rgba(255,255,255,0.05); padding-top: 15px;">
+        <button type="button" class="nix-btn-primary" style="margin: 0; padding: 6px 18px; font-size: 12px; display: inline-flex; align-items: center; gap: 6px;" onclick="saveAllSettings(this)"><i class="fa fa-check"></i> Apply Isolation Settings</button>
+    </div>
 </div>
 
 <!-- 5. Nix Package Manager Configuration -->
@@ -232,7 +236,9 @@ $is_nix_running = ($status_code === 0);
             <div class="nix-field-help">Automatically filter the Preset Store to show only packages compatible with your system's hardware. For example, ROCm AMD templates will be hidden if no AMD GPU is detected.</div>
         </div>
 
-        <button type="submit" id="nix-settings-submit-btn" class="nix-btn-primary" style="margin-top: 15px; width: 100%;">Save Configurations</button>
+        <div style="margin-top: 15px; display: flex; justify-content: flex-end; border-top: 1px solid rgba(255,255,255,0.05); padding-top: 15px;">
+            <button type="submit" id="nix-settings-submit-btn" class="nix-btn-primary" style="margin: 0; padding: 6px 18px; font-size: 12px; display: inline-flex; align-items: center; gap: 6px;"><i class="fa fa-check"></i> Apply Nix Settings</button>
+        </div>
     </form>
 </div>
 
