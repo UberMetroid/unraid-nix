@@ -1,0 +1,15 @@
+{
+  "name": "mailserver",
+  "display_name": "Mail Server",
+  "description": "Self-hosted secure mail server implementation",
+  "url": "https://nixos.org/",
+  "command": "exec nix run nixpkgs#postfix",
+  "default_ports": [
+    {
+      "host": 25,
+      "container": 25,
+      "label": "SMTP Port"
+    }
+  ],
+  "icon": "fa-envelope-o"
+}

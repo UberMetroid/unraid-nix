@@ -1,0 +1,15 @@
+{
+  "name": "mumble-server",
+  "display_name": "Mumble Server",
+  "description": "Low-latency, high quality voice chat software (Murmur)",
+  "url": "https://www.mumble.info/",
+  "command": "exec nix run nixpkgs#murmur",
+  "default_ports": [
+    {
+      "host": 64738,
+      "container": 64738,
+      "label": "Voice Port"
+    }
+  ],
+  "icon": "fa-comments"
+}

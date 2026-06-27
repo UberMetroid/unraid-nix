@@ -211,6 +211,45 @@ fn get_static_config(name_lower: &str) -> StaticConfig {
         };
     }
 
+    // Communication & Chat (Teal)
+    if name_lower.contains("matrix-synapse") || name_lower.contains("mattermost") ||
+       name_lower.contains("rocketchat") || name_lower.contains("mumble") ||
+       name_lower.contains("teamspeak") || name_lower.contains("discourse") ||
+       name_lower.contains("mailserver") || name_lower.contains("postfix") {
+        let icon = if name_lower.contains("mail") || name_lower.contains("postfix") {
+            "fa-envelope-o"
+        } else {
+            "fa-comments"
+        };
+        return StaticConfig {
+            icon,
+            color: "#00d2d3",
+            bg: "rgba(0, 210, 211, 0.08)",
+            border: "rgba(0, 210, 211, 0.2)",
+        };
+    }
+
+    // Social Media (Pinkish Lilac)
+    if name_lower.contains("mastodon") || name_lower.contains("wordpress") ||
+       name_lower.contains("ghost") || name_lower.contains("linkding") ||
+       name_lower.contains("linkwarden") || name_lower.contains("wallabag") ||
+       name_lower.contains("shiori") || name_lower.contains("yourls") ||
+       name_lower.contains("kutt") {
+        let icon = if name_lower.contains("wordpress") || name_lower.contains("ghost") {
+            "fa-pencil-square-o"
+        } else if name_lower.contains("linkding") || name_lower.contains("linkwarden") || name_lower.contains("shiori") {
+            "fa-bookmark-o"
+        } else {
+            "fa-share-alt"
+        };
+        return StaticConfig {
+            icon,
+            color: "#ff9ff3",
+            bg: "rgba(255, 159, 243, 0.08)",
+            border: "rgba(255, 159, 243, 0.2)",
+        };
+    }
+
     // Sync & Backups (Teal)
     if name_lower.contains("syncthing") || name_lower.contains("rclone") || name_lower.contains("duplicati") ||
        name_lower.contains("kopia") || name_lower.contains("backups") || name_lower.contains("duplicacy") ||

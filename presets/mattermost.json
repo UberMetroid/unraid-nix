@@ -1,0 +1,15 @@
+{
+  "name": "mattermost",
+  "display_name": "Mattermost",
+  "description": "Open-source developer collaboration and chat platform",
+  "url": "https://mattermost.com/",
+  "command": "exec nix run nixpkgs#mattermost",
+  "default_ports": [
+    {
+      "host": 8065,
+      "container": 8065,
+      "label": "Web GUI"
+    }
+  ],
+  "icon": "fa-comments"
+}

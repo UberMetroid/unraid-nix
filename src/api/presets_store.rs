@@ -50,6 +50,7 @@ pub fn render_presets_store() -> String {
             <button type="button" class="nix-preset-pill active" onclick="filterPresetCategory('ai', this)">AI</button>
             <button type="button" class="nix-preset-pill" onclick="filterPresetCategory('automation', this)">Automation</button>
             <button type="button" class="nix-preset-pill" onclick="filterPresetCategory('cloud', this)">Cloud</button>
+            <button type="button" class="nix-preset-pill" onclick="filterPresetCategory('communication', this)">Communication</button>
             <button type="button" class="nix-preset-pill" onclick="filterPresetCategory('dashboard', this)">Dashboards</button>
             <button type="button" class="nix-preset-pill" onclick="filterPresetCategory('database', this)">Databases</button>
             <button type="button" class="nix-preset-pill" onclick="filterPresetCategory('downloads', this)">Downloaders</button>
@@ -60,6 +61,7 @@ pub fn render_presets_store() -> String {
             <button type="button" class="nix-preset-pill" onclick="filterPresetCategory('security', this)">Security & Locks</button>
             <button type="button" class="nix-preset-pill" onclick="filterPresetCategory('arr', this)">Servarr</button>
             <button type="button" class="nix-preset-pill" onclick="filterPresetCategory('smarthome', this)">Smart Home</button>
+            <button type="button" class="nix-preset-pill" onclick="filterPresetCategory('social', this)">Social Media</button>
             <button type="button" class="nix-preset-pill" onclick="filterPresetCategory('storage', this)">Sync & Backups</button>
             <button type="button" class="nix-preset-pill" onclick="filterPresetCategory('all', this)">All</button>
         </div>
@@ -249,6 +251,17 @@ fn get_preset_category_name(name: &str) -> &'static str {
        name_lower.contains("seafile") || name_lower.contains("filerun") || name_lower.contains("immich") ||
        name_lower.contains("photoprism") || name_lower.contains("komga") || name_lower.contains("uboquity") {
         "cloud"
+    } else if name_lower.contains("matrix-synapse") || name_lower.contains("mattermost") ||
+       name_lower.contains("rocketchat") || name_lower.contains("mumble") ||
+       name_lower.contains("teamspeak") || name_lower.contains("discourse") ||
+       name_lower.contains("mailserver") || name_lower.contains("postfix") {
+        "communication"
+    } else if name_lower.contains("mastodon") || name_lower.contains("wordpress") ||
+       name_lower.contains("ghost") || name_lower.contains("linkding") ||
+       name_lower.contains("linkwarden") || name_lower.contains("wallabag") ||
+       name_lower.contains("shiori") || name_lower.contains("yourls") ||
+       name_lower.contains("kutt") {
+        "social"
     } else if name_lower.contains("syncthing") || name_lower.contains("rclone") || name_lower.contains("duplicati") ||
        name_lower.contains("kopia") || name_lower.contains("backups") || name_lower.contains("duplicacy") ||
        name_lower.contains("krusader") || name_lower.contains("filezilla") || name_lower.contains("archivebox") {
@@ -419,6 +432,33 @@ fn get_preset_category_styling(name: &str, default_icon: &str) -> CategoryStylin
             color: "#74b9ff",
             bg: "rgba(116, 185, 255, 0.08)",
             border: "rgba(116, 185, 255, 0.2)",
+        };
+    }
+
+    // Communication & Chat (Teal)
+    if name_lower.contains("matrix-synapse") || name_lower.contains("mattermost") ||
+       name_lower.contains("rocketchat") || name_lower.contains("mumble") ||
+       name_lower.contains("teamspeak") || name_lower.contains("discourse") ||
+       name_lower.contains("mailserver") || name_lower.contains("postfix") {
+        return CategoryStyling {
+            icon: default_icon.to_string(),
+            color: "#00d2d3",
+            bg: "rgba(0, 210, 211, 0.08)",
+            border: "rgba(0, 210, 211, 0.2)",
+        };
+    }
+
+    // Social Media (Pinkish Lilac)
+    if name_lower.contains("mastodon") || name_lower.contains("wordpress") ||
+       name_lower.contains("ghost") || name_lower.contains("linkding") ||
+       name_lower.contains("linkwarden") || name_lower.contains("wallabag") ||
+       name_lower.contains("shiori") || name_lower.contains("yourls") ||
+       name_lower.contains("kutt") {
+        return CategoryStyling {
+            icon: default_icon.to_string(),
+            color: "#ff9ff3",
+            bg: "rgba(255, 159, 243, 0.08)",
+            border: "rgba(255, 159, 243, 0.2)",
         };
     }
 

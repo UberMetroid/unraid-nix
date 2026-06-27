@@ -1,0 +1,15 @@
+{
+  "name": "discourse",
+  "display_name": "Discourse",
+  "description": "Modern discussion platform for community forum discussions",
+  "url": "https://www.discourse.org/",
+  "command": "exec nix run nixpkgs#discourse",
+  "default_ports": [
+    {
+      "host": 3000,
+      "container": 3000,
+      "label": "Web GUI"
+    }
+  ],
+  "icon": "fa-comments"
+}
