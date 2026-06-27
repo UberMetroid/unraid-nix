@@ -44,8 +44,11 @@ if ($action === 'install-cli') {
                "--gpus " . escapeshellarg($gpus) . " " .
                "--extra-binds " . escapeshellarg($extra_binds) . " --port " . escapeshellarg($port) . " " .
                "--bind-address " . escapeshellarg($bind_address) . " --env-vars " . escapeshellarg($env_vars);
+        $timeout_limit = 45;
         if ($compile_locally === '1') {
             $cmd .= " --compile-locally";
+            $timeout_limit = 1800;
+            set_time_limit(1800);
         }
         $title = "Installing Nix Service: " . htmlspecialchars($uri);
     } else { echo "Invalid installation type."; exit; }
@@ -185,7 +188,7 @@ if ($code === 0 && $action === 'install-custom' && $type === 'service') {
         echo "Tailing startup logs for service: {$svc}...\n";
         echo "--------------------------------------------------\n"; flush();
         $last_pos = 0; $tail_start = time(); $success_found = false;
-        while (time() - $tail_start < 45) {
+        while (time() - $tail_start < $timeout_limit) {
             clearstatcache(true, $log_file);
             $len = filesize($log_file);
             if ($len > $last_pos) {
