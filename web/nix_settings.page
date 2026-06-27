@@ -137,7 +137,10 @@ $is_nix_running = ($status_code === 0);
             <div class="nix-field-help">Automatically filter the Preset Store to show only packages compatible with your system's hardware. For example, ROCm AMD templates will be hidden if no AMD GPU is detected.</div>
         </div>
 
-        <button type="submit" id="nix-settings-submit-btn" class="nix-btn-primary">Apply Settings</button>
+        <div style="display: flex; gap: 10px; margin-top: 15px;">
+            <button type="submit" id="nix-settings-submit-btn" class="nix-btn-primary" style="flex: 1; margin: 0;">Apply Settings</button>
+            <button type="button" id="nix-sync-btn" class="nix-btn" style="flex: 1; display: inline-flex; align-items: center; justify-content: center; gap: 6px; margin: 0;" onclick="syncTemplates(this)"><i class="fa fa-refresh"></i> Force Sync Templates</button>
+        </div>
     </form>
 </div>
 
@@ -210,6 +213,27 @@ function toggleNixDaemon(action) {
             location.reload();
         }
     }, 'json');
+}
+
+function syncTemplates(btn) {
+    var $btn = $(btn);
+    if ($btn.prop('disabled')) return;
+    
+    var originalHtml = $btn.html();
+    $btn.prop('disabled', true).html('<i class="fa fa-spinner fa-spin"></i> Syncing...');
+    
+    $.post('/plugins/nix/api.php', { action: 'sync-templates' }, function(response) {
+        if (response.success) {
+            alert("Templates successfully updated!");
+            location.reload();
+        } else {
+            alert("Failed to sync templates: " + response.error);
+            $btn.prop('disabled', false).html(originalHtml);
+        }
+    }, 'json').fail(function() {
+        alert("Server returned an error while syncing.");
+        $btn.prop('disabled', false).html(originalHtml);
+    });
 }
 </script>
 

@@ -102,3 +102,14 @@ Tests cover:
 * Selective storage sandbox mount namespace generated command matching.
 * Nix search JSON result mapping.
 * Path validity constraints (preventing store loops on `/boot`).
+
+---
+
+## 6. Preset Templates & Store Sync
+
+The Template Library allows you to deploy over 165+ pre-configured, self-hosted applications natively. 
+
+* **Dedicated Templates Repository**: To allow rapid additions and updates to application templates without requiring a full plugin reinstall, all template definitions are housed in the dedicated **[unraid-nix-templates](https://github.com/UberMetroid/unraid-nix-templates)** repository.
+* **Automatic Background Sync**: The plugin automatically syncs the latest templates in the background from the templates repository whenever your Unraid storage array is mounted.
+* **Manual Force Sync**: If you want to force-sync the templates immediately (e.g., after a new pull request is merged), go to the **System Settings** subtab in the WebGUI and click **Force Sync Templates**.
+

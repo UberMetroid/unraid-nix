@@ -112,3 +112,7 @@ if [ "$AUTOSTART_FLAKES" = "yes" ] && [ -f "/boot/config/plugins/nix/process-com
     echo $! > /var/run/nix-process-compose.pid
     log_event "INFO" "process-compose daemon started with PID $(cat /var/run/nix-process-compose.pid)"
 fi
+
+# 7. Sync latest preset templates in the background
+/usr/local/emhttp/plugins/nix/nix-helper sync-templates >/dev/null 2>&1 &
+
