@@ -135,6 +135,31 @@ pub fn install_service(args: &[String]) {
     if let Some(pos) = name.rfind('#') { name = name[pos + 1..].to_string(); }
     name = name.chars().filter(|c| c.is_alphanumeric() || *c == '_' || *c == '-').collect();
 
+    // Pre-flight port conflict verification
+    let check_port = if let Some(ref p_str) = port {
+        p_str.parse::<u16>().ok()
+    } else {
+        let name_lower = name.to_lowercase();
+        let preset_path = format!("/usr/local/emhttp/plugins/nix/presets/{}.json", name_lower);
+        if std::path::Path::new(&preset_path).exists() {
+            if let Ok(content) = std::fs::read_to_string(&preset_path) {
+                if let Ok(json) = serde_json::from_str::<serde_json::Value>(&content) {
+                    if let Some(ports_arr) = json.get("default_ports").and_then(|p| p.as_array()) {
+                        if !ports_arr.is_empty() {
+                            ports_arr[0].get("host").and_then(|hp| hp.as_u64()).map(|p| p as u16)
+                        } else { None }
+                    } else { None }
+                } else { None }
+            } else { None }
+        } else { None }
+    };
+
+    if let Some(p) = check_port {
+        if crate::process::ports::is_port_in_use(p) {
+            println!("[WARNING] Port {} is already bound by another service or Docker container on the host. This service may fail to start unless you configure a custom Port Override.", p);
+        }
+    }
+
     let mut binds_vec = Vec::new();
     for b in &extra_binds {
         let host = b.host.trim();
