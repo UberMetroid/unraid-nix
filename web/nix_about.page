@@ -5,7 +5,7 @@ Title="About"
 <link type="text/css" rel="stylesheet" href="/plugins/nix/styles_widgets.css?v=<?php echo time(); ?>">
 <script src="/plugins/nix/nix.js"></script>
 
-<h2 class="bold">About</h2>
+<h2 class="bold" style="color: #fff; border-bottom: none;">About</h2>
 <p style="margin: -10px 0 20px 0; color: #888; font-size: 13px;">Declarative, sandboxed package management and supervisor engine.</p>
 
 <div class="nix-section" style="max-width: 1000px; line-height: 1.6;">
