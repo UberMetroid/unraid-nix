@@ -29,19 +29,19 @@
     ### 2026.06.26.24
     - **Nginx Routing Fix**: Resolved the 404 Not Found error on the Nix Install tab by dynamically prepending the capitalized route context (`/Nix` or `/Settings`) based on the active path structure.
     ### 2026.06.26.23
-    - **Tab Navigation & URL Refinement**: Renamed the custom install page from `nix_custom.page` to `nix_install.page` to align with the active Dynamix URL mapping (`/Settings/nix_install`). Updated all redirection points and package downloader manifests.
+    - **Tab Navigation and URL Refinement**: Renamed the custom install page from `nix_custom.page` to `nix_install.page` to align with the active Dynamix URL mapping (`/Settings/nix_install`). Updated all redirection points and package downloader manifests.
     ### 2026.06.26.22
     - **Universal Flake Store Compatibility**: Made custom ports and bind address overrides work for **any** custom application or package from the Flake Store.
       - Sandboxed environments automatically export `PORT`, `BIND_ADDRESS`, and `HOST` environment variables when custom values are configured.
       - Enables standard web frameworks, microservices, and custom server flakes to automatically bind to your chosen port and IP out of the box with zero configuration file edits.
     ### 2026.06.26.21
-    - **Custom Port & Bind Address Configuration**: Added new installation and editing fields allowing users to override the default application ports and interface bind addresses (Option C network isolation).
+    - **Custom Port and Bind Address Configuration**: Added new installation and editing fields allowing users to override the default application ports and interface bind addresses (Option C network isolation).
       - Preset templates automatically inject port and bind overrides on startup.
       - **Jellyfin**: Overridden natively via CLI arguments (`--port` and `--bind-to-address`).
       - **Radarr/Sonarr**: Dynamically patches or creates the service configuration XML (`config.xml`) inside the isolated sandbox to match the chosen port and bind address overrides before startup.
       - Active flakes table dynamically parses metadata to expose custom port links for direct WebGUI navigation.
     ### 2026.06.26.20
-    - **Observability Framework & Dedicated Logging**: Implemented a comprehensive logging system routing all installation, mounting, and bootstrap milestones directly to `/var/log/nix-plugin.log` with standardized local-time timestamps.
+    - **Observability Framework and Dedicated Logging**: Implemented a comprehensive logging system routing all installation, mounting, and bootstrap milestones directly to `/var/log/nix-plugin.log` with standardized local-time timestamps.
     - **Storage Pool Health Monitoring**: Integrated automatic disk space checks for the persistent `/nix` storage pool upon array mounting, printing warnings to the log if pool capacity exceeds 90%.
     - **Service Pre-Flight Checks**:
       - **Port Conflict Detection**: Scans host network interfaces to verify default preset ports (Jellyfin: `8096`, Radarr: `7878`, Sonarr: `8989`) are free prior to starting or restarting services, logging alert warnings on conflict.
