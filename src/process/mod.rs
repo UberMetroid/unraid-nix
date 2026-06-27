@@ -2,7 +2,6 @@ pub mod ports;
 pub mod actions;
 
 pub use actions::send_service_action;
-pub use ports::is_port_in_use;
 
 use serde::{Deserialize, Serialize};
 use std::fs;
@@ -24,6 +23,7 @@ pub struct ServiceStatus {
 
 impl ServiceStatus {
     /// Formats the service age in seconds into a human-readable uptime string.
+    #[allow(dead_code)]
     pub fn uptime(&self) -> String {
         if let Some(nanos) = self.uptime_nanoseconds {
             let secs = nanos / 1_000_000_000;
@@ -97,6 +97,7 @@ pub fn get_services_status(api_port: u16) -> Result<Vec<ServiceStatus>, String> 
 #[cfg(test)]
 mod tests {
     use super::*;
+    use super::ports::is_port_in_use;
     use std::net::TcpListener;
 
     #[test]

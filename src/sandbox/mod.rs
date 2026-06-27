@@ -43,6 +43,7 @@ pub struct SandboxConfig {
     pub media_path: Option<String>,
     pub puid: u32,
     pub pgid: u32,
+    #[allow(dead_code)]
     pub enable_gpu: bool,
     pub inner_command: String,
     pub extra_binds: Vec<(String, String)>,
