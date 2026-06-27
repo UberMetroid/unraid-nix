@@ -1,5 +1,5 @@
 Menu="Nix:5"
-Title="System Settings"
+Title="Settings"
 ---
 <link type="text/css" rel="stylesheet" href="/plugins/nix/styles_layout.css?v=<?php echo time(); ?>">
 <link type="text/css" rel="stylesheet" href="/plugins/nix/styles_widgets.css?v=<?php echo time(); ?>">
