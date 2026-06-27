@@ -53,6 +53,29 @@ Title="About"
         </div>
     </div>
 
+    <!-- Contributing Preset Templates -->
+    <div style="margin-bottom: 25px;">
+        <h3 style="color: #2ecc71; margin-bottom: 10px;"><i class="fa fa-code-fork"></i> Contributing Preset Templates</h3>
+        <p style="color: #eee;">
+            Want to see your favorite self-hosted application pre-configured in the Templates store? We welcome community contributions! You can request new templates or submit them yourself:
+        </p>
+        <ul style="color: #a0a0a5; padding-left: 20px; margin-top: 8px; line-height: 1.6;">
+            <li style="margin-bottom: 8px;">
+                <strong>Request a Template:</strong> Open a feature request issue on our <a href="https://github.com/UberMetroid/unraid-nix/issues" target="_blank" style="color: #00a1ff; text-decoration: underline;">GitHub Issues</a> describing the application, its Nix package reference, and its default port requirements.
+            </li>
+            <li style="margin-bottom: 8px;">
+                <strong>Submit a Pull Request:</strong> Add a new JSON configuration file (e.g. <code>ocis.json</code>) to the <code>presets/</code> folder on our repository. A template is a simple JSON definition containing the service name, display name, description, launch command, and default ports.
+            </li>
+        </ul>
+        
+        <div style="margin-top: 15px; background: rgba(46, 204, 113, 0.02); border: 1px solid rgba(46, 204, 113, 0.15); border-radius: 6px; padding: 14px;">
+            <h4 style="margin: 0 0 6px 0; color: #fff; font-size: 13px;"><i class="fa fa-comments" style="color: #2ecc71;"></i> Repository Proposal: Splitting out <code>unraid-nix-templates</code></h4>
+            <p style="margin: 0; font-size: 11.5px; color: #a0a0a5; line-height: 1.5;">
+                We are actively planning to split the template presets into a dedicated repository (<strong>unraid-nix-templates</strong>). This will allow independent nightly syncs of newly added templates without requiring a full plugin re-installation or update, while keeping the main plugin codebase clean and lightweight.
+            </p>
+        </div>
+    </div>
+
     <!-- How it works -->
     <div style="margin-bottom: 25px;">
         <h3 style="color: #00a1ff; margin-bottom: 10px;"><i class="fa fa-info-circle"></i> How Nix Works</h3>
