@@ -2,7 +2,7 @@
 <!DOCTYPE PLUGIN [
   <!ENTITY name      "nix">
   <!ENTITY author    "UberMetroid">
-  <!ENTITY version   "2026.06.26.49">
+  <!ENTITY version   "2026.06.26.50">
   <!ENTITY launch    "Settings/Nix">
   <!ENTITY plugdir   "/boot/config/plugins/&name;">
   <!ENTITY usrdir    "/usr/local/emhttp/plugins/&name;">
@@ -11,6 +11,8 @@
 
   <CHANGES>
     ## nix package manager plugin
+    ### 2026.06.26.50
+    - **Safe Mount Teardown**: Updated the array stop event hook (`event_stopping_svcs`) to forcefully terminate any stray background processes (like cloudflared) that have files open under `/nix` using a scoped `fuser` query. Prevents locked filesystem states and fixes array shutdown hangs.
     ### 2026.06.26.49
     - **Ollama GPU Presets**: Split Ollama into three separate template presets in the store: CPU-only (`ollama`), NVIDIA GPU accelerated (`ollama-cuda`), and AMD GPU accelerated (`ollama-rocm`). This allows users to easily search and install the hardware-optimized version matching their system setup.
     ### 2026.06.26.48

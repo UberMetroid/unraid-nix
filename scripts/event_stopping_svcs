@@ -49,5 +49,13 @@ log_event "INFO" "Stopping background nix-daemon..."
 log_event "INFO" "Terminating any stray nixbld builder processes..."
 pkill -u nixbld >/dev/null 2>&1
 
+# 3.5. Force terminate any remaining processes holding files open in /nix
+if mountpoint -q /nix; then
+    if fuser -m /nix >/dev/null 2>&1; then
+        log_event "WARN" "Force terminating remaining processes holding files open in /nix..."
+        fuser -k -9 -m /nix >/dev/null 2>&1 || true
+    fi
+fi
+
 # 4. Cleanly unmount /nix to prevent locked filesystems
 /usr/local/emhttp/plugins/nix/nix-helper teardown-store 2>&1 | logger -t "nix-plugin"
