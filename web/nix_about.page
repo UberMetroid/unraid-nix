@@ -13,10 +13,10 @@ Title="About"
         </div>
         <div style="display: flex; gap: 8px;">
             <a href="https://github.com/UberMetroid/unraid-nix" target="_blank" class="nix-btn-primary" style="text-decoration: none; display: inline-flex; align-items: center; gap: 8px;">
-                <i class="fa fa-github" style="font-size: 16px;"></i> Plugin Code
+                <i class="fa fa-github" style="font-size: 16px;"></i> unraid-nix
             </a>
             <a href="https://github.com/UberMetroid/unraid-nix-templates" target="_blank" class="nix-btn" style="text-decoration: none; display: inline-flex; align-items: center; gap: 8px; border: 1px solid rgba(255,255,255,0.15);">
-                <i class="fa fa-github" style="font-size: 16px;"></i> App Templates
+                <i class="fa fa-github" style="font-size: 16px;"></i> unraid-nix-templates
             </a>
         </div>
     </div>
