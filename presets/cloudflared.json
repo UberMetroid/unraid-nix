@@ -3,7 +3,7 @@
   "display_name": "Cloudflare Tunnel",
   "description": "Cloudflare Tunnel Client",
   "url": "https://developers.cloudflare.com/cloudflare-one/connections/connect-networks/",
-  "command": "exec nix run nixpkgs#cloudflared -- tunnel --config /config/config.yml run",
+  "command": "if [ -f /config/config.yml ]; then exec nix run nixpkgs#cloudflared -- tunnel --config /config/config.yml run; else exec nix run nixpkgs#cloudflared -- tunnel run; fi",
   "default_ports": [],
   "icon": "fa-server"
 }
