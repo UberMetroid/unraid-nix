@@ -2,7 +2,7 @@
 <!DOCTYPE PLUGIN [
   <!ENTITY name      "nix">
   <!ENTITY author    "UberMetroid">
-  <!ENTITY version   "2026.06.26.35">
+  <!ENTITY version   "2026.06.26.36">
   <!ENTITY launch    "Settings/Nix">
   <!ENTITY plugdir   "/boot/config/plugins/&name;">
   <!ENTITY usrdir    "/usr/local/emhttp/plugins/&name;">
@@ -11,6 +11,8 @@
 
   <CHANGES>
     ## nix package manager plugin
+    ### 2026.06.26.36
+    - **Report UX Styling Fix**: Replaced the neutral info icons with positive green checkmarks for default ports and unconfigured storage states in the post-install verification report, resolving visual ambiguity.
     ### 2026.06.26.35
     - **Dynamic Port Resolution Fix**: Enabled dynamic resolution of default preset ports in the service status formatter when the service is installed with default settings. Corrects missing IP:PORT links.
     ### 2026.06.26.34

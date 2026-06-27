@@ -74,7 +74,7 @@ pub fn render_verification_report(service: &str) -> String {
         }
     }
     if extra_binds_html.is_empty() {
-        extra_binds_html = "<div style='color: #777;'><i class='fa fa-info-circle'></i> None configured</div>".to_string();
+        extra_binds_html = "<div><i class='fa fa-check success'></i> None configured</div>".to_string();
     }
 
     let mut ports_html = String::new();
@@ -91,7 +91,7 @@ pub fn render_verification_report(service: &str) -> String {
         }
     }
     if ports_html.is_empty() {
-        ports_html = "<div style='color: #777;'><i class='fa fa-info-circle'></i> No port overrides (running on default ports)</div>".to_string();
+        ports_html = "<div><i class='fa fa-check success'></i> Running on default ports (no overrides)</div>".to_string();
     }
 
     let sandbox_desc = if crate::sandbox::is_storage_sandbox_enabled() {
