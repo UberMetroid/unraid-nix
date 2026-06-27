@@ -4,14 +4,20 @@ use crate::api::utils::{HostAddr, get_service_web_port, get_service_appdata_path
 use crate::api::package::{get_cached_version, get_package_link_url};
 
 struct FaIconConfig {
+    icon: String,
+    color: &'static str,
+    bg: &'static str,
+    border: &'static str,
+}
+
+struct StaticConfig {
     icon: &'static str,
     color: &'static str,
     bg: &'static str,
     border: &'static str,
 }
 
-fn get_service_fa_config(name: &str) -> FaIconConfig {
-    let name_lower = name.to_lowercase();
+fn get_static_config(name_lower: &str) -> StaticConfig {
     
     // Media & Audio (Cyan/Blue)
     if name_lower.contains("jellyfin") || name_lower.contains("plex") || name_lower.contains("emby") ||
@@ -21,7 +27,7 @@ fn get_service_fa_config(name: &str) -> FaIconConfig {
         } else {
             "fa-music"
         };
-        return FaIconConfig {
+        return StaticConfig {
             icon,
             color: "#00a1ff",
             bg: "rgba(0, 161, 255, 0.08)",
@@ -45,7 +51,7 @@ fn get_service_fa_config(name: &str) -> FaIconConfig {
         } else {
             "fa-search"
         };
-        return FaIconConfig {
+        return StaticConfig {
             icon,
             color: "#e67e22",
             bg: "rgba(230, 126, 34, 0.08)",
@@ -56,7 +62,7 @@ fn get_service_fa_config(name: &str) -> FaIconConfig {
     // Download Clients (Green)
     if name_lower.contains("transmission") || name_lower.contains("sabnzbd") || name_lower.contains("nzbget") || 
        name_lower.contains("qbittorrent") || name_lower.contains("deluge") || name_lower.contains("rtorrent") || name_lower.contains("aria2") {
-        return FaIconConfig {
+        return StaticConfig {
             icon: "fa-download",
             color: "#2ecc71",
             bg: "rgba(46, 204, 113, 0.08)",
@@ -75,7 +81,7 @@ fn get_service_fa_config(name: &str) -> FaIconConfig {
         } else {
             "fa-exchange"
         };
-        return FaIconConfig {
+        return StaticConfig {
             icon,
             color: "#9b59b6",
             bg: "rgba(155, 89, 182, 0.08)",
@@ -94,7 +100,7 @@ fn get_service_fa_config(name: &str) -> FaIconConfig {
         } else {
             "fa-bolt"
         };
-        return FaIconConfig {
+        return StaticConfig {
             icon,
             color: "#f1c40f",
             bg: "rgba(241, 196, 15, 0.08)",
@@ -104,7 +110,7 @@ fn get_service_fa_config(name: &str) -> FaIconConfig {
 
     // Vaults & Passwords (Red)
     if name_lower.contains("vaultwarden") || name_lower.contains("bitwarden") || name_lower.contains("keepass") {
-        return FaIconConfig {
+        return StaticConfig {
             icon: "fa-lock",
             color: "#e74c3c",
             bg: "rgba(231, 76, 60, 0.08)",
@@ -121,7 +127,7 @@ fn get_service_fa_config(name: &str) -> FaIconConfig {
         } else {
             "fa-cloud-upload"
         };
-        return FaIconConfig {
+        return StaticConfig {
             icon,
             color: "#1abc9c",
             bg: "rgba(26, 188, 156, 0.08)",
@@ -140,7 +146,7 @@ fn get_service_fa_config(name: &str) -> FaIconConfig {
         } else {
             "fa-bar-chart"
         };
-        return FaIconConfig {
+        return StaticConfig {
             icon,
             color: "#6c7a89",
             bg: "rgba(108, 122, 137, 0.08)",
@@ -149,11 +155,37 @@ fn get_service_fa_config(name: &str) -> FaIconConfig {
     }
 
     // Default Generic Server (Grey)
-    FaIconConfig {
+    StaticConfig {
         icon: "fa-server",
         color: "#7f8c8d",
         bg: "rgba(127, 140, 141, 0.08)",
         border: "rgba(127, 140, 141, 0.2)",
+    }
+}
+
+fn get_service_fa_config(name: &str) -> FaIconConfig {
+    let name_lower = name.to_lowercase();
+    let static_cfg = get_static_config(&name_lower);
+    
+    let mut icon = static_cfg.icon.to_string();
+    
+    // Try to load preset JSON file to extract custom icon
+    let preset_path = format!("/usr/local/emhttp/plugins/nix/presets/{}.json", name_lower);
+    if std::path::Path::new(&preset_path).exists() {
+        if let Ok(content) = std::fs::read_to_string(&preset_path) {
+            if let Ok(json) = serde_json::from_str::<serde_json::Value>(&content) {
+                if let Some(ic) = json.get("icon").and_then(|i| i.as_str()) {
+                    icon = ic.to_string();
+                }
+            }
+        }
+    }
+    
+    FaIconConfig {
+        icon,
+        color: static_cfg.color,
+        bg: static_cfg.bg,
+        border: static_cfg.border,
     }
 }
 
