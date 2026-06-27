@@ -1,0 +1,15 @@
+{
+  "name": "filebrowser",
+  "display_name": "Filebrowser",
+  "description": "Lightweight web-based file manager and browser",
+  "url": "https://filebrowser.org/",
+  "command": "exec nix run nixpkgs#filebrowser -- --address 0.0.0.0 --port 8080 --database /config/filebrowser.db --root /config",
+  "default_ports": [
+    {
+      "host": 8080,
+      "container": 8080,
+      "label": "Web GUI"
+    }
+  ],
+  "icon": "fa-folder-open-o"
+}
