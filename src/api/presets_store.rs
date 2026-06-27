@@ -45,17 +45,20 @@ pub fn render_presets_store() -> String {
             </div>
         </div>
 
-        <!-- Category pills (Alphabetically Sorted, with AI first) -->
+        <!-- Category pills (Alphabetically Sorted) -->
         <div class="nix-preset-pills" style="display: flex; gap: 8px; flex-wrap: wrap; padding-bottom: 5px; border-bottom: 1px solid rgba(255,255,255,0.05);">
             <button type="button" class="nix-preset-pill active" onclick="filterPresetCategory('ai', this)">AI</button>
-            <button type="button" class="nix-preset-pill" onclick="filterPresetCategory('arr', this)">ARR!</button>
             <button type="button" class="nix-preset-pill" onclick="filterPresetCategory('automation', this)">Automation</button>
             <button type="button" class="nix-preset-pill" onclick="filterPresetCategory('cloud', this)">Cloud</button>
+            <button type="button" class="nix-preset-pill" onclick="filterPresetCategory('dashboard', this)">Dashboards</button>
             <button type="button" class="nix-preset-pill" onclick="filterPresetCategory('database', this)">Databases</button>
             <button type="button" class="nix-preset-pill" onclick="filterPresetCategory('downloads', this)">Downloaders</button>
+            <button type="button" class="nix-preset-pill" onclick="filterPresetCategory('gaming', this)">Gaming</button>
             <button type="button" class="nix-preset-pill" onclick="filterPresetCategory('media', this)">Media Players</button>
             <button type="button" class="nix-preset-pill" onclick="filterPresetCategory('network', this)">Network & VPN</button>
+            <button type="button" class="nix-preset-pill" onclick="filterPresetCategory('productivity', this)">Productivity</button>
             <button type="button" class="nix-preset-pill" onclick="filterPresetCategory('security', this)">Security & Locks</button>
+            <button type="button" class="nix-preset-pill" onclick="filterPresetCategory('arr', this)">Servarr</button>
             <button type="button" class="nix-preset-pill" onclick="filterPresetCategory('smarthome', this)">Smart Home</button>
             <button type="button" class="nix-preset-pill" onclick="filterPresetCategory('storage', this)">Sync & Backups</button>
         </div>
@@ -190,13 +193,34 @@ fn get_preset_category_name(name: &str) -> &'static str {
        name_lower.contains("stable-diffusion") || name_lower.contains("comfyui") || name_lower.contains("text-generation-webui") ||
        name_lower.contains("invokeai") || name_lower.contains("fooocus") || name_lower.contains("dify") || name_lower.contains("lobe-chat") {
         "ai"
+    } else if name_lower.contains("homepage") || name_lower.contains("homarr") || name_lower.contains("heimdall") ||
+       name_lower.contains("dashy") || name_lower.contains("flame") || name_lower.contains("organizr") {
+        "dashboard"
+    } else if name_lower.contains("emulatorjs") || name_lower.contains("romm") || name_lower.contains("pterodactyl") ||
+       name_lower.contains("pufferpanel") {
+        "gaming"
+    } else if name_lower.contains("paperless-ngx") || name_lower.contains("stirling-pdf") || name_lower.contains("joplin-server") ||
+       name_lower.contains("trilium-notes") || name_lower.contains("bookstack") || name_lower.contains("wiki-js") ||
+       name_lower.contains("dokuwiki") || name_lower.contains("mediawiki") || name_lower.contains("wekan") ||
+       name_lower.contains("focalboard") || name_lower.contains("leantime") || name_lower.contains("kanboard") ||
+       name_lower.contains("etherpad") || name_lower.contains("hedgedoc") || name_lower.contains("outline") ||
+       name_lower.contains("excalidraw") {
+        "productivity"
     } else if name_lower.contains("jellyfin") || name_lower.contains("plex") || name_lower.contains("emby") ||
-       name_lower.contains("navidrome") || name_lower.contains("airsonic") || name_lower.contains("subsonic") || name_lower.contains("lidarr") {
+       name_lower.contains("navidrome") || name_lower.contains("airsonic") || name_lower.contains("subsonic") || 
+       name_lower.contains("lidarr") || name_lower.contains("audiobookshelf") || name_lower.contains("kavita") || 
+       name_lower.contains("calibre") {
         "media"
     } else if name_lower.contains("sonarr") || name_lower.contains("sickrage") || name_lower.contains("sickchill") ||
        name_lower.contains("radarr") || name_lower.contains("couchpotato") || name_lower.contains("readarr") ||
-       name_lower.contains("calibre") || name_lower.contains("audiobookshelf") || name_lower.contains("bazarr") ||
-       name_lower.contains("prowlarr") || name_lower.contains("jackett") {
+       name_lower.contains("bazarr") || name_lower.contains("prowlarr") || name_lower.contains("jackett") ||
+       name_lower.contains("recyclarr") || name_lower.contains("requestrr") || name_lower.contains("doplarr") ||
+       name_lower.contains("petio") || name_lower.contains("jellyseerr") || name_lower.contains("overseerr") ||
+       name_lower.contains("ombi") || name_lower.contains("tautulli") || name_lower.contains("kometa") ||
+       name_lower.contains("tdarr") || name_lower.contains("unmanic") || name_lower.contains("handbrake") ||
+       name_lower.contains("makemkv") || name_lower.contains("ersatztv") || name_lower.contains("xteve") ||
+       name_lower.contains("threadfin") || name_lower.contains("jellystat") || name_lower.contains("dizquetv") ||
+       name_lower.contains("plex-anisync") {
         "arr"
     } else if name_lower.contains("n8n") || name_lower.contains("node-red") || name_lower.contains("nodered") ||
        name_lower.contains("changedetection") || name_lower.contains("apprise") || name_lower.contains("gotify") ||
@@ -212,7 +236,9 @@ fn get_preset_category_name(name: &str) -> &'static str {
     } else if name_lower.contains("home-assistant") || name_lower.contains("homeassistant") || name_lower.contains("hass") ||
        name_lower.contains("zigbee") || name_lower.contains("mqtt") || name_lower.contains("esphome") {
         "smarthome"
-    } else if name_lower.contains("vaultwarden") || name_lower.contains("bitwarden") || name_lower.contains("keepass") {
+    } else if name_lower.contains("vaultwarden") || name_lower.contains("bitwarden") || name_lower.contains("keepass") ||
+       name_lower.contains("fail2ban") || name_lower.contains("crowdsec") || name_lower.contains("authentik") ||
+       name_lower.contains("authelia") {
         "security"
     } else if name_lower.contains("nextcloud") || name_lower.contains("owncloud") ||
        name_lower.contains("seafile") || name_lower.contains("filerun") {
@@ -246,9 +272,48 @@ fn get_preset_category_styling(name: &str, default_icon: &str) -> CategoryStylin
         };
     }
 
+    // Dashboards (Amber/Gold)
+    if name_lower.contains("homepage") || name_lower.contains("homarr") || name_lower.contains("heimdall") ||
+       name_lower.contains("dashy") || name_lower.contains("flame") || name_lower.contains("organizr") {
+        return CategoryStyling {
+            icon: default_icon.to_string(),
+            color: "#fdcb6e",
+            bg: "rgba(253, 203, 110, 0.08)",
+            border: "rgba(253, 203, 110, 0.2)",
+        };
+    }
+
+    // Gaming (Coral/Red)
+    if name_lower.contains("emulatorjs") || name_lower.contains("romm") || name_lower.contains("pterodactyl") ||
+       name_lower.contains("pufferpanel") {
+        return CategoryStyling {
+            icon: default_icon.to_string(),
+            color: "#ff7675",
+            bg: "rgba(255, 118, 117, 0.08)",
+            border: "rgba(255, 118, 117, 0.2)",
+        };
+    }
+
+    // Productivity (Emerald Green)
+    if name_lower.contains("paperless-ngx") || name_lower.contains("stirling-pdf") || name_lower.contains("joplin-server") ||
+       name_lower.contains("trilium-notes") || name_lower.contains("bookstack") || name_lower.contains("wiki-js") ||
+       name_lower.contains("dokuwiki") || name_lower.contains("mediawiki") || name_lower.contains("wekan") ||
+       name_lower.contains("focalboard") || name_lower.contains("leantime") || name_lower.contains("kanboard") ||
+       name_lower.contains("etherpad") || name_lower.contains("hedgedoc") || name_lower.contains("outline") ||
+       name_lower.contains("excalidraw") {
+        return CategoryStyling {
+            icon: default_icon.to_string(),
+            color: "#2ecc71",
+            bg: "rgba(46, 204, 113, 0.08)",
+            border: "rgba(46, 204, 113, 0.2)",
+        };
+    }
+
     // Media & Audio (Cyan/Blue)
     if name_lower.contains("jellyfin") || name_lower.contains("plex") || name_lower.contains("emby") ||
-       name_lower.contains("navidrome") || name_lower.contains("airsonic") || name_lower.contains("subsonic") || name_lower.contains("lidarr") {
+       name_lower.contains("navidrome") || name_lower.contains("airsonic") || name_lower.contains("subsonic") || 
+       name_lower.contains("lidarr") || name_lower.contains("audiobookshelf") || name_lower.contains("kavita") || 
+       name_lower.contains("calibre") {
         return CategoryStyling {
             icon: default_icon.to_string(),
             color: "#00a1ff",
@@ -257,11 +322,17 @@ fn get_preset_category_styling(name: &str, default_icon: &str) -> CategoryStylin
         };
     }
     
-    // ARR! (Orange)
+    // Servarr (Orange)
     if name_lower.contains("sonarr") || name_lower.contains("sickrage") || name_lower.contains("sickchill") ||
        name_lower.contains("radarr") || name_lower.contains("couchpotato") || name_lower.contains("readarr") ||
-       name_lower.contains("calibre") || name_lower.contains("audiobookshelf") || name_lower.contains("bazarr") ||
-       name_lower.contains("prowlarr") || name_lower.contains("jackett") {
+       name_lower.contains("bazarr") || name_lower.contains("prowlarr") || name_lower.contains("jackett") ||
+       name_lower.contains("recyclarr") || name_lower.contains("requestrr") || name_lower.contains("doplarr") ||
+       name_lower.contains("petio") || name_lower.contains("jellyseerr") || name_lower.contains("overseerr") ||
+       name_lower.contains("ombi") || name_lower.contains("tautulli") || name_lower.contains("kometa") ||
+       name_lower.contains("tdarr") || name_lower.contains("unmanic") || name_lower.contains("handbrake") ||
+       name_lower.contains("makemkv") || name_lower.contains("ersatztv") || name_lower.contains("xteve") ||
+       name_lower.contains("threadfin") || name_lower.contains("jellystat") || name_lower.contains("dizquetv") ||
+       name_lower.contains("plex-anisync") {
         return CategoryStyling {
             icon: default_icon.to_string(),
             color: "#e67e22",
@@ -317,7 +388,9 @@ fn get_preset_category_styling(name: &str, default_icon: &str) -> CategoryStylin
     }
 
     // Vaults & Passwords (Red)
-    if name_lower.contains("vaultwarden") || name_lower.contains("bitwarden") || name_lower.contains("keepass") {
+    if name_lower.contains("vaultwarden") || name_lower.contains("bitwarden") || name_lower.contains("keepass") ||
+       name_lower.contains("fail2ban") || name_lower.contains("crowdsec") || name_lower.contains("authentik") ||
+       name_lower.contains("authelia") {
         return CategoryStyling {
             icon: default_icon.to_string(),
             color: "#e74c3c",

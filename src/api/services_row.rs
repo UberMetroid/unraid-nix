@@ -32,11 +32,54 @@ fn get_static_config(name_lower: &str) -> StaticConfig {
         };
     }
 
-    // Media & Audio (Cyan/Blue)
+    // Dashboards (Amber/Gold)
+    if name_lower.contains("homepage") || name_lower.contains("homarr") || name_lower.contains("heimdall") ||
+       name_lower.contains("dashy") || name_lower.contains("flame") || name_lower.contains("organizr") {
+        return StaticConfig {
+            icon: "fa-tachometer",
+            color: "#fdcb6e",
+            bg: "rgba(253, 203, 110, 0.08)",
+            border: "rgba(253, 203, 110, 0.2)",
+        };
+    }
+
+    // Gaming (Coral/Red)
+    if name_lower.contains("emulatorjs") || name_lower.contains("romm") || name_lower.contains("pterodactyl") ||
+       name_lower.contains("pufferpanel") {
+        return StaticConfig {
+            icon: "fa-gamepad",
+            color: "#ff7675",
+            bg: "rgba(255, 118, 117, 0.08)",
+            border: "rgba(255, 118, 117, 0.2)",
+        };
+    }
+
+    // Productivity (Emerald Green)
+    if name_lower.contains("paperless-ngx") || name_lower.contains("stirling-pdf") || name_lower.contains("joplin-server") ||
+       name_lower.contains("trilium-notes") || name_lower.contains("bookstack") || name_lower.contains("wiki-js") ||
+       name_lower.contains("dokuwiki") || name_lower.contains("mediawiki") || name_lower.contains("wekan") ||
+       name_lower.contains("focalboard") || name_lower.contains("leantime") || name_lower.contains("kanboard") ||
+       name_lower.contains("etherpad") || name_lower.contains("hedgedoc") || name_lower.contains("outline") ||
+       name_lower.contains("excalidraw") {
+        return StaticConfig {
+            icon: "fa-file-text-o",
+            color: "#2ecc71",
+            bg: "rgba(46, 204, 113, 0.08)",
+            border: "rgba(46, 204, 113, 0.2)",
+        };
+    }
+
+    // Media Players (Cyan/Blue)
     if name_lower.contains("jellyfin") || name_lower.contains("plex") || name_lower.contains("emby") ||
-       name_lower.contains("navidrome") || name_lower.contains("airsonic") || name_lower.contains("subsonic") || name_lower.contains("lidarr") {
+       name_lower.contains("navidrome") || name_lower.contains("airsonic") || name_lower.contains("subsonic") || 
+       name_lower.contains("lidarr") || name_lower.contains("audiobookshelf") || name_lower.contains("kavita") || 
+       name_lower.contains("calibre") {
         let icon = if name_lower.contains("jellyfin") || name_lower.contains("plex") || name_lower.contains("emby") {
             "fa-play-circle"
+        } else if name_lower.contains("navidrome") || name_lower.contains("airsonic") || name_lower.contains("subsonic") || name_lower.contains("lidarr") {
+            "fa-music"
+        } else if name_lower.contains("calibre") || name_lower.contains("audiobookshelf") || name_lower.contains("kavita") {
+            "fa-book"
         } else {
             "fa-music"
         };
@@ -48,16 +91,15 @@ fn get_static_config(name_lower: &str) -> StaticConfig {
         };
     }
     
-    // ARR! (Orange)
+    // Servarr (Orange)
     if name_lower.contains("sonarr") || name_lower.contains("sickrage") || name_lower.contains("sickchill") ||
        name_lower.contains("radarr") || name_lower.contains("couchpotato") || name_lower.contains("readarr") ||
-       name_lower.contains("calibre") || name_lower.contains("audiobookshelf") || name_lower.contains("bazarr") ||
-       name_lower.contains("prowlarr") || name_lower.contains("jackett") {
+       name_lower.contains("bazarr") || name_lower.contains("prowlarr") || name_lower.contains("jackett") {
         let icon = if name_lower.contains("sonarr") || name_lower.contains("sickrage") || name_lower.contains("sickchill") {
             "fa-television"
         } else if name_lower.contains("radarr") || name_lower.contains("couchpotato") {
             "fa-film"
-        } else if name_lower.contains("readarr") || name_lower.contains("calibre") || name_lower.contains("audiobookshelf") {
+        } else if name_lower.contains("readarr") {
             "fa-book"
         } else if name_lower.contains("bazarr") {
             "fa-closed-captioning"
