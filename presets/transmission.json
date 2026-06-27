@@ -3,7 +3,7 @@
   "display_name": "Transmission",
   "description": "Transmission Torrent Client",
   "url": "https://transmissionbt.com/",
-  "command": "exec nix run nixpkgs#transmission_4 -- -f -g /config",
+  "command": "exec nix run nixpkgs#transmission_4",
   "default_ports": [
     {
       "host": 9091,

@@ -3,7 +3,7 @@
   "display_name": "Trilium Notes",
   "description": "Trilium Notes Library",
   "url": "https://github.com/zadam/trilium",
-  "command": "exec nix run nixpkgs#trilium-desktop",
+  "command": "exec nix run nixpkgs#trilium-server",
   "default_ports": [
     {
       "host": 8080,
