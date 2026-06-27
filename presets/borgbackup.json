@@ -1,0 +1,9 @@
+{
+  "name": "borgbackup",
+  "display_name": "BorgBackup",
+  "description": "Deduplicating archiver with compression and encryption capabilities",
+  "url": "https://www.borgbackup.org/",
+  "command": "exec nix run nixpkgs#borgbackup",
+  "default_ports": [],
+  "icon": "fa-cloud-upload"
+}

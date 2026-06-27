@@ -5,5 +5,5 @@
   "url": "https://rclone.org/",
   "command": "exec nix run nixpkgs#rclone",
   "default_ports": [],
-  "icon": "fa-cloud-upload"
+  "icon": "fa-refresh"
 }

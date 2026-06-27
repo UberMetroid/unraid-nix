@@ -1,0 +1,15 @@
+{
+  "name": "keycloak",
+  "display_name": "Keycloak",
+  "description": "Open source identity and access management server",
+  "url": "https://www.keycloak.org/",
+  "command": "exec nix run nixpkgs#keycloak -- start-dev",
+  "default_ports": [
+    {
+      "host": 8080,
+      "container": 8080,
+      "label": "Web GUI"
+    }
+  ],
+  "icon": "fa-lock"
+}

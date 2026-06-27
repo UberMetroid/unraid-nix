@@ -1,0 +1,9 @@
+{
+  "name": "tailscale",
+  "display_name": "Tailscale",
+  "description": "Zero config VPN client and daemon that creates a secure mesh network",
+  "url": "https://tailscale.com/",
+  "command": "exec nix run nixpkgs#tailscale -- up",
+  "default_ports": [],
+  "icon": "fa-key"
+}

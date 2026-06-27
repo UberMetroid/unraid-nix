@@ -1,0 +1,15 @@
+{
+  "name": "bitwarden",
+  "display_name": "Bitwarden",
+  "description": "Enterprise password management server backend",
+  "url": "https://bitwarden.com/",
+  "command": "exec nix run nixpkgs#bitwarden",
+  "default_ports": [
+    {
+      "host": 8000,
+      "container": 8000,
+      "label": "Web GUI"
+    }
+  ],
+  "icon": "fa-lock"
+}

@@ -1,0 +1,15 @@
+{
+  "name": "wireguard",
+  "display_name": "WireGuard",
+  "description": "Extremely simple yet fast and modern VPN server and protocol",
+  "url": "https://www.wireguard.com/",
+  "command": "exec nix run nixpkgs#wireguard-tools",
+  "default_ports": [
+    {
+      "host": 51820,
+      "container": 51820,
+      "label": "VPN Port"
+    }
+  ],
+  "icon": "fa-key"
+}

@@ -145,14 +145,13 @@ fn get_static_config(name_lower: &str) -> StaticConfig {
         };
     }
 
-    // Network / Security / VPN (Purple)
+    // Network (Purple)
     if name_lower.contains("pihole") || name_lower.contains("pi-hole") || name_lower.contains("adguard") ||
        name_lower.contains("nginx") || name_lower.contains("traefik") || name_lower.contains("caddy") || name_lower.contains("npm") ||
-       name_lower.contains("tailscale") || name_lower.contains("wireguard") || name_lower.contains("vpn") {
+       name_lower.contains("unifi") || name_lower.contains("cloudflared") || name_lower.contains("cloudflare-ddns") ||
+       name_lower.contains("ddclient") || name_lower.contains("duckdns") || name_lower.contains("swag") {
         let icon = if name_lower.contains("pihole") || name_lower.contains("pi-hole") || name_lower.contains("adguard") {
             "fa-shield"
-        } else if name_lower.contains("tailscale") || name_lower.contains("wireguard") || name_lower.contains("vpn") {
-            "fa-key"
         } else {
             "fa-exchange"
         };
@@ -161,6 +160,18 @@ fn get_static_config(name_lower: &str) -> StaticConfig {
             color: "#9b59b6",
             bg: "rgba(155, 89, 182, 0.08)",
             border: "rgba(155, 89, 182, 0.2)",
+        };
+    }
+
+    // VPN (Cool Emerald)
+    if name_lower.contains("tailscale") || name_lower.contains("wireguard") || name_lower.contains("vpn") ||
+       name_lower.contains("headscale") || name_lower.contains("netbird") || name_lower.contains("openvpn") ||
+       name_lower.contains("pritunl") {
+        return StaticConfig {
+            icon: "fa-key",
+            color: "#10ac84",
+            bg: "rgba(16, 172, 132, 0.08)",
+            border: "rgba(16, 172, 132, 0.2)",
         };
     }
 
@@ -187,10 +198,10 @@ fn get_static_config(name_lower: &str) -> StaticConfig {
         };
     }
 
-    // Security & Locks (Red)
+    // Security (Red)
     if name_lower.contains("vaultwarden") || name_lower.contains("bitwarden") || name_lower.contains("keepass") ||
        name_lower.contains("fail2ban") || name_lower.contains("crowdsec") || name_lower.contains("authentik") ||
-       name_lower.contains("authelia") || name_lower.contains("headscale") || name_lower.contains("netbird") {
+       name_lower.contains("authelia") || name_lower.contains("keycloak") {
         return StaticConfig {
             icon: "fa-lock",
             color: "#e74c3c",
@@ -250,16 +261,27 @@ fn get_static_config(name_lower: &str) -> StaticConfig {
         };
     }
 
-    // Sync & Backups (Teal)
-    if name_lower.contains("syncthing") || name_lower.contains("rclone") || name_lower.contains("duplicati") ||
-       name_lower.contains("kopia") || name_lower.contains("backups") || name_lower.contains("duplicacy") ||
-       name_lower.contains("krusader") || name_lower.contains("filezilla") || name_lower.contains("archivebox") {
+    // Backup (Teal)
+    if name_lower.contains("duplicati") || name_lower.contains("duplicacy") || name_lower.contains("kopia") ||
+       name_lower.contains("backups") || name_lower.contains("archivebox") || name_lower.contains("restic") ||
+       name_lower.contains("borgbackup") || name_lower.contains("urbackup") {
+        return StaticConfig {
+            icon: "fa-cloud-upload",
+            color: "#00d2d3",
+            bg: "rgba(0, 210, 211, 0.08)",
+            border: "rgba(0, 210, 211, 0.2)",
+        };
+    }
+
+    // Sync (Mint Green)
+    if name_lower.contains("syncthing") || name_lower.contains("rclone") || name_lower.contains("krusader") ||
+       name_lower.contains("filezilla") || name_lower.contains("rsync") || name_lower.contains("resilio-sync") {
         let icon = if name_lower.contains("syncthing") {
             "fa-refresh"
         } else if name_lower.contains("krusader") || name_lower.contains("filezilla") {
             "fa-folder-open-o"
         } else {
-            "fa-cloud-upload"
+            "fa-refresh"
         };
         return StaticConfig {
             icon,

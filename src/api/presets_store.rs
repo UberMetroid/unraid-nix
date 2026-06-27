@@ -49,6 +49,7 @@ pub fn render_presets_store() -> String {
         <div class="nix-preset-pills" style="display: flex; gap: 8px; flex-wrap: wrap; padding-bottom: 5px; border-bottom: 1px solid rgba(255,255,255,0.05);">
             <button type="button" class="nix-preset-pill active" onclick="filterPresetCategory('ai', this)">AI</button>
             <button type="button" class="nix-preset-pill" onclick="filterPresetCategory('automation', this)">Automation</button>
+            <button type="button" class="nix-preset-pill" onclick="filterPresetCategory('backup', this)">Backup</button>
             <button type="button" class="nix-preset-pill" onclick="filterPresetCategory('cloud', this)">Cloud</button>
             <button type="button" class="nix-preset-pill" onclick="filterPresetCategory('communication', this)">Communication</button>
             <button type="button" class="nix-preset-pill" onclick="filterPresetCategory('dashboard', this)">Dashboards</button>
@@ -56,13 +57,14 @@ pub fn render_presets_store() -> String {
             <button type="button" class="nix-preset-pill" onclick="filterPresetCategory('downloads', this)">Downloaders</button>
             <button type="button" class="nix-preset-pill" onclick="filterPresetCategory('gaming', this)">Gaming</button>
             <button type="button" class="nix-preset-pill" onclick="filterPresetCategory('media', this)">Media Players</button>
-            <button type="button" class="nix-preset-pill" onclick="filterPresetCategory('network', this)">Network & VPN</button>
+            <button type="button" class="nix-preset-pill" onclick="filterPresetCategory('network', this)">Network</button>
             <button type="button" class="nix-preset-pill" onclick="filterPresetCategory('productivity', this)">Productivity</button>
-            <button type="button" class="nix-preset-pill" onclick="filterPresetCategory('security', this)">Security & Locks</button>
+            <button type="button" class="nix-preset-pill" onclick="filterPresetCategory('security', this)">Security</button>
             <button type="button" class="nix-preset-pill" onclick="filterPresetCategory('arr', this)">Servarr</button>
             <button type="button" class="nix-preset-pill" onclick="filterPresetCategory('smarthome', this)">Smart Home</button>
             <button type="button" class="nix-preset-pill" onclick="filterPresetCategory('social', this)">Social Media</button>
-            <button type="button" class="nix-preset-pill" onclick="filterPresetCategory('storage', this)">Sync & Backups</button>
+            <button type="button" class="nix-preset-pill" onclick="filterPresetCategory('sync', this)">Sync</button>
+            <button type="button" class="nix-preset-pill" onclick="filterPresetCategory('vpn', this)">VPN</button>
             <button type="button" class="nix-preset-pill" onclick="filterPresetCategory('all', this)">All</button>
         </div>
     </div>
@@ -235,8 +237,13 @@ fn get_preset_category_name(name: &str) -> &'static str {
         "downloads"
     } else if name_lower.contains("pihole") || name_lower.contains("pi-hole") || name_lower.contains("adguard") ||
        name_lower.contains("nginx") || name_lower.contains("traefik") || name_lower.contains("caddy") || name_lower.contains("npm") ||
-       name_lower.contains("tailscale") || name_lower.contains("wireguard") || name_lower.contains("vpn") {
+       name_lower.contains("unifi") || name_lower.contains("cloudflared") || name_lower.contains("cloudflare-ddns") ||
+       name_lower.contains("ddclient") || name_lower.contains("duckdns") || name_lower.contains("swag") {
         "network"
+    } else if name_lower.contains("tailscale") || name_lower.contains("wireguard") || name_lower.contains("vpn") ||
+       name_lower.contains("headscale") || name_lower.contains("netbird") || name_lower.contains("openvpn") ||
+       name_lower.contains("pritunl") {
+        "vpn"
     } else if name_lower.contains("home-assistant") || name_lower.contains("homeassistant") || name_lower.contains("hass") ||
        name_lower.contains("zigbee") || name_lower.contains("mqtt") || name_lower.contains("esphome") ||
        name_lower.contains("homebridge") || name_lower.contains("openhab") || name_lower.contains("jeedom") ||
@@ -245,7 +252,7 @@ fn get_preset_category_name(name: &str) -> &'static str {
         "smarthome"
     } else if name_lower.contains("vaultwarden") || name_lower.contains("bitwarden") || name_lower.contains("keepass") ||
        name_lower.contains("fail2ban") || name_lower.contains("crowdsec") || name_lower.contains("authentik") ||
-       name_lower.contains("authelia") || name_lower.contains("headscale") || name_lower.contains("netbird") {
+       name_lower.contains("authelia") || name_lower.contains("keycloak") {
         "security"
     } else if name_lower.contains("nextcloud") || name_lower.contains("owncloud") ||
        name_lower.contains("seafile") || name_lower.contains("filerun") || name_lower.contains("immich") ||
@@ -262,10 +269,13 @@ fn get_preset_category_name(name: &str) -> &'static str {
        name_lower.contains("shiori") || name_lower.contains("yourls") ||
        name_lower.contains("kutt") {
         "social"
-    } else if name_lower.contains("syncthing") || name_lower.contains("rclone") || name_lower.contains("duplicati") ||
-       name_lower.contains("kopia") || name_lower.contains("backups") || name_lower.contains("duplicacy") ||
-       name_lower.contains("krusader") || name_lower.contains("filezilla") || name_lower.contains("archivebox") {
-        "storage"
+    } else if name_lower.contains("duplicati") || name_lower.contains("duplicacy") || name_lower.contains("kopia") ||
+       name_lower.contains("backups") || name_lower.contains("archivebox") || name_lower.contains("restic") ||
+       name_lower.contains("borgbackup") || name_lower.contains("urbackup") {
+        "backup"
+    } else if name_lower.contains("syncthing") || name_lower.contains("rclone") || name_lower.contains("krusader") ||
+       name_lower.contains("filezilla") || name_lower.contains("rsync") || name_lower.contains("resilio-sync") {
+        "sync"
     } else if name_lower.contains("influx") || name_lower.contains("prometheus") || name_lower.contains("grafana") ||
        name_lower.contains("kuma") || name_lower.contains("netdata") || name_lower.contains("postgres") ||
        name_lower.contains("mysql") || name_lower.contains("mariadb") || name_lower.contains("redis") ||
@@ -385,15 +395,28 @@ fn get_preset_category_styling(name: &str, default_icon: &str) -> CategoryStylin
         };
     }
 
-    // Network / Security / VPN (Purple)
+    // Network (Purple)
     if name_lower.contains("pihole") || name_lower.contains("pi-hole") || name_lower.contains("adguard") ||
        name_lower.contains("nginx") || name_lower.contains("traefik") || name_lower.contains("caddy") || name_lower.contains("npm") ||
-       name_lower.contains("tailscale") || name_lower.contains("wireguard") || name_lower.contains("vpn") {
+       name_lower.contains("unifi") || name_lower.contains("cloudflared") || name_lower.contains("cloudflare-ddns") ||
+       name_lower.contains("ddclient") || name_lower.contains("duckdns") || name_lower.contains("swag") {
         return CategoryStyling {
             icon: default_icon.to_string(),
             color: "#9b59b6",
             bg: "rgba(155, 89, 182, 0.08)",
             border: "rgba(155, 89, 182, 0.2)",
+        };
+    }
+
+    // VPN (Cool Emerald)
+    if name_lower.contains("tailscale") || name_lower.contains("wireguard") || name_lower.contains("vpn") ||
+       name_lower.contains("headscale") || name_lower.contains("netbird") || name_lower.contains("openvpn") ||
+       name_lower.contains("pritunl") {
+        return CategoryStyling {
+            icon: default_icon.to_string(),
+            color: "#10ac84",
+            bg: "rgba(16, 172, 132, 0.08)",
+            border: "rgba(16, 172, 132, 0.2)",
         };
     }
 
@@ -411,10 +434,10 @@ fn get_preset_category_styling(name: &str, default_icon: &str) -> CategoryStylin
         };
     }
 
-    // Vaults & Passwords (Red)
+    // Security (Red)
     if name_lower.contains("vaultwarden") || name_lower.contains("bitwarden") || name_lower.contains("keepass") ||
        name_lower.contains("fail2ban") || name_lower.contains("crowdsec") || name_lower.contains("authentik") ||
-       name_lower.contains("authelia") || name_lower.contains("headscale") || name_lower.contains("netbird") {
+       name_lower.contains("authelia") || name_lower.contains("keycloak") {
         return CategoryStyling {
             icon: default_icon.to_string(),
             color: "#e74c3c",
@@ -462,10 +485,21 @@ fn get_preset_category_styling(name: &str, default_icon: &str) -> CategoryStylin
         };
     }
 
-    // Sync & Backups (Teal)
-    if name_lower.contains("syncthing") || name_lower.contains("rclone") || name_lower.contains("duplicati") ||
-       name_lower.contains("kopia") || name_lower.contains("backups") || name_lower.contains("duplicacy") ||
-       name_lower.contains("krusader") || name_lower.contains("filezilla") || name_lower.contains("archivebox") {
+    // Backup (Teal)
+    if name_lower.contains("duplicati") || name_lower.contains("duplicacy") || name_lower.contains("kopia") ||
+       name_lower.contains("backups") || name_lower.contains("archivebox") || name_lower.contains("restic") ||
+       name_lower.contains("borgbackup") || name_lower.contains("urbackup") {
+        return CategoryStyling {
+            icon: default_icon.to_string(),
+            color: "#00d2d3",
+            bg: "rgba(0, 210, 211, 0.08)",
+            border: "rgba(0, 210, 211, 0.2)",
+        };
+    }
+
+    // Sync (Mint Green)
+    if name_lower.contains("syncthing") || name_lower.contains("rclone") || name_lower.contains("krusader") ||
+       name_lower.contains("filezilla") || name_lower.contains("rsync") || name_lower.contains("resilio-sync") {
         return CategoryStyling {
             icon: default_icon.to_string(),
             color: "#1abc9c",

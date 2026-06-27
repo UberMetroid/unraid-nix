@@ -1,0 +1,15 @@
+{
+  "name": "pritunl",
+  "display_name": "Pritunl",
+  "description": "Enterprise grade open-source VPN server",
+  "url": "https://pritunl.com/",
+  "command": "exec nix run nixpkgs#pritunl",
+  "default_ports": [
+    {
+      "host": 1195,
+      "container": 1195,
+      "label": "VPN Port"
+    }
+  ],
+  "icon": "fa-key"
+}

@@ -1,0 +1,15 @@
+{
+  "name": "openvpn",
+  "display_name": "OpenVPN",
+  "description": "Secure open-source Virtual Private Network daemon",
+  "url": "https://openvpn.net/",
+  "command": "exec nix run nixpkgs#openvpn",
+  "default_ports": [
+    {
+      "host": 1194,
+      "container": 1194,
+      "label": "VPN Port"
+    }
+  ],
+  "icon": "fa-key"
+}
