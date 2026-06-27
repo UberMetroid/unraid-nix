@@ -4,15 +4,11 @@ Title="About"
 <link type="text/css" rel="stylesheet" href="/plugins/nix/styles_layout.css?v=<?php echo time(); ?>">
 <link type="text/css" rel="stylesheet" href="/plugins/nix/styles_widgets.css?v=<?php echo time(); ?>">
 <script src="/plugins/nix/nix.js"></script>
-
-<h2 class="bold" style="color: #fff; border-bottom: none;">About</h2>
-<p style="margin: -10px 0 20px 0; color: #888; font-size: 13px;">Declarative, sandboxed package management and supervisor engine.</p>
-
-<div class="nix-section" style="max-width: 1000px; line-height: 1.6;">
+<div class="nix-section" style="margin-top: 10px; max-width: 1000px; line-height: 1.6;">
     <div style="display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid rgba(255,255,255,0.08); padding-bottom: 15px; margin-bottom: 20px;">
         <div>
             <h2 style="margin: 0; font-size: 20px;">Nix on Unraid</h2>
-            <p class="nix-subtext" style="margin: 5px 0 0 0;">Native package manager and supervisor control center.</p>
+            <p class="nix-subtext" style="margin: 5px 0 0 0;">Declarative, sandboxed package management and supervisor engine.</p>
         </div>
         <div style="display: flex; gap: 8px;">
             <a href="https://github.com/UberMetroid/unraid-nix" target="_blank" class="nix-btn-primary" style="text-decoration: none; display: inline-flex; align-items: center; gap: 8px;">
