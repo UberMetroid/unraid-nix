@@ -70,7 +70,7 @@ function finishInstallation(code, action, type, svc, reportHtml) {
             var rawConsole = document.getElementById("raw-console");
             if (rawConsole) { rawConsole.open = true; }
             
-            setStepStatus(1, 'failed', '1. Resolving Flake & downloading package...', 'Failed');
+            setStepStatus(1, 'failed', '1. Resolving Flake package & dependencies...', 'Failed');
             if (document.getElementById('overall-status')) {
                 document.getElementById('overall-status').innerHTML = '<i class="fa fa-times-circle error"></i> Failed';
             }
@@ -80,10 +80,12 @@ function finishInstallation(code, action, type, svc, reportHtml) {
             if (spinner) { spinner.className = ""; spinner.innerHTML = "<i class='fa fa-check-circle success' style='font-size:18px;'></i>"; }
             container.appendChild(span);
             
-            setStepStatus(1, 'done', '1. Resolving Flake & downloading package...', 'Complete');
+            setStepStatus(1, 'done', '1. Resolving Flake package & dependencies...', 'Complete');
             if (action === 'install-custom' && type === 'service') {
-                setStepStatus(2, 'done', '2. Setting up storage sandbox & mounting paths...', 'Complete');
-                setStepStatus(3, 'done', '3. Starting service process & validating status...', 'Complete');
+                setStepStatus(2, 'done', '2. Running pre-flight checks (ports & permissions)...', 'Complete');
+                setStepStatus(3, 'done', '3. Constructing sandbox jail & mounting paths...', 'Complete');
+                setStepStatus(4, 'done', '4. Injecting env variables & log rotation limits...', 'Complete');
+                setStepStatus(5, 'done', '5. Starting process supervisor & verifying liveness...', 'Complete');
             }
             if (document.getElementById('overall-status')) {
                 document.getElementById('overall-status').innerHTML = '<i class="fa fa-check-circle success"></i> Complete';

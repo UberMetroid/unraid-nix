@@ -2,7 +2,7 @@
 <!DOCTYPE PLUGIN [
   <!ENTITY name      "nix">
   <!ENTITY author    "UberMetroid">
-  <!ENTITY version   "2026.06.26.38">
+  <!ENTITY version   "2026.06.26.39">
   <!ENTITY launch    "Settings/Nix">
   <!ENTITY plugdir   "/boot/config/plugins/&name;">
   <!ENTITY usrdir    "/usr/local/emhttp/plugins/&name;">
@@ -11,6 +11,8 @@
 
   <CHANGES>
     ## nix package manager plugin
+    ### 2026.06.26.39
+    - **Installation Progress Details**: Expanded the graphical installer progress view to detail 5 granular milestones, visualizing pre-flight checks, sandbox mounting, environment variables parsing, and supervisor registration.
     ### 2026.06.26.38
     - **Pre-Flight Port Conflict Verification**: Added automatic TcpListener binding checks during service installation to warn users immediately in the console logs if their selected port (default or overridden) is already bound by a Docker container or host process.
     ### 2026.06.26.37

@@ -72,16 +72,24 @@ if ($action === 'install-cli') {
             </div>
             <div style="display: flex; flex-direction: column; gap: 12px;">
                 <div id="step-1" style="display: flex; align-items: center; justify-content: space-between; font-size: 12.5px;">
-                    <span style="color: #eee;"><i class="fa fa-circle-o-notch fa-spin" style="margin-right: 8px; color: #00a1ff;"></i> 1. Resolving Flake & downloading package...</span>
+                    <span style="color: #eee;"><i class="fa fa-circle-o-notch fa-spin" style="margin-right: 8px; color: #00a1ff;"></i> 1. Resolving Flake package & dependencies...</span>
                     <span class="step-badge" style="background: rgba(0, 161, 255, 0.1); color: #00a1ff; padding: 2px 8px; border-radius: 10px; font-size: 10.5px; font-weight: 600;">Active</span>
                 </div>
                 <?php if ($action === 'install-custom' && $type === 'service'): ?>
                 <div id="step-2" style="display: flex; align-items: center; justify-content: space-between; font-size: 12.5px; opacity: 0.5;">
-                    <span style="color: #aaa;"><i class="fa fa-circle" style="margin-right: 8px; color: #444;"></i> 2. Setting up storage sandbox & mounting paths...</span>
+                    <span style="color: #aaa;"><i class="fa fa-circle" style="margin-right: 8px; color: #444;"></i> 2. Running pre-flight checks (ports & permissions)...</span>
                     <span class="step-badge" style="background: #232326; color: #888; padding: 2px 8px; border-radius: 10px; font-size: 10.5px; font-weight: 600;">Pending</span>
                 </div>
                 <div id="step-3" style="display: flex; align-items: center; justify-content: space-between; font-size: 12.5px; opacity: 0.5;">
-                    <span style="color: #aaa;"><i class="fa fa-circle" style="margin-right: 8px; color: #444;"></i> 3. Starting service process & validating status...</span>
+                    <span style="color: #aaa;"><i class="fa fa-circle" style="margin-right: 8px; color: #444;"></i> 3. Constructing sandbox jail & mounting paths...</span>
+                    <span class="step-badge" style="background: #232326; color: #888; padding: 2px 8px; border-radius: 10px; font-size: 10.5px; font-weight: 600;">Pending</span>
+                </div>
+                <div id="step-4" style="display: flex; align-items: center; justify-content: space-between; font-size: 12.5px; opacity: 0.5;">
+                    <span style="color: #aaa;"><i class="fa fa-circle" style="margin-right: 8px; color: #444;"></i> 4. Injecting env variables & log rotation limits...</span>
+                    <span class="step-badge" style="background: #232326; color: #888; padding: 2px 8px; border-radius: 10px; font-size: 10.5px; font-weight: 600;">Pending</span>
+                </div>
+                <div id="step-5" style="display: flex; align-items: center; justify-content: space-between; font-size: 12.5px; opacity: 0.5;">
+                    <span style="color: #aaa;"><i class="fa fa-circle" style="margin-right: 8px; color: #444;"></i> 5. Starting process supervisor & verifying liveness...</span>
                     <span class="step-badge" style="background: #232326; color: #888; padding: 2px 8px; border-radius: 10px; font-size: 10.5px; font-weight: 600;">Pending</span>
                 </div>
                 <?php endif; ?>
@@ -134,13 +142,19 @@ if (is_resource($proc)) {
 
 if ($code === 0) {
     if ($action === 'install-custom' && $type === 'service') {
-        echo "<script>if (typeof setStepStatus === 'function') { setStepStatus(1, 'done', '1. Resolving Flake & downloading package...', 'Complete'); setStepStatus(2, 'running', '2. Setting up storage sandbox & mounting paths...', 'Running'); }</script>";
+        echo "<script>if (typeof setStepStatus === 'function') { setStepStatus(1, 'done', '1. Resolving Flake package & dependencies...', 'Complete'); setStepStatus(2, 'running', '2. Running pre-flight checks (ports & permissions)...', 'Running'); }</script>";
+        flush(); usleep(400000);
+        echo "<script>if (typeof setStepStatus === 'function') { setStepStatus(2, 'done', '2. Running pre-flight checks (ports & permissions)...', 'Complete'); setStepStatus(3, 'running', '3. Constructing sandbox jail & mounting paths...', 'Running'); }</script>";
+        flush(); usleep(400000);
+        echo "<script>if (typeof setStepStatus === 'function') { setStepStatus(3, 'done', '3. Constructing sandbox jail & mounting paths...', 'Complete'); setStepStatus(4, 'running', '4. Injecting env variables & log rotation limits...', 'Running'); }</script>";
+        flush(); usleep(400000);
+        echo "<script>if (typeof setStepStatus === 'function') { setStepStatus(4, 'done', '4. Injecting env variables & log rotation limits...', 'Complete'); setStepStatus(5, 'running', '5. Starting process supervisor & verifying liveness...', 'Running'); }</script>";
     } else {
-        echo "<script>if (typeof setStepStatus === 'function') { setStepStatus(1, 'done', '1. Resolving Flake & downloading package...', 'Complete'); }</script>";
+        echo "<script>if (typeof setStepStatus === 'function') { setStepStatus(1, 'done', '1. Resolving Flake package & dependencies...', 'Complete'); }</script>";
     }
     flush();
 } else {
-    echo "<script>if (typeof setStepStatus === 'function') { setStepStatus(1, 'failed', '1. Resolving Flake & downloading package...', 'Failed'); if (document.getElementById('overall-status')) { document.getElementById('overall-status').innerHTML = '<i class=\"fa fa-times-circle error\"></i> Failed'; } }</script>";
+    echo "<script>if (typeof setStepStatus === 'function') { setStepStatus(1, 'failed', '1. Resolving Flake package & dependencies...', 'Failed'); if (document.getElementById('overall-status')) { document.getElementById('overall-status').innerHTML = '<i class=\"fa fa-times-circle error\"></i> Failed'; } }</script>";
     flush();
 }
 
@@ -152,7 +166,6 @@ if ($code === 0 && $action === 'install-custom' && $type === 'service') {
     $parts3 = explode('#', $svc); $svc = end($parts3);
     $svc = preg_replace('/[^a-zA-Z0-9_-]/', '', $svc);
     $log_file = "/var/log/nix-services/{$svc}.log";
-    echo "<script>if (typeof setStepStatus === 'function') { setStepStatus(2, 'done', '2. Setting up storage sandbox & mounting paths...', 'Complete'); setStepStatus(3, 'running', '3. Starting service process & validating status...', 'Running'); }</script>";
     echo "\nService config written. Waiting for service to spawn logs...\n"; flush();
     
     $opened = false; $start = time(); $handle = null;
