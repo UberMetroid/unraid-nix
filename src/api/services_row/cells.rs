@@ -113,6 +113,7 @@ pub fn render_volume_mappings_cell(home_path: &str, extra_binds_vec: &[(String, 
 }
 
 pub fn render_resources_cell(
+    name: &str,
     is_running: bool,
     cpu: Option<f32>,
     memory: Option<u64>,
@@ -157,21 +158,25 @@ pub fn render_resources_cell(
 
     let mut res = String::new();
     if is_running {
-        let cpu_str = if let Some(c) = cpu {
-            format!("{:.1}% CPU", c)
-        } else {
-            "0.0% CPU".to_string()
-        };
-        let mem_str = if let Some(m) = memory {
-            let mb = m as f64 / 1_048_576.0;
-            format!("{:.1} MB RAM", mb)
-        } else {
-            "0.0 MB RAM".to_string()
-        };
+        let cpu_val = cpu.unwrap_or(0.0);
+        let mem_val = memory.unwrap_or(0);
+        let mb = mem_val as f64 / 1_048_576.0;
+        
+        let cpu_str = format!("{:.1}%", cpu_val);
+        let mem_str = format!("{:.1} MB", mb);
+        
         res.push_str(&format!(
-            r#"<div style="font-size: 11px; color: #eee; font-family: monospace; line-height: 1.4;">{}</div>
-               <div style="font-size: 11px; color: #a0a0a5; font-family: monospace; line-height: 1.4; margin-bottom: 4px;">{}</div>"#,
-            cpu_str, mem_str
+            r#"<div class="nix-stat-row" data-service="{}" data-type="cpu" style="display: flex; align-items: center; gap: 8px; margin-bottom: 2px;">
+                <svg class="nix-sparkline" style="width: 60px; height: 12px; overflow: visible; display: inline-block; vertical-align: middle;"></svg>
+                <span class="nix-stat-val" style="font-size: 11px; color: #00d5ff; font-family: monospace; font-weight: 500; min-width: 45px; text-align: right; display: inline-block;">{}</span>
+                <span style="font-size: 10px; color: #666; font-family: monospace;">CPU</span>
+               </div>
+               <div class="nix-stat-row" data-service="{}" data-type="ram" style="display: flex; align-items: center; gap: 8px; margin-bottom: 4px;">
+                <svg class="nix-sparkline" style="width: 60px; height: 12px; overflow: visible; display: inline-block; vertical-align: middle;"></svg>
+                <span class="nix-stat-val" style="font-size: 11px; color: #d946ef; font-family: monospace; font-weight: 500; min-width: 45px; text-align: right; display: inline-block;">{}</span>
+                <span style="font-size: 10px; color: #666; font-family: monospace;">RAM</span>
+               </div>"#,
+            name, cpu_str, name, mem_str
         ));
     }
     if gpus_display != r#"<span style="color: #777;">-</span>"# {

@@ -140,7 +140,7 @@ pub fn render_service_row(
         s.name
     );
 
-    let resources_html = render_resources_cell(is_running, s.cpu, s.memory, &gpus_override, &legacy_gpu);
+    let resources_html = render_resources_cell(&s.name, is_running, s.cpu, s.memory, &gpus_override, &legacy_gpu);
 
     format!(
         r#"<tr>

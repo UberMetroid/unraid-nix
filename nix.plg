@@ -2,7 +2,7 @@
 <!DOCTYPE PLUGIN [
   <!ENTITY name      "nix">
   <!ENTITY author    "UberMetroid">
-  <!ENTITY version   "2026.06.26.41">
+  <!ENTITY version   "2026.06.26.42">
   <!ENTITY launch    "Settings/Nix">
   <!ENTITY plugdir   "/boot/config/plugins/&name;">
   <!ENTITY usrdir    "/usr/local/emhttp/plugins/&name;">
@@ -11,6 +11,8 @@
 
   <CHANGES>
     ## nix package manager plugin
+    ### 2026.06.26.42
+    - **Live Resource Sparklines**: Converted CPU and memory resource fields inside the Active Flakes table into live, updating SVG line charts (sparklines). Polled dynamically on a 2-second interval, retaining history even across table actions.
     ### 2026.06.26.41
     - **Launch Command Overrides**: Added a "Launch Command Override" field to the installer form. Saves the custom execution instruction in service metadata, allowing users to customize command arguments while preserving sandbox protections and preventing overrides on re-saves.
     ### 2026.06.26.40
