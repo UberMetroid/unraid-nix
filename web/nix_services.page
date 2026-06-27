@@ -46,7 +46,7 @@ function editService(name) {
             if (window.initInstallForm) {
                 window.initInstallForm();
             }
-            $('#tab3').trigger('click');
+            $('#tab4').trigger('click');
         } else {
             alert("Failed to retrieve service configuration: " + response.error);
         }

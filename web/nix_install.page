@@ -1,5 +1,5 @@
-Menu="Nix:3"
-Title="Configure Flake"
+Menu="Nix:4"
+Title="Configuration"
 ---
 <link type="text/css" rel="stylesheet" href="/plugins/nix/styles_layout.css?v=<?php echo time(); ?>">
 <link type="text/css" rel="stylesheet" href="/plugins/nix/styles_widgets.css?v=<?php echo time(); ?>">
@@ -90,7 +90,7 @@ $host_ips = get_host_ips_php();
 
 <div class="nix-section" id="nix-install-section">
     <div style="margin-bottom: 20px;">
-        <h3 style="margin: 0;">Configure Flake</h3>
+        <h3 style="margin: 0;">Configuration</h3>
     </div>
     <p class="nix-subtext" style="margin-top: -10px;">Run or daemonize any custom flake from GitHub or a local directory.</p>
     

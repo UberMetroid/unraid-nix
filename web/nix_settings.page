@@ -1,4 +1,4 @@
-Menu="Nix:4"
+Menu="Nix:5"
 Title="Settings"
 ---
 <link type="text/css" rel="stylesheet" href="/plugins/nix/styles_layout.css?v=<?php echo time(); ?>">

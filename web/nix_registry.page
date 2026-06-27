@@ -1,0 +1,83 @@
+Menu="Nix:3"
+Title="Registry"
+---
+<link type="text/css" rel="stylesheet" href="/plugins/nix/styles_layout.css?v=<?php echo time(); ?>">
+<link type="text/css" rel="stylesheet" href="/plugins/nix/styles_widgets.css?v=<?php echo time(); ?>">
+<script src="/plugins/nix/nix.js"></script>
+
+<div class="nix-section" style="margin-top: 10px;">
+    <h3>Search Nixpkgs Registry</h3>
+    <p class="nix-subtext">Search the official Nix repository containing over 100,000 native packages.</p>
+    
+    <div class="nix-search-bar">
+        <input type="text" id="nix-search-input" placeholder="Search packages (e.g. ripgrep, fd, jellyfin)..." onkeydown="if(event.keyCode==13) { event.preventDefault(); executeSearch(); return false; }">
+        <button type="button" class="nix-btn-primary" onclick="executeSearch()"><i class="fa fa-search"></i> Search</button>
+    </div>
+
+    <div id="nix-search-results" class="nix-results-container">
+        <!-- Rendered dynamically by AJAX -->
+        <p class="text-muted text-center">Enter a query and click search to lookup extra CLI tools.</p>
+    </div>
+</div>
+
+<script>
+function executeSearch() {
+    var query = $("#nix-search-input").val();
+    if (!query.trim()) return;
+    $("#nix-search-results").html(
+        '<div class="nix-spinner" style="padding: 30px; text-align: center;">' +
+        '<i class="fa fa-spinner fa-spin" style="font-size: 24px; color: #00a1ff; margin-bottom: 12px;"></i>' +
+        '<div style="font-weight: 600; color: #eee; margin-bottom: 4px;">Searching Nix registry...</div>' +
+        '<div style="font-size: 11px; color: #a0a0a5;">Note: The first search may take up to 20 seconds while the Nix channel is evaluated.</div>' +
+        '</div>'
+    );
+    $.get('/plugins/nix/api.php?action=search&q=' + encodeURIComponent(query), function(html) {
+        $("#nix-search-results").html(html);
+    });
+}
+
+function installPackage(btn, pkg) {
+    if (!confirm("Are you sure you want to install CLI package: " + pkg + "?")) return;
+    
+    var width = 900;
+    var height = 600;
+    var left = (window.screen.width - width) / 2;
+    var top = (window.screen.height - height) / 2;
+    var popupName = 'nix_install_popup_' + Date.now();
+    var popup = window.open('', popupName, `scrollbars=yes,resizable=yes,status=no,location=no,toolbar=no,menubar=no,width=${width},height=${height},left=${left},top=${top}`);
+    
+    if (!popup) {
+        alert("Popup blocker prevented opening the installation console. Please allow popups for this site.");
+        return;
+    }
+    
+    var form = $('<form>', {
+        method: 'POST',
+        action: '/plugins/nix/stream.php',
+        target: popupName
+    });
+    
+    form.append($('<input>', { type: 'hidden', name: 'csrf_token', value: window.csrf_token || '' }));
+    form.append($('<input>', { type: 'hidden', name: 'action', value: 'install-cli' }));
+    form.append($('<input>', { type: 'hidden', name: 'package', value: pkg }));
+    
+    $('body').append(form);
+    form.submit();
+    form.remove();
+    
+    var timer = setInterval(function() {
+        if (popup.closed) {
+            clearInterval(timer);
+            window.location.reload();
+        }
+    }, 1000);
+}
+
+function showServiceModal(pkg) {
+    sessionStorage.setItem('nix_install_uri', pkg);
+    if (window.initInstallForm) {
+        window.initInstallForm();
+    }
+    $('#tab4').trigger('click');
+}
+</script>
