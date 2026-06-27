@@ -1,0 +1,15 @@
+{
+  "name": "lobe-chat",
+  "display_name": "Lobe Chat",
+  "description": "Modern multi-agent LLM chat UI framework with plugin support",
+  "url": "https://github.com/lobehub/lobe-chat",
+  "command": "exec nix run nixpkgs#lobe-chat -- --port 3210",
+  "default_ports": [
+    {
+      "host": 3210,
+      "container": 3210,
+      "label": "Web GUI"
+    }
+  ],
+  "icon": "fa-magic"
+}

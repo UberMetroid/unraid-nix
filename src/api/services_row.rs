@@ -22,7 +22,8 @@ fn get_static_config(name_lower: &str) -> StaticConfig {
     // AI & LLMs (Indigo/Cyberpunk Purple-Blue)
     if name_lower.contains("ollama") || name_lower.contains("open-webui") || name_lower.contains("localai") ||
        name_lower.contains("anythingllm") || name_lower.contains("librechat") || name_lower.contains("flowise") ||
-       name_lower.contains("stable-diffusion") || name_lower.contains("comfyui") || name_lower.contains("text-generation-webui") {
+       name_lower.contains("stable-diffusion") || name_lower.contains("comfyui") || name_lower.contains("text-generation-webui") ||
+       name_lower.contains("invokeai") || name_lower.contains("fooocus") || name_lower.contains("dify") || name_lower.contains("lobe-chat") {
         return StaticConfig {
             icon: "fa-magic",
             color: "#a29bfe",

@@ -185,7 +185,8 @@ fn get_preset_category_name(name: &str) -> &'static str {
     let name_lower = name.to_lowercase();
     if name_lower.contains("ollama") || name_lower.contains("open-webui") || name_lower.contains("localai") ||
        name_lower.contains("anythingllm") || name_lower.contains("librechat") || name_lower.contains("flowise") ||
-       name_lower.contains("stable-diffusion") || name_lower.contains("comfyui") || name_lower.contains("text-generation-webui") {
+       name_lower.contains("stable-diffusion") || name_lower.contains("comfyui") || name_lower.contains("text-generation-webui") ||
+       name_lower.contains("invokeai") || name_lower.contains("fooocus") || name_lower.contains("dify") || name_lower.contains("lobe-chat") {
         "ai"
     } else if name_lower.contains("jellyfin") || name_lower.contains("plex") || name_lower.contains("emby") ||
        name_lower.contains("navidrome") || name_lower.contains("airsonic") || name_lower.contains("subsonic") || name_lower.contains("lidarr") {
@@ -228,7 +229,8 @@ fn get_preset_category_styling(name: &str, default_icon: &str) -> CategoryStylin
     // AI & LLMs (Indigo/Cyberpunk Purple-Blue)
     if name_lower.contains("ollama") || name_lower.contains("open-webui") || name_lower.contains("localai") ||
        name_lower.contains("anythingllm") || name_lower.contains("librechat") || name_lower.contains("flowise") ||
-       name_lower.contains("stable-diffusion") || name_lower.contains("comfyui") || name_lower.contains("text-generation-webui") {
+       name_lower.contains("stable-diffusion") || name_lower.contains("comfyui") || name_lower.contains("text-generation-webui") ||
+       name_lower.contains("invokeai") || name_lower.contains("fooocus") || name_lower.contains("dify") || name_lower.contains("lobe-chat") {
         return CategoryStyling {
             icon: default_icon.to_string(),
             color: "#a29bfe",

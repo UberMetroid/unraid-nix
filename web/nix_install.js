@@ -218,7 +218,7 @@ function handleOverridePortClick() { addPortRow('', '', '', false); }
 function populatePortRows(portStr, presetName) {
     $("#nix-ports-container").empty();
     if (!portStr) return;
-                    var labels = {
+                        var labels = {
         'actual-budget:5006': 'HTTP',
         'adguard-home:3000': 'Setup',
         'adguard-home:53': 'DNS',
@@ -253,6 +253,7 @@ function populatePortRows(portStr, presetName) {
         'deconz:80': 'HTTP',
         'deluge:58846': 'Daemon',
         'deluge:8112': 'Web GUI',
+        'dify:5001': 'Web GUI',
         'dizquetv:8000': 'HTTP',
         'dokuwiki:80': 'HTTP',
         'dozzle:8080': 'HTTP',
@@ -273,6 +274,7 @@ function populatePortRows(portStr, presetName) {
         'flaresolverr:8191': 'HTTP',
         'flowise:3000': 'HTTP',
         'focalboard:8000': 'HTTP',
+        'fooocus:7865': 'Web GUI',
         'forgejo:22': 'SSH',
         'forgejo:3000': 'HTTP',
         'frigate:5000': 'HTTP',
@@ -300,6 +302,7 @@ function populatePortRows(portStr, presetName) {
         'homepage:3000': 'HTTP',
         'immich:2283': 'HTTP',
         'influxdb:8086': 'API',
+        'invokeai:9090': 'Web GUI',
         'it-tools:80': 'HTTP',
         'jackett:9117': 'HTTP',
         'jdownloader2:5800': 'Web GUI',
@@ -326,6 +329,7 @@ function populatePortRows(portStr, presetName) {
         'lidarr:8686': 'HTTP',
         'linkding:9090': 'HTTP',
         'linkwarden:3000': 'HTTP',
+        'lobe-chat:3210': 'Web GUI',
         'localai:8080': 'HTTP',
         'makemkv:5800': 'Web GUI',
         'mariadb:3306': 'MySQL Port',
@@ -463,7 +467,7 @@ function updatePresetInfo() {
         $("#custom-uri").parent().after('<div id="nix-preset-info-box" style="margin-top: 10px; display: none;"></div>');
         infoBox = $("#nix-preset-info-box");
     }
-                    var presets = {
+                        var presets = {
         "actual-budget": "Actual Budget",
         "adguard-home": "AdGuard Home",
         "agent-dvr": "Agent DVR",
@@ -494,6 +498,7 @@ function updatePresetInfo() {
         "ddclient": "DDclient",
         "deconz": "deCONZ",
         "deluge": "Deluge",
+        "dify": "Dify",
         "dizquetv": "DizqueTV",
         "dokuwiki": "DokuWiki",
         "doplarr": "Doplarr",
@@ -516,6 +521,7 @@ function updatePresetInfo() {
         "flaresolverr": "Flaresolverr",
         "flowise": "Flowise",
         "focalboard": "Focalboard",
+        "fooocus": "Fooocus",
         "forgejo": "Forgejo",
         "frigate": "Frigate NVR",
         "gatus": "Gatus",
@@ -540,6 +546,7 @@ function updatePresetInfo() {
         "homepage": "Homepage",
         "immich": "Immich",
         "influxdb": "InfluxDB",
+        "invokeai": "InvokeAI",
         "it-tools": "IT-Tools",
         "jackett": "Jackett",
         "jdownloader2": "JDownloader 2",
@@ -563,6 +570,7 @@ function updatePresetInfo() {
         "lidarr": "Lidarr",
         "linkding": "Linkding",
         "linkwarden": "Linkwarden",
+        "lobe-chat": "Lobe Chat",
         "localai": "LocalAI",
         "makemkv": "MakeMKV",
         "mariadb": "MariaDB",
@@ -696,6 +704,7 @@ function updatePresetInfo() {
         "ddclient": "fa-server",
         "deconz": "fa-server",
         "deluge": "fa-download",
+        "dify": "fa-magic",
         "dizquetv": "fa-server",
         "dokuwiki": "fa-server",
         "doplarr": "fa-server",
@@ -718,6 +727,7 @@ function updatePresetInfo() {
         "flaresolverr": "fa-server",
         "flowise": "fa-magic",
         "focalboard": "fa-server",
+        "fooocus": "fa-magic",
         "forgejo": "fa-server",
         "frigate": "fa-server",
         "gatus": "fa-server",
@@ -742,6 +752,7 @@ function updatePresetInfo() {
         "homepage": "fa-server",
         "immich": "fa-server",
         "influxdb": "fa-database",
+        "invokeai": "fa-magic",
         "it-tools": "fa-server",
         "jackett": "fa-search",
         "jdownloader2": "fa-server",
@@ -765,6 +776,7 @@ function updatePresetInfo() {
         "lidarr": "fa-music",
         "linkding": "fa-server",
         "linkwarden": "fa-server",
+        "lobe-chat": "fa-magic",
         "localai": "fa-magic",
         "makemkv": "fa-server",
         "mariadb": "fa-database",
