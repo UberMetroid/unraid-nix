@@ -1,0 +1,15 @@
+{
+  "name": "fooocus-rocm",
+  "display_name": "Fooocus (ROCm)",
+  "description": "Minimalist offline image generation engine based on Stable Diffusion XL (AMD ROCm GPU hardware accelerated version)",
+  "url": "https://github.com/lllyasviel/Fooocus",
+  "command": "exec nix run nixpkgs#fooocus-rocm -- --listen 0.0.0.0 --port 7865",
+  "default_ports": [
+    {
+      "host": 7865,
+      "container": 7865,
+      "label": "Web GUI"
+    }
+  ],
+  "icon": "fa-server"
+}

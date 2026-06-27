@@ -1,0 +1,15 @@
+{
+  "name": "comfyui-cuda",
+  "display_name": "ComfyUI (CUDA)",
+  "description": "ComfyUI Node Diffusion Editor (NVIDIA CUDA GPU hardware accelerated version)",
+  "url": "https://github.com/comfyanonymous/ComfyUI",
+  "command": "exec nix run nixpkgs#comfyui-cuda",
+  "default_ports": [
+    {
+      "host": 8188,
+      "container": 8188,
+      "label": "Web GUI"
+    }
+  ],
+  "icon": "fa-magic"
+}

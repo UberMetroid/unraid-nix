@@ -1,0 +1,15 @@
+{
+  "name": "localai-rocm",
+  "display_name": "LocalAI (ROCm)",
+  "description": "LocalAI LLM API Server (AMD ROCm GPU hardware accelerated version)",
+  "url": "https://localai.io/",
+  "command": "exec nix run nixpkgs#localai-rocm",
+  "default_ports": [
+    {
+      "host": 8080,
+      "container": 8080,
+      "label": "HTTP"
+    }
+  ],
+  "icon": "fa-magic"
+}

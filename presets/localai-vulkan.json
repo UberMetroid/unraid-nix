@@ -1,0 +1,15 @@
+{
+  "name": "localai-vulkan",
+  "display_name": "LocalAI (Vulkan / Intel Arc)",
+  "description": "LocalAI LLM API Server (Vulkan / Intel Arc GPU hardware accelerated version)",
+  "url": "https://localai.io/",
+  "command": "exec nix run nixpkgs#localai-vulkan",
+  "default_ports": [
+    {
+      "host": 8080,
+      "container": 8080,
+      "label": "HTTP"
+    }
+  ],
+  "icon": "fa-magic"
+}

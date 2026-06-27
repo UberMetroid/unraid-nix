@@ -1,0 +1,15 @@
+{
+  "name": "text-generation-webui-rocm",
+  "display_name": "Text Generation WebUI (ROCm)",
+  "description": "Oobabooga LLM Client GUI (AMD ROCm GPU hardware accelerated version)",
+  "url": "https://github.com/oobabooga/text-generation-webui",
+  "command": "exec nix run nixpkgs#text-generation-webui-rocm",
+  "default_ports": [
+    {
+      "host": 7860,
+      "container": 7860,
+      "label": "Web GUI"
+    }
+  ],
+  "icon": "fa-magic"
+}

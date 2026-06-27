@@ -1,0 +1,15 @@
+{
+  "name": "stable-diffusion-webui-vulkan",
+  "display_name": "Stable Diffusion WebUI (Vulkan / Intel Arc)",
+  "description": "AUTOMATIC1111 Diffusion GUI (Vulkan / Intel Arc GPU hardware accelerated version)",
+  "url": "https://github.com/AUTOMATIC1111/stable-diffusion-webui",
+  "command": "exec nix run nixpkgs#stable-diffusion-webui-vulkan",
+  "default_ports": [
+    {
+      "host": 7860,
+      "container": 7860,
+      "label": "Web GUI"
+    }
+  ],
+  "icon": "fa-magic"
+}

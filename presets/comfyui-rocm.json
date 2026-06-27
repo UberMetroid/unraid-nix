@@ -1,0 +1,15 @@
+{
+  "name": "comfyui-rocm",
+  "display_name": "ComfyUI (ROCm)",
+  "description": "ComfyUI Node Diffusion Editor (AMD ROCm GPU hardware accelerated version)",
+  "url": "https://github.com/comfyanonymous/ComfyUI",
+  "command": "exec nix run nixpkgs#comfyui-rocm",
+  "default_ports": [
+    {
+      "host": 8188,
+      "container": 8188,
+      "label": "Web GUI"
+    }
+  ],
+  "icon": "fa-magic"
+}

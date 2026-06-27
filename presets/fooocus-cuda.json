@@ -1,0 +1,15 @@
+{
+  "name": "fooocus-cuda",
+  "display_name": "Fooocus (CUDA)",
+  "description": "Minimalist offline image generation engine based on Stable Diffusion XL (NVIDIA CUDA GPU hardware accelerated version)",
+  "url": "https://github.com/lllyasviel/Fooocus",
+  "command": "exec nix run nixpkgs#fooocus-cuda -- --listen 0.0.0.0 --port 7865",
+  "default_ports": [
+    {
+      "host": 7865,
+      "container": 7865,
+      "label": "Web GUI"
+    }
+  ],
+  "icon": "fa-server"
+}

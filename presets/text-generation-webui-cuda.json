@@ -1,0 +1,15 @@
+{
+  "name": "text-generation-webui-cuda",
+  "display_name": "Text Generation WebUI (CUDA)",
+  "description": "Oobabooga LLM Client GUI (NVIDIA CUDA GPU hardware accelerated version)",
+  "url": "https://github.com/oobabooga/text-generation-webui",
+  "command": "exec nix run nixpkgs#text-generation-webui-cuda",
+  "default_ports": [
+    {
+      "host": 7860,
+      "container": 7860,
+      "label": "Web GUI"
+    }
+  ],
+  "icon": "fa-magic"
+}

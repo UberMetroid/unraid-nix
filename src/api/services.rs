@@ -26,7 +26,6 @@ pub fn render_services_table(api_port: u16) -> String {
                     <th>Application</th>
                     <th>IP:Port</th>
                     <th>Resources</th>
-                    <th>GPU</th>
                     <th>Actions</th>
                     <th>Autostart</th>
                 </tr>
@@ -34,7 +33,7 @@ pub fn render_services_table(api_port: u16) -> String {
             <tbody>"#.to_string();
 
     if statuses.is_empty() {
-        html.push_str(r#"<tr><td colspan="6" class="text-center">No Nix Flake services configured. Go to the Flakes tab to install one.</td></tr>"#);
+        html.push_str(r#"<tr><td colspan="5" class="text-center">No Nix Flake services configured. Go to the Flakes tab to install one.</td></tr>"#);
     } else {
         for s in &statuses {
             html.push_str(&super::services_row::render_service_row(s, &config, &host_ips));

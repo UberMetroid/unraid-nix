@@ -1,0 +1,15 @@
+{
+  "name": "stable-diffusion-webui-rocm",
+  "display_name": "Stable Diffusion WebUI (ROCm)",
+  "description": "AUTOMATIC1111 Diffusion GUI (AMD ROCm GPU hardware accelerated version)",
+  "url": "https://github.com/AUTOMATIC1111/stable-diffusion-webui",
+  "command": "exec nix run nixpkgs#stable-diffusion-webui-rocm",
+  "default_ports": [
+    {
+      "host": 7860,
+      "container": 7860,
+      "label": "Web GUI"
+    }
+  ],
+  "icon": "fa-magic"
+}
