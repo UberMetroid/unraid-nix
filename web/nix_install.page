@@ -3,6 +3,8 @@ Title="Configuration"
 ---
 <?php require_once "/usr/local/emhttp/plugins/nix/theme_helper.php"; ?>
 <div class="nix-plugin-container theme-<?php echo $nix_theme; ?>">
+
+
 <link type="text/css" rel="stylesheet" href="/plugins/nix/styles_layout.css?v=<?php echo time(); ?>">
 <link type="text/css" rel="stylesheet" href="/plugins/nix/styles_widgets.css?v=<?php echo time(); ?>">
 <link type="text/css" rel="stylesheet" href="/plugins/dynamix/styles/jquery.filetree.css">
@@ -206,5 +208,7 @@ $host_ips = get_host_ips_php();
 window.NIX_APPDATA_ROOT = <?php echo json_encode($appdata_root); ?>;
 </script>
 <script src="/plugins/nix/nix_install.js?v=<?php echo time(); ?>"></script>
+
+
 
 </div>
