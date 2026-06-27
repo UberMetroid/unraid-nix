@@ -31,6 +31,7 @@ if ($action === 'install-cli') {
         $puid = isset($_POST['puid']) ? $_POST['puid'] : '99';
         $pgid = isset($_POST['pgid']) ? $_POST['pgid'] : '100';
         $gpu = isset($_POST['gpu']) ? $_POST['gpu'] : '0';
+        $gpus = isset($_POST['gpus']) ? $_POST['gpus'] : '';
         $extra_binds = isset($_POST['extra_binds']) ? $_POST['extra_binds'] : '';
         $port = isset($_POST['port']) ? $_POST['port'] : '';
         $bind_address = isset($_POST['bind_address']) ? $_POST['bind_address'] : '';
@@ -38,6 +39,7 @@ if ($action === 'install-cli') {
                "--uri " . escapeshellarg($uri) . " --appdata " . escapeshellarg($appdata) . " " .
                "--media " . escapeshellarg($media) . " --puid " . escapeshellarg($puid) . " " .
                "--pgid " . escapeshellarg($pgid) . " --gpu " . escapeshellarg($gpu) . " " .
+               "--gpus " . escapeshellarg($gpus) . " " .
                "--extra-binds " . escapeshellarg($extra_binds) . " --port " . escapeshellarg($port) . " " .
                "--bind-address " . escapeshellarg($bind_address);
         $title = "Installing Nix Service: " . htmlspecialchars($uri);

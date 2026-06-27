@@ -62,17 +62,36 @@ pub fn render_service_row(s: &ServiceStatus, config: &Option<ProcessComposeConfi
 
     let port_num = get_service_web_port(&s.name);
     let metadata_file = format!("/boot/config/plugins/nix/metadata/{}.json", s.name);
-    let bind_address_override = if let Ok(content) = std::fs::read_to_string(&metadata_file) {
+    let mut bind_address_override = None;
+    let mut extra_binds_vec = Vec::new();
+
+    if let Ok(content) = std::fs::read_to_string(&metadata_file) {
         if let Ok(meta) = serde_json::from_str::<serde_json::Value>(&content) {
-            meta.get("bind_address")
+            bind_address_override = meta.get("bind_address")
                 .and_then(|v| v.as_str())
-                .map(|s| s.to_string())
-        } else {
-            None
+                .map(|s| s.to_string());
+                
+            if let Some(binds_val) = meta.get("extra_binds") {
+                if let Some(binds_str) = binds_val.as_str() {
+                    if let Ok(parsed_binds) = serde_json::from_str::<serde_json::Value>(binds_str) {
+                        if let Some(arr) = parsed_binds.as_array() {
+                            for item in arr {
+                                if let (Some(host), Some(sandbox)) = (item.get("host").and_then(|h| h.as_str()), item.get("sandbox").and_then(|s| s.as_str())) {
+                                    extra_binds_vec.push((host.to_string(), sandbox.to_string()));
+                                }
+                            }
+                        }
+                    }
+                } else if let Some(arr) = binds_val.as_array() {
+                    for item in arr {
+                        if let (Some(host), Some(sandbox)) = (item.get("host").and_then(|h| h.as_str()), item.get("sandbox").and_then(|s| s.as_str())) {
+                            extra_binds_vec.push((host.to_string(), sandbox.to_string()));
+                        }
+                    }
+                }
+            }
         }
-    } else {
-        None
-    };
+    }
 
     let lan_ip_port_html = if let Some(port) = port_num {
         let mut ip_links = Vec::new();
@@ -143,13 +162,26 @@ pub fn render_service_row(s: &ServiceStatus, config: &Option<ProcessComposeConfi
         .map(|p| get_service_appdata_path(&s.name, &p.command))
         .unwrap_or_else(|| "-".to_string());
 
-    let volume_mappings_html = if home_path != "-" && !home_path.is_empty() {
-        format!(
-            r#"<span style="color: #a0a0a5;">/config</span> <i class="fa fa-arrow-right" style="margin: 0 4px; font-size: 10px; color: #888;"></i> <code>{}</code>"#,
+    let mut volume_mappings = Vec::new();
+    if home_path != "-" && !home_path.is_empty() {
+        volume_mappings.push(format!(
+            r#"<div style="margin-bottom: 4px;"><span style="color: #a0a0a5; font-family: monospace;">/config</span> <i class="fa fa-arrow-right" style="margin: 0 4px; font-size: 10px; color: #888;"></i> <code>{}</code></div>"#,
             home_path
-        )
-    } else {
+        ));
+    }
+    for (host, sandbox) in extra_binds_vec {
+        if !host.is_empty() && !sandbox.is_empty() {
+            volume_mappings.push(format!(
+                r#"<div style="margin-bottom: 4px;"><span style="color: #a0a0a5; font-family: monospace;">{}</span> <i class="fa fa-arrow-right" style="margin: 0 4px; font-size: 10px; color: #888;"></i> <code>{}</code></div>"#,
+                sandbox, host
+            ));
+        }
+    }
+
+    let volume_mappings_html = if volume_mappings.is_empty() {
         "-".to_string()
+    } else {
+        volume_mappings.join("")
     };
 
     let autostart_enabled = config

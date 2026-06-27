@@ -3,13 +3,15 @@ window.initInstallForm = function() {
     $("#custom-appdata").val("");
     $("#custom-puid").val("99");
     $("#custom-pgid").val("100");
-    $("#custom-gpu").prop('checked', false);
     $("#nix-ports-container").empty();
     $("#custom-bind-address").val("0.0.0.0");
     $("#nix-extra-binds-container").empty();
-    $("#nix-install-section h3").text("Install Flake");
+    $("#nix-install-section h3").text("Configure Flake");
     $("#nix-install-section .nix-subtext").text("Run or daemonize any custom flake from GitHub or a local directory.");
     $("#nix-install-submit-btn").text("Install Flake");
+
+    window.legacyGpuEnabled = false;
+    var selectedGpus = '';
 
     var editDataStr = sessionStorage.getItem('nix_edit_metadata');
     if (editDataStr) {
@@ -19,7 +21,13 @@ window.initInstallForm = function() {
         $("#custom-appdata").val(editData.appdata);
         $("#custom-puid").val(editData.puid);
         $("#custom-pgid").val(editData.pgid);
-        $("#custom-gpu").prop('checked', editData.gpu === '1' || editData.gpu === 'true');
+        
+        if (editData.gpu === '1' || editData.gpu === 'true') {
+            window.legacyGpuEnabled = true;
+        }
+        if (editData.gpus) {
+            selectedGpus = editData.gpus;
+        }
         
         var presetName = editData.uri.replace("nixpkgs#", "").toLowerCase().trim();
         populatePortRows(editData.port || '', presetName);
@@ -55,8 +63,40 @@ window.initInstallForm = function() {
             }
         }
     }
+    loadAndRenderGpus(selectedGpus);
     updatePresetInfo();
 };
+
+function loadAndRenderGpus(selectedGpus) {
+    var container = $("#nix-gpus-list");
+    container.html('<div style="font-size: 11px; color: #888; font-style: italic;" id="nix-gpus-loading">Scanning host for GPU devices...</div>');
+    
+    $.getJSON('/plugins/nix/api.php?action=detect-gpus', function(gpus) {
+        container.empty();
+        if (!gpus || gpus.length === 0) {
+            container.html('<div style="font-size: 12px; color: #888;">No GPU devices detected on host.</div>');
+            return;
+        }
+        
+        var selectedList = selectedGpus ? selectedGpus.split(',') : [];
+        
+        gpus.forEach(function(gpu) {
+            var isChecked = selectedList.indexOf(gpu.id) !== -1;
+            // Handle backward compatibility where legacy GPU is enabled but no custom select list
+            if (!selectedGpus && window.legacyGpuEnabled) {
+                isChecked = true;
+            }
+            
+            var checkboxHtml = `<label style="display: flex; align-items: center; gap: 8px; font-weight: normal; margin: 0; cursor: pointer;">` +
+                `<input type="checkbox" class="nix-gpu-checkbox" value="${gpu.id}" ${isChecked ? 'checked' : ''}>` +
+                `<span style="color: #eee;">${gpu.name}</span>` +
+                `</label>`;
+            container.append(checkboxHtml);
+        });
+    }).fail(function() {
+        container.html('<div style="font-size: 12px; color: #e74c3c;">Failed to scan host GPU devices.</div>');
+    });
+}
 
 $(function() {
     if (typeof $.fn.fileTreeAttach === 'function') { $("#custom-appdata").fileTreeAttach(); }
@@ -85,6 +125,11 @@ function installCustomFlake(e) {
         return;
     }
     
+    var selectedGpus = $(".nix-gpu-checkbox:checked").map(function() {
+        return this.value;
+    }).get().join(',');
+    var gpuVal = selectedGpus ? '1' : '0';
+
     var width = 900;
     var height = 600;
     var left = (window.screen.width - width) / 2;
@@ -102,7 +147,7 @@ function installCustomFlake(e) {
     if (type === 'service') {
         Object.assign(params, {
             appdata: $("#custom-appdata").val(), media: '', puid: $("#custom-puid").val(), pgid: $("#custom-pgid").val(),
-            gpu: $("#custom-gpu").is(':checked') ? '1' : '0', bind_address: $("#custom-bind-address").val()
+            gpu: gpuVal, gpus: selectedGpus, bind_address: $("#custom-bind-address").val()
         });
         var ports = $(".nix-port-row").map(function() {
             var host = $(this).find(".nix-port-host").val();

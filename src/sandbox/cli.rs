@@ -8,6 +8,7 @@ pub fn parse_sandbox_args(args: &[String]) -> Result<String, String> {
     let mut puid = 99;
     let mut pgid = 100;
     let mut gpu = false;
+    let mut gpus = None;
     let mut cmd = String::new();
     let mut extra_binds = Vec::new();
     let mut port = None;
@@ -66,6 +67,11 @@ pub fn parse_sandbox_args(args: &[String]) -> Result<String, String> {
                 bind_address = Some(args[i+1].clone());
                 i += 2;
             }
+            "--gpus" => {
+                if i + 1 >= args.len() { return Err("Missing value for --gpus".to_string()); }
+                gpus = Some(args[i+1].clone());
+                i += 2;
+            }
             _ => return Err(format!("Unknown sandbox flag: {}", args[i])),
         }
     }
@@ -77,6 +83,7 @@ pub fn parse_sandbox_args(args: &[String]) -> Result<String, String> {
         puid,
         pgid,
         enable_gpu: gpu,
+        gpus,
         inner_command: cmd,
         extra_binds,
         port,

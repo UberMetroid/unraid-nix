@@ -159,7 +159,7 @@ pub fn preset_cmd(args: &[String]) {
         None
     };
 
-    match config::get_service_command_preset(name, appdata, media, puid, pgid, gpu, extra_binds, port, bind_address) {
+    match config::get_service_command_preset(name, appdata, media, puid, pgid, gpu, None, extra_binds, port, bind_address) {
         Ok(cmd) => println!("{}", cmd),
         Err(e) => {
             eprintln!("Error: {}", e);

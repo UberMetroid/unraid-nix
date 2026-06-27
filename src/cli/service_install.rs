@@ -20,6 +20,7 @@ pub fn install_service(args: &[String]) {
     let mut puid = 99;
     let mut pgid = 100;
     let mut gpu = false;
+    let mut gpus = None;
     let mut extra_binds_json = String::new();
     let mut port = None;
     let mut bind_address = None;
@@ -82,6 +83,12 @@ pub fn install_service(args: &[String]) {
                 bind_address = if val.trim().is_empty() || val == "-" { None } else { Some(val) };
                 i += 2;
             }
+            "--gpus" => {
+                if i + 1 >= args.len() { eprintln!("Error: Missing value for --gpus"); exit(1); }
+                let val = args[i+1].clone();
+                gpus = if val.trim().is_empty() || val == "-" { None } else { Some(val) };
+                i += 2;
+            }
             _ => { eprintln!("Unknown install-service flag: {}", args[i]); exit(1); }
         }
     }
@@ -140,6 +147,7 @@ pub fn install_service(args: &[String]) {
             puid,
             pgid,
             gpu,
+            gpus.clone(),
             binds_vec.clone(),
             port.clone(),
             bind_address.clone()
@@ -155,6 +163,7 @@ pub fn install_service(args: &[String]) {
             puid,
             pgid,
             enable_gpu: gpu,
+            gpus: gpus.clone(),
             inner_command: format!("nix run {}", uri),
             extra_binds: binds_vec.clone(),
             port: port.clone(),
@@ -208,6 +217,7 @@ pub fn install_service(args: &[String]) {
         "puid": puid,
         "pgid": pgid,
         "gpu": if gpu { "1" } else { "0" },
+        "gpus": gpus.as_deref().unwrap_or(""),
         "extra_binds": extra_binds_json,
         "port": port.unwrap_or_default(),
         "bind_address": bind_address.unwrap_or_default(),

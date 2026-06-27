@@ -98,7 +98,7 @@ mod tests {
 
     #[test]
     fn test_service_command_presets() {
-        let cmd = get_service_command_preset("radarr", "/mnt/cache/appdata/radarr", "/mnt/user/media", 99, 100, false, Vec::new(), Some("7878".to_string()), Some("127.0.0.1".to_string())).unwrap();
+        let cmd = get_service_command_preset("radarr", "/mnt/cache/appdata/radarr", "/mnt/user/media", 99, 100, false, None, Vec::new(), Some("7878".to_string()), Some("127.0.0.1".to_string())).unwrap();
         assert!(cmd.starts_with("exec unshare -m sh -c "));
         assert!(cmd.contains("mount -t tmpfs tmpfs /boot"));
         assert!(cmd.contains("mount --bind /mnt/cache/appdata/radarr /config"));
@@ -106,12 +106,12 @@ mod tests {
         assert!(cmd.contains("nix run nixpkgs#radarr"));
         assert!(cmd.contains("sed -i 's|<Port>[^<]*</Port>|<Port>7878</Port>|g'"));
 
-        let cmd_jellyfin = get_service_command_preset("jellyfin", "/mnt/cache/appdata/jellyfin", "-", 99, 100, false, Vec::new(), Some("8097:8096,8921:8920".to_string()), Some("10.0.0.5".to_string())).unwrap();
+        let cmd_jellyfin = get_service_command_preset("jellyfin", "/mnt/cache/appdata/jellyfin", "-", 99, 100, false, None, Vec::new(), Some("8097:8096,8921:8920".to_string()), Some("10.0.0.5".to_string())).unwrap();
         assert!(cmd_jellyfin.contains("sed -i 's|<HttpsPortNumber>[^<]*</HttpsPortNumber>|<HttpsPortNumber>8921</HttpsPortNumber>|g'"));
         assert!(cmd_jellyfin.contains("sed -i 's|<LocalPortNumber>[^<]*</LocalPortNumber>|<LocalPortNumber>8097</LocalPortNumber>|g'"));
         assert!(cmd_jellyfin.contains("sed -i 's|<BindToAddress>[^<]*</BindToAddress>|<BindToAddress>10.0.0.5</BindToAddress>|g'"));
 
-        let err = get_service_command_preset("invalid", "/tmp", "/tmp", 99, 100, false, Vec::new(), None, None);
+        let err = get_service_command_preset("invalid", "/tmp", "/tmp", 99, 100, false, None, Vec::new(), None, None);
         assert!(err.is_err());
     }
 }

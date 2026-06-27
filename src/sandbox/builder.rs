@@ -22,6 +22,43 @@ pub fn build_bwrap_command(config: &SandboxConfig) -> Result<String, String> {
         return Err("Configuration Location must be specified for service execution.".to_string());
     }
 
+    let has_nvidia = if let Some(ref g) = config.gpus {
+        g.contains("nvidia")
+    } else {
+        config.enable_gpu
+    };
+
+    let has_render = if let Some(ref g) = config.gpus {
+        g.contains("renderD")
+    } else {
+        config.enable_gpu
+    };
+
+    let mut nvidia_indexes = Vec::new();
+    if let Some(ref g) = config.gpus {
+        for part in g.split(',') {
+            if part.starts_with("nvidia-") {
+                if let Some(idx_str) = part.strip_prefix("nvidia-") {
+                    if let Ok(idx) = idx_str.parse::<u32>() {
+                        nvidia_indexes.push(idx.to_string());
+                    }
+                }
+            }
+        }
+    }
+    
+    let cuda_devices = if nvidia_indexes.is_empty() {
+        if let Some(ref g) = config.gpus {
+            if g.trim().is_empty() { Some("".to_string()) } else { None }
+        } else if config.enable_gpu {
+            None
+        } else {
+            Some("".to_string())
+        }
+    } else {
+        Some(nvidia_indexes.join(","))
+    };
+
     let appdata_canon = std::fs::canonicalize(&config.appdata_path)
         .map(|p| p.to_string_lossy().to_string())
         .unwrap_or_else(|_| config.appdata_path.clone());
@@ -87,10 +124,12 @@ pub fn build_bwrap_command(config: &SandboxConfig) -> Result<String, String> {
             }
         }
 
-        if config.enable_gpu {
-            mounts_cmd.push("/bin/bash /usr/local/emhttp/plugins/nix/nix-gpu-setup.sh".to_string());
-            mounts_cmd.push(format!("mkdir -p {}/run/opengl-driver/lib", chroot_dir));
-            mounts_cmd.push(format!("mount --bind /var/run/nix-nvidia-driver/lib {}/run/opengl-driver/lib", chroot_dir));
+        if has_nvidia || has_render {
+            if has_nvidia {
+                mounts_cmd.push("/bin/bash /usr/local/emhttp/plugins/nix/nix-gpu-setup.sh".to_string());
+                mounts_cmd.push(format!("mkdir -p {}/run/opengl-driver/lib", chroot_dir));
+                mounts_cmd.push(format!("mount --bind /var/run/nix-nvidia-driver/lib {}/run/opengl-driver/lib", chroot_dir));
+            }
             mounts_cmd.push(format!("if [ -d /usr/lib64 ]; then mkdir -p {}/usr/lib64 && mount --bind -o ro /usr/lib64 {}/usr/lib64; fi", chroot_dir, chroot_dir));
             mounts_cmd.push(format!("if [ -d /lib64 ]; then mkdir -p {}/lib64 && mount --bind -o ro /lib64 {}/lib64; fi", chroot_dir, chroot_dir));
             mounts_cmd.push(format!("if [ -d /usr/lib ]; then mkdir -p {}/usr/lib && mount --bind -o ro /usr/lib {}/usr/lib; fi", chroot_dir, chroot_dir));
@@ -100,9 +139,14 @@ pub fn build_bwrap_command(config: &SandboxConfig) -> Result<String, String> {
         let mounts_str = mounts_cmd.join(" && ").replace("\"", "\\\"");
         
         let mut env_vars = vec!["export HOME=/config".to_string()];
-        if config.enable_gpu {
+        if has_nvidia {
             env_vars.push("export LD_LIBRARY_PATH=/run/opengl-driver/lib".to_string());
+        }
+        if has_render {
             env_vars.push("export LIBVA_DRIVERS_PATH=/usr/lib64/dri".to_string());
+        }
+        if let Some(ref devices) = cuda_devices {
+            env_vars.push(format!("export CUDA_VISIBLE_DEVICES={}", devices));
         }
         if let Some(ref p_str) = config.port {
             let mappings = parse_ports(p_str);
@@ -161,7 +205,7 @@ pub fn build_bwrap_command(config: &SandboxConfig) -> Result<String, String> {
             }
         }
 
-        if config.enable_gpu {
+        if has_nvidia {
             mounts_cmd.push("/bin/bash /usr/local/emhttp/plugins/nix/nix-gpu-setup.sh".to_string());
             mounts_cmd.push("mkdir -p /run/opengl-driver/lib".to_string());
             mounts_cmd.push("mount --bind /var/run/nix-nvidia-driver/lib /run/opengl-driver/lib".to_string());
@@ -170,9 +214,14 @@ pub fn build_bwrap_command(config: &SandboxConfig) -> Result<String, String> {
         let mounts_str = mounts_cmd.join(" && ").replace("\"", "\\\"");
 
         let mut env_vars = vec!["export HOME=/config".to_string()];
-        if config.enable_gpu {
+        if has_nvidia {
             env_vars.push("export LD_LIBRARY_PATH=/run/opengl-driver/lib".to_string());
+        }
+        if has_render {
             env_vars.push("export LIBVA_DRIVERS_PATH=/usr/lib64/dri".to_string());
+        }
+        if let Some(ref devices) = cuda_devices {
+            env_vars.push(format!("export CUDA_VISIBLE_DEVICES={}", devices));
         }
         if let Some(ref p_str) = config.port {
             let mappings = parse_ports(p_str);

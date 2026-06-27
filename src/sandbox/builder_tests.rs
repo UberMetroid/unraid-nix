@@ -9,6 +9,7 @@ fn test_build_bwrap_command_basic() {
         puid: 99,
         pgid: 100,
         enable_gpu: false,
+        gpus: None,
         inner_command: "nix run nixpkgs#hello".to_string(),
         extra_binds: vec![("/mnt/user/downloads".to_string(), "/downloads".to_string())],
         port: Some("8080".to_string()),
@@ -36,6 +37,7 @@ fn test_build_bwrap_command_missing_appdata() {
         puid: 99,
         pgid: 100,
         enable_gpu: false,
+        gpus: None,
         inner_command: "run".to_string(),
         extra_binds: Vec::new(),
         port: None,
@@ -58,6 +60,7 @@ fn test_build_bwrap_command_storage_sandboxed() {
         puid: 99,
         pgid: 100,
         enable_gpu: false,
+        gpus: None,
         inner_command: "nix run nixpkgs#hello".to_string(),
         extra_binds: vec![("/mnt/user/downloads".to_string(), "/downloads".to_string())],
         port: Some("8080".to_string()),
@@ -87,6 +90,7 @@ fn test_build_bwrap_command_gpu() {
         puid: 99,
         pgid: 100,
         enable_gpu: true,
+        gpus: None,
         inner_command: "nix run nixpkgs#hello".to_string(),
         extra_binds: Vec::new(),
         port: None,
@@ -112,6 +116,7 @@ fn test_build_bwrap_command_gpu_sandboxed() {
         puid: 99,
         pgid: 100,
         enable_gpu: true,
+        gpus: None,
         inner_command: "nix run nixpkgs#hello".to_string(),
         extra_binds: Vec::new(),
         port: None,
@@ -127,4 +132,27 @@ fn test_build_bwrap_command_gpu_sandboxed() {
     assert!(cmd.contains("mount --bind -o ro /usr/lib64 /var/run/nix-chroot-test-gpu-app/usr/lib64"));
     assert!(cmd.contains("export LD_LIBRARY_PATH=/run/opengl-driver/lib"));
     assert!(cmd.contains("export LIBVA_DRIVERS_PATH=/usr/lib64/dri"));
+}
+
+#[test]
+fn test_build_bwrap_command_gpu_isolated() {
+    let config = SandboxConfig {
+        name: "test-gpu-app".to_string(),
+        appdata_path: "/mnt/cache/appdata/test-gpu-app".to_string(),
+        media_path: None,
+        puid: 99,
+        pgid: 100,
+        enable_gpu: false,
+        gpus: Some("nvidia-1".to_string()),
+        inner_command: "nix run nixpkgs#hello".to_string(),
+        extra_binds: Vec::new(),
+        port: None,
+        bind_address: None,
+        host_init_commands: Vec::new(),
+    };
+
+    let cmd = build_bwrap_command(&config).unwrap();
+    assert!(cmd.contains("/bin/bash /usr/local/emhttp/plugins/nix/nix-gpu-setup.sh"));
+    assert!(cmd.contains("mount --bind /var/run/nix-nvidia-driver/lib /run/opengl-driver/lib"));
+    assert!(cmd.contains("export CUDA_VISIBLE_DEVICES=1"));
 }

@@ -6,6 +6,7 @@ pub mod logs;
 pub mod service_install;
 pub mod supervisor;
 pub mod metadata;
+pub mod gpus;
 
 pub fn print_usage() {
     println!("Usage: nix-helper <subcommand> [args]");
@@ -26,6 +27,7 @@ pub fn print_usage() {
     println!("  view-logs <name>                       Outputs formatted service console logs");
     println!("  save-settings <options>                Saves Nix plugin settings and manages migration");
     println!("  get-metadata <name>                    Outputs JSON service metadata");
+    println!("  detect-gpus                            Outputs JSON list of detected host GPUs");
 }
 
 pub fn run(args: Vec<String>) {
@@ -45,6 +47,7 @@ pub fn run(args: Vec<String>) {
         "view-logs" => logs::view_logs(&args),
         "save-settings" => settings::save_settings(&args),
         "get-metadata" => metadata::get_metadata(&args),
+        "detect-gpus" => gpus::detect_gpus(&args),
         _ => {
             print_usage();
         }

@@ -77,6 +77,7 @@ pub fn get_metadata_json(name: &str) -> String {
             "puid": puid,
             "pgid": pgid,
             "gpu": gpu,
+            "gpus": "",
             "extra_binds": "[]",
             "port": "",
             "bind_address": ""

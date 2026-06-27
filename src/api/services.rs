@@ -24,7 +24,7 @@ pub fn render_services_table(api_port: u16) -> String {
                     <th>Application</th>
                     <th>Version</th>
                     <th>LAN IP:Port</th>
-                    <th>Volume Mappings (App to Host)</th>
+                    <th>Volume Mappings</th>
                     <th>Autostart</th>
                     <th>Actions</th>
                 </tr>

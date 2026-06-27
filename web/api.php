@@ -46,6 +46,12 @@ if ($action === 'render-services') {
     exit;
 }
 
+// 2c. Detect host GPUs (outputs JSON)
+if ($action === 'detect-gpus') {
+    passthru("/usr/local/emhttp/plugins/nix/nix-helper detect-gpus");
+    exit;
+}
+
 // 2c. Get service metadata (JSON response)
 if ($action === 'get-metadata') {
     $service = isset($_GET['service']) ? $_GET['service'] : '';
@@ -126,6 +132,7 @@ if ($action === 'install-custom') {
         $puid = isset($_POST['puid']) ? $_POST['puid'] : '99';
         $pgid = isset($_POST['pgid']) ? $_POST['pgid'] : '100';
         $gpu = isset($_POST['gpu']) ? $_POST['gpu'] : '0';
+        $gpus = isset($_POST['gpus']) ? $_POST['gpus'] : '';
         $extra_binds = isset($_POST['extra_binds']) ? $_POST['extra_binds'] : '';
         $port = isset($_POST['port']) ? $_POST['port'] : '';
         $bind_address = isset($_POST['bind_address']) ? $_POST['bind_address'] : '';
@@ -139,6 +146,7 @@ if ($action === 'install-custom') {
                "--puid " . escapeshellarg($puid) . " " .
                "--pgid " . escapeshellarg($pgid) . " " .
                "--gpu " . escapeshellarg($gpu) . " " .
+               "--gpus " . escapeshellarg($gpus) . " " .
                "--extra-binds " . escapeshellarg($extra_binds) . " " .
                "--port " . escapeshellarg($port) . " " .
                "--bind-address " . escapeshellarg($bind_address);

@@ -1,5 +1,5 @@
 Menu="Nix:3"
-Title="Install Flake"
+Title="Configure Flake"
 ---
 <link type="text/css" rel="stylesheet" href="/plugins/nix/styles_layout.css?v=<?php echo time(); ?>">
 <link type="text/css" rel="stylesheet" href="/plugins/nix/styles_widgets.css?v=<?php echo time(); ?>">
@@ -90,7 +90,7 @@ $host_ips = get_host_ips_php();
 
 <div class="nix-section" id="nix-install-section">
     <div style="margin-bottom: 20px;">
-        <h3 style="margin: 0;">Install Flake</h3>
+        <h3 style="margin: 0;">Configure Flake</h3>
     </div>
     <p class="nix-subtext" style="margin-top: -10px;">Run or daemonize any custom flake from GitHub or a local directory.</p>
     
@@ -161,7 +161,10 @@ $host_ips = get_host_ips_php();
             </div>
 
             <div class="nix-form-group">
-                <label><input type="checkbox" id="custom-gpu"> Enable GPU</label>
+                <label style="font-weight: 600; margin-bottom: 8px; display: block;">GPU Device Access:</label>
+                <div id="nix-gpus-list" style="background: rgba(255, 255, 255, 0.02); border: 1px solid rgba(255,255,255,0.08); border-radius: 4px; padding: 12px; display: flex; flex-direction: column; gap: 10px;">
+                    <div style="font-size: 11px; color: #888; font-style: italic;" id="nix-gpus-loading">Scanning host for GPU devices...</div>
+                </div>
             </div>
         </div>
 
