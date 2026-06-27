@@ -48,7 +48,8 @@ pub fn render_presets_store() -> String {
         <!-- Category pills (Alphabetically Sorted, with AI first) -->
         <div class="nix-preset-pills" style="display: flex; gap: 8px; flex-wrap: wrap; padding-bottom: 5px; border-bottom: 1px solid rgba(255,255,255,0.05);">
             <button type="button" class="nix-preset-pill active" onclick="filterPresetCategory('ai', this)">AI</button>
-            <button type="button" class="nix-preset-pill" onclick="filterPresetCategory('automation', this)">ARR!</button>
+            <button type="button" class="nix-preset-pill" onclick="filterPresetCategory('arr', this)">ARR!</button>
+            <button type="button" class="nix-preset-pill" onclick="filterPresetCategory('automation', this)">Automation</button>
             <button type="button" class="nix-preset-pill" onclick="filterPresetCategory('database', this)">Databases</button>
             <button type="button" class="nix-preset-pill" onclick="filterPresetCategory('downloads', this)">Downloads</button>
             <button type="button" class="nix-preset-pill" onclick="filterPresetCategory('media', this)">Media & Audio</button>
@@ -195,6 +196,10 @@ fn get_preset_category_name(name: &str) -> &'static str {
        name_lower.contains("radarr") || name_lower.contains("couchpotato") || name_lower.contains("readarr") ||
        name_lower.contains("calibre") || name_lower.contains("audiobookshelf") || name_lower.contains("bazarr") ||
        name_lower.contains("prowlarr") || name_lower.contains("jackett") {
+        "arr"
+    } else if name_lower.contains("n8n") || name_lower.contains("node-red") || name_lower.contains("nodered") ||
+       name_lower.contains("changedetection") || name_lower.contains("apprise") || name_lower.contains("gotify") ||
+       name_lower.contains("ntfy") || name_lower.contains("huginn") || name_lower.contains("activepieces") {
         "automation"
     } else if name_lower.contains("transmission") || name_lower.contains("sabnzbd") || name_lower.contains("nzbget") || 
        name_lower.contains("qbittorrent") || name_lower.contains("deluge") || name_lower.contains("rtorrent") || name_lower.contains("aria2") {
@@ -204,8 +209,7 @@ fn get_preset_category_name(name: &str) -> &'static str {
        name_lower.contains("tailscale") || name_lower.contains("wireguard") || name_lower.contains("vpn") {
         "network"
     } else if name_lower.contains("home-assistant") || name_lower.contains("homeassistant") || name_lower.contains("hass") ||
-       name_lower.contains("node-red") || name_lower.contains("nodered") || name_lower.contains("zigbee") ||
-       name_lower.contains("mqtt") || name_lower.contains("esphome") {
+       name_lower.contains("zigbee") || name_lower.contains("mqtt") || name_lower.contains("esphome") {
         "smarthome"
     } else if name_lower.contains("vaultwarden") || name_lower.contains("bitwarden") || name_lower.contains("keepass") {
         "security"
@@ -250,7 +254,7 @@ fn get_preset_category_styling(name: &str, default_icon: &str) -> CategoryStylin
         };
     }
     
-    // Servarr / Automation (Orange)
+    // ARR! (Orange)
     if name_lower.contains("sonarr") || name_lower.contains("sickrage") || name_lower.contains("sickchill") ||
        name_lower.contains("radarr") || name_lower.contains("couchpotato") || name_lower.contains("readarr") ||
        name_lower.contains("calibre") || name_lower.contains("audiobookshelf") || name_lower.contains("bazarr") ||
@@ -260,6 +264,18 @@ fn get_preset_category_styling(name: &str, default_icon: &str) -> CategoryStylin
             color: "#e67e22",
             bg: "rgba(230, 126, 34, 0.08)",
             border: "rgba(230, 126, 34, 0.2)",
+        };
+    }
+
+    // General Automation & Workflows (Pink/Magenta)
+    if name_lower.contains("n8n") || name_lower.contains("node-red") || name_lower.contains("nodered") ||
+       name_lower.contains("changedetection") || name_lower.contains("apprise") || name_lower.contains("gotify") ||
+       name_lower.contains("ntfy") || name_lower.contains("huginn") || name_lower.contains("activepieces") {
+        return CategoryStyling {
+            icon: default_icon.to_string(),
+            color: "#e84393",
+            bg: "rgba(232, 67, 147, 0.08)",
+            border: "rgba(232, 67, 147, 0.2)",
         };
     }
 
@@ -288,8 +304,7 @@ fn get_preset_category_styling(name: &str, default_icon: &str) -> CategoryStylin
 
     // Smart Home & IoT (Yellow)
     if name_lower.contains("home-assistant") || name_lower.contains("homeassistant") || name_lower.contains("hass") ||
-       name_lower.contains("node-red") || name_lower.contains("nodered") || name_lower.contains("zigbee") ||
-       name_lower.contains("mqtt") || name_lower.contains("esphome") {
+       name_lower.contains("zigbee") || name_lower.contains("mqtt") || name_lower.contains("esphome") {
         return CategoryStyling {
             icon: default_icon.to_string(),
             color: "#f1c40f",

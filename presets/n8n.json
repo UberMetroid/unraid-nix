@@ -1,0 +1,15 @@
+{
+  "name": "n8n",
+  "display_name": "n8n",
+  "description": "Workflow automation tool with fair-code license",
+  "url": "https://n8n.io/",
+  "command": "exec nix run nixpkgs#n8n -- start",
+  "default_ports": [
+    {
+      "host": 5678,
+      "container": 5678,
+      "label": "Web GUI"
+    }
+  ],
+  "icon": "fa-sitemap"
+}

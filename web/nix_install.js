@@ -218,7 +218,7 @@ function handleOverridePortClick() { addPortRow('', '', '', false); }
 function populatePortRows(portStr, presetName) {
     $("#nix-ports-container").empty();
     if (!portStr) return;
-                        var labels = {
+                            var labels = {
         'actual-budget:5006': 'HTTP',
         'adguard-home:3000': 'Setup',
         'adguard-home:53': 'DNS',
@@ -343,6 +343,7 @@ function populatePortRows(portStr, presetName) {
         'mosquitto:9001': 'WebSockets',
         'mylar3:8090': 'HTTP',
         'mysql:3306': 'MySQL Port',
+        'n8n:5678': 'Web GUI',
         'navidrome:4533': 'HTTP',
         'netbird:443': 'HTTPS',
         'netbird:80': 'HTTP',
@@ -467,7 +468,7 @@ function updatePresetInfo() {
         $("#custom-uri").parent().after('<div id="nix-preset-info-box" style="margin-top: 10px; display: none;"></div>');
         infoBox = $("#nix-preset-info-box");
     }
-                        var presets = {
+                            var presets = {
         "actual-budget": "Actual Budget",
         "adguard-home": "AdGuard Home",
         "agent-dvr": "Agent DVR",
@@ -582,6 +583,7 @@ function updatePresetInfo() {
         "mosquitto": "Mosquitto",
         "mylar3": "Mylar 3",
         "mysql": "MySQL",
+        "n8n": "n8n",
         "navidrome": "Navidrome",
         "netbird": "Netbird",
         "netdata": "Netdata",
@@ -788,6 +790,7 @@ function updatePresetInfo() {
         "mosquitto": "fa-server",
         "mylar3": "fa-server",
         "mysql": "fa-database",
+        "n8n": "fa-sitemap",
         "navidrome": "fa-music",
         "netbird": "fa-server",
         "netdata": "fa-bar-chart",

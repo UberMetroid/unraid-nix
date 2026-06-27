@@ -48,7 +48,7 @@ fn get_static_config(name_lower: &str) -> StaticConfig {
         };
     }
     
-    // Servarr / Automation (Orange)
+    // ARR! (Orange)
     if name_lower.contains("sonarr") || name_lower.contains("sickrage") || name_lower.contains("sickchill") ||
        name_lower.contains("radarr") || name_lower.contains("couchpotato") || name_lower.contains("readarr") ||
        name_lower.contains("calibre") || name_lower.contains("audiobookshelf") || name_lower.contains("bazarr") ||
@@ -69,6 +69,25 @@ fn get_static_config(name_lower: &str) -> StaticConfig {
             color: "#e67e22",
             bg: "rgba(230, 126, 34, 0.08)",
             border: "rgba(230, 126, 34, 0.2)",
+        };
+    }
+
+    // General Automation & Workflows (Pink/Magenta)
+    if name_lower.contains("n8n") || name_lower.contains("node-red") || name_lower.contains("nodered") ||
+       name_lower.contains("changedetection") || name_lower.contains("apprise") || name_lower.contains("gotify") ||
+       name_lower.contains("ntfy") || name_lower.contains("huginn") || name_lower.contains("activepieces") {
+        let icon = if name_lower.contains("n8n") {
+            "fa-sitemap"
+        } else if name_lower.contains("node-red") || name_lower.contains("nodered") {
+            "fa-code-fork"
+        } else {
+            "fa-refresh"
+        };
+        return StaticConfig {
+            icon,
+            color: "#e84393",
+            bg: "rgba(232, 67, 147, 0.08)",
+            border: "rgba(232, 67, 147, 0.2)",
         };
     }
 
@@ -104,12 +123,9 @@ fn get_static_config(name_lower: &str) -> StaticConfig {
 
     // Smart Home & IoT (Yellow)
     if name_lower.contains("home-assistant") || name_lower.contains("homeassistant") || name_lower.contains("hass") ||
-       name_lower.contains("node-red") || name_lower.contains("nodered") || name_lower.contains("zigbee") ||
-       name_lower.contains("mqtt") || name_lower.contains("esphome") {
+       name_lower.contains("zigbee") || name_lower.contains("mqtt") || name_lower.contains("esphome") {
         let icon = if name_lower.contains("home-assistant") || name_lower.contains("homeassistant") || name_lower.contains("hass") {
             "fa-home"
-        } else if name_lower.contains("node-red") || name_lower.contains("nodered") {
-            "fa-code-fork"
         } else {
             "fa-bolt"
         };
