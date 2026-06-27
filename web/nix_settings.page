@@ -1,7 +1,7 @@
 Menu="Nix:5"
 Title="Settings"
 ---
-<?php require_once __DIR__ . "/theme_helper.php"; ?>
+<?php require_once "/usr/local/emhttp/plugins/nix/theme_helper.php"; ?>
 <div class="nix-plugin-container theme-<?php echo $nix_theme; ?>">
 <link type="text/css" rel="stylesheet" href="/plugins/nix/styles_layout.css?v=<?php echo time(); ?>">
 <link type="text/css" rel="stylesheet" href="/plugins/nix/styles_widgets.css?v=<?php echo time(); ?>">
