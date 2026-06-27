@@ -6,7 +6,7 @@ fn get_sorted_statuses(api_port: u16) -> Result<Vec<crate::process::ServiceStatu
     Ok(statuses)
 }
 
-/// Renders ONLY the service rows for the dashboard widget (used for AJAX live auto-refresh).
+/// Renders ONLY the service rows as HTML (used for initial widget render).
 pub fn render_dashboard_rows(api_port: u16) -> String {
     if !is_supervisor_running() {
         return r#"<tr><td><span class="left" style="color: #999;">Supervisor not running</span></td></tr>"#.to_string();
@@ -29,19 +29,28 @@ pub fn render_dashboard_rows(api_port: u16) -> String {
         let shadow = if is_running { "0 0 5px #2ecc71" } else { "none" };
 
         html.push_str(&format!(
-            r#"<tr>
+            r#"<tr data-service="{}">
                 <td>
                     <span class="left">{}</span>
                     <span class="right">
                         <span class="status-dot" style="background: {}; display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 5px; box-shadow: {};"></span>
-                        {}
+                        <span class="status-text">{}</span>
                     </span>
                 </td>
             </tr>"#,
-            s.name, status_color, shadow, status_text
+            s.name, s.name, status_color, shadow, status_text
         ));
     }
     html
+}
+
+/// Returns the service statuses directly as a JSON string (used for dynamic updates).
+pub fn render_dashboard_json(api_port: u16) -> String {
+    if let Ok(statuses) = get_sorted_statuses(api_port) {
+        serde_json::to_string(&statuses).unwrap_or_else(|_| "[]".to_string())
+    } else {
+        "[]".to_string()
+    }
 }
 
 /// Renders the complete native Unraid Dashboard widget tile structure (<tbody>).
@@ -76,24 +85,28 @@ pub fn render_dashboard_widget(api_port: u16) -> String {
                 delete window.nixDashTimer;
                 return;
             }
-            fetch('/plugins/nix/api.php?action=get_dashboard_rows')
-                .then(function(resp) { return resp.text(); })
-                .then(function(html) {
-                    if (html.trim() !== '') {
-                        // Clear all rows except the first header row
-                        while (tbody.rows.length > 1) {
-                            tbody.deleteRow(1);
-                        }
-                        // Parse rows within a table context to ensure correct browser DOM injection
-                        var temp = document.createElement('div');
-                        temp.innerHTML = '<table><tbody>' + html + '</tbody></table>';
-                        var rows = temp.querySelector('tbody').rows;
-                        while (rows.length > 0) {
-                            tbody.appendChild(rows[0]);
-                        }
+            fetch('/plugins/nix/api.php?action=get_dashboard_json')
+                .then(function(resp) { return resp.json(); })
+                .then(function(services) {
+                    if (Array.isArray(services)) {
+                        services.forEach(function(s) {
+                            var row = tbody.querySelector('tr[data-service="' + s.name + '"]');
+                            if (row) {
+                                var isRunning = s.status.toLowerCase() === 'running';
+                                var dot = row.querySelector('.status-dot');
+                                var txt = row.querySelector('.status-text');
+                                if (dot) {
+                                    dot.style.background = isRunning ? '#2ecc71' : '#e74c3c';
+                                    dot.style.boxShadow = isRunning ? '0 0 5px #2ecc71' : 'none';
+                                }
+                                if (txt) {
+                                    txt.textContent = isRunning ? 'Running' : 'Stopped';
+                                }
+                            }
+                        });
                     }
                 })
-                .catch(function(err) { console.error('Error refreshing dashboard rows:', err); });
+                .catch(function(err) { console.error('Error refreshing dashboard json:', err); });
         }, 3000);
     }
     </script>"#);

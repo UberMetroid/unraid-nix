@@ -53,6 +53,13 @@ if ($action === 'get_dashboard') {
     exit;
 }
 
+// 2e. Render dashboard rows as JSON (outputs JSON directly)
+if ($action === 'get_dashboard_json') {
+    header('Content-Type: application/json');
+    passthru("/usr/local/emhttp/plugins/nix/nix-helper render dashboard-json 2>/dev/null");
+    exit;
+}
+
 // 2c. Detect host GPUs (outputs JSON)
 if ($action === 'detect-gpus') {
     passthru("/usr/local/emhttp/plugins/nix/nix-helper detect-gpus");
