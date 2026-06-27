@@ -47,8 +47,7 @@ pub fn render_presets_store() -> String {
 
         <!-- Category pills -->
         <div class="nix-preset-pills" style="display: flex; gap: 8px; flex-wrap: wrap; padding-bottom: 5px; border-bottom: 1px solid rgba(255,255,255,0.05);">
-            <button type="button" class="nix-preset-pill active" onclick="filterPresetCategory('all', this)">All</button>
-            <button type="button" class="nix-preset-pill" onclick="filterPresetCategory('media', this)">Media & Audio</button>
+            <button type="button" class="nix-preset-pill active" onclick="filterPresetCategory('media', this)">Media & Audio</button>
             <button type="button" class="nix-preset-pill" onclick="filterPresetCategory('automation', this)">Automation (Servarr)</button>
             <button type="button" class="nix-preset-pill" onclick="filterPresetCategory('downloads', this)">Downloads</button>
             <button type="button" class="nix-preset-pill" onclick="filterPresetCategory('network', this)">Network & VPN</button>
@@ -99,7 +98,7 @@ pub fn render_presets_store() -> String {
 
     html.push_str(r##"</div>
     <script>
-    var activeCategory = 'all';
+    var activeCategory = 'media';
 
     function filterPresetCategory(cat, btn) {
         activeCategory = cat;
@@ -123,7 +122,7 @@ pub fn render_presets_store() -> String {
             var category = card.getAttribute('data-category');
             
             var matchesQuery = (name.indexOf(q) !== -1 || desc.indexOf(q) !== -1);
-            var matchesCategory = (activeCategory === 'all' || category === activeCategory);
+            var matchesCategory = (category === activeCategory);
             
             if (matchesQuery && matchesCategory) {
                 card.style.display = 'flex';
@@ -132,6 +131,9 @@ pub fn render_presets_store() -> String {
             }
         });
     }
+
+    // Apply default filters immediately on script execution
+    setTimeout(applyPresetFilters, 50);
     </script>
     <style>
     .nix-preset-card:hover {
