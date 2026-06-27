@@ -14,9 +14,21 @@ Title="Logs"
                 <option value="compose">Process Supervisor (/var/log/nix-process-compose.log)</option>
                 <option value="daemon">Low-level Nix Daemon Socket (/var/log/nix-daemon.log)</option>
             </select>
-            <label style="margin-left: 15px; color: #eee; font-size: 13px; display: inline-flex; align-items: center; gap: 6px; cursor: pointer; user-select: none; vertical-align: middle;">
-                <input type="checkbox" id="nix-log-strip-brackets" onchange="loadLogs()" style="margin: 0; vertical-align: middle;"> Strip Brackets
-            </label>
+            <div style="display: inline-flex; align-items: center; gap: 10px; margin-left: 15px; vertical-align: middle;">
+                <span style="color: #bbb; font-size: 13px;">Filter:</span>
+                <label style="color: #00d5ff; font-size: 13px; cursor: pointer; display: inline-flex; align-items: center; gap: 4px; user-select: none;">
+                    <input type="checkbox" id="nix-log-filter-info" checked onchange="loadLogs()" style="margin: 0; vertical-align: middle;"> Info
+                </label>
+                <label style="color: #f59e0b; font-size: 13px; cursor: pointer; display: inline-flex; align-items: center; gap: 4px; user-select: none;">
+                    <input type="checkbox" id="nix-log-filter-warn" checked onchange="loadLogs()" style="margin: 0; vertical-align: middle;"> Warn
+                </label>
+                <label style="color: #ef4444; font-size: 13px; cursor: pointer; display: inline-flex; align-items: center; gap: 4px; user-select: none;">
+                    <input type="checkbox" id="nix-log-filter-error" checked onchange="loadLogs()" style="margin: 0; vertical-align: middle;"> Error
+                </label>
+                <label style="color: #888888; font-size: 13px; cursor: pointer; display: inline-flex; align-items: center; gap: 4px; user-select: none;">
+                    <input type="checkbox" id="nix-log-filter-debug" checked onchange="loadLogs()" style="margin: 0; vertical-align: middle;"> Debug
+                </label>
+            </div>
             <button class="nix-btn" onclick="loadLogs()" style="margin-left: 15px; padding: 6px 12px; display: inline-block;"><i class="fa fa-refresh"></i> Refresh</button>
         </div>
     </div>
@@ -35,28 +47,53 @@ function loadLogs() {
     $.get('/plugins/nix/api.php?action=nix-sys-logs&type=' + type, function(resp) {
         if (resp.success) {
             var rawText = resp.content;
-            var escaped = $('<div>').text(rawText).html();
-            var stripBrackets = document.getElementById('nix-log-strip-brackets').checked;
+            var showInfo = document.getElementById('nix-log-filter-info').checked;
+            var showWarn = document.getElementById('nix-log-filter-warn').checked;
+            var showError = document.getElementById('nix-log-filter-error').checked;
+            var showDebug = document.getElementById('nix-log-filter-debug').checked;
             
-            if (stripBrackets) {
-                // Strip all bracketed blocks
-                escaped = escaped.replace(/\[.*?\]\s?/g, "");
-            } else {
-                // Highlight bracket log levels
-                escaped = escaped.replace(/\[ERROR\]/g, '<span style="color: #ef4444; font-weight: bold;">[ERROR]</span>');
-                escaped = escaped.replace(/\[FATAL\]/g, '<span style="color: #ef4444; font-weight: bold;">[FATAL]</span>');
-                escaped = escaped.replace(/\[ERR\]/g, '<span style="color: #ef4444; font-weight: bold;">[ERR]</span>');
+            var lines = rawText.split('\n');
+            var filteredLines = [];
+            
+            for (var i = 0; i < lines.length; i++) {
+                var line = lines[i];
+                var lowerLine = line.toLowerCase();
                 
-                escaped = escaped.replace(/\[WARN\]/g, '<span style="color: #f59e0b; font-weight: bold;">[WARN]</span>');
-                escaped = escaped.replace(/\[WARNING\]/g, '<span style="color: #f59e0b; font-weight: bold;">[WARNING]</span>');
-                escaped = escaped.replace(/\[WRN\]/g, '<span style="color: #f59e0b; font-weight: bold;">[WRN]</span>');
+                var isInfo = lowerLine.indexOf('[info]') !== -1 || lowerLine.indexOf('[inf]') !== -1;
+                var isWarn = lowerLine.indexOf('[warn]') !== -1 || lowerLine.indexOf('[warning]') !== -1 || lowerLine.indexOf('[wrn]') !== -1;
+                var isError = lowerLine.indexOf('[error]') !== -1 || lowerLine.indexOf('[fatal]') !== -1 || lowerLine.indexOf('[err]') !== -1;
+                var isDebug = lowerLine.indexOf('[debug]') !== -1 || lowerLine.indexOf('[dbg]') !== -1;
                 
-                escaped = escaped.replace(/\[INFO\]/g, '<span style="color: #00d5ff; font-weight: bold;">[INFO]</span>');
-                escaped = escaped.replace(/\[INF\]/g, '<span style="color: #00d5ff; font-weight: bold;">[INF]</span>');
+                var matchesAny = isInfo || isWarn || isError || isDebug;
                 
-                escaped = escaped.replace(/\[DEBUG\]/g, '<span style="color: #888888;">[DEBUG]</span>');
-                escaped = escaped.replace(/\[DBG\]/g, '<span style="color: #888888;">[DBG]</span>');
+                if (isInfo && !showInfo) continue;
+                if (isWarn && !showWarn) continue;
+                if (isError && !showError) continue;
+                if (isDebug && !showDebug) continue;
+                
+                // If it doesn't match any level explicitly, treat it as general info log line
+                if (!matchesAny && !showInfo) continue;
+                
+                filteredLines.push(line);
             }
+            
+            var filteredText = filteredLines.join('\n');
+            var escaped = $('<div>').text(filteredText).html();
+            
+            // Highlight bracket log levels
+            escaped = escaped.replace(/\[ERROR\]/g, '<span style="color: #ef4444; font-weight: bold;">[ERROR]</span>');
+            escaped = escaped.replace(/\[FATAL\]/g, '<span style="color: #ef4444; font-weight: bold;">[FATAL]</span>');
+            escaped = escaped.replace(/\[ERR\]/g, '<span style="color: #ef4444; font-weight: bold;">[ERR]</span>');
+            
+            escaped = escaped.replace(/\[WARN\]/g, '<span style="color: #f59e0b; font-weight: bold;">[WARN]</span>');
+            escaped = escaped.replace(/\[WARNING\]/g, '<span style="color: #f59e0b; font-weight: bold;">[WARNING]</span>');
+            escaped = escaped.replace(/\[WRN\]/g, '<span style="color: #f59e0b; font-weight: bold;">[WRN]</span>');
+            
+            escaped = escaped.replace(/\[INFO\]/g, '<span style="color: #00d5ff; font-weight: bold;">[INFO]</span>');
+            escaped = escaped.replace(/\[INF\]/g, '<span style="color: #00d5ff; font-weight: bold;">[INF]</span>');
+            
+            escaped = escaped.replace(/\[DEBUG\]/g, '<span style="color: #888888;">[DEBUG]</span>');
+            escaped = escaped.replace(/\[DBG\]/g, '<span style="color: #888888;">[DBG]</span>');
             
             container.innerHTML = escaped;
             container.scrollTop = container.scrollHeight;
