@@ -356,7 +356,6 @@ pub fn render_presets_store() -> String {
         font-size: 11px;
         cursor: pointer;
         outline: none;
-        transition: all 0.15s ease;
         margin: 0;
     }
     .nix-preset-pill:hover {
@@ -367,7 +366,6 @@ pub fn render_presets_store() -> String {
         background: rgba(0, 161, 255, 0.1) !important;
         border-color: rgba(0, 161, 255, 0.3) !important;
         color: #00a1ff !important;
-        font-weight: 500;
     }
     .nix-store-link:hover {
         color: #fff !important;
@@ -381,7 +379,6 @@ pub fn render_presets_store() -> String {
         color: #a0a0a5;
         font-size: 11px;
         cursor: pointer;
-        transition: all 0.15s ease;
         margin: 0;
         outline: none;
     }
@@ -393,7 +390,6 @@ pub fn render_presets_store() -> String {
         background: rgba(0, 161, 255, 0.1) !important;
         border-color: rgba(0, 161, 255, 0.3) !important;
         color: #00a1ff !important;
-        font-weight: 500;
     }
     </style>
     "##);
