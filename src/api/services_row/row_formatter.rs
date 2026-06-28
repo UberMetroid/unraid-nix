@@ -168,33 +168,21 @@ pub fn render_service_row(
     format!(
         r#"<div class="nix-preset-card nix-service-card" data-name="{}" style="background: var(--nix-bg-secondary); border: 1px solid var(--nix-border-primary); border-radius: 6px; padding: 16px; display: flex; flex-direction: column; justify-content: space-between; transition: transform 0.2s ease, border-color 0.2s ease, background 0.2s ease, box-shadow 0.2s ease; min-height: 250px; height: auto; position: relative;">
             <div>
-                <!-- Header Row 1: Button Bar on Right -->
-                <div style="display: flex; justify-content: flex-end; margin-bottom: 8px;">
-                    <div style="display: flex; align-items: center; gap: 4px; flex-shrink: 0;">
-                        {}
-                        {}
-                        {}
-                        {}
-                        {}
-                        <button type="button" class="nix-btn nix-btn-sm" style="color: #e74c3c; border-color: var(--nix-border-primary); margin: 0; display: inline-flex; align-items: center; justify-content: center; height: 32px; width: 32px;" onclick="removeService('{}')" title="Remove"><i class="fa fa-trash-o" style="color: #e74c3c;"></i></button>
-                    </div>
-                </div>
-                
-                <!-- Header Row 2: Icon next to Flake Name & Resources on Left -->
-                <div style="display: flex; align-items: flex-start; gap: 10px; margin-bottom: 10px;">
-                    <div style="width: 32px; height: 32px; border-radius: 4px; background: {}; border: 1px solid {}; display: flex; align-items: center; justify-content: center; color: {}; flex-shrink: 0; margin-top: 2px;">
-                        <i class="fa {}" style="font-size: 15px;"></i>
-                    </div>
-                    <div style="display: flex; flex-direction: column; overflow: hidden; min-width: 0; flex: 1;">
-                        <div style="display: flex; align-items: center; gap: 6px; flex-wrap: wrap;">
+                <!-- Top Row: Icon, Name + Path/Version on Left, Status Dot on Right -->
+                <div style="display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; margin-bottom: 10px;">
+                    <div style="display: flex; align-items: flex-start; gap: 10px; min-width: 0; flex: 1;">
+                        <div style="width: 32px; height: 32px; border-radius: 4px; background: {}; border: 1px solid {}; display: flex; align-items: center; justify-content: center; color: {}; flex-shrink: 0; margin-top: 2px;">
+                            <i class="fa {}" style="font-size: 15px;"></i>
+                        </div>
+                        <div style="display: flex; flex-direction: column; overflow: hidden; min-width: 0; flex: 1;">
                             <strong style="font-size: 14px; color: var(--nix-text-primary); word-break: break-word; overflow-wrap: break-word;" title="{}">{}</strong>
-                            <span class="status-dot {}" data-service="{}" title="{}"></span>
-                        </div>
-                        <span style="font-family: monospace; color: var(--nix-text-secondary); font-size: 10px; margin-top: 1px;">nixpkgs#{} {}</span>
-                        <div style="display: flex; flex-direction: column; font-size: 10px; color: var(--nix-text-secondary); margin-top: 4px; gap: 2px;">
-                            {}
+                            <span style="font-family: monospace; color: var(--nix-text-secondary); font-size: 10px; margin-top: 2px; display: inline-flex; align-items: center; gap: 6px; flex-wrap: wrap;">
+                                <span>nixpkgs#{}</span>
+                                {}
+                            </span>
                         </div>
                     </div>
+                    <span class="status-dot {}" data-service="{}" title="{}" style="margin-top: 6px;"></span>
                 </div>
 
                 <!-- Info list -->
@@ -207,9 +195,25 @@ pub fn render_service_row(
                         <span style="color: var(--nix-text-secondary); font-size: 10px; font-weight: 600;">MAPPED DRIVES</span>
                         <div style="display: flex; flex-direction: column; gap: 3px; padding-left: 6px;">{}</div>
                     </div>
+                    <div style="display: flex; flex-direction: column; gap: 3px; line-height: 1.3;">
+                        <span style="color: var(--nix-text-secondary); font-size: 10px; font-weight: 600;">RESOURCES</span>
+                        <div style="padding-left: 6px;">{}</div>
+                    </div>
                 </div>
             </div>
+
+            <!-- Bottom Row: Controls Toolbar -->
+            <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid var(--nix-border-primary); padding-top: 10px; margin-top: 12px;">
+                <div style="display: flex; gap: 6px; align-items: center;">
+                    {}
+                    {}
+                    {}
+                    {}
+                    {}
+                </div>
+                <button type="button" class="nix-btn nix-btn-sm" style="color: #e74c3c; border-color: var(--nix-border-primary); margin: 0; display: inline-flex; align-items: center; justify-content: center; height: 32px; width: 32px;" onclick="removeService('{}')" title="Remove"><i class="fa fa-trash-o" style="color: #e74c3c;"></i></button>
+            </div>
         </div>"#,
-        s.name, start_btn, stop_btn, edit_btn, logs_btn, autostart_html, s.name, cfg.bg, cfg.border, cfg.color, cfg.icon, s.name, s.name, s.name, version_badge, resources_html, s.name, status_class, status_label, lan_ip_port_html, mapped_drives_html
+        s.name, cfg.bg, cfg.border, cfg.color, cfg.icon, s.name, s.name, s.name, version_badge, status_class, s.name, status_label, lan_ip_port_html, mapped_drives_html, resources_html, start_btn, stop_btn, edit_btn, logs_btn, autostart_html, s.name
     )
 }
