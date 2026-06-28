@@ -60,12 +60,17 @@ pub fn render_service_row(
     let port_num = get_service_web_port(&s.name);
     let metadata_file = format!("/boot/config/plugins/nix/metadata/{}.json", s.name);
     let mut bind_address_override = None;
+    let mut appdata_path = None;
     let mut extra_binds_vec = Vec::new();
     let mut gpus_override = None;
     let mut legacy_gpu = None;
 
     if let Ok(content) = std::fs::read_to_string(&metadata_file) {
         if let Ok(meta) = serde_json::from_str::<serde_json::Value>(&content) {
+            appdata_path = meta.get("appdata")
+                .and_then(|v| v.as_str())
+                .map(|s| s.to_string());
+
             bind_address_override = meta.get("bind_address")
                 .and_then(|v| v.as_str())
                 .map(|s| s.to_string());
@@ -130,18 +135,28 @@ pub fn render_service_row(
 
     let logs_btn = format!(r#"<button type="button" class="nix-btn nix-btn-sm" onclick="openLogs('{}')" title="Logs"><i class="fa fa-file-text-o"></i></button>"#, s.name);
 
-    let mapped_drives_html = if extra_binds_vec.is_empty() {
+    let mut mapped_drives = Vec::new();
+    if let Some(ref path) = appdata_path {
+        if !path.trim().is_empty() {
+            mapped_drives.push((path.clone(), "/config".to_string()));
+        }
+    }
+    for (host, sandbox) in extra_binds_vec {
+        mapped_drives.push((host, sandbox));
+    }
+
+    let mapped_drives_html = if mapped_drives.is_empty() {
         r#"<span style="color: var(--nix-text-muted);">None</span>"#.to_string()
     } else {
-        let hover_lines: Vec<String> = extra_binds_vec.iter().map(|(h, s)| format!("{} -> {}", h, s)).collect();
+        let hover_lines: Vec<String> = mapped_drives.iter().map(|(h, s)| format!("{} -> {}", h, s)).collect();
         let hover_text = hover_lines.join("\n");
-        if extra_binds_vec.len() == 1 {
-            let (h, s) = &extra_binds_vec[0];
+        if mapped_drives.len() == 1 {
+            let (h, s) = &mapped_drives[0];
             let h_short = if h.len() > 18 { format!("...{}", &h[h.len()-15..]) } else { h.to_string() };
             let s_short = if s.len() > 18 { format!("...{}", &s[s.len()-15..]) } else { s.to_string() };
             format!(r#"<span style="color: var(--nix-text-primary); cursor: help;" title="{}">{} → {}</span>"#, hover_text, h_short, s_short)
         } else {
-            format!(r#"<span style="color: var(--nix-text-primary); cursor: help; font-weight: 500;" title="{}">{} paths mapped</span>"#, hover_text, extra_binds_vec.len())
+            format!(r#"<span style="color: var(--nix-text-primary); cursor: help; font-weight: 500;" title="{}">{} paths mapped</span>"#, hover_text, mapped_drives.len())
         }
     };
 
