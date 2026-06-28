@@ -57,7 +57,7 @@ $sys_info[] = implode("\n", $nix_ver);
 
 $sys_info[] = "\n=== Nix Daemon Service Status ===";
 $daemon_status = [];
-exec("/etc/rc.d/rc.nix-daemon status 2>&1", $daemon_status);
+exec("/usr/local/emhttp/plugins/nix/nix-helper daemon-status 2>&1", $daemon_status);
 $sys_info[] = implode("\n", $daemon_status);
 
 $sys_info[] = "\n=== Memory Specs ===";

@@ -114,5 +114,20 @@ pub fn run(args_list: Vec<String>) {
                 println!();
             }
         }
+        args::Commands::DaemonStatus => {
+            let status = std::process::Command::new("/etc/rc.d/rc.nix-daemon")
+                .arg("status")
+                .stdout(std::process::Stdio::null())
+                .stderr(std::process::Stdio::null())
+                .status();
+            if let Ok(exit_status) = status {
+                if exit_status.success() {
+                    println!("running");
+                    std::process::exit(0);
+                }
+            }
+            println!("stopped");
+            std::process::exit(1);
+        }
     }
 }

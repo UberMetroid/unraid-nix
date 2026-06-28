@@ -96,6 +96,9 @@ pub enum Commands {
     GetIcon {
         name: String,
     },
+    /// Checks the status of the Nix daemon
+    #[command(name = "daemon-status")]
+    DaemonStatus,
 }
 
 #[derive(Subcommand, Debug, Clone)]
@@ -193,8 +196,6 @@ pub struct SaveSettingsArgs {
     pub enable_ipc_isolation: Option<String>,
     #[arg(long)]
     pub auto_gc: Option<String>,
-    #[arg(long)]
-    pub store_quota: Option<String>,
     #[arg(long)]
     pub build_cores: Option<String>,
     #[arg(long)]

@@ -16,7 +16,6 @@ pub fn save_settings(args: &crate::cli::args::SaveSettingsArgs) {
     let enable_uts_isolation = args.enable_uts_isolation.clone().unwrap_or_else(|| "yes".to_string());
     let enable_ipc_isolation = args.enable_ipc_isolation.clone().unwrap_or_else(|| "yes".to_string());
     let auto_gc = args.auto_gc.clone().unwrap_or_else(|| "no".to_string());
-    let store_quota = args.store_quota.clone().unwrap_or_else(|| "30".to_string());
     let build_cores = args.build_cores.clone().unwrap_or_else(|| "0".to_string());
     let build_jobs = args.build_jobs.clone().unwrap_or_else(|| "0".to_string());
     let gc_min_free = args.gc_min_free.clone().unwrap_or_else(|| "5".to_string());
@@ -34,9 +33,14 @@ pub fn save_settings(args: &crate::cli::args::SaveSettingsArgs) {
     let clean_store_path = store_path.trim_end_matches('/').to_string();
     let clean_old_store_path = old_store_path.trim_end_matches('/').to_string();
 
-    if clean_store_path.starts_with("/boot") {
-        eprintln!("Error: Storage location cannot be on your USB flash drive (/boot).");
-        exit(1);
+    if let Err(e) = crate::store::validate_store_path(&clean_store_path) {
+        eprintln!("Error: {}", e);
+        std::process::exit(1);
+    }
+
+    if !default_appdata_path.is_empty() && default_appdata_path.starts_with("/boot") {
+        eprintln!("Error: Default Appdata Path cannot be located on the boot flash drive (/boot).");
+        std::process::exit(1);
     }
 
     let mut migration_performed = false;
@@ -46,10 +50,13 @@ pub fn save_settings(args: &crate::cli::args::SaveSettingsArgs) {
 
     // Write settings to ini config
     let _ = std::fs::create_dir_all("/boot/config/plugins/nix");
-    let cfg_content = format!(
-        "NIX_STORE_PATH=\"{}\"\nAUTOSTART_FLAKES=\"{}\"\nENABLE_STORAGE_SANDBOX=\"{}\"\nENABLE_CLI_INSTALL=\"no\"\nSHOW_IN_NAVIGATION=\"{}\"\nALLOW_SOURCE_BUILDS=\"{}\"\nFILTER_PRESETS_BY_HARDWARE=\"{}\"\nENABLE_PID_ISOLATION=\"{}\"\nENABLE_UTS_ISOLATION=\"{}\"\nENABLE_IPC_ISOLATION=\"{}\"\nAUTO_GC=\"{}\"\nNIX_STORE_QUOTA=\"{}\"\nBUILD_CORES=\"{}\"\nBUILD_JOBS=\"{}\"\nGC_MIN_FREE=\"{}\"\nGC_MAX_FREE=\"{}\"\nNIX_CHANNEL=\"{}\"\nSETTINGS_CONFIRMED=\"yes\"\nDEFAULT_APPDATA_PATH=\"{}\"\n",
-        clean_store_path, autostart, enable_sandbox, show_in_nav, allow_source_builds, filter_presets_by_hardware, enable_pid_isolation, enable_uts_isolation, enable_ipc_isolation, auto_gc, store_quota, build_cores, build_jobs, gc_min_free, gc_max_free, nix_channel, default_appdata_path
+    let mut cfg_content = format!(
+        "NIX_STORE_PATH=\"{}\"\nAUTOSTART_FLAKES=\"{}\"\nENABLE_STORAGE_SANDBOX=\"{}\"\nENABLE_CLI_INSTALL=\"no\"\nSHOW_IN_NAVIGATION=\"{}\"\nALLOW_SOURCE_BUILDS=\"{}\"\nFILTER_PRESETS_BY_HARDWARE=\"{}\"\nENABLE_PID_ISOLATION=\"{}\"\nENABLE_UTS_ISOLATION=\"{}\"\nENABLE_IPC_ISOLATION=\"{}\"\nAUTO_GC=\"{}\"\nNIX_STORE_QUOTA=\"30\"\nBUILD_CORES=\"{}\"\nBUILD_JOBS=\"{}\"\nGC_MIN_FREE=\"{}\"\nGC_MAX_FREE=\"{}\"\nNIX_CHANNEL=\"{}\"\nSETTINGS_CONFIRMED=\"yes\"\n",
+        clean_store_path, autostart, enable_sandbox, show_in_nav, allow_source_builds, filter_presets_by_hardware, enable_pid_isolation, enable_uts_isolation, enable_ipc_isolation, auto_gc, build_cores, build_jobs, gc_min_free, gc_max_free, nix_channel
     );
+    if !default_appdata_path.is_empty() {
+        cfg_content.push_str(&format!("DEFAULT_APPDATA_PATH=\"{}\"\n", default_appdata_path));
+    }
     if std::fs::write(cfg_file, cfg_content).is_err() {
         eprintln!("Failed to write nix.cfg to flash drive.");
         exit(1);

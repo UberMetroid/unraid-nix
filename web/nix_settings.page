@@ -82,7 +82,6 @@ $enable_pid_isolation = isset($nix_cfg['ENABLE_PID_ISOLATION']) ? $nix_cfg['ENAB
 $enable_uts_isolation = isset($nix_cfg['ENABLE_UTS_ISOLATION']) ? $nix_cfg['ENABLE_UTS_ISOLATION'] : 'yes';
 $enable_ipc_isolation = isset($nix_cfg['ENABLE_IPC_ISOLATION']) ? $nix_cfg['ENABLE_IPC_ISOLATION'] : 'yes';
 $auto_gc = isset($nix_cfg['AUTO_GC']) ? $nix_cfg['AUTO_GC'] : 'no';
-$store_quota = isset($nix_cfg['NIX_STORE_QUOTA']) ? $nix_cfg['NIX_STORE_QUOTA'] : '30';
 $build_cores = isset($nix_cfg['BUILD_CORES']) ? $nix_cfg['BUILD_CORES'] : '0';
 $build_jobs = isset($nix_cfg['BUILD_JOBS']) ? $nix_cfg['BUILD_JOBS'] : '0';
 $gc_min_free = isset($nix_cfg['GC_MIN_FREE']) ? $nix_cfg['GC_MIN_FREE'] : '5';
@@ -95,17 +94,7 @@ if ($settings_confirmed !== 'yes') {
     $default_appdata_path = '';
 }
 
-$num_flakes = 0;
-$meta_dir = "/boot/config/plugins/nix/metadata";
-if (is_dir($meta_dir)) {
-    $meta_files = glob($meta_dir . "/*.json");
-    if ($meta_files !== false) {
-        $num_flakes = count($meta_files);
-    }
-}
-$suggested_quota = 15 + ($num_flakes * 3);
-
-exec("/etc/rc.d/rc.nix-daemon status 2>/dev/null", $status_output, $status_code);
+exec("/usr/local/emhttp/plugins/nix/nix-helper daemon-status 2>/dev/null", $status_output, $status_code);
 $is_nix_running = ($status_code === 0);
 // Hardware capability detection
 $cpu_info = shell_exec('cat /proc/cpuinfo 2>/dev/null');

@@ -203,17 +203,6 @@
         </select>
     </div>
 
-    <div class="nix-form-group" style="margin-top: 15px;">
-        <label for="settings-store-quota">Store Size Quota (GB):</label>
-        <div class="nix-field-help" style="margin-top: 0; margin-bottom: 6px;">Set the target Nix store size limit. GC runs automatically in the background if the store size exceeds this limit.</div>
-        <div style="display: flex; align-items: center; gap: 10px;">
-            <input type="number" id="settings-store-quota" min="10" value="<?php echo htmlspecialchars($store_quota); ?>" style="width: 100px; padding: 6px; border-radius: 4px; border: 1px solid var(--nix-border-primary); background: var(--nix-bg-secondary); color: var(--nix-text-primary); text-align: center;">
-            <span style="font-size: 12px; color: var(--nix-text-secondary);">
-                Suggested: <strong><?php echo $suggested_quota; ?> GB</strong> (based on <?php echo $num_flakes; ?> configured flakes)
-            </span>
-        </div>
-    </div>
-
     <div class="nix-form-group" style="margin-top: 15px; border-top: 1px solid rgba(255,255,255,0.05); padding-top: 15px;">
         <label for="settings-gc-min-free">Min Free Pool Space (GB):</label>
         <div class="nix-field-help" style="margin-top: 0; margin-bottom: 6px;">Automatically trigger garbage collection if the free space on the host storage pool falls below this threshold.</div>
@@ -229,7 +218,7 @@
 
 <!-- Unified Submit Action Bar -->
 <div style="margin: 20px 0; display: flex; justify-content: flex-end; border-top: 1px solid rgba(255,255,255,0.05); padding-top: 15px;">
-    <button type="button" class="nix-btn-primary" style="margin: 0; padding: 10px 24px; font-size: 13px; display: inline-flex; align-items: center; gap: 8px; font-weight: 600;" onclick="saveAllSettings(this)"><i class="fa fa-check"></i> Apply Settings</button>
+    <button type="button" class="nix-btn-primary" style="margin: 0; padding: 10px 24px; font-size: 13px; display: inline-flex; align-items: center; gap: 8px; font-weight: 600;" onclick="saveSettings(this)"><i class="fa fa-check"></i> Apply Settings</button>
 </div>
 
 <!-- 6. Hardware Capability Diagnostics -->

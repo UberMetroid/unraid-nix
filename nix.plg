@@ -334,7 +334,7 @@
           SHOW_NAV=$(grep -i '^SHOW_IN_NAVIGATION=' "$CFG_FILE" | cut -d'"' -f2)
       fi
       if [ "$SHOW_NAV" = "no" ]; then
-          sed -i 's/^Menu="Tasks:95"/Menu="Utilities"/' "&usrdir;/Nix.page"
+          sed -i 's/^Menu=.*/Menu="Utilities"/' "&usrdir;/Nix.page"
           rm -f "&usrdir;/NixLauncher.page"
       else
           echo -e "Menu=\"Utilities\"\nTitle=\"Nix\"\nIcon=\"nix.png\"\n---\n<script>window.location.href = '/Nix';</script>" > "&usrdir;/NixLauncher.page"

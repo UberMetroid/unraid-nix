@@ -1,4 +1,28 @@
 <script>
+// Notification Helper
+function showNotice(message, type) {
+    if (window.top && window.top.eventMessage) {
+        window.top.eventMessage('Nix', message, 'nix.png', type || 'info', 3000);
+        return;
+    }
+    var toast = $('<div style="position: fixed; top: 20px; right: 20px; z-index: 99999; padding: 12px 20px; border-radius: 6px; color: #fff; font-size: 13px; font-weight: 600; display: flex; align-items: center; gap: 10px; box-shadow: 0 4px 12px rgba(0,0,0,0.5); opacity: 0; transition: opacity 0.3s ease, transform 0.3s ease; transform: translateY(-10px);"></div>');
+    if (type === 'error') {
+        toast.css({ 'background': '#e74c3c', 'border-left': '4px solid #c0392b' }).html('<i class="fa fa-times-circle"></i> ' + message);
+    } else if (type === 'warning') {
+        toast.css({ 'background': '#f39c12', 'border-left': '4px solid #d35400' }).html('<i class="fa fa-exclamation-triangle"></i> ' + message);
+    } else {
+        toast.css({ 'background': '#2ecc71', 'border-left': '4px solid #27ae60' }).html('<i class="fa fa-check-circle"></i> ' + message);
+    }
+    $('body').append(toast);
+    setTimeout(function() {
+        toast.css({ 'opacity': '1', 'transform': 'translateY(0)' });
+    }, 50);
+    setTimeout(function() {
+        toast.css({ 'opacity': '0', 'transform': 'translateY(-10px)' });
+        setTimeout(function() { toast.remove(); }, 300);
+    }, 3000);
+}
+
 $(function() {
     if (typeof $.fn.fileTreeAttach === 'function') {
         $("#settings-store-path").fileTreeAttach();
@@ -6,16 +30,10 @@ $(function() {
     }
 });
 
-function saveSettings(e) {
-    if (e) e.preventDefault();
-    
-    var submitBtn = $(".nix-btn-primary");
-    var originalHtmls = [];
-    submitBtn.each(function(i, btn) {
-        var $b = $(btn);
-        originalHtmls.push($b.html());
-        $b.prop('disabled', true).html('<i class="fa fa-spinner fa-spin"></i> Saving...');
-    });
+function saveSettings(btn) {
+    var $btn = $(btn);
+    var originalHtml = $btn.html();
+    $btn.prop('disabled', true).html('<i class="fa fa-spinner fa-spin"></i> Saving...');
     
     var path = $("#settings-store-path").val();
     var defaultAppdataPath = $("#settings-default-appdata-path").val();
@@ -25,7 +43,6 @@ function saveSettings(e) {
     var enableUtsIsolation = $("#settings-enable-uts-isolation").val();
     var enableIpcIsolation = $("#settings-enable-ipc-isolation").val();
     var autoGc = $("#settings-auto-gc").val();
-    var storeQuota = $("#settings-store-quota").val();
     var showInNav = $("#settings-show-in-nav").val();
     var allowSourceBuilds = $("#settings-allow-source-builds").val();
     var filterPresetsByHardware = $("#settings-filter-presets-by-hardware").val();
@@ -36,22 +53,26 @@ function saveSettings(e) {
     var nixChannel = $("#settings-nix-channel").val();
     
     if (path.indexOf("/boot") === 0) {
-        alert("Error: Storage location cannot be on your USB flash drive (/boot). Choose a pool disk or array share.");
-        submitBtn.each(function(i, btn) {
-            $(btn).prop('disabled', false).html(originalHtmls[i]);
-        });
+        showNotice("Error: Storage location cannot be on your USB flash drive (/boot). Choose a pool disk or array share.", "error");
+        $btn.prop('disabled', false).html(originalHtml);
         return;
     }
     
     if (defaultAppdataPath.indexOf("/boot") === 0) {
-        alert("Error: Default Appdata Path cannot be on your USB flash drive (/boot). Choose a pool disk or array share.");
-        submitBtn.each(function(i, btn) {
-            $(btn).prop('disabled', false).html(originalHtmls[i]);
-        });
+        showNotice("Error: Default Appdata Path cannot be on your USB flash drive (/boot). Choose a pool disk or array share.", "error");
+        $btn.prop('disabled', false).html(originalHtml);
         return;
+    }
+
+    if (showInNav === 'no') {
+        if (!confirm("Are you sure you want to hide Nix from the main navigation menu?\nThis will remove the Nix tab from the top navigation bar.")) {
+            $btn.prop('disabled', false).html(originalHtml);
+            return;
+        }
     }
     
     $.post('/plugins/nix/api.php', {
+        csrf_token: window.csrf_token || '',
         action: 'save-settings',
         store_path: path,
         default_appdata_path: defaultAppdataPath,
@@ -61,7 +82,6 @@ function saveSettings(e) {
         enable_uts_isolation: enableUtsIsolation,
         enable_ipc_isolation: enableIpcIsolation,
         auto_gc: autoGc,
-        store_quota: storeQuota,
         show_in_nav: showInNav,
         allow_source_builds: allowSourceBuilds,
         filter_presets_by_hardware: filterPresetsByHardware,
@@ -72,23 +92,18 @@ function saveSettings(e) {
         nix_channel: nixChannel
     }, function(resp) {
         if (resp.success) {
-            alert("Settings applied successfully! Restart the Nix services for the changes to take effect.");
-            if (showInNav === 'yes') {
-                location.href = '/Nix';
-            } else {
-                location.href = '/Settings/Nix';
-            }
+            showNotice("Settings applied successfully! Restart the Nix services for the changes to take effect.", "success");
+            setTimeout(function() {
+                var target = typeof window.nixNavTarget === 'function' ? window.nixNavTarget(showInNav) : '/Nix';
+                location.href = target;
+            }, 1000);
         } else {
-            alert("Failed to save settings: " + resp.error);
-            submitBtn.each(function(i, btn) {
-                $(btn).prop('disabled', false).html(originalHtmls[i]);
-            });
+            showNotice("Failed to save settings: " + resp.error, "error");
+            $btn.prop('disabled', false).html(originalHtml);
         }
     }, 'json').fail(function() {
-        alert("Server returned an error.");
-        submitBtn.each(function(i, btn) {
-            $(btn).prop('disabled', false).html(originalHtmls[i]);
-        });
+        showNotice("Server returned an error.", "error");
+        $btn.prop('disabled', false).html(originalHtml);
     });
 }
 
@@ -96,12 +111,15 @@ function toggleNixDaemon(action) {
     var btnContainer = document.getElementById('nix-daemon-controls');
     btnContainer.innerHTML = '<i class="fa fa-spinner fa-spin"></i> Processing...';
     
-    $.post('/plugins/nix/api.php', { action: 'nix-daemon-' + action }, function(response) {
+    $.post('/plugins/nix/api.php', {
+        csrf_token: window.csrf_token || '',
+        action: 'nix-daemon-' + action
+    }, function(response) {
         if (response.success) {
             location.reload();
         } else {
-            alert("Action failed: " + response.error);
-            location.reload();
+            showNotice("Action failed: " + response.error, "error");
+            setTimeout(function() { location.reload(); }, 1500);
         }
     }, 'json');
 }
@@ -113,16 +131,19 @@ function syncTemplates(btn) {
     var originalHtml = $btn.html();
     $btn.prop('disabled', true).html('<i class="fa fa-spinner fa-spin"></i> Syncing...');
     
-    $.post('/plugins/nix/api.php', { action: 'sync-templates' }, function(response) {
+    $.post('/plugins/nix/api.php', {
+        csrf_token: window.csrf_token || '',
+        action: 'sync-templates'
+    }, function(response) {
         if (response.success) {
-            alert("Templates successfully updated!");
-            location.reload();
+            showNotice("Templates successfully updated!", "success");
+            setTimeout(function() { location.reload(); }, 1000);
         } else {
-            alert("Failed to sync templates: " + response.error);
+            showNotice("Failed to sync templates: " + response.error, "error");
             $btn.prop('disabled', false).html(originalHtml);
         }
     }, 'json').fail(function() {
-        alert("Server returned an error while syncing.");
+        showNotice("Server returned an error while syncing.", "error");
         $btn.prop('disabled', false).html(originalHtml);
     });
 }
@@ -134,21 +155,20 @@ function collectGarbage(btn) {
     var originalHtml = $btn.html();
     $btn.prop('disabled', true).html('<i class="fa fa-spinner fa-spin"></i> Cleaning...');
     
-    $.post('/plugins/nix/api.php', { action: 'collect-garbage' }, function(response) {
+    $.post('/plugins/nix/api.php', {
+        csrf_token: window.csrf_token || '',
+        action: 'collect-garbage'
+    }, function(response) {
         if (response.success) {
-            alert("Garbage collection complete!");
+            showNotice("Garbage collection complete!", "success");
             $btn.prop('disabled', false).html(originalHtml);
         } else {
-            alert("Failed to collect garbage: " + response.error);
+            showNotice("Failed to collect garbage: " + response.error, "error");
             $btn.prop('disabled', false).html(originalHtml);
         }
     }, 'json').fail(function() {
-        alert("Server returned an error while collecting garbage.");
+        showNotice("Server returned an error while collecting garbage.", "error");
         $btn.prop('disabled', false).html(originalHtml);
     });
-}
-
-function saveAllSettings(btn) {
-    saveSettings();
 }
 </script>

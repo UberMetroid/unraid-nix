@@ -12,7 +12,7 @@ echo "<div class=\"nix-plugin-container theme-{$nix_theme}\">";
 <script src="/plugins/nix/nix.js"></script>
 
 <?php
-exec("/etc/rc.d/rc.nix-daemon status 2>/dev/null", $status_output, $status_code);
+exec("/usr/local/emhttp/plugins/nix/nix-helper daemon-status 2>/dev/null", $status_output, $status_code);
 $is_nix_running = ($status_code === 0);
 ?>
 
