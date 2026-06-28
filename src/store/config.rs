@@ -1,4 +1,5 @@
 use chrono::Local;
+use std::io::Write;
 
 pub fn log_event(level: &str, msg: &str) {
     log_event_to_path("/var/log/nix-plugin.log", level, msg, 10 * 1024 * 1024);
@@ -26,7 +27,6 @@ fn log_event_to_path(log_path: &str, level: &str, msg: &str, max_size: u64) {
         .create(true)
         .append(true)
         .open(log_path) {
-            use std::io::Write;
             let _ = file.write_all(line.as_bytes());
         }
 
@@ -57,26 +57,11 @@ pub fn validate_store_path(path: &str) -> Result<(), String> {
     Ok(())
 }
 
-pub fn parse_cfg_val_from_content(content: &str, key: &str, default: &str) -> String {
-    for line in content.lines() {
-        let line = line.trim();
-        if line.starts_with(key) {
-            let parts: Vec<&str> = line.split('=').collect();
-            if parts.len() >= 2 {
-                return parts[1].trim().trim_matches('"').to_string();
-            }
-        }
-    }
-    default.to_string()
-}
-
 pub fn read_cfg_val(key: &str, default: &str) -> String {
     let cfg_file = "/boot/config/plugins/nix/nix.cfg";
-    if let Ok(content) = std::fs::read_to_string(cfg_file) {
-        parse_cfg_val_from_content(&content, key, default)
-    } else {
-        default.to_string()
-    }
+    let map = crate::unraid::parse_ini_file(cfg_file);
+    let clean_key = key.strip_suffix('=').unwrap_or(key);
+    map.get(clean_key).cloned().unwrap_or_else(|| default.to_string())
 }
 
 pub fn read_allow_source_builds() -> bool {
@@ -144,26 +129,6 @@ mod tests {
         assert!(validate_store_path("/mnt/user/appdata/nix").is_ok());
     }
 
-    #[test]
-    fn test_parse_cfg_val_from_content() {
-        let mock_cfg = r#"
-            NIX_STORE_PATH="/mnt/cache/system/nix"
-            ALLOW_SOURCE_BUILDS="yes"
-            BUILD_CORES="4"
-            BUILD_JOBS="2"
-            GC_MIN_FREE="12"
-            GC_MAX_FREE="25"
-            NIX_CHANNEL="nixos-24.05"
-        "#;
-
-        assert_eq!(parse_cfg_val_from_content(mock_cfg, "ALLOW_SOURCE_BUILDS=", "no"), "yes");
-        assert_eq!(parse_cfg_val_from_content(mock_cfg, "BUILD_CORES=", "0"), "4");
-        assert_eq!(parse_cfg_val_from_content(mock_cfg, "BUILD_JOBS=", "0"), "2");
-        assert_eq!(parse_cfg_val_from_content(mock_cfg, "GC_MIN_FREE=", "5"), "12");
-        assert_eq!(parse_cfg_val_from_content(mock_cfg, "GC_MAX_FREE=", "10"), "25");
-        assert_eq!(parse_cfg_val_from_content(mock_cfg, "NIX_CHANNEL=", "nixos-unstable"), "nixos-24.05");
-        assert_eq!(parse_cfg_val_from_content(mock_cfg, "NON_EXISTENT_KEY=", "default_val"), "default_val");
-    }
 
     #[test]
     fn test_generate_nix_conf_content() {

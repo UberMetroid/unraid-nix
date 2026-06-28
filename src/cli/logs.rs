@@ -1,5 +1,5 @@
 use serde_json::Value;
-use std::process::exit;
+use std::process::{exit, Command};
 
 pub fn view_logs(service: &str) {
     if !crate::store::is_valid_service_name(service) {
@@ -78,7 +78,7 @@ fn html_escape(s: &str) -> String {
 }
 
 fn run_tail(file: &str, lines: usize) -> Result<String, String> {
-    let output = std::process::Command::new("tail")
+    let output = Command::new("tail")
         .args(["-n", &lines.to_string(), file])
         .output()
         .map_err(|e| e.to_string())?;

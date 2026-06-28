@@ -2,7 +2,7 @@ use crate::process;
 use crate::search;
 use crate::sandbox;
 use crate::config;
-use std::process::exit;
+use std::process::{exit, Command};
 
 pub fn service_action(action: &str, name: &str) {
     if !crate::store::is_valid_service_name(name) {
@@ -52,7 +52,7 @@ pub fn autostart(name: &str, toggle: &str) {
             exit(1);
         }
 
-        let _ = std::process::Command::new("sh")
+        let _ = Command::new("sh")
             .args(["-c", ". /nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh && nix run nixpkgs#process-compose -- -p 29704 project update -f /boot/config/plugins/nix/process-compose.yml 2>&1"])
             .stdin(std::process::Stdio::null())
             .output();
@@ -85,7 +85,7 @@ pub fn remove_service(name: &str) {
         }
 
         let _ = process::send_service_action(29704, name, "stop");
-        let _ = std::process::Command::new("sh")
+        let _ = Command::new("sh")
             .args(["-c", ". /nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh && nix run nixpkgs#process-compose -- -p 29704 project update -f /boot/config/plugins/nix/process-compose.yml 2>&1"])
             .stdin(std::process::Stdio::null())
             .output();
