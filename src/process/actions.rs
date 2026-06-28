@@ -60,7 +60,11 @@ fn run_preflight_checks(name: &str) {
                                             let owner_uid = fs_meta.uid();
                                             let expected_puid = if let Some(ref val) = meta.puid {
                                                 if let Some(num) = val.as_u64() {
-                                                    num as u32
+                                                    if num <= u32::MAX as u64 {
+                                                        num as u32
+                                                    } else {
+                                                        99
+                                                    }
                                                 } else if let Some(s) = val.as_str() {
                                                     s.parse::<u32>().unwrap_or(99)
                                                 } else {

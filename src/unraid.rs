@@ -58,7 +58,9 @@ pub fn parse_ini_file(path: &str) -> HashMap<String, String> {
             if let Some(pos) = line.find('=') {
                 let key = line[..pos].trim().to_string();
                 let val = line[pos + 1..].trim().trim_matches('"').to_string();
-                map.insert(key, val);
+                if !val.is_empty() {
+                    map.insert(key, val);
+                }
             }
         }
     }
@@ -132,6 +134,29 @@ key3=value3
         assert_eq!(map.get("key1").unwrap(), "value1");
         assert_eq!(map.get("key2").unwrap(), "value2");
         assert_eq!(map.get("key3").unwrap(), "value3");
+
+        let _ = std::fs::remove_file(file_path);
+    }
+
+    #[test]
+    fn test_parse_ini_file_empty_values_omitted() {
+        // Empty values should be skipped so that consumers' default values apply.
+        let content = "
+present = hello
+empty =
+quoted_empty = \"\"
+";
+        let temp_dir = std::env::temp_dir();
+        let file_path = temp_dir.join(format!(
+            "test_ini_empty-{}.cfg",
+            std::process::id()
+        ));
+        std::fs::write(&file_path, content).unwrap();
+
+        let map = parse_ini_file(file_path.to_str().unwrap());
+        assert_eq!(map.get("present").unwrap(), "hello");
+        assert!(map.get("empty").is_none(), "empty value should be skipped");
+        assert!(map.get("quoted_empty").is_none(), "quoted empty value should be skipped");
 
         let _ = std::fs::remove_file(file_path);
     }

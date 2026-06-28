@@ -43,7 +43,9 @@ pub fn verify_port_conflicts(name: &str, port: &Option<String>) {
                 if let Ok(json) = serde_json::from_str::<serde_json::Value>(&content) {
                     if let Some(ports_arr) = json.get("default_ports").and_then(|p| p.as_array()) {
                         if !ports_arr.is_empty() {
-                            ports_arr[0].get("host").and_then(|hp| hp.as_u64()).map(|p| p as u16)
+                            ports_arr[0].get("host").and_then(|hp| hp.as_u64())
+                                .filter(|p| *p <= u16::MAX as u64)
+                                .map(|p| p as u16)
                         } else { None }
                     } else { None }
                 } else { None }

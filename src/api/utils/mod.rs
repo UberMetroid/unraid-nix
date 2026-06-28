@@ -53,7 +53,9 @@ pub fn get_service_web_port(name: &str) -> Option<u16> {
                 if let Some(ports_arr) = json.get("default_ports").and_then(|p| p.as_array()) {
                     if !ports_arr.is_empty() {
                         if let Some(host_port) = ports_arr[0].get("host").and_then(|hp| hp.as_u64()) {
-                            return Some(host_port as u16);
+                            if host_port <= u16::MAX as u64 {
+                                return Some(host_port as u16);
+                            }
                         }
                     }
                 }
