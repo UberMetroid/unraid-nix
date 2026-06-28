@@ -61,8 +61,8 @@ pub fn render_search_results(query: &str) -> String {
                 "".to_string()
             } else {
                 format!(
-                    r#"<div style="margin-top: 6px; font-size: 11px; display: flex; gap: 12px; flex-wrap: wrap; align-items: center; color: #888;">{}</div>"#,
-                    meta_links.join(r#"<span style="color: #444;">|</span>"#)
+                    r#"<div style="margin-top: 6px; font-size: 11px; display: flex; gap: 12px; flex-wrap: wrap; align-items: center; color: var(--nix-text-secondary);">{}</div>"#,
+                    meta_links.join(r#"<span style="color: var(--nix-text-muted);">|</span>"#)
                 )
             };
 

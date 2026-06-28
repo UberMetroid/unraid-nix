@@ -4,7 +4,7 @@ use crate::api::utils::{HostAddr, get_service_web_port, extract_package_uri};
 use crate::api::package::{get_cached_version, get_package_link_url};
 
 use super::cells::{
-    render_app_cell, render_lan_ip_port_cell,
+    render_lan_ip_port_cell,
     render_resources_cell, render_autostart_cell,
 };
 
@@ -19,12 +19,20 @@ pub fn render_service_row(
         || status_lower == "completed"
         || status_lower == "terminating";
 
-    let status_subtext = if is_running {
-        r#"<span style="color: #2ecc71;">●</span> started"#
+    let status_class = if is_running {
+        "status-running"
     } else if is_stopped && s.exit_code.unwrap_or(0) == 0 {
-        r#"<span style="color: #e74c3c;">●</span> stopped"#
+        "status-stopped"
     } else {
-        r#"<span style="color: #f1c40f;">●</span> failed"#
+        "status-failed"
+    };
+
+    let status_label = if is_running {
+        "RUNNING"
+    } else if is_stopped && s.exit_code.unwrap_or(0) == 0 {
+        "STOPPED"
+    } else {
+        "FAILED"
     };
 
     let cmd = config
@@ -39,20 +47,15 @@ pub fn render_service_row(
     let version_badge = if version != "unknown" {
         if let Some(link_url) = get_package_link_url(&uri) {
             format!(
-                r#"<div style="font-size: 11px; color: var(--nix-text-secondary); margin-top: -1px; margin-bottom: -1px;">v<a href="{}" target="_blank" style="color: var(--nix-accent); text-decoration: none;">{} <i class="fa fa-external-link" style="font-size: 8px;"></i></a> <span style="color: #2ecc71; font-weight: 500;">(up-to-date)</span></div>"#,
+                r#"v<a href="{}" target="_blank" style="color: var(--nix-accent); text-decoration: none;">{} <i class="fa fa-external-link" style="font-size: 8px;"></i></a>"#,
                 link_url, version
             )
         } else {
-            format!(
-                r#"<div style="font-size: 11px; color: var(--nix-text-secondary); margin-top: -1px; margin-bottom: -1px;">v{} <span style="color: #2ecc71; font-weight: 500;">(up-to-date)</span></div>"#,
-                version
-            )
+            format!("v{}", version)
         }
     } else {
-        "".to_string()
+        "v0.0.0".to_string()
     };
-
-    let app_html = render_app_cell(&s.name, &version_badge, status_subtext);
 
     let port_num = get_service_web_port(&s.name);
     let metadata_file = format!("/boot/config/plugins/nix/metadata/{}.json", s.name);
@@ -109,15 +112,15 @@ pub fn render_service_row(
     let autostart_html = render_autostart_cell(&s.name, autostart_enabled);
 
     let start_btn = if !is_running {
-        format!(r#"<button type="button" class="nix-btn" onclick="serviceAction('{}', 'start')" title="Start"><i class="fa fa-play"></i></button>"#, s.name)
+        format!(r#"<button type="button" class="nix-btn" onclick="serviceAction('{}', 'start')" title="Start"><i class="fa fa-play" style="color: #2ecc71;"></i></button>"#, s.name)
     } else {
-        format!(r#"<button type="button" class="nix-btn" disabled title="Service is running"><i class="fa fa-play"></i></button>"#)
+        format!(r#"<button type="button" class="nix-btn" disabled title="Service is running"><i class="fa fa-play" style="color: var(--nix-text-muted);"></i></button>"#)
     };
 
     let stop_btn = if is_running {
-        format!(r#"<button type="button" class="nix-btn" onclick="serviceAction('{}', 'stop')" title="Stop"><i class="fa fa-stop"></i></button>"#, s.name)
+        format!(r#"<button type="button" class="nix-btn" onclick="serviceAction('{}', 'stop')" title="Stop"><i class="fa fa-stop" style="color: #e74c3c;"></i></button>"#, s.name)
     } else {
-        format!(r#"<button type="button" class="nix-btn" disabled title="Service is stopped"><i class="fa fa-stop"></i></button>"#)
+        format!(r#"<button type="button" class="nix-btn" disabled title="Service is stopped"><i class="fa fa-stop" style="color: var(--nix-text-muted);"></i></button>"#)
     };
 
     let edit_btn = format!(
@@ -127,31 +130,66 @@ pub fn render_service_row(
 
     let logs_btn = format!(r#"<button type="button" class="nix-btn" onclick="openLogs('{}')" title="Logs"><i class="fa fa-file-text-o"></i></button>"#, s.name);
 
-    let remove_btn = format!(
-        r#"<button type="button" class="nix-btn" style="color: #e74c3c; border-color: #e74c3c;" onclick="removeService('{}')" title="Remove"><i class="fa fa-trash-o"></i></button>"#,
-        s.name
-    );
-
     let resources_html = render_resources_cell(&s.name, is_running, s.cpu, s.memory, &gpus_override, &legacy_gpu, &s.gpu_stats);
 
+    use super::static_config::get_service_fa_config;
+    let cfg = get_service_fa_config(&s.name);
+
     format!(
-        r#"<tr>
-            <td>{}</td>
-            <td>{}</td>
-            <td>{}</td>
-            <td>
-                <div class="nix-actions-wrapper">
-                    {}
+        r#"<div class="nix-preset-card nix-service-card" data-name="{}" style="background: var(--nix-bg-secondary); border: 1px solid var(--nix-border-primary); border-radius: 6px; padding: 16px; display: flex; flex-direction: column; justify-content: space-between; transition: transform 0.2s ease, border-color 0.2s ease, background 0.2s ease, box-shadow 0.2s ease; height: 260px; position: relative;">
+            <div>
+                <!-- Top Row: Icon and Title info -->
+                <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 12px;">
+                    <div style="width: 32px; height: 32px; border-radius: 4px; background: {}; border: 1px solid {}; display: flex; align-items: center; justify-content: center; color: {}; flex-shrink: 0;">
+                        <i class="fa {}" style="font-size: 15px;"></i>
+                    </div>
+                    <div style="display: flex; flex-direction: column; overflow: hidden; width: 100%;">
+                        <div style="display: flex; align-items: center; justify-content: space-between; gap: 8px; width: 100%;">
+                            <strong style="font-size: 14px; color: var(--nix-text-primary); text-overflow: ellipsis; white-space: nowrap; overflow: hidden;" title="{}">{}</strong>
+                            <div style="flex-shrink: 0;" class="nix-service-status-badge" data-service="{}">
+                                <span class="status-indicator {}">{}</span>
+                            </div>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 6px; font-size: 10px; margin-top: 1px;">
+                            <span style="font-family: monospace; color: var(--nix-text-secondary);">nixpkgs#{}</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Info list -->
+                <div style="display: flex; flex-direction: column; gap: 8px; font-size: 11px; margin-top: 15px; border-top: 1px solid var(--nix-border-primary); padding-top: 10px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; line-height: 1.4;">
+                        <span style="color: var(--nix-text-secondary);">Version / Info:</span>
+                        <span style="text-align: right; color: var(--nix-text-primary);">{}</span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; align-items: center; line-height: 1.4;">
+                        <span style="color: var(--nix-text-secondary);">Web Interface:</span>
+                        <span style="text-align: right; max-width: 170px; word-break: break-all; overflow-wrap: break-word;">{}</span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; align-items: flex-start; line-height: 1.4;">
+                        <span style="color: var(--nix-text-secondary); margin-top: 2px;">Resources:</span>
+                        <div style="text-align: right; display: flex; flex-direction: column; align-items: flex-end;">{}</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Footer Toggles / Buttons -->
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 15px; padding-top: 10px; border-top: 1px solid var(--nix-border-primary);">
+                <div style="display: flex; gap: 6px; align-items: center;">
                     {}
                     {}
                     {}
                     {}
                 </div>
-            </td>
-            <td>
-                <div style="display: inline-block; vertical-align: middle;">{}</div>
-            </td>
-        </tr>"#,
-        app_html, lan_ip_port_html, resources_html, start_btn, stop_btn, edit_btn, logs_btn, remove_btn, autostart_html
+                <div style="display: flex; align-items: center; gap: 8px;">
+                    <div style="display: inline-flex; align-items: center; gap: 4px;" title="Autostart">
+                        <span style="font-size: 10px; color: var(--nix-text-muted);">Autostart</span>
+                        {}
+                    </div>
+                    <button type="button" class="nix-btn" style="color: #e74c3c; border-color: var(--nix-border-primary); margin: 0; padding: 4px 8px;" onclick="removeService('{}')" title="Remove"><i class="fa fa-trash-o" style="color: #e74c3c;"></i></button>
+                </div>
+            </div>
+        </div>"#,
+        s.name, cfg.bg, cfg.border, cfg.color, cfg.icon, s.name, s.name, s.name, status_class, status_label, s.name, version_badge, lan_ip_port_html, resources_html, start_btn, stop_btn, edit_btn, logs_btn, autostart_html, s.name
     )
 }

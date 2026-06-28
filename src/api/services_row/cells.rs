@@ -2,6 +2,7 @@ use crate::api::utils::HostAddr;
 use crate::process::GpuStat;
 use super::static_config::get_service_fa_config;
 
+#[allow(dead_code)]
 pub fn render_app_cell(name: &str, version_badge: &str, status_subtext: &str) -> String {
     let cfg = get_service_fa_config(name);
     format!(

@@ -43,7 +43,7 @@ echo "<div class=\"nix-plugin-container theme-{$nix_theme}\">";
     </div>
 </div>
 
-<div class="nix-section" style="margin-top: 20px;">
+<div class="nix-section" style="margin-top: 20px; background: var(--nix-bg-secondary);">
     <h3>Troubleshooting & Diagnostics</h3>
     <p class="nix-subtext">Generate a diagnostic package to share for debugging or report issues on GitHub.</p>
     

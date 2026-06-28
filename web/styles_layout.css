@@ -211,6 +211,10 @@
     position: static !important;
 }
 
+.nix-services-table tbody tr:nth-child(even), .nix-search-table tbody tr:nth-child(even) {
+    background: var(--nix-bg-secondary) !important;
+}
+
 .nix-services-table thead tr, .nix-search-table thead tr {
     background: var(--nix-bg-secondary) !important;
     display: table-row !important;
@@ -328,4 +332,29 @@
 .nix-btn-install:active {
     transform: translateY(0);
     box-shadow: none;
+}
+
+/* Service status indicator badges */
+.status-indicator {
+    display: inline-block;
+    font-size: 9px;
+    padding: 2px 6px;
+    border-radius: 10px;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+.status-indicator.status-running {
+    background: rgba(46, 204, 113, 0.15);
+    color: #2ecc71;
+    border: 1px solid rgba(46, 204, 113, 0.3);
+}
+.status-indicator.status-stopped {
+    background: rgba(231, 76, 60, 0.15);
+    color: #e74c3c;
+    border: 1px solid rgba(231, 76, 60, 0.3);
+}
+.status-indicator.status-failed {
+    background: rgba(241, 196, 15, 0.15);
+    color: #f1c40f;
+    border: 1px solid rgba(241, 196, 15, 0.3);
 }
