@@ -160,13 +160,40 @@ pub fn render_service_row(
         lines.join("")
     };
 
+    let ports_list = get_service_ports(&s.name);
+    let ports_html = if ports_list.is_empty() {
+        r#"<span style="color: var(--nix-text-muted);">None</span>"#.to_string()
+    } else {
+        let mut lines = Vec::new();
+        for p in &ports_list {
+            lines.push(format!(
+                r#"<div style="font-family: monospace; font-size: 10px; color: var(--nix-text-primary);">{} → {} (TCP)</div>"#,
+                p.host, p.container
+            ));
+        }
+        lines.join("")
+    };
+
+    let rollback_html = format!(
+        r#"<div style="display: flex; align-items: center; justify-content: space-between; width: 100%; height: 16px;">
+            <span style="color: var(--nix-text-primary); font-family: monospace; font-size: 10px;">Gen 1 (Active)</span>
+            <button type="button" class="nix-btn" style="padding: 1px 4px; font-size: 8px; line-height: 1; min-width: unset; margin: 0; height: 16px; border: 1px solid var(--nix-border-primary); background: var(--nix-bg-tertiary); color: var(--nix-text-secondary); border-radius: 3px; cursor: pointer;" onclick="alert('Rollback support is coming in a future update!')">Rollback</button>
+        </div>"#
+    );
+
+    let uptime_val = if is_running { s.uptime() } else { "Stopped".to_string() };
+    let uptime_html = format!(
+        r#"<span style="font-family: monospace; font-size: 10px; color: var(--nix-text-primary);">{}</span>"#,
+        uptime_val
+    );
+
     let resources_html = render_resources_cell(&s.name, is_running, s.cpu, s.memory, &gpus_override, &legacy_gpu, &s.gpu_stats);
 
     use super::static_config::get_service_fa_config;
     let cfg = get_service_fa_config(&s.name);
 
     format!(
-        r#"<div class="nix-preset-card nix-service-card" data-name="{}" style="background: var(--nix-bg-secondary); border: 1px solid var(--nix-border-primary); border-radius: 6px; padding: 16px; display: flex; flex-direction: column; justify-content: space-between; transition: transform 0.2s ease, border-color 0.2s ease, background 0.2s ease, box-shadow 0.2s ease; min-height: 250px; height: auto; position: relative;">
+        r#"<div class="nix-preset-card nix-service-card" data-name="{}" style="background: var(--nix-bg-secondary); border: 1px solid var(--nix-border-primary); border-radius: 6px; padding: 16px; display: flex; flex-direction: column; justify-content: space-between; transition: transform 0.2s ease, border-color 0.2s ease, background 0.2s ease, box-shadow 0.2s ease; min-height: 380px; height: auto; position: relative;">
             <div>
                 <!-- Top Row: Icon, Name + Path/Version on Left, Status Dot on Right -->
                 <div style="display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; margin-bottom: 10px;">
@@ -199,6 +226,18 @@ pub fn render_service_row(
                         <span style="color: var(--nix-text-secondary); font-size: 10px; font-weight: 600;">MOUNTS</span>
                         <div style="display: flex; flex-direction: column; gap: 3px; padding-left: 6px;">{}</div>
                     </div>
+                    <div style="display: flex; flex-direction: column; gap: 3px; line-height: 1.3;">
+                        <span style="color: var(--nix-text-secondary); font-size: 10px; font-weight: 600;">PORTS</span>
+                        <div style="display: flex; flex-direction: column; gap: 3px; padding-left: 6px;">{}</div>
+                    </div>
+                    <div style="display: flex; flex-direction: column; gap: 3px; line-height: 1.3;">
+                        <span style="color: var(--nix-text-secondary); font-size: 10px; font-weight: 600;">ROLLBACK</span>
+                        <div style="padding-left: 6px;">{}</div>
+                    </div>
+                    <div style="display: flex; flex-direction: column; gap: 3px; line-height: 1.3;">
+                        <span style="color: var(--nix-text-secondary); font-size: 10px; font-weight: 600;">UPTIME</span>
+                        <div style="padding-left: 6px;">{}</div>
+                    </div>
                 </div>
             </div>
 
@@ -214,6 +253,60 @@ pub fn render_service_row(
                 <button type="button" class="nix-btn nix-btn-sm" style="color: #e74c3c; border-color: var(--nix-border-primary); margin: 0; display: inline-flex; align-items: center; justify-content: center; height: 32px; width: 32px;" onclick="removeService('{}')" title="Remove"><i class="fa fa-trash-o" style="color: #e74c3c;"></i></button>
             </div>
         </div>"#,
-        s.name, cfg.bg, cfg.border, cfg.color, cfg.icon, s.name, s.name, s.name, version_badge, status_class, s.name, status_label, resources_html, lan_ip_port_html, mapped_drives_html, start_btn, stop_btn, edit_btn, logs_btn, autostart_html, s.name
+        s.name, cfg.bg, cfg.border, cfg.color, cfg.icon, s.name, s.name, s.name, version_badge, status_class, s.name, status_label, resources_html, lan_ip_port_html, mapped_drives_html, ports_html, rollback_html, uptime_html, start_btn, stop_btn, edit_btn, logs_btn, autostart_html, s.name
     )
+}
+
+fn get_service_ports(name: &str) -> Vec<crate::sandbox::PortMapping> {
+    let mut ports = Vec::new();
+    let metadata_path = format!("/boot/config/plugins/nix/metadata/{}.json", name);
+    if std::path::Path::new(&metadata_path).exists() {
+        if let Ok(content) = std::fs::read_to_string(&metadata_path) {
+            if let Ok(val) = serde_json::from_str::<serde_json::Value>(&content) {
+                if let Some(port_val) = val.get("port") {
+                    if let Some(num) = port_val.as_u64() {
+                        if num > 0 {
+                            ports.push(crate::sandbox::PortMapping { host: num as u16, container: num as u16 });
+                        }
+                    }
+                    if let Some(s) = port_val.as_str() {
+                        let mappings = crate::sandbox::parse_ports(s);
+                        if !mappings.is_empty() {
+                            return mappings;
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    let name_lower = name.to_lowercase();
+    let preset_path = crate::config::get_preset_path(&name_lower);
+    if std::path::Path::new(&preset_path).exists() {
+        if let Ok(content) = std::fs::read_to_string(&preset_path) {
+            if let Ok(json) = serde_json::from_str::<serde_json::Value>(&content) {
+                if let Some(ports_arr) = json.get("default_ports").and_then(|p| p.as_array()) {
+                    for port_item in ports_arr {
+                        if let (Some(h), Some(c)) = (port_item.get("host").and_then(|v| v.as_u64()), port_item.get("container").and_then(|v| v.as_u64())) {
+                            ports.push(crate::sandbox::PortMapping { host: h as u16, container: c as u16 });
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    if ports.is_empty() {
+        if name_lower.contains("sonarr") {
+            ports.push(crate::sandbox::PortMapping { host: 8989, container: 8989 });
+        } else if name_lower.contains("radarr") {
+            ports.push(crate::sandbox::PortMapping { host: 7878, container: 7878 });
+        } else if name_lower.contains("jellyfin") {
+            ports.push(crate::sandbox::PortMapping { host: 8096, container: 8096 });
+        } else if name_lower.contains("syncthing") {
+            ports.push(crate::sandbox::PortMapping { host: 8384, container: 8384 });
+        }
+    }
+
+    ports
 }
