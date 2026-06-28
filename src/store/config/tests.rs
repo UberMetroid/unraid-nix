@@ -77,12 +77,22 @@ fn test_generate_nix_conf_content() {
     assert!(conf_source.contains("max-free = 21474836480"));
 
     // Verify checked multiplication overflow detection
-    assert!(generate_nix_conf_content(false, "4", "2", 18446744073709551, 10).is_err());
+    // Use (u64::MAX / BYTES_PER_GB) + 1 so the test value is derived from
+    // constants and remains correct if BYTES_PER_GB ever changes.
+    let overflowing_value = (u64::MAX / BYTES_PER_GB) + 1;
+    assert!(generate_nix_conf_content(false, "4", "2", overflowing_value, 10).is_err());
 }
 
 #[test]
 fn test_log_event_sanitization_and_rotation() {
-    let log_file = std::env::temp_dir().join(format!("nix-plugin-test-{}.log", std::process::id()));
+    let log_file = std::env::temp_dir().join(format!(
+        "nix-plugin-test-{}-{}.log",
+        std::process::id(),
+        std::time::SystemTime::now()
+            .duration_since(std::time::UNIX_EPOCH)
+            .map(|d| d.as_nanos())
+            .unwrap_or(0)
+    ));
     let log_file_str = log_file.to_str().unwrap();
 
     // 1. Test sanitization of newlines and brackets

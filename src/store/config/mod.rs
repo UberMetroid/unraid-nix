@@ -1,6 +1,8 @@
 use chrono::Local;
 use std::io::Write;
 
+const BYTES_PER_GB: u64 = 1 << 30;
+
 pub fn log_event(level: &str, msg: &str) {
     log_event_to_path("/var/log/nix-plugin.log", level, msg, 10 * 1024 * 1024);
 }
@@ -23,7 +25,7 @@ fn log_event_to_path(log_path: &str, level: &str, msg: &str, max_size: u64) {
     let mut guard = LockGuard { path: lock_path.clone(), active: false };
 
     let mut delay = std::time::Duration::from_millis(5);
-    for _ in 0..30 {
+    for _ in 0..5 {
         if std::fs::OpenOptions::new()
             .write(true)
             .create_new(true)
@@ -34,7 +36,7 @@ fn log_event_to_path(log_path: &str, level: &str, msg: &str, max_size: u64) {
             break;
         }
         std::thread::sleep(delay);
-        delay = std::cmp::min(delay * 2, std::time::Duration::from_secs(1));
+        delay = std::cmp::min(delay * 2, std::time::Duration::from_millis(80));
     }
 
     if !guard.active && std::env::var_os("NIX_DEBUG").is_some() {
@@ -122,7 +124,8 @@ pub fn generate_nix_conf_content(
             let total = std::thread::available_parallelism()
                 .map(|p| p.get())
                 .unwrap_or(4);
-            std::cmp::max(1, (total + 1) / 2).to_string()
+            let half = total.saturating_add(1) / 2;
+            std::cmp::max(1, half).to_string()
         } else {
             build_jobs.to_string()
         };
@@ -131,7 +134,6 @@ pub fn generate_nix_conf_content(
         ("0".to_string(), "0".to_string())
     };
 
-    const BYTES_PER_GB: u64 = 1 << 30;
     let min_free_bytes = gc_min_free_gb.checked_mul(BYTES_PER_GB)
         .ok_or_else(|| "min_free_gb overflow".to_string())?;
     let max_free_bytes = gc_max_free_gb.checked_mul(BYTES_PER_GB)
