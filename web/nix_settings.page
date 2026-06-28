@@ -128,10 +128,10 @@ if (trim(shell_exec('[ -c /dev/kvm ] && echo "yes" || echo "no"')) === 'yes') {
     }
     
     // Detailed features
-    $kvm_features['slat'] = $supports_slat ? 'Supported (EPT/RVI)' : 'Not Supported';
+    $kvm_features['slat'] = $supports_slat ? 'Supported' : 'Not Supported';
     
     $has_iommu = trim(shell_exec('[ -d /sys/kernel/iommu_groups ] && [ "$(ls -A /sys/kernel/iommu_groups 2>/dev/null)" ] && echo "yes" || echo "no"')) === 'yes';
-    $kvm_features['iommu'] = $has_iommu ? 'Enabled (IOMMU active)' : 'Disabled';
+    $kvm_features['iommu'] = $has_iommu ? 'Enabled' : 'Disabled';
     
     $nested = 'Disabled';
     if (file_exists('/sys/module/kvm_intel/parameters/nested')) {

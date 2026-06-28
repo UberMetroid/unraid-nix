@@ -258,7 +258,7 @@
                     </tr>
                     <tr style="background: transparent !important; border: none !important; box-shadow: none !important;">
                         <td style="color: var(--nix-text-muted) !important; padding: 4px 0 !important; border: none !important; background: transparent !important; text-align: left !important; font-size: 11px !important;">IOMMU (VT-d/AMD-Vi):</td>
-                        <td style="text-align: right !important; font-weight: bold !important; color: <?php echo $kvm_features['iommu'] === 'Enabled (IOMMU active)' ? '#2ecc71' : '#e67e22'; ?> !important; padding: 4px 0 !important; border: none !important; background: transparent !important; font-size: 11px !important;"><?php echo $kvm_features['iommu']; ?></td>
+                        <td style="text-align: right !important; font-weight: bold !important; color: <?php echo $kvm_features['iommu'] === 'Enabled' ? '#2ecc71' : '#e67e22'; ?> !important; padding: 4px 0 !important; border: none !important; background: transparent !important; font-size: 11px !important;"><?php echo $kvm_features['iommu']; ?></td>
                     </tr>
                     <tr style="background: transparent !important; border: none !important; box-shadow: none !important;">
                         <td style="color: var(--nix-text-muted) !important; padding: 4px 0 !important; border: none !important; background: transparent !important; text-align: left !important; font-size: 11px !important;">SLAT (EPT/RVI):</td>
