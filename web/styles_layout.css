@@ -44,6 +44,50 @@
     --nix-console-bg: #f8f9fa;
 }
 
+/* Gray/Slate theme overrides */
+.nix-plugin-container.theme-gray, .nix-plugin-container.theme-grey {
+    --nix-bg-primary: #2d3748;
+    --nix-bg-secondary: #1a202c;
+    --nix-bg-tertiary: #2d3748;
+    
+    --nix-border-primary: #4a5568;
+    --nix-border-secondary: #718096;
+    
+    --nix-text-primary: #e2e8f0;
+    --nix-text-secondary: #a0aec0;
+    --nix-text-muted: #718096;
+    --nix-text-bright: #f7fafc;
+    
+    --nix-accent: #81e6d9;
+    --nix-accent-hover: #4fd1c5;
+    --nix-accent-glow: rgba(129, 230, 217, 0.2);
+    
+    --nix-card-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    --nix-console-bg: #1a202c;
+}
+
+/* Azure theme overrides */
+.nix-plugin-container.theme-azure {
+    --nix-bg-primary: #0f172a;
+    --nix-bg-secondary: #1e293b;
+    --nix-bg-tertiary: #334155;
+    
+    --nix-border-primary: #1e293b;
+    --nix-border-secondary: #475569;
+    
+    --nix-text-primary: #f8fafc;
+    --nix-text-secondary: #94a3b8;
+    --nix-text-muted: #64748b;
+    --nix-text-bright: #ffffff;
+    
+    --nix-accent: #38bdf8;
+    --nix-accent-hover: #0ea5e9;
+    --nix-accent-glow: rgba(56, 189, 248, 0.25);
+    
+    --nix-card-shadow: 0 4px 12px rgba(15, 23, 42, 0.4);
+    --nix-console-bg: #0b0f19;
+}
+
 .nix-tab-container {
     background: var(--nix-bg-primary);
     border-radius: 8px;
