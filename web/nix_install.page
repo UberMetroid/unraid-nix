@@ -14,72 +14,76 @@ echo "<div class=\"nix-plugin-container theme-{$nix_theme}\">";
 <script src="/plugins/dynamix/javascript/jquery.filetree.js"></script>
 
 <?php
-function detect_appdata_root() {
-    $cfg_file = '/boot/config/shares/appdata.cfg';
-    if (file_exists($cfg_file)) {
-        $share_cfg = parse_ini_file($cfg_file);
-        if ($share_cfg !== false) {
-            $pool = isset($share_cfg['shareCachePool']) ? trim($share_cfg['shareCachePool'], '"') : '';
-            if (empty($pool) && isset($share_cfg['shareUseCache'])) {
-                $use_cache = trim($share_cfg['shareUseCache'], '"');
-                if (in_array($use_cache, ['yes', 'prefer', 'only'])) {
-                    $pool = 'cache';
+if (!function_exists('detect_appdata_root')) {
+    function detect_appdata_root() {
+        $cfg_file = '/boot/config/shares/appdata.cfg';
+        if (file_exists($cfg_file)) {
+            $share_cfg = parse_ini_file($cfg_file);
+            if ($share_cfg !== false) {
+                $pool = isset($share_cfg['shareCachePool']) ? trim($share_cfg['shareCachePool'], '"') : '';
+                if (empty($pool) && isset($share_cfg['shareUseCache'])) {
+                    $use_cache = trim($share_cfg['shareUseCache'], '"');
+                    if (in_array($use_cache, ['yes', 'prefer', 'only'])) {
+                        $pool = 'cache';
+                    }
+                }
+                if (!empty($pool) && is_dir("/mnt/" . $pool . "/appdata")) {
+                    return "/mnt/" . $pool . "/appdata";
                 }
             }
-            if (!empty($pool) && is_dir("/mnt/" . $pool . "/appdata")) {
-                return "/mnt/" . $pool . "/appdata";
-            }
         }
-    }
-    
-    if (is_dir('/mnt/user/appdata')) {
-        return '/mnt/user/appdata';
-    }
+        
+        if (is_dir('/mnt/user/appdata')) {
+            return '/mnt/user/appdata';
+        }
 
-    return '';
+        return '';
+    }
 }
 
-function get_host_ips_php() {
-    $ips = [];
-    $ips[] = ['ip' => '0.0.0.0', 'label' => 'All Interfaces (0.0.0.0)'];
-    $ips[] = ['ip' => '127.0.0.1', 'label' => 'Localhost (127.0.0.1)'];
-    
-    $output = shell_exec("ip -o -4 addr show 2>/dev/null");
-    if ($output) {
-        $lines = explode("\n", $output);
-        foreach ($lines as $line) {
-            $line = trim($line);
-            if (empty($line)) continue;
-            $parts = preg_split('/\s+/', $line);
-            if (count($parts) >= 4) {
-                $iface = $parts[1];
-                $ip_net = $parts[3];
-                
-                $iface_lower = strtolower($iface);
-                if ($iface_lower === 'lo' || 
-                    strpos($iface_lower, 'veth') === 0 || 
-                    strpos($iface_lower, 'docker') === 0 || 
-                    strpos($iface_lower, 'br-') === 0 || 
-                    strpos($iface_lower, 'virbr') === 0 ||
-                    strpos($iface_lower, 'shim') === 0) {
-                    continue;
-                }
-                
-                $ip_parts = explode('/', $ip_net);
-                $ip = $ip_parts[0];
-                if (strpos($ip, '127.') !== 0) {
-                    $label = $ip;
-                    if (strpos($iface_lower, 'tailscale') !== false || $iface_lower === 'tun0') {
-                        $label .= ' (Tailscale)';
-                    } else {
-                        $label .= ' (LAN - ' . $iface . ')';
+if (!function_exists('get_host_ips_php')) {
+    function get_host_ips_php() {
+        $ips = [];
+        $ips[] = ['ip' => '0.0.0.0', 'label' => 'All Interfaces (0.0.0.0)'];
+        $ips[] = ['ip' => '127.0.0.1', 'label' => 'Localhost (127.0.0.1)'];
+        
+        $output = shell_exec("ip -o -4 addr show 2>/dev/null");
+        if ($output) {
+            $lines = explode("\n", $output);
+            foreach ($lines as $line) {
+                $line = trim($line);
+                if (empty($line)) continue;
+                $parts = preg_split('/\s+/', $line);
+                if (count($parts) >= 4) {
+                    $iface = $parts[1];
+                    $ip_net = $parts[3];
+                    
+                    $iface_lower = strtolower($iface);
+                    if ($iface_lower === 'lo' || 
+                        strpos($iface_lower, 'veth') === 0 || 
+                        strpos($iface_lower, 'docker') === 0 || 
+                        strpos($iface_lower, 'br-') === 0 || 
+                        strpos($iface_lower, 'virbr') === 0 ||
+                        strpos($iface_lower, 'shim') === 0) {
+                        continue;
                     }
-                    $ips[] = ['ip' => $ip, 'label' => $label];
+                    
+                    $ip_parts = explode('/', $ip_net);
+                    $ip = $ip_parts[0];
+                    if (strpos($ip, '127.') !== 0) {
+                        $label = $ip;
+                        if (strpos($iface_lower, 'tailscale') !== false || $iface_lower === 'tun0') {
+                            $label .= ' (Tailscale)';
+                        } else {
+                            $label .= ' (LAN - ' . $iface . ')';
+                        }
+                        $ips[] = ['ip' => $ip, 'label' => $label];
+                    }
                 }
             }
         }
+        return $ips;
     }
-    return $ips;
 }
 
 $cfg_file = "/boot/config/plugins/nix/nix.cfg";

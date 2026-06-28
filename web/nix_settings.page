@@ -17,53 +17,57 @@ if (file_exists($cfg_file)) {
     $nix_cfg = parse_ini_file($cfg_file);
 }
 
-function detect_default_store_path() {
-    $cfg_file = '/boot/config/shares/system.cfg';
-    if (file_exists($cfg_file)) {
-        $share_cfg = parse_ini_file($cfg_file);
-        if ($share_cfg !== false) {
-            $pool = isset($share_cfg['shareCachePool']) ? trim($share_cfg['shareCachePool'], '"') : '';
-            if (empty($pool) && isset($share_cfg['shareUseCache'])) {
-                $use_cache = trim($share_cfg['shareUseCache'], '"');
-                if (in_array($use_cache, ['yes', 'prefer', 'only'])) {
-                    $pool = 'cache';
+if (!function_exists('detect_default_store_path')) {
+    function detect_default_store_path() {
+        $cfg_file = '/boot/config/shares/system.cfg';
+        if (file_exists($cfg_file)) {
+            $share_cfg = parse_ini_file($cfg_file);
+            if ($share_cfg !== false) {
+                $pool = isset($share_cfg['shareCachePool']) ? trim($share_cfg['shareCachePool'], '"') : '';
+                if (empty($pool) && isset($share_cfg['shareUseCache'])) {
+                    $use_cache = trim($share_cfg['shareUseCache'], '"');
+                    if (in_array($use_cache, ['yes', 'prefer', 'only'])) {
+                        $pool = 'cache';
+                    }
+                }
+                if (!empty($pool) && is_dir("/mnt/" . $pool . "/system")) {
+                    return "/mnt/" . $pool . "/system/nix";
                 }
             }
-            if (!empty($pool) && is_dir("/mnt/" . $pool . "/system")) {
-                return "/mnt/" . $pool . "/system/nix";
-            }
         }
+        
+        if (is_dir('/mnt/user/system')) {
+            return '/mnt/user/system/nix';
+        }
+        return '';
     }
-    
-    if (is_dir('/mnt/user/system')) {
-        return '/mnt/user/system/nix';
-    }
-
 }
 
-function detect_appdata_root() {
-    $cfg_file = '/boot/config/shares/appdata.cfg';
-    if (file_exists($cfg_file)) {
-        $share_cfg = parse_ini_file($cfg_file);
-        if ($share_cfg !== false) {
-            $pool = isset($share_cfg['shareCachePool']) ? trim($share_cfg['shareCachePool'], '"') : '';
-            if (empty($pool) && isset($share_cfg['shareUseCache'])) {
-                $use_cache = trim($share_cfg['shareUseCache'], '"');
-                if (in_array($use_cache, ['yes', 'prefer', 'only'])) {
-                    $pool = 'cache';
+if (!function_exists('detect_appdata_root')) {
+    function detect_appdata_root() {
+        $cfg_file = '/boot/config/shares/appdata.cfg';
+        if (file_exists($cfg_file)) {
+            $share_cfg = parse_ini_file($cfg_file);
+            if ($share_cfg !== false) {
+                $pool = isset($share_cfg['shareCachePool']) ? trim($share_cfg['shareCachePool'], '"') : '';
+                if (empty($pool) && isset($share_cfg['shareUseCache'])) {
+                    $use_cache = trim($share_cfg['shareUseCache'], '"');
+                    if (in_array($use_cache, ['yes', 'prefer', 'only'])) {
+                        $pool = 'cache';
+                    }
+                }
+                if (!empty($pool) && is_dir("/mnt/" . $pool . "/appdata")) {
+                    return "/mnt/" . $pool . "/appdata";
                 }
             }
-            if (!empty($pool) && is_dir("/mnt/" . $pool . "/appdata")) {
-                return "/mnt/" . $pool . "/appdata";
-            }
         }
-    }
-    
-    if (is_dir('/mnt/user/appdata')) {
-        return '/mnt/user/appdata';
-    }
+        
+        if (is_dir('/mnt/user/appdata')) {
+            return '/mnt/user/appdata';
+        }
 
-    return '';
+        return '';
+    }
 }
 
 // Set defaults
