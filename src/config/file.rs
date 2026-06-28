@@ -1,4 +1,4 @@
-use crate::config::{ProcessComposeConfig, LogConfiguration};
+use crate::config::{LogConfiguration, ProcessComposeConfig};
 use std::fs;
 
 /// Loads the process-compose configuration from the specified file path.
@@ -23,19 +23,14 @@ pub fn load_config(file_path: &str) -> Result<ProcessComposeConfig, String> {
     let content = fs::read_to_string(file_path)
         .map_err(|e| format!("Failed to read config file: {}", e))?;
 
-    let config: ProcessComposeConfig = serde_yml::from_str(&content)
-        .map_err(|e| format!("Failed to parse YAML: {}", e))?;
-
-    Ok(config)
+    crate::config::yaml::parse_config(&content).map_err(|e| format!("Failed to parse YAML: {}", e))
 }
 
 /// Saves the process-compose configuration back to the specified file path.
 pub fn save_config(config: &ProcessComposeConfig, file_path: &str) -> Result<(), String> {
-    let yaml = serde_yml::to_string(config)
-        .map_err(|e| format!("Failed to serialize config to YAML: {}", e))?;
+    let yaml = crate::config::yaml::serialize_config(config);
 
-    fs::write(file_path, yaml)
-        .map_err(|e| format!("Failed to write config file: {}", e))?;
+    fs::write(file_path, yaml).map_err(|e| format!("Failed to write config file: {}", e))?;
 
     Ok(())
 }

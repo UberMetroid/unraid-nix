@@ -47,8 +47,13 @@ pub fn view_logs(service: &str) {
 
     if !rendered {
         let url = format!("http://127.0.0.1:{SUPERVISOR_PORT}/process/logs/{service}/0/200");
-        if let Ok(resp) = ureq::get(&url).timeout(std::time::Duration::from_secs(2)).call() {
-            if let Ok(Value::Object(map)) = resp.into_json::<Value>() {
+        if let Ok(mut resp) = ureq::get(&url)
+            .config()
+            .timeout_per_call(Some(std::time::Duration::from_secs(2)))
+            .build()
+            .call()
+        {
+            if let Ok(Value::Object(map)) = resp.body_mut().read_json::<Value>() {
                 if let Some(Value::Array(lines)) = map.get("logs") {
                     output.push_str("<pre style='white-space: pre-wrap; word-wrap: break-word;'>");
                     for line_val in lines {

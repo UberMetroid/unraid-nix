@@ -1,5 +1,6 @@
 pub mod file;
 pub mod presets;
+pub mod yaml;
 
 pub use file::{load_config, save_config};
 pub use presets::{get_service_command_preset, get_preset_path};
@@ -101,12 +102,12 @@ mod tests {
             processes,
         };
 
-        let yaml = serde_yml::to_string(&config).unwrap();
+        let yaml = crate::config::yaml::serialize_config(&config);
         assert!(yaml.contains("version:"));
         assert!(yaml.contains("0.5"));
-        assert!(yaml.contains("restart: always"));
+        assert!(yaml.contains("restart: \"always\""));
 
-        let decoded: ProcessComposeConfig = serde_yml::from_str(&yaml).unwrap();
+        let decoded = crate::config::yaml::parse_config(&yaml).unwrap();
         assert_eq!(decoded, config);
     }
 

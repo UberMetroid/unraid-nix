@@ -164,9 +164,12 @@ pub fn send_service_action(api_port: u16, name: &str, action: &str) -> Result<()
 
     let url = format!("http://127.0.0.1:{api_port}/{endpoint}");
     crate::store::log_event("DEBUG", &format!("Sending HTTP request to process-compose: method='{method}', url='{url}'"));
-    let resp = ureq::request(method, &url)
-        .call()
-        .map_err(|e| format!("HTTP request failed: {e}"))?;
+    let resp = match method {
+        "POST" => ureq::post(&url).send_empty(),
+        "PATCH" => ureq::patch(&url).send_empty(),
+        _ => return Err(format!("Unsupported HTTP method: {method}")),
+    }
+    .map_err(|e| format!("HTTP request failed: {e}"))?;
 
     if resp.status() != 200 {
         return Err(format!("Server returned HTTP status {}", resp.status()));

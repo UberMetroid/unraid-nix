@@ -58,7 +58,12 @@ pub struct ProcessComposeResponse {
 
 pub fn is_supervisor_running() -> bool {
     let url = format!("http://127.0.0.1:{SUPERVISOR_PORT}{PROCESSES_PATH}");
-    match ureq::get(&url).timeout(std::time::Duration::from_millis(150)).call() {
+    match ureq::get(&url)
+        .config()
+        .timeout_per_call(Some(std::time::Duration::from_millis(150)))
+        .build()
+        .call()
+    {
         Ok(resp) => resp.status() == HTTP_OK,
         Err(_) => {
             let pid_path = "/var/run/nix-process-compose.pid";
@@ -89,10 +94,12 @@ pub fn get_services_status(api_port: u16) -> Result<Vec<ServiceStatus>, String> 
         return Err("Nix process supervisor (process-compose) is not running.".to_string());
     }
     let url = format!("http://127.0.0.1:{api_port}{PROCESSES_PATH}");
-    let resp = ureq::get(&url)
+    let mut resp = ureq::get(&url)
         .call()
         .map_err(|e| format!("Failed to connect to process-compose API: {e}"))?;
-    let wrapper: ProcessComposeResponse = resp.into_json()
+    let wrapper: ProcessComposeResponse = resp
+        .body_mut()
+        .read_json()
         .map_err(|e| format!("Failed to parse status JSON: {e}"))?;
 
     let mut data = wrapper.data;
