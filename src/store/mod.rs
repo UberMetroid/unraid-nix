@@ -146,9 +146,17 @@ pub fn setup_nix_conf() -> Result<(), String> {
     // wins. The original is backed up to .determinate.bak for forensic
     // purposes (e.g. if the admin needs to recover the installer's
     // settings).
+    //
+    // Skip if /etc/nix is itself already a symlink: then /etc/nix/nix.conf
+    // and /nix/etc/nix/nix.conf are the SAME file via that symlink, and
+    // creating another symlink on top would loop back to itself
+    // (circular symlink, "Too many levels of symbolic links").
     let legacy_cfg = std::path::Path::new("/etc/nix/nix.conf");
     let persistent_cfg = std::path::Path::new("/nix/etc/nix/nix.conf");
-    if legacy_cfg.is_file() && persistent_cfg.exists() {
+    if legacy_cfg.is_file()
+        && persistent_cfg.exists()
+        && !std::path::Path::new("/etc/nix").is_symlink()
+    {
         let backup = std::path::Path::new("/etc/nix/nix.conf.determinate.bak");
         if !backup.exists() {
             let _ = std::fs::rename(legacy_cfg, backup);
