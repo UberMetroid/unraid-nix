@@ -136,28 +136,34 @@ pub fn render_service_row(
     let cfg = get_service_fa_config(&s.name);
 
     format!(
-        r#"<div class="nix-preset-card nix-service-card" data-name="{}" style="background: var(--nix-bg-secondary); border: 1px solid var(--nix-border-primary); border-radius: 6px; padding: 16px; display: flex; flex-direction: column; justify-content: space-between; transition: transform 0.2s ease, border-color 0.2s ease, background 0.2s ease, box-shadow 0.2s ease; height: 200px; position: relative;">
+        r#"<div class="nix-preset-card nix-service-card" data-name="{}" style="background: var(--nix-bg-secondary); border: 1px solid var(--nix-border-primary); border-radius: 6px; padding: 16px; display: flex; flex-direction: column; justify-content: space-between; transition: transform 0.2s ease, border-color 0.2s ease, background 0.2s ease, box-shadow 0.2s ease; height: 180px; position: relative;">
             <div>
-                <!-- Top Row: Icon and Title info -->
-                <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 10px;">
-                    <div style="width: 32px; height: 32px; border-radius: 4px; background: {}; border: 1px solid {}; display: flex; align-items: center; justify-content: center; color: {}; flex-shrink: 0;">
-                        <i class="fa {}" style="font-size: 15px;"></i>
-                    </div>
-                    <div style="display: flex; flex-direction: column; overflow: hidden; width: 100%;">
-                        <div style="display: flex; align-items: center; justify-content: space-between; gap: 8px; width: 100%;">
-                            <strong style="font-size: 14px; color: var(--nix-text-primary); text-overflow: ellipsis; white-space: nowrap; overflow: hidden;" title="{}">{}</strong>
-                            <div style="display: flex; flex-direction: column; align-items: flex-end; gap: 4px; flex-shrink: 0;">
-                                <div style="display: inline-flex; align-items: center; gap: 4px;" title="Auto Restart">
-                                    <span style="font-size: 8px; color: var(--nix-text-muted); font-weight: 600;">AUTOSTART</span>
-                                    {}
-                                </div>
-                                <div class="nix-service-status-badge" data-service="{}">
-                                    <span class="status-indicator {}">{}</span>
-                                </div>
-                            </div>
+                <!-- Top Row: Icon and Title info on Left, Control elements on Right -->
+                <div style="display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; margin-bottom: 10px;">
+                    <div style="display: flex; align-items: center; gap: 10px; min-width: 0; flex: 1;">
+                        <div style="width: 32px; height: 32px; border-radius: 4px; background: {}; border: 1px solid {}; display: flex; align-items: center; justify-content: center; color: {}; flex-shrink: 0;">
+                            <i class="fa {}" style="font-size: 15px;"></i>
                         </div>
-                        <div style="display: flex; align-items: center; gap: 6px; font-size: 10px; margin-top: 2px;">
-                            <span style="font-family: monospace; color: var(--nix-text-secondary);">nixpkgs#{}</span>
+                        <div style="display: flex; flex-direction: column; overflow: hidden;">
+                            <strong style="font-size: 14px; color: var(--nix-text-primary); text-overflow: ellipsis; white-space: nowrap; overflow: hidden;" title="{}">{}</strong>
+                            <span style="font-family: monospace; color: var(--nix-text-secondary); font-size: 10px; margin-top: 2px;">nixpkgs#{}</span>
+                        </div>
+                    </div>
+                    
+                    <div style="display: flex; flex-direction: column; align-items: flex-end; gap: 4px; flex-shrink: 0;">
+                        <div style="display: inline-flex; align-items: center; gap: 4px;" title="Auto Restart">
+                            <span style="font-size: 8px; color: var(--nix-text-muted); font-weight: 600;">AUTOSTART</span>
+                            {}
+                        </div>
+                        <div class="nix-service-status-badge" data-service="{}">
+                            <span class="status-indicator {}">{}</span>
+                        </div>
+                        <div style="display: flex; gap: 3px; margin-top: 2px;">
+                            {}
+                            {}
+                            {}
+                            {}
+                            <button type="button" class="nix-btn nix-btn-sm" style="color: #e74c3c; border-color: var(--nix-border-primary); margin: 0;" onclick="removeService('{}')" title="Remove"><i class="fa fa-trash-o" style="color: #e74c3c;"></i></button>
                         </div>
                     </div>
                 </div>
@@ -178,18 +184,7 @@ pub fn render_service_row(
                     </div>
                 </div>
             </div>
-
-            <!-- Footer Toggles / Buttons -->
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 10px; padding-top: 8px; border-top: 1px solid var(--nix-border-primary);">
-                <div style="display: flex; gap: 6px; align-items: center;">
-                    {}
-                    {}
-                    {}
-                    {}
-                </div>
-                <button type="button" class="nix-btn nix-btn-sm" style="color: #e74c3c; border-color: var(--nix-border-primary); margin: 0;" onclick="removeService('{}')" title="Remove"><i class="fa fa-trash-o" style="color: #e74c3c;"></i></button>
-            </div>
         </div>"#,
-        s.name, cfg.bg, cfg.border, cfg.color, cfg.icon, s.name, s.name, autostart_html, s.name, status_class, status_label, s.name, version_badge, lan_ip_port_html, resources_html, start_btn, stop_btn, edit_btn, logs_btn, s.name
+        s.name, cfg.bg, cfg.border, cfg.color, cfg.icon, s.name, s.name, s.name, autostart_html, s.name, status_class, status_label, start_btn, stop_btn, edit_btn, logs_btn, s.name, version_badge, lan_ip_port_html, resources_html
     )
 }
