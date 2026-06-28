@@ -22,26 +22,35 @@
     --nix-console-bg: #09090a;
 }
 
-/* Light theme overrides */
+.nix-plugin-container {
+    background: var(--nix-bg-secondary);
+    padding: 20px;
+    border-radius: 8px;
+    border: 1px solid var(--nix-border-primary);
+    box-shadow: var(--nix-card-shadow);
+    margin-top: 10px;
+}
+
+/* Light theme overrides (High Contrast & Depth) */
 .nix-plugin-container.theme-white {
-    --nix-bg-primary: #ffffff;
-    --nix-bg-secondary: #f4f4f7;
-    --nix-bg-tertiary: #ebebeb;
+    --nix-bg-primary: #ffffff;        /* Cards/Panels remain pure white */
+    --nix-bg-secondary: #f1f5f9;      /* Outer page background becomes slate-100 */
+    --nix-bg-tertiary: #e2e8f0;       /* Elements / hover states use slate-200 */
     
-    --nix-border-primary: #dadade;
-    --nix-border-secondary: #c9c9cf;
+    --nix-border-primary: #cbd5e1;    /* Borders are darker slate-300 for distinct edges */
+    --nix-border-secondary: #94a3b8;  /* Focused boundaries */
     
-    --nix-text-primary: #1a1a1c;
-    --nix-text-secondary: #5e5e63;
-    --nix-text-muted: #8e8e93;
-    --nix-text-bright: #111;
+    --nix-text-primary: #1e293b;      /* Slate-800: very dark, highly legible body text */
+    --nix-text-secondary: #475569;    /* Slate-600: strong secondary text */
+    --nix-text-muted: #64748b;        /* Slate-500: readable muted labels */
+    --nix-text-bright: #0f172a;       /* Slate-900: absolute contrast for titles/headers */
     
-    --nix-accent: #008be0;
-    --nix-accent-hover: #0070b8;
-    --nix-accent-glow: rgba(0, 139, 224, 0.15);
+    --nix-accent: #0284c7;            /* Sky blue accent for links and actions */
+    --nix-accent-hover: #0369a1;      /* Sky blue hover */
+    --nix-accent-glow: rgba(2, 132, 199, 0.15);
     
-    --nix-card-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-    --nix-console-bg: #f8f9fa;
+    --nix-card-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.08), 0 2px 4px -2px rgba(0, 0, 0, 0.04);
+    --nix-console-bg: #f8fafc;
 }
 
 /* Gray/Slate theme overrides */
