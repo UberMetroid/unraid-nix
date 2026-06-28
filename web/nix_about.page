@@ -106,8 +106,18 @@ echo "<div class=\"nix-plugin-container theme-{$nix_theme}\">";
         <ul style="color: var(--nix-text-secondary); padding-left: 20px; margin-top: 8px;">
             <li style="margin-bottom: 8px;"><strong>Immutable Packages:</strong> Every package directory in the Nix store is prefixed with a cryptographic hash of all its inputs (source code, dependencies, compiler options). This prevents conflicts and guarantees reproducibility.</li>
             <li style="margin-bottom: 8px;"><strong>Jailed Sandboxing:</strong> Background services run inside isolated filesystem namespaces (chroot jails), limiting access to your raw host shares unless directories are explicitly mapped in the service configuration.</li>
-            <li style="margin-bottom: 8px;"><strong>Process Supervision:</strong> Services are managed in user-space by <code>process-compose</code>, a lightweight, non-systemd supervisor that handles startup ordering, process recovery, and resource tracking.</li>
+            <li style="margin-bottom: 8px;"><strong>Process Supervision:</strong> Services are managed in user-space by <code>process-compose</code>, a lightweight, non-systemd supervisor that handles startup ordering, process recovery, and resource tracking. The plugin ships its own <code>rc.nix-daemon</code> init script that supervises both the <code>nix-daemon</code> and the <code>process-compose</code> service supervisor.</li>
         </ul>
+
+        <h3 style="color: #00a1ff; margin-top: 18px; margin-bottom: 10px;"><i class="fa fa-medkit"></i> Diagnostics</h3>
+        <p style="color: var(--nix-text-primary);">
+            From the <strong>Logs</strong> tab, the <strong>Download Diagnostics</strong> button assembles <code>nix.cfg</code>, the active <code>process-compose.yml</code>, all supervisor and per-service log files, plus CPU, memory, and Nix version information into a single tarball at <code>/tmp/nix-diagnostics-&lt;id&gt;.tar.gz</code>. The temporary directory is created with <code>0700</code> permissions and the contents are rewritten to <code>0600</code> before packaging, so the bundle contains only owner-readable data. Attach the file when opening a GitHub issue to give maintainers everything needed to reproduce an issue.
+        </p>
+
+        <h3 style="color: #00a1ff; margin-top: 18px; margin-bottom: 10px;"><i class="fa fa-lock"></i> Security</h3>
+        <p style="color: var(--nix-text-primary);">
+            The WebGUI enforces CSRF tokens on every state-changing endpoint (settings, install, service start/stop, sync-templates, garbage collection, global rebuild) and rejects requests from any non-POST verb. The Rust helper single-quote-escapes every interpolated value before building shell commands, so a service name containing <code>$()</code>, backticks, or <code>;</code> cannot break out of the <code>sh -c</code> sandbox. File reads from <code>/boot/config/plugins/nix/metadata/</code> validate the service name against a strict character class, and bind-mount sources are symlink-checked before mounting. All user-controlled data rendered in the web UI is HTML-escaped at every interpolation site.
+        </p>
     </div>
 
     <!-- Performance Tuning -->
@@ -126,7 +136,7 @@ echo "<div class=\"nix-plugin-container theme-{$nix_theme}\">";
             <div style="background: var(--nix-bg-tertiary); border: 1px solid var(--nix-border-primary); border-radius: 4px; padding: 12px;">
                 <h4 style="margin: 0 0 6px 0; color: var(--nix-text-bright); font-size: 13px;"><i class="fa fa-cloud-download" style="color: #2ecc71;"></i> 2. Prefer Cache Builds</h4>
                 <p style="margin: 0; font-size: 11.5px; color: var(--nix-text-secondary); line-height: 1.5;">
-                    Keep <strong>Allow Package Compilation</strong> set to <strong>No</strong> under System Settings. This forces Nix to strictly use pre-built binary caches (caches.nixos.org). This avoids compiling packages locally from source code, saving enormous CPU cycles and preventing long build wait times.
+                    Keep <strong>Allow Source Compilation</strong> set to <strong>No</strong> under System Settings. This forces Nix to strictly use pre-built binary caches (caches.nixos.org). This avoids compiling packages locally from source code, saving enormous CPU cycles and preventing long build wait times.
                 </p>
             </div>
 
