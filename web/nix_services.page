@@ -40,6 +40,6 @@ $is_nix_running = ($status_code === 0);
 <script src="/plugins/nix/nix_services_stats.js?v=<?php echo time(); ?>"></script>
 <script src="/plugins/nix/nix_services_updates.js?v=<?php echo time(); ?>"></script>
 <?php
-include __DIR__ . '/nix_services_script.php';
+include '/usr/local/emhttp/plugins/nix/nix_services_script.php';
 ?>
 </div>
