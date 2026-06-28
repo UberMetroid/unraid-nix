@@ -172,6 +172,44 @@ if ($gpu_json) {
 if (empty($gpu_info)) {
     $gpu_info[] = "No compatible GPUs detected (NVIDIA/AMD/Intel)";
 }
+
+$gpu_rows = [];
+foreach ($gpu_info as $gpu) {
+    if (strpos($gpu, 'No compatible GPUs') !== false) {
+        $gpu_rows[] = [
+            'key' => 'Status:',
+            'val' => 'None Detected',
+            'icon' => 'fa-times-circle',
+            'color' => 'var(--nix-text-muted)'
+        ];
+    } elseif (preg_match('/(.*)\((GPU-\d+)\)/i', $gpu, $matches)) {
+        $name = trim($matches[1]);
+        $name = preg_replace('/^(NVIDIA|AMD|Intel)\s+\1/i', '$1', $name);
+        $key = str_replace('-', ' ', $matches[2]) . ':';
+        $gpu_rows[] = [
+            'key' => $key,
+            'val' => $name,
+            'icon' => 'fa-desktop',
+            'color' => 'var(--nix-accent)'
+        ];
+    } elseif (strpos(strtolower($gpu), 'quicksync') !== false || strpos(strtolower($gpu), 'renderd') !== false) {
+        $name = $gpu;
+        $name = preg_replace('/^(Intel)\s+\1/i', '$1', $name);
+        $gpu_rows[] = [
+            'key' => 'iGPU:',
+            'val' => $name,
+            'icon' => 'fa-desktop',
+            'color' => 'var(--nix-accent)'
+        ];
+    } else {
+        $gpu_rows[] = [
+            'key' => 'Device:',
+            'val' => $gpu,
+            'icon' => 'fa-desktop',
+            'color' => 'var(--nix-accent)'
+        ];
+    }
+}
 ?>
 
 <?php

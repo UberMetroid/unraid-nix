@@ -270,14 +270,17 @@
         </div>
         <div style="flex: 1; min-width: 280px; padding: 12px; background: var(--nix-bg-secondary); border-radius: 6px; border: 1px solid var(--nix-border-primary);">
             <div style="font-size: 10px; font-weight: bold; text-transform: uppercase; color: var(--nix-text-muted); margin-bottom: 6px; letter-spacing: 0.5px;">GPU Transcoding & Passthrough</div>
-            <div style="font-size: 13px; font-weight: bold; color: var(--nix-text-primary); display: flex; flex-direction: column; gap: 4px;">
-                <?php foreach ($gpu_info as $gpu): ?>
-                    <div style="display: flex; align-items: center; gap: 8px;">
-                        <i class="fa fa-desktop" style="color: var(--nix-accent); font-size: 14px;"></i>
-                        <span><?php echo htmlspecialchars($gpu); ?></span>
-                    </div>
+            <table style="width: 100% !important; border-collapse: collapse !important; border: none !important; font-size: 11px !important; line-height: 1.4 !important; box-shadow: none !important; background: transparent !important;">
+                <?php foreach ($gpu_rows as $row): ?>
+                    <tr style="background: transparent !important; border: none !important; box-shadow: none !important;">
+                        <td style="color: var(--nix-text-muted) !important; padding: 4px 0 !important; border: none !important; background: transparent !important; text-align: left !important; font-size: 11px !important;"><?php echo htmlspecialchars($row['key']); ?></td>
+                        <td style="text-align: right !important; font-weight: bold !important; color: var(--nix-text-primary) !important; padding: 4px 0 !important; border: none !important; background: transparent !important; font-size: 11px !important; display: inline-flex !important; align-items: center !important; gap: 6px !important; width: 100% !important; justify-content: flex-end !important;">
+                            <i class="fa <?php echo $row['icon']; ?>" style="color: <?php echo $row['color']; ?>; font-size: 13px;"></i>
+                            <?php echo htmlspecialchars($row['val']); ?>
+                        </td>
+                    </tr>
                 <?php endforeach; ?>
-            </div>
+            </table>
         </div>
     </div>
 </div>
