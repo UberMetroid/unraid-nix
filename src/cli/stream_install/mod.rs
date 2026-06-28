@@ -156,7 +156,7 @@ fn parse_service_name(uri: &str) -> String {
     if let Some(last) = svc.split('/').last() { svc = last.to_string(); }
     if let Some(last) = svc.split(':').last() { svc = last.to_string(); }
     if let Some(last) = svc.split('#').last() { svc = last.to_string(); }
-    svc.chars().filter(|c| c.is_alphanumeric() || *c == '_' || *c == '-').collect()
+    svc.chars().filter(|c| c.is_alphanumeric() || *c == '_' || *c == '-' || *c == '.').collect()
 }
 
 fn print_step_script(step: u32, status: &str, text: &str, badge: &str) {

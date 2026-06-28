@@ -2,7 +2,7 @@ use serde_json::Value;
 use std::process::exit;
 
 pub fn view_logs(service: &str) {
-    if service.is_empty() || !service.chars().all(|c| c.is_alphanumeric() || c == '_' || c == '-') {
+    if !crate::store::is_valid_service_name(service) {
         eprintln!("Error: Invalid service name.");
         exit(1);
     }

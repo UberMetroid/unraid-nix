@@ -52,7 +52,7 @@ if ($action === 'nix-sys-logs') {
         $file = '/var/log/nix-gc.log';
     } elseif (strpos($log_type, 'service:') === 0) {
         $service = substr($log_type, 8);
-        if (preg_match('/^[a-zA-Z0-9_.-]+$/', $service)) {
+        if (preg_match('/^[a-zA-Z0-9_-]+(?:\.[a-zA-Z0-9_-]+)*$/', $service)) {
             $file = "/var/log/nix-services/{$service}.log";
         } else {
             error("Invalid service log name.");
@@ -64,38 +64,50 @@ if ($action === 'nix-sys-logs') {
     if ($lines <= 0 || $lines > 5000) {
         $lines = 1000;
     }
-    
-    $service_logs = [];
-    if (is_dir('/var/log/nix-services')) {
-        $files = glob('/var/log/nix-services/*.log');
-        if ($files !== false) {
-            foreach ($files as $f) {
-                $service_logs[] = basename($f, '.log');
+    $check_services = isset($_GET['check_services']) ? $_GET['check_services'] === '1' : true;
+    $service_logs = null;
+    if ($check_services) {
+        $service_logs = [];
+        if (is_dir('/var/log/nix-services')) {
+            $files = glob('/var/log/nix-services/*.log');
+            if ($files !== false) {
+                foreach ($files as $f) {
+                    $service_logs[] = basename($f, '.log');
+                }
             }
         }
+        sort($service_logs);
     }
-    sort($service_logs);
 
     if (file_exists($file)) {
         if (!is_readable($file)) {
-            echo json_encode([
+            $res = [
                 'success' => true,
-                'content' => "Permission Error: Log file is not readable: $file\n(Ensure Unraid system permissions allow access to this file.)",
-                'service_logs' => $service_logs
-            ]);
+                'content' => "Permission Error: Log file is not readable: $file\n(Ensure Unraid system permissions allow access to this file.)"
+            ];
+            if ($service_logs !== null) {
+                $res['service_logs'] = $service_logs;
+            }
+            echo json_encode($res);
         } else {
-            echo json_encode([
+            $res = [
                 'success' => true, 
-                'content' => (string)shell_exec("tail -n " . escapeshellarg($lines) . " " . escapeshellarg($file)),
-                'service_logs' => $service_logs
-            ]);
+                'content' => (string)shell_exec("tail -n " . escapeshellarg($lines) . " " . escapeshellarg($file))
+            ];
+            if ($service_logs !== null) {
+                $res['service_logs'] = $service_logs;
+            }
+            echo json_encode($res);
         }
     } else {
-        echo json_encode([
+        $res = [
             'success' => true, 
-            'content' => "Log file not found: $file\n(Note: The log file is created once the service starts.)",
-            'service_logs' => $service_logs
-        ]);
+            'content' => "Log file not found: $file\n(Note: The log file is created once the service starts.)"
+        ];
+        if ($service_logs !== null) {
+            $res['service_logs'] = $service_logs;
+        }
+        echo json_encode($res);
     }
     exit;
 }

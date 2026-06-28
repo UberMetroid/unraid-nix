@@ -5,7 +5,7 @@ use std::process::Command;
 pub mod accounts;
 pub mod config;
 
-pub use config::{log_event, validate_store_path, generate_nix_conf_content};
+pub use config::{log_event, validate_store_path, generate_nix_conf_content, is_valid_service_name};
 
 /// Creates the static nixbld builder users and groups on the host.
 pub fn create_builder_accounts() -> Result<(), String> {

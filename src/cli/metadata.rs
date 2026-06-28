@@ -3,7 +3,7 @@ use serde_json::Value;
 use std::process::exit;
 
 pub fn get_metadata(name: &str) {
-    if name.is_empty() || !name.chars().all(|c| c.is_alphanumeric() || c == '_' || c == '-') {
+    if !crate::store::is_valid_service_name(name) {
         eprintln!("Error: Invalid service name.");
         exit(1);
     }

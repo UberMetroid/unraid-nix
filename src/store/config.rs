@@ -1,17 +1,18 @@
 use chrono::Local;
 
 pub fn log_event(level: &str, msg: &str) {
-    log_event_to_path("/var/log/nix-plugin.log", level, msg);
+    log_event_to_path("/var/log/nix-plugin.log", level, msg, 10 * 1024 * 1024);
 }
 
-pub fn log_event_to_path(log_path: &str, level: &str, msg: &str) {
+fn log_event_to_path(log_path: &str, level: &str, msg: &str, max_size: u64) {
     let now = Local::now().format("%Y-%m-%d %H:%M:%S");
     
-    // Rotate log file if it exceeds 10 MB
+    // Rotate log file if it exceeds max_size (up to 3 backups)
     if let Ok(metadata) = std::fs::metadata(log_path) {
-        if metadata.len() > 10 * 1024 * 1024 {
-            let backup_path = format!("{}.1", log_path);
-            let _ = std::fs::rename(log_path, backup_path);
+        if metadata.len() > max_size {
+            let _ = std::fs::rename(format!("{}.2", log_path), format!("{}.3", log_path));
+            let _ = std::fs::rename(format!("{}.1", log_path), format!("{}.2", log_path));
+            let _ = std::fs::rename(log_path, format!("{}.1", log_path));
         }
     }
     
@@ -37,6 +38,7 @@ pub fn log_event_to_path(log_path: &str, level: &str, msg: &str) {
             .output();
     }
     
+    #[cfg(not(test))]
     eprintln!("[{}] {}", safe_level, safe_msg);
 }
 
@@ -107,9 +109,27 @@ pub fn generate_nix_conf_content(
     )
 }
 
+pub fn is_valid_service_name(name: &str) -> bool {
+    if name.is_empty() { return false; }
+    if name.starts_with('.') || name.ends_with('.') || name.contains("..") { return false; }
+    name.chars().all(|c| c.is_alphanumeric() || c == '_' || c == '-' || c == '.')
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn test_is_valid_service_name() {
+        assert!(is_valid_service_name("homepage"));
+        assert!(is_valid_service_name("seafile-client"));
+        assert!(is_valid_service_name("my.service"));
+        assert!(!is_valid_service_name(""));
+        assert!(!is_valid_service_name(".service"));
+        assert!(!is_valid_service_name("service."));
+        assert!(!is_valid_service_name("my..service"));
+        assert!(!is_valid_service_name("my/service"));
+    }
 
     #[test]
     fn test_validate_store_path() {
@@ -162,30 +182,36 @@ mod tests {
         let log_file_str = log_file.to_str().unwrap();
 
         // 1. Test sanitization of newlines and brackets
-        log_event_to_path(log_file_str, "INFO", "hello\n[WORLD]\r");
+        log_event_to_path(log_file_str, "INFO", "hello\n[WORLD]\r", 1000);
         let content = std::fs::read_to_string(&log_file).unwrap();
         assert!(content.contains("(WORLD)"));
         assert!(!content.contains("[WORLD]"));
         assert!(!content.contains("hello\n"));
         
-        // 2. Test rotation
-        // Write 11 MB of dummy data to the log file to trigger rotation on next write
-        let dummy_data = vec![b'a'; 11 * 1024 * 1024];
+        // 2. Test rotation and backup cascading
+        // Write 101 bytes of dummy data to the log file to trigger rotation (threshold: 100 bytes)
+        let dummy_data = vec![b'a'; 101];
         std::fs::write(&log_file, dummy_data).unwrap();
         
-        // Next log write should trigger rotation
-        log_event_to_path(log_file_str, "INFO", "trigger rotation");
+        // Next log write should trigger rotation: .log -> .log.1
+        log_event_to_path(log_file_str, "INFO", "trigger rotation 1", 100);
         
-        // Note: backup_file path will end with .1
-        let expected_backup = format!("{}.1", log_file_str);
-        assert!(std::path::Path::new(&expected_backup).exists());
-        assert_eq!(std::fs::metadata(&expected_backup).unwrap().len(), 11 * 1024 * 1024);
+        let expected_backup1 = format!("{}.1", log_file_str);
+        assert!(std::path::Path::new(&expected_backup1).exists());
+        assert_eq!(std::fs::metadata(&expected_backup1).unwrap().len(), 101);
         
-        let new_content = std::fs::read_to_string(&log_file).unwrap();
-        assert!(new_content.contains("trigger rotation"));
+        // Write 101 bytes again to trigger rotation again: .log.1 -> .log.2, .log -> .log.1
+        std::fs::write(&log_file, vec![b'b'; 101]).unwrap();
+        log_event_to_path(log_file_str, "INFO", "trigger rotation 2", 100);
+        
+        let expected_backup2 = format!("{}.2", log_file_str);
+        assert!(std::path::Path::new(&expected_backup2).exists());
+        assert_eq!(std::fs::metadata(&expected_backup2).unwrap().len(), 101);
+        assert!(std::path::Path::new(&expected_backup1).exists());
         
         // Cleanup
         let _ = std::fs::remove_file(&log_file);
-        let _ = std::fs::remove_file(&expected_backup);
+        let _ = std::fs::remove_file(&expected_backup1);
+        let _ = std::fs::remove_file(&expected_backup2);
     }
 }

@@ -5,8 +5,8 @@ use crate::config;
 use std::process::exit;
 
 fn validate_name(name: &str) {
-    if name.is_empty() || !name.chars().all(|c| c.is_alphanumeric() || c == '_' || c == '-') {
-        eprintln!("Error: Invalid service name. Must be alphanumeric with dashes or underscores only.");
+    if !crate::store::is_valid_service_name(name) {
+        eprintln!("Error: Invalid service name.");
         exit(1);
     }
 }

@@ -88,7 +88,7 @@ ksort($service_logs);
             </div>
             <div style="display: inline-flex; gap: 8px;">
                 <button id="nix-log-refresh-btn" class="nix-btn" onclick="loadLogs()" style="padding: 6px 12px; display: inline-block; min-width: 90px;"><i class="fa fa-refresh"></i> Refresh</button>
-                <button class="nix-btn" onclick="copyLogsToClipboard()" style="padding: 6px 12px; display: inline-block;" title="Copy logs to clipboard"><i class="fa fa-copy"></i> Copy</button>
+                <button class="nix-btn" onclick="copyLogsToClipboard()" style="padding: 6px 12px; display: inline-block; min-width: 90px;" title="Copy logs to clipboard"><i class="fa fa-copy"></i> Copy</button>
             </div>
         </div>
     </div>
@@ -101,6 +101,7 @@ ksort($service_logs);
 <script>
 var isLogHovered = false;
 var logRefreshInterval = null;
+var logPollCounter = 0;
 
 function loadLogs(isAutoRefresh) {
     var type = document.getElementById('nix-log-select').value;
@@ -117,7 +118,8 @@ function loadLogs(isAutoRefresh) {
         refreshBtn.prop('disabled', true).html('<i class="fa fa-spinner fa-spin"></i> Loading...');
     }
 
-    $.get('/plugins/nix/api.php?action=nix-sys-logs&type=' + type + '&lines=1000', function(resp) {
+    var checkServices = (!isAutoRefresh || (logPollCounter++ % 6 === 0)) ? '1' : '0';
+    $.get('/plugins/nix/api.php?action=nix-sys-logs&type=' + type + '&lines=1000&check_services=' + checkServices, function(resp) {
         if (resp.success) {
             var rawText = resp.content;
             var showInfo = document.getElementById('nix-log-filter-info').checked;
@@ -186,33 +188,38 @@ function loadLogs(isAutoRefresh) {
             if (resp.service_logs) {
                 var select = $('#nix-log-select');
                 var servicesGroup = select.find('optgroup[label="Nix Services"]');
-                if (servicesGroup.length === 0 && resp.service_logs.length > 0) {
-                    servicesGroup = $('<optgroup label="Nix Services"></optgroup>');
-                    select.append(servicesGroup);
-                }
                 
-                var existingServices = {};
-                servicesGroup.find('option').each(function() {
-                    var val = $(this).val().substring(8); // strip 'service:'
-                    existingServices[val] = this;
-                });
-                
-                resp.service_logs.forEach(function(name) {
-                    if (!existingServices[name]) {
-                        servicesGroup.append($('<option>', {
-                            value: 'service:' + name,
-                            text: name
-                        }));
-                    } else {
-                        delete existingServices[name];
+                if (resp.service_logs.length > 0) {
+                    if (servicesGroup.length === 0) {
+                        servicesGroup = $('<optgroup label="Nix Services"></optgroup>');
+                        select.append(servicesGroup);
                     }
-                });
-                
-                for (var name in existingServices) {
-                    $(existingServices[name]).remove();
-                }
-                
-                if (servicesGroup.find('option').length === 0) {
+                    
+                    var existingServices = {};
+                    servicesGroup.find('option').each(function() {
+                        var val = $(this).val().substring(8); // strip 'service:'
+                        existingServices[val] = this;
+                    });
+                    
+                    resp.service_logs.forEach(function(name) {
+                        if (!existingServices[name]) {
+                            servicesGroup.append($('<option>', {
+                                value: 'service:' + name,
+                                text: name
+                            }));
+                        } else {
+                            delete existingServices[name];
+                        }
+                    });
+                    
+                    for (var name in existingServices) {
+                        $(existingServices[name]).remove();
+                    }
+                    
+                    if (servicesGroup.find('option').length === 0) {
+                        servicesGroup.remove();
+                    }
+                } else {
                     servicesGroup.remove();
                 }
             }

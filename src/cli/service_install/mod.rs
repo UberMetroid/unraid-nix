@@ -34,7 +34,7 @@ pub fn install_service(args: &crate::cli::args::InstallServiceArgs) {
     if let Some(pos) = name.rfind('/') { name = name[pos + 1..].to_string(); }
     if let Some(pos) = name.rfind(':') { name = name[pos + 1..].to_string(); }
     if let Some(pos) = name.rfind('#') { name = name[pos + 1..].to_string(); }
-    name = name.chars().filter(|c| c.is_alphanumeric() || *c == '_' || *c == '-').collect();
+    name = name.chars().filter(|c| c.is_alphanumeric() || *c == '_' || *c == '-' || *c == '.').collect();
 
     setup::verify_port_conflicts(&name, &port);
 
