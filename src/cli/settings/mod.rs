@@ -8,7 +8,7 @@ pub use crate::unraid::{parse_ini_file, detect_default_store_path};
 pub fn save_settings(args: &crate::cli::args::SaveSettingsArgs) {
     let store_path = args.store_path.clone().unwrap_or_default();
     let autostart = args.autostart.clone().unwrap_or_else(|| "yes".to_string());
-    let enable_sandbox = args.enable_sandbox.clone().unwrap_or_else(|| "no".to_string());
+    let enable_sandbox = args.enable_sandbox.clone().unwrap_or_else(|| "yes".to_string());
     let enable_cli = args.enable_cli.clone().unwrap_or_else(|| "no".to_string());
     let show_in_nav = args.show_in_nav.clone().unwrap_or_else(|| "yes".to_string());
     let allow_source_builds = args.allow_source_builds.clone().unwrap_or_else(|| "no".to_string());
