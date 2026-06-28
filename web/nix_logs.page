@@ -136,12 +136,44 @@ function loadLogs(isAutoRefresh) {
             
             for (var i = 0; i < lines.length; i++) {
                 var line = lines[i];
-                var lowerLine = line.toLowerCase();
+                var lineTrimmed = line.trim();
+                if (!lineTrimmed) continue;
                 
-                var isInfo = lowerLine.indexOf('[info]') !== -1 || lowerLine.indexOf('[inf]') !== -1 || lowerLine.indexOf('info:') !== -1;
-                var isWarn = lowerLine.indexOf('[warn]') !== -1 || lowerLine.indexOf('[warning]') !== -1 || lowerLine.indexOf('[wrn]') !== -1 || lowerLine.indexOf('warning:') !== -1;
-                var isError = lowerLine.indexOf('[error]') !== -1 || lowerLine.indexOf('[fatal]') !== -1 || lowerLine.indexOf('[err]') !== -1 || lowerLine.indexOf('error:') !== -1 || lowerLine.indexOf('fatal:') !== -1;
-                var isDebug = lowerLine.indexOf('[debug]') !== -1 || lowerLine.indexOf('[dbg]') !== -1 || lowerLine.indexOf('debug:') !== -1;
+                var displayLine = line;
+                var logLevel = 'untagged';
+                
+                // Try parsing as JSON first (common for process-compose service logs)
+                if (lineTrimmed.indexOf('{') === 0) {
+                    try {
+                        var parsed = JSON.parse(lineTrimmed);
+                        var time = parsed.time || '';
+                        var message = parsed.message || parsed.msg || '';
+                        var level = parsed.level || '';
+                        var processName = parsed.process || '';
+                        
+                        logLevel = level.toLowerCase();
+                        
+                        var timePrefix = '';
+                        if (time) {
+                            var timeDisplay = time.length >= 19 ? time.substring(0, 19).replace('T', ' ') : time;
+                            timePrefix = '[' + timeDisplay + '] ';
+                        }
+                        
+                        var procPrefix = processName ? '(' + processName + ') ' : '';
+                        var levelStr = level ? '[' + level.toUpperCase() + '] ' : '';
+                        
+                        displayLine = timePrefix + procPrefix + levelStr + message;
+                    } catch (e) {
+                        // Keep raw line if JSON parsing fails
+                    }
+                }
+                
+                var lowerLine = displayLine.toLowerCase();
+                
+                var isInfo = logLevel === 'info' || logLevel === 'inf' || lowerLine.indexOf('[info]') !== -1 || lowerLine.indexOf('[inf]') !== -1 || lowerLine.indexOf('info:') !== -1;
+                var isWarn = logLevel === 'warn' || logLevel === 'warning' || logLevel === 'wrn' || lowerLine.indexOf('[warn]') !== -1 || lowerLine.indexOf('[warning]') !== -1 || lowerLine.indexOf('[wrn]') !== -1 || lowerLine.indexOf('warning:') !== -1;
+                var isError = logLevel === 'error' || logLevel === 'fatal' || logLevel === 'err' || lowerLine.indexOf('[error]') !== -1 || lowerLine.indexOf('[fatal]') !== -1 || lowerLine.indexOf('[err]') !== -1 || lowerLine.indexOf('error:') !== -1 || lowerLine.indexOf('fatal:') !== -1;
+                var isDebug = logLevel === 'debug' || logLevel === 'dbg' || lowerLine.indexOf('[debug]') !== -1 || lowerLine.indexOf('[dbg]') !== -1 || lowerLine.indexOf('debug:') !== -1;
                 
                 var matchesAny = isInfo || isWarn || isError || isDebug;
                 
@@ -153,7 +185,7 @@ function loadLogs(isAutoRefresh) {
                 // If it doesn't match any level explicitly, check the Untagged filter
                 if (!matchesAny && !showUntagged) continue;
                 
-                filteredLines.push(line);
+                filteredLines.push(displayLine);
             }
             
             var filteredText = filteredLines.join('\n');
@@ -179,6 +211,12 @@ function loadLogs(isAutoRefresh) {
             escaped = escaped.replace(/(warning:)/ig, '<span style="color: #f59e0b; font-weight: bold;">$1</span>');
             escaped = escaped.replace(/(info:)/ig, '<span style="color: var(--nix-accent); font-weight: bold;">$1</span>');
             escaped = escaped.replace(/(debug:)/ig, '<span style="color: var(--nix-text-muted);">$1</span>');
+            
+            // Format timestamps and process prefixes beautifully
+            escaped = escaped.replace(/^(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2})/gm, '<span style="color: var(--nix-text-muted); font-weight: 500;">$1</span>');
+            escaped = escaped.replace(/\[(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2})\]/g, '<span style="color: var(--nix-text-muted); font-weight: 500;">[$1]</span>');
+            escaped = escaped.replace(/(\]\s*)\(([a-zA-Z0-9_-]+)\)/g, '$1<span style="color: #38bdf8; font-weight: 500;">($2)</span>');
+            escaped = escaped.replace(/^(\s*)\(([a-zA-Z0-9_-]+)\)/gm, '$1<span style="color: #38bdf8; font-weight: 500;">($2)</span>');
             
             container.innerHTML = escaped;
             
@@ -277,12 +315,16 @@ $(function() {
         function() { isLogHovered = false; }
     );
     
-    // Auto-refresh every 5s if not hovered, automatically cleans up on navigation
+    // Auto-refresh every 5s if not hovered, automatically cleans up on navigation/invisibility
     if (logRefreshInterval) clearInterval(logRefreshInterval);
     logRefreshInterval = setInterval(function() {
         if (!isLogHovered) {
-            if (!document.getElementById('nix-log-content')) {
+            var container = document.getElementById('nix-log-content');
+            if (!container) {
                 clearInterval(logRefreshInterval);
+                return;
+            }
+            if (document.hidden || !$(container).is(':visible')) {
                 return;
             }
             loadLogs(true);
