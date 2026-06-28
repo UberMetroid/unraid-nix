@@ -23,7 +23,7 @@ use crate::unraid::NIX_CFG_PATH;
 ///
 /// # Example
 /// ```
-/// use crate::sandbox::sh_quote;
+/// use nix_helper::sandbox::sh_quote;
 /// assert_eq!(sh_quote(""), "''");
 /// assert_eq!(sh_quote("hello"), "'hello'");
 /// assert_eq!(sh_quote("o'clock"), "'o'\\''clock'");
