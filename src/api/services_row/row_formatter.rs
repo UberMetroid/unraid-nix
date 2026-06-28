@@ -170,17 +170,15 @@ pub fn render_service_row(
             <div>
                 <!-- Header Row 1: Icon on Left, Button Bar on Right -->
                 <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;">
-                    <div style="width: 32px; height: 32px; border-radius: 4px; background: {}; border: 1px solid {}; display: flex; align-items: center; justify-content: center; color: {}; flex-shrink: 0;">
-                        <i class="fa {}" style="font-size: 15px;"></i>
+                    <div style="width: 24px; height: 24px; border-radius: 4px; background: {}; border: 1px solid {}; display: flex; align-items: center; justify-content: center; color: {}; flex-shrink: 0;">
+                        <i class="fa {}" style="font-size: 11px;"></i>
                     </div>
                     <div style="display: flex; align-items: center; gap: 4px; flex-shrink: 0;">
                         {}
                         {}
                         {}
                         {}
-                        <div style="display: inline-flex; align-items: center; justify-content: center; height: 24px; width: 44px; background: var(--nix-bg-tertiary); border: 1px solid var(--nix-border-primary); border-radius: 3px; box-sizing: border-box;" title="Auto Restart">
-                            {}
-                        </div>
+                        {}
                         <button type="button" class="nix-btn nix-btn-sm" style="color: #e74c3c; border-color: var(--nix-border-primary); margin: 0; display: inline-flex; align-items: center; justify-content: center; height: 24px; width: 24px;" onclick="removeService('{}')" title="Remove"><i class="fa fa-trash-o" style="color: #e74c3c;"></i></button>
                     </div>
                 </div>

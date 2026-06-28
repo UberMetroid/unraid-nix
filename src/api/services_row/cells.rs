@@ -166,12 +166,15 @@ pub fn render_resources_cell(
 }
 
 pub fn render_autostart_cell(name: &str, autostart_enabled: bool) -> String {
-    let autostart_checked = if autostart_enabled { "checked" } else { "" };
-    format!(
-        r#"<label class="nix-switch" style="margin: 0; scale: 0.75; transform-origin: center; display: inline-block;">
-            <input type="checkbox" onchange="toggleAutostart('{}', this.checked)" {}>
-            <span class="nix-slider"></span>
-        </label>"#,
-        name, autostart_checked
-    )
+    if autostart_enabled {
+        format!(
+            r#"<button type="button" class="nix-btn nix-btn-sm" onclick="toggleAutostart('{}', false)" title="Autostart: Enabled"><i class="fa fa-toggle-on" style="color: #2ecc71;"></i></button>"#,
+            name
+        )
+    } else {
+        format!(
+            r#"<button type="button" class="nix-btn nix-btn-sm" onclick="toggleAutostart('{}', true)" title="Autostart: Disabled"><i class="fa fa-toggle-off" style="color: var(--nix-text-muted);"></i></button>"#,
+            name
+        )
+    }
 }

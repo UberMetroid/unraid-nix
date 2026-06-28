@@ -76,9 +76,8 @@ function toggleAutostart(name, checked) {
     $.post('/plugins/nix/api.php', { action: 'toggle-autostart', service: name, enabled: checked }, function(response) {
         if (!response.success) {
             alert("Failed to toggle autostart: " + response.error);
-            // Reload services list to revert toggle UI state on failure
-            $("#nix-services-list").load('/plugins/nix/api.php?action=render-services');
         }
+        $("#nix-services-list").load('/plugins/nix/api.php?action=render-services');
     }, 'json');
 }
 
