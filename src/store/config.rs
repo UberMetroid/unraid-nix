@@ -3,7 +3,12 @@ use chrono::Local;
 pub fn log_event(level: &str, msg: &str) {
     let log_path = "/var/log/nix-plugin.log";
     let now = Local::now().format("%Y-%m-%d %H:%M:%S");
-    let line = format!("{} [{}] {}\n", now, level, msg);
+    
+    // Sanitize carriage returns, newlines and brackets to prevent forged lines
+    let safe_level = level.replace('\n', " ").replace('\r', " ").replace('[', "(").replace(']', ")");
+    let safe_msg = msg.replace('\n', " ").replace('\r', " ").replace('[', "(").replace(']', ")");
+    
+    let line = format!("{} [{}] {}\n", now, safe_level, safe_msg);
     
     if let Ok(mut file) = std::fs::OpenOptions::new()
         .create(true)
@@ -13,13 +18,13 @@ pub fn log_event(level: &str, msg: &str) {
             let _ = file.write_all(line.as_bytes());
         }
 
-    // Forward to native Unraid syslog
+    // Forward to native Unraid syslog safely
     let _ = std::process::Command::new("logger")
-        .args(["-t", "nix-plugin", &format!("[{}] {}", level, msg)])
+        .args(["-t", "nix-plugin", &format!("[{}] {}", safe_level, safe_msg)])
         .stdin(std::process::Stdio::null())
         .output();
     
-    eprintln!("[{}] {}", level, msg);
+    eprintln!("[{}] {}", safe_level, safe_msg);
 }
 
 /// Validation check for the persistent store path.

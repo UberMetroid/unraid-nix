@@ -198,17 +198,9 @@ function downloadDiagnostics() {
 function copyLogsToClipboard() {
     var content = document.getElementById('nix-log-content').innerText;
     navigator.clipboard.writeText(content).then(function() {
-        if (typeof showNotice === 'function') {
-            showNotice("Logs copied to clipboard!", "success");
-        } else {
-            alert("Logs copied to clipboard!");
-        }
+        showNotice("Logs copied to clipboard!", "success");
     }, function() {
-        if (typeof showNotice === 'function') {
-            showNotice("Failed to copy logs.", "error");
-        } else {
-            alert("Failed to copy logs.");
-        }
+        showNotice("Failed to copy logs.", "error");
     });
 }
 
@@ -221,10 +213,14 @@ $(function() {
         function() { isLogHovered = false; }
     );
     
-    // Auto-refresh every 5s if not hovered
+    // Auto-refresh every 5s if not hovered, automatically cleans up on navigation
     if (logRefreshInterval) clearInterval(logRefreshInterval);
     logRefreshInterval = setInterval(function() {
         if (!isLogHovered) {
+            if (!document.getElementById('nix-log-content')) {
+                clearInterval(logRefreshInterval);
+                return;
+            }
             loadLogs(true);
         }
     }, 5000);
