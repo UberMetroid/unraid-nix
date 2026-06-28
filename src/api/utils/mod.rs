@@ -17,7 +17,7 @@ pub fn get_service_web_port(name: &str) -> Option<u16> {
             if let Ok(val) = serde_json::from_str::<serde_json::Value>(&content) {
                 if let Some(port_val) = val.get("port") {
                     if let Some(num) = port_val.as_u64() {
-                        if num > 0 {
+                        if num > 0 && num <= u16::MAX as u64 {
                             return Some(num as u16);
                         }
                     }
