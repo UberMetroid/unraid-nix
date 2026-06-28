@@ -84,13 +84,19 @@ function get_host_ips_php() {
 
 $cfg_file = "/boot/config/plugins/nix/nix.cfg";
 $enable_cli = 'no';
+$appdata_root = '';
 if (file_exists($cfg_file)) {
     $nix_cfg = parse_ini_file($cfg_file);
     if (isset($nix_cfg['ENABLE_CLI_INSTALL'])) {
         $enable_cli = $nix_cfg['ENABLE_CLI_INSTALL'];
     }
+    if (isset($nix_cfg['DEFAULT_APPDATA_PATH'])) {
+        $appdata_root = $nix_cfg['DEFAULT_APPDATA_PATH'];
+    }
 }
-$appdata_root = detect_appdata_root();
+if (empty($appdata_root)) {
+    $appdata_root = detect_appdata_root();
+}
 $host_ips = get_host_ips_php();
 ?>
 

@@ -94,6 +94,7 @@ if ($action === 'save-settings') {
     $gc_min_free = isset($_POST['gc_min_free']) ? $_POST['gc_min_free'] : '5';
     $gc_max_free = isset($_POST['gc_max_free']) ? $_POST['gc_max_free'] : '10';
     $nix_channel = isset($_POST['nix_channel']) ? $_POST['nix_channel'] : 'nixos-unstable';
+    $default_appdata_path = isset($_POST['default_appdata_path']) ? $_POST['default_appdata_path'] : '';
     
     $output = [];
     $code = 0;
@@ -114,7 +115,8 @@ if ($action === 'save-settings') {
            "--build-jobs " . escapeshellarg($build_jobs) . " " .
            "--gc-min-free " . escapeshellarg($gc_min_free) . " " .
            "--gc-max-free " . escapeshellarg($gc_max_free) . " " .
-           "--nix-channel " . escapeshellarg($nix_channel);
+           "--nix-channel " . escapeshellarg($nix_channel) . " " .
+           "--default-appdata-path " . escapeshellarg($default_appdata_path);
            
     exec($cmd . " 2>&1", $output, $code);
     if ($code !== 0) {

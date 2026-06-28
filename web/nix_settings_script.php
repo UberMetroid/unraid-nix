@@ -2,6 +2,7 @@
 $(function() {
     if (typeof $.fn.fileTreeAttach === 'function') {
         $("#settings-store-path").fileTreeAttach();
+        $("#settings-default-appdata-path").fileTreeAttach();
     }
 });
 
@@ -17,6 +18,7 @@ function saveSettings(e) {
     });
     
     var path = $("#settings-store-path").val();
+    var defaultAppdataPath = $("#settings-default-appdata-path").val();
     var auto = $("#settings-autostart").val();
     var enableSandbox = $("#settings-enable-sandbox").val();
     var enablePidIsolation = $("#settings-enable-pid-isolation").val();
@@ -41,9 +43,18 @@ function saveSettings(e) {
         return;
     }
     
+    if (defaultAppdataPath.indexOf("/boot") === 0) {
+        alert("Error: Default Appdata Path cannot be on your USB flash drive (/boot). Choose a pool disk or array share.");
+        submitBtn.each(function(i, btn) {
+            $(btn).prop('disabled', false).html(originalHtmls[i]);
+        });
+        return;
+    }
+    
     $.post('/plugins/nix/api.php', {
         action: 'save-settings',
         store_path: path,
+        default_appdata_path: defaultAppdataPath,
         autostart: auto,
         enable_sandbox: enableSandbox,
         enable_pid_isolation: enablePidIsolation,

@@ -22,8 +22,21 @@ pub fn get_metadata_json(name: &str) -> String {
         }
     }
 
-    let detected_root = crate::cli::settings::detect_appdata_root();
-    let fallback_appdata_root = if !detected_root.is_empty() { &detected_root } else { "/mnt/user/appdata" };
+    let mut detected_root = String::new();
+    if let Ok(content) = std::fs::read_to_string("/boot/config/plugins/nix/nix.cfg") {
+        for line in content.lines() {
+            let line = line.trim();
+            if line.starts_with("DEFAULT_APPDATA_PATH=") {
+                if let Some(pos) = line.find('=') {
+                    detected_root = line[pos + 1..].trim().trim_matches('"').to_string();
+                }
+            }
+        }
+    }
+    if detected_root.is_empty() {
+        detected_root = crate::unraid::detect_appdata_root();
+    }
+    let fallback_appdata_root = if !detected_root.is_empty() { detected_root } else { "/mnt/user/appdata".to_string() };
 
     let mut puid = "99".to_string();
     let mut pgid = "100".to_string();

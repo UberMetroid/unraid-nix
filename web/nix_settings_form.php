@@ -55,6 +55,15 @@
     </div>
 
     <div class="nix-form-group">
+        <label for="settings-default-appdata-path">Default Appdata Path:</label>
+        <div class="nix-field-help" style="margin-top: 0; margin-bottom: 6px;">The default base directory where new flakes /config files are created. (Default: /mnt/user/appdata)</div>
+        <div style="position: relative;">
+            <input type="text" id="settings-default-appdata-path" autocomplete="off" spellcheck="false" value="<?php echo htmlspecialchars($default_appdata_path); ?>" placeholder="/mnt/user/appdata" data-pickcloseonfile="true" data-pickfilter="HIDE_FILES_FILTER" data-pickroot="/mnt" data-pickfolders="true" required style="padding-right: 30px;">
+            <i class="fa fa-folder-open nix-folder-picker-btn" style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); color: var(--nix-text-muted); pointer-events: none;"></i>
+        </div>
+    </div>
+
+    <div class="nix-form-group">
         <label for="settings-autostart">Autostart Services:</label>
         <div class="nix-field-help" style="margin-top: 0; margin-bottom: 6px;">Automatically start all background services on system array startup. (Default: Yes)</div>
         <select id="settings-autostart">

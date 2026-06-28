@@ -207,6 +207,8 @@ pub struct SaveSettingsArgs {
     pub gc_max_free: Option<String>,
     #[arg(long)]
     pub nix_channel: Option<String>,
+    #[arg(long)]
+    pub default_appdata_path: Option<String>,
 }
 
 #[derive(Args, Debug, Clone)]

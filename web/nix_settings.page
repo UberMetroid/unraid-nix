@@ -39,11 +39,36 @@ function detect_default_store_path() {
         return '/mnt/user/system/nix';
     }
 
+}
+
+function detect_appdata_root() {
+    $cfg_file = '/boot/config/shares/appdata.cfg';
+    if (file_exists($cfg_file)) {
+        $share_cfg = parse_ini_file($cfg_file);
+        if ($share_cfg !== false) {
+            $pool = isset($share_cfg['shareCachePool']) ? trim($share_cfg['shareCachePool'], '"') : '';
+            if (empty($pool) && isset($share_cfg['shareUseCache'])) {
+                $use_cache = trim($share_cfg['shareUseCache'], '"');
+                if (in_array($use_cache, ['yes', 'prefer', 'only'])) {
+                    $pool = 'cache';
+                }
+            }
+            if (!empty($pool) && is_dir("/mnt/" . $pool . "/appdata")) {
+                return "/mnt/" . $pool . "/appdata";
+            }
+        }
+    }
+    
+    if (is_dir('/mnt/user/appdata')) {
+        return '/mnt/user/appdata';
+    }
+
     return '';
 }
 
 // Set defaults
 $store_path = isset($nix_cfg['NIX_STORE_PATH']) ? $nix_cfg['NIX_STORE_PATH'] : detect_default_store_path();
+$default_appdata_path = isset($nix_cfg['DEFAULT_APPDATA_PATH']) ? $nix_cfg['DEFAULT_APPDATA_PATH'] : detect_appdata_root();
 $autostart = isset($nix_cfg['AUTOSTART_FLAKES']) ? $nix_cfg['AUTOSTART_FLAKES'] : 'yes';
 $show_in_nav = isset($nix_cfg['SHOW_IN_NAVIGATION']) ? $nix_cfg['SHOW_IN_NAVIGATION'] : 'yes';
 $enable_sandbox = isset($nix_cfg['ENABLE_STORAGE_SANDBOX']) ? $nix_cfg['ENABLE_STORAGE_SANDBOX'] : 'no';
