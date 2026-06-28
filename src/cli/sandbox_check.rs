@@ -135,10 +135,14 @@ fn read_existing_nix_conf_sandbox() -> String {
     };
     for line in content.lines() {
         let trimmed = line.trim();
+        // Match `sandbox` then any combination of `=`, whitespace, value.
+        // `sandbox = true` => rest = "= true" => after trim + strip = "true".
+        // `sandbox=true` => rest = "=true" => after trim + strip = "true".
+        // `sandbox =` => rest = "=" => empty after trim => skip.
         if let Some(rest) = trimmed.strip_prefix("sandbox") {
-            let rest = rest.trim_start_matches('=').trim();
-            if !rest.is_empty() {
-                return rest.to_string();
+            let value = rest.trim().trim_start_matches('=').trim();
+            if !value.is_empty() {
+                return value.to_string();
             }
         }
     }
