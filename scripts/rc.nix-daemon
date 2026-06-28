@@ -6,9 +6,12 @@ DAEMON="/nix/var/nix/profiles/default/bin/nix-daemon"
 PIDFILE="/var/run/nix-daemon.pid"
 
 start() {
-    if [ -f "$PIDFILE" ] && kill -0 $(cat "$PIDFILE") 2>/dev/null; then
-        echo "nix-daemon is already running."
-        return
+    if [ -f "$PIDFILE" ]; then
+        PID=$(cat "$PIDFILE")
+        if [ -n "$PID" ] && [ -d "/proc/$PID" ]; then
+            echo "nix-daemon is already running."
+            return
+        fi
     fi
     
     if [ ! -x "$DAEMON" ]; then
@@ -36,13 +39,15 @@ stop() {
 }
 
 status() {
-    if [ -f "$PIDFILE" ] && kill -0 $(cat "$PIDFILE") 2>/dev/null; then
-        echo "nix-daemon is running (pid $(cat $PIDFILE))."
-        return 0
-    else
-        echo "nix-daemon is stopped."
-        return 3
+    if [ -f "$PIDFILE" ]; then
+        PID=$(cat "$PIDFILE")
+        if [ -n "$PID" ] && [ -d "/proc/$PID" ]; then
+            echo "nix-daemon is running (pid $PID)."
+            return 0
+        fi
     fi
+    echo "nix-daemon is stopped."
+    return 3
 }
 
 case "$1" in
