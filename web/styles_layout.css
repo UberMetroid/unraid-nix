@@ -302,10 +302,24 @@
 }
 
 .nix-btn-sm {
-    padding: 4px 8px !important;
+    padding: 0 !important;
+    height: 24px !important;
+    width: 24px !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
     font-size: 11px !important;
     border-radius: 3px !important;
     min-width: unset !important;
+}
+.nix-btn-sm i {
+    font-size: 11px !important;
+    width: 12px !important;
+    height: 12px !important;
+    line-height: 12px !important;
+    display: inline-block !important;
+    text-align: center !important;
+    margin: 0 !important;
 }
 
 .nix-btn:disabled, .nix-btn[disabled] {

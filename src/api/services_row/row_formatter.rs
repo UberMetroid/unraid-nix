@@ -130,13 +130,28 @@ pub fn render_service_row(
 
     let logs_btn = format!(r#"<button type="button" class="nix-btn nix-btn-sm" onclick="openLogs('{}')" title="Logs"><i class="fa fa-file-text-o"></i></button>"#, s.name);
 
+    let mapped_drives_html = if extra_binds_vec.is_empty() {
+        r#"<span style="color: var(--nix-text-muted);">None</span>"#.to_string()
+    } else {
+        let hover_lines: Vec<String> = extra_binds_vec.iter().map(|(h, s)| format!("{} -> {}", h, s)).collect();
+        let hover_text = hover_lines.join("\n");
+        if extra_binds_vec.len() == 1 {
+            let (h, s) = &extra_binds_vec[0];
+            let h_short = if h.len() > 18 { format!("...{}", &h[h.len()-15..]) } else { h.to_string() };
+            let s_short = if s.len() > 18 { format!("...{}", &s[s.len()-15..]) } else { s.to_string() };
+            format!(r#"<span style="color: var(--nix-text-primary); cursor: help;" title="{}">{} → {}</span>"#, hover_text, h_short, s_short)
+        } else {
+            format!(r#"<span style="color: var(--nix-text-primary); cursor: help; font-weight: 500;" title="{}">{} paths mapped</span>"#, hover_text, extra_binds_vec.len())
+        }
+    };
+
     let resources_html = render_resources_cell(&s.name, is_running, s.cpu, s.memory, &gpus_override, &legacy_gpu, &s.gpu_stats);
 
     use super::static_config::get_service_fa_config;
     let cfg = get_service_fa_config(&s.name);
 
     format!(
-        r#"<div class="nix-preset-card nix-service-card" data-name="{}" style="background: var(--nix-bg-secondary); border: 1px solid var(--nix-border-primary); border-radius: 6px; padding: 16px; display: flex; flex-direction: column; justify-content: space-between; transition: transform 0.2s ease, border-color 0.2s ease, background 0.2s ease, box-shadow 0.2s ease; height: 180px; position: relative;">
+        r#"<div class="nix-preset-card nix-service-card" data-name="{}" style="background: var(--nix-bg-secondary); border: 1px solid var(--nix-border-primary); border-radius: 6px; padding: 16px; display: flex; flex-direction: column; justify-content: space-between; transition: transform 0.2s ease, border-color 0.2s ease, background 0.2s ease, box-shadow 0.2s ease; height: 220px; position: relative;">
             <div>
                 <!-- Top Row: Icon and Title info on Left, Control elements on Right -->
                 <div style="display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; margin-bottom: 10px;">
@@ -145,25 +160,24 @@ pub fn render_service_row(
                             <i class="fa {}" style="font-size: 15px;"></i>
                         </div>
                         <div style="display: flex; flex-direction: column; overflow: hidden;">
-                            <strong style="font-size: 14px; color: var(--nix-text-primary); text-overflow: ellipsis; white-space: nowrap; overflow: hidden;" title="{}">{}</strong>
+                            <strong style="font-size: 14px; color: var(--nix-text-primary); word-break: break-word; overflow-wrap: break-word;" title="{}">{}</strong>
                             <span style="font-family: monospace; color: var(--nix-text-secondary); font-size: 10px; margin-top: 2px;">nixpkgs#{}</span>
                         </div>
                     </div>
                     
                     <div style="display: flex; flex-direction: column; align-items: flex-end; gap: 4px; flex-shrink: 0;">
-                        <div style="display: inline-flex; align-items: center; gap: 4px;" title="Auto Restart">
-                            <span style="font-size: 8px; color: var(--nix-text-muted); font-weight: 600;">AUTOSTART</span>
+                        <div style="display: flex; align-items: center; gap: 4px;">
                             {}
+                            {}
+                            {}
+                            {}
+                            <div style="display: inline-flex; align-items: center; justify-content: center; height: 24px; width: 44px; background: var(--nix-bg-tertiary); border: 1px solid var(--nix-border-primary); border-radius: 3px; box-sizing: border-box;" title="Auto Restart">
+                                {}
+                            </div>
+                            <button type="button" class="nix-btn nix-btn-sm" style="color: #e74c3c; border-color: var(--nix-border-primary); margin: 0; display: inline-flex; align-items: center; justify-content: center; height: 24px; width: 24px;" onclick="removeService('{}')" title="Remove"><i class="fa fa-trash-o" style="color: #e74c3c;"></i></button>
                         </div>
-                        <div class="nix-service-status-badge" data-service="{}">
+                        <div class="nix-service-status-badge" data-service="{}" style="margin-top: 2px;">
                             <span class="status-indicator {}">{}</span>
-                        </div>
-                        <div style="display: flex; gap: 3px; margin-top: 2px;">
-                            {}
-                            {}
-                            {}
-                            {}
-                            <button type="button" class="nix-btn nix-btn-sm" style="color: #e74c3c; border-color: var(--nix-border-primary); margin: 0;" onclick="removeService('{}')" title="Remove"><i class="fa fa-trash-o" style="color: #e74c3c;"></i></button>
                         </div>
                     </div>
                 </div>
@@ -178,6 +192,10 @@ pub fn render_service_row(
                         <span style="color: var(--nix-text-secondary);">Web Interface:</span>
                         <span style="text-align: right; max-width: 170px; word-break: break-all; overflow-wrap: break-word;">{}</span>
                     </div>
+                    <div style="display: flex; justify-content: space-between; align-items: center; line-height: 1.3;">
+                        <span style="color: var(--nix-text-secondary);">Mapped Drives:</span>
+                        <span style="text-align: right; max-width: 170px; word-break: break-all; overflow-wrap: break-word;">{}</span>
+                    </div>
                     <div style="display: flex; justify-content: space-between; align-items: flex-start; line-height: 1.3;">
                         <span style="color: var(--nix-text-secondary); margin-top: 2px;">Resources:</span>
                         <div style="text-align: right; display: flex; flex-direction: column; align-items: flex-end;">{}</div>
@@ -185,6 +203,6 @@ pub fn render_service_row(
                 </div>
             </div>
         </div>"#,
-        s.name, cfg.bg, cfg.border, cfg.color, cfg.icon, s.name, s.name, s.name, autostart_html, s.name, status_class, status_label, start_btn, stop_btn, edit_btn, logs_btn, s.name, version_badge, lan_ip_port_html, resources_html
+        s.name, cfg.bg, cfg.border, cfg.color, cfg.icon, s.name, s.name, s.name, start_btn, stop_btn, edit_btn, logs_btn, autostart_html, s.name, s.name, status_class, status_label, version_badge, lan_ip_port_html, mapped_drives_html, resources_html
     )
 }
