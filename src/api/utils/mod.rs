@@ -5,6 +5,7 @@ pub use icons::get_service_icon_path;
 
 #[derive(Debug, Clone)]
 pub struct HostAddr {
+    #[allow(dead_code)]
     pub interface: String,
     pub ip: String,
 }

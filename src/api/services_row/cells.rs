@@ -44,20 +44,16 @@ pub fn render_lan_ip_port_cell(
                 }
             }
 
-            let label = match addr.interface.to_lowercase().as_str() {
-                "tailscale0" | "tailscale" => "tailscale".to_string(),
-                other => other.to_string(),
-            };
             
             let link = if is_running {
                 format!(
-                    r##"<div style="margin-bottom: 4px;"><a href="#" onclick="window.open('http://{}:{}/', '_blank'); return false;" style="color: var(--nix-accent); text-decoration: none; font-weight: 500;">{}:{} <i class="fa fa-external-link" style="font-size: 9px; margin-left: 1px;"></i></a> <span style="font-size: 10px; color: var(--nix-text-muted); font-family: monospace;">({})</span></div>"##,
-                    addr.ip, port, addr.ip, port, label
+                    r##"<div style="margin-bottom: 4px;"><a href="#" onclick="window.open('http://{}:{}/', '_blank'); return false;" style="color: var(--nix-accent); text-decoration: none; font-weight: 500;">{}:{} <i class="fa fa-external-link" style="font-size: 9px; margin-left: 1px;"></i></a></div>"##,
+                    addr.ip, port, addr.ip, port
                 )
             } else {
                 format!(
-                    r##"<div style="margin-bottom: 4px;"><span style="color: var(--nix-text-secondary);">{}:{}</span> <span style="font-size: 10px; color: var(--nix-text-muted); font-family: monospace;">({})</span></div>"##,
-                    addr.ip, port, label
+                    r##"<div style="margin-bottom: 4px;"><span style="color: var(--nix-text-secondary);">{}:{}</span></div>"##,
+                    addr.ip, port
                 )
             };
             ip_links.push(link);
@@ -67,12 +63,12 @@ pub fn render_lan_ip_port_cell(
             if let Some(ref target) = bind_address_override {
                 let link = if is_running {
                     format!(
-                        r##"<div style="margin-bottom: 4px;"><a href="#" onclick="window.open('http://{}:{}/', '_blank'); return false;" style="color: var(--nix-accent); text-decoration: none; font-weight: 500;">{}:{} <i class="fa fa-external-link" style="font-size: 9px; margin-left: 1px;"></i></a> <span style="font-size: 10px; color: var(--nix-text-muted); font-family: monospace;">(override)</span></div>"##,
+                        r##"<div style="margin-bottom: 4px;"><a href="#" onclick="window.open('http://{}:{}/', '_blank'); return false;" style="color: var(--nix-accent); text-decoration: none; font-weight: 500;">{}:{} <i class="fa fa-external-link" style="font-size: 9px; margin-left: 1px;"></i></a></div>"##,
                         target, port, target, port
                     )
                 } else {
                     format!(
-                        r##"<div style="margin-bottom: 4px;"><span style="color: var(--nix-text-secondary);">{}:{}</span> <span style="font-size: 10px; color: var(--nix-text-muted); font-family: monospace;">(override)</span></div>"##,
+                        r##"<div style="margin-bottom: 4px;"><span style="color: var(--nix-text-secondary);">{}:{}</span></div>"##,
                         target, port
                     )
                 };
