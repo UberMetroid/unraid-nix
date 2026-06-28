@@ -1,34 +1,28 @@
 use crate::api;
+use crate::cli::args::RenderTargets;
 
-pub fn render(args: &[String]) {
-    if args.len() < 3 {
-        super::print_usage();
-        return;
-    }
-    match args[2].as_str() {
-        "services" => {
+pub fn render(target: RenderTargets) {
+    match target {
+        RenderTargets::Services => {
             println!("{}", api::render_services_table(29704));
         }
-        "presets" => {
+        RenderTargets::Presets => {
             println!("{}", api::render_presets_store());
         }
-        "search" => {
-            let query = if args.len() >= 4 { &args[3] } else { "" };
-            println!("{}", api::render_search_results(query));
+        RenderTargets::Search { query } => {
+            println!("{}", api::render_search_results(&query));
         }
-        "dashboard" => {
+        RenderTargets::Dashboard => {
             println!("{}", api::render_dashboard_widget(29704));
         }
-        "dashboard-rows" => {
+        RenderTargets::DashboardRows => {
             println!("{}", api::render_dashboard_rows(29704));
         }
-        "dashboard-json" => {
+        RenderTargets::DashboardJson => {
             println!("{}", api::render_dashboard_json(29704));
         }
-        "report" => {
-            let service = if args.len() >= 4 { &args[3] } else { "" };
-            println!("{}", api::render_verification_report(service));
+        RenderTargets::Report { name } => {
+            println!("{}", api::render_verification_report(&name));
         }
-        _ => super::print_usage(),
     }
 }

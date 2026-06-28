@@ -101,10 +101,5 @@ pub fn tail_service_logs(svc: &str, timeout_limit_secs: u64) -> Result<bool, Str
 
 fn set_service_autostart(svc: &str, enable: bool) {
     let toggle = if enable { "on" } else { "off" };
-    crate::cli::service::autostart(&[
-        "nix-helper".to_string(),
-        "autostart".to_string(),
-        svc.to_string(),
-        toggle.to_string(),
-    ]);
+    crate::cli::service::autostart(svc, toggle);
 }

@@ -11,13 +11,7 @@ fn validate_name(name: &str) {
     }
 }
 
-pub fn service_action(args: &[String]) {
-    if args.len() < 4 {
-        eprintln!("Error: Missing action or service name.");
-        exit(1);
-    }
-    let action = &args[2];
-    let name = &args[3];
+pub fn service_action(action: &str, name: &str) {
     validate_name(name);
     if let Err(e) = process::send_service_action(29704, name, action) {
         eprintln!("Service action failed: {}", e);
@@ -26,15 +20,10 @@ pub fn service_action(args: &[String]) {
     println!("Action {} sent to service {}.", action, name);
 }
 
-pub fn autostart(args: &[String]) {
-    if args.len() < 4 {
-        eprintln!("Error: Missing service name or toggle value (on/off).");
-        exit(1);
-    }
-    let name = &args[2];
+pub fn autostart(name: &str, toggle: &str) {
     validate_name(name);
-    let toggle = args[3].to_lowercase();
-    let restart_policy = if toggle == "on" || toggle == "true" || toggle == "1" {
+    let toggle_lower = toggle.to_lowercase();
+    let restart_policy = if toggle_lower == "on" || toggle_lower == "true" || toggle_lower == "1" {
         "always".to_string()
     } else {
         "no".to_string()
@@ -76,12 +65,7 @@ pub fn autostart(args: &[String]) {
     }
 }
 
-pub fn remove_service(args: &[String]) {
-    if args.len() < 3 {
-        eprintln!("Error: Missing service name.");
-        exit(1);
-    }
-    let name = &args[2];
+pub fn remove_service(name: &str) {
     validate_name(name);
 
     let mut cfg = match config::load_config("/boot/config/plugins/nix/process-compose.yml") {
@@ -112,12 +96,7 @@ pub fn remove_service(args: &[String]) {
     }
 }
 
-pub fn install(args: &[String]) {
-    if args.len() < 3 {
-        eprintln!("Error: Missing package name.");
-        exit(1);
-    }
-    let package = &args[2];
+pub fn install(package: &str) {
     if let Err(e) = search::install_package(package) {
         crate::store::log_event("ERROR", &format!("CLI package installation failed for '{}': {}", package, e));
         eprintln!("Installation failed: {}", e);
@@ -127,8 +106,25 @@ pub fn install(args: &[String]) {
     println!("Successfully installed package: {}", package);
 }
 
-pub fn sandbox_cmd(args: &[String]) {
-    match sandbox::parse_sandbox_args(args) {
+pub fn sandbox_cmd(args: &crate::cli::args::SandboxArgs) {
+    let config = sandbox::SandboxConfig {
+        name: args.name.clone(),
+        appdata_path: args.appdata.clone(),
+        media_path: args.media.clone(),
+        puid: args.puid,
+        pgid: args.pgid,
+        enable_gpu: args.gpu,
+        gpus: args.gpus.clone(),
+        inner_command: args.cmd.clone(),
+        extra_binds: args.extra_binds.as_ref()
+            .and_then(|s| sandbox::parse_binds_string(s).ok())
+            .unwrap_or_default(),
+        port: args.port.clone(),
+        bind_address: args.bind_address.clone(),
+        host_init_commands: Vec::new(),
+        enable_network_isolation: args.network_isolation,
+    };
+    match sandbox::build_bwrap_command(&config) {
         Ok(cmd) => println!("{}", cmd),
         Err(e) => {
             eprintln!("Error: {}", e);
@@ -137,35 +133,27 @@ pub fn sandbox_cmd(args: &[String]) {
     }
 }
 
-pub fn preset_cmd(args: &[String]) {
-    if args.len() < 8 {
-        eprintln!("Error: Missing arguments: preset <name> <appdata> <media> <puid> <pgid> <gpu> [extra_binds] [port] [bind_address]");
-        exit(1);
-    }
-    let name = &args[2];
+pub fn preset_cmd(
+    name: &str,
+    appdata: &str,
+    media: &str,
+    puid: u32,
+    pgid: u32,
+    gpu_str: &str,
+    extra_binds_str: Option<&str>,
+    port_str: Option<&str>,
+    bind_address_str: Option<&str>,
+) {
     validate_name(name);
-    let appdata = &args[3];
-    let media = if args[4] == "-" { "" } else { &args[4] };
-    let puid = args[5].parse::<u32>().unwrap_or(99);
-    let pgid = args[6].parse::<u32>().unwrap_or(100);
-    let gpu = args[7] == "1" || args[7] == "true";
-    let extra_binds = if args.len() >= 9 && args[8] != "-" && !args[8].is_empty() {
-        sandbox::parse_binds_string(&args[8]).unwrap_or_default()
-    } else {
-        Vec::new()
-    };
-    let port = if args.len() >= 10 && args[9] != "-" && !args[9].is_empty() {
-        Some(args[9].clone())
-    } else {
-        None
-    };
-    let bind_address = if args.len() >= 11 && args[10] != "-" && !args[10].is_empty() {
-        Some(args[10].clone())
-    } else {
-        None
-    };
+    let media_val = if media == "-" { "" } else { media };
+    let gpu = gpu_str == "1" || gpu_str == "true";
+    let extra_binds = extra_binds_str
+        .and_then(|s| if s != "-" && !s.is_empty() { sandbox::parse_binds_string(s).ok() } else { None })
+        .unwrap_or_default();
+    let port = port_str.and_then(|s| if s != "-" && !s.is_empty() { Some(s.to_string()) } else { None });
+    let bind_address = bind_address_str.and_then(|s| if s != "-" && !s.is_empty() { Some(s.to_string()) } else { None });
 
-    match config::get_service_command_preset(name, appdata, media, puid, pgid, gpu, None, extra_binds, port, bind_address) {
+    match config::get_service_command_preset(name, appdata, media_val, puid, pgid, gpu, None, extra_binds, port, bind_address) {
         Ok(cmd) => println!("{}", cmd),
         Err(e) => {
             eprintln!("Error: {}", e);
@@ -174,15 +162,9 @@ pub fn preset_cmd(args: &[String]) {
     }
 }
 
-pub fn add_service(args: &[String]) {
-    if args.len() < 4 {
-        eprintln!("Error: Missing arguments: add-service <name> <command> [restart_policy]");
-        exit(1);
-    }
-    let name = args[2].clone();
-    validate_name(&name);
-    let cmd = args[3].clone();
-    let restart = if args.len() >= 5 { args[4].clone() } else { "always".to_string() };
+pub fn add_service(name: &str, cmd: &str, restart_policy: Option<&str>) {
+    validate_name(name);
+    let restart = restart_policy.unwrap_or("always").to_string();
 
     let mut cfg = match config::load_config("/boot/config/plugins/nix/process-compose.yml") {
         Ok(c) => c,
@@ -213,8 +195,8 @@ pub fn add_service(args: &[String]) {
     }
 
     let log_location = Some(format!("/var/log/nix-services/{}.log", name));
-    cfg.processes.insert(name, config::ProcessDefinition {
-        command: cmd,
+    cfg.processes.insert(name.to_string(), config::ProcessDefinition {
+        command: cmd.to_string(),
         availability: Some(config::Availability {
             restart,
             backoff_seconds: Some(5),

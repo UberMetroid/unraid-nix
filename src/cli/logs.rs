@@ -1,12 +1,7 @@
 use serde_json::Value;
 use std::process::exit;
 
-pub fn view_logs(args: &[String]) {
-    if args.len() < 3 {
-        eprintln!("Error: Missing service name.");
-        exit(1);
-    }
-    let service = &args[2];
+pub fn view_logs(service: &str) {
     if service.is_empty() || !service.chars().all(|c| c.is_alphanumeric() || c == '_' || c == '-') {
         eprintln!("Error: Invalid service name.");
         exit(1);

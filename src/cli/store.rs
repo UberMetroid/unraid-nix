@@ -1,11 +1,6 @@
 use crate::store;
 
-pub fn setup_store(args: &[String]) {
-    if args.len() < 3 {
-        eprintln!("Error: Missing persistent path.");
-        std::process::exit(1);
-    }
-    let path = &args[2];
+pub fn setup_store(path: &str) {
     if let Err(e) = store::mount_nix_store(path) {
         eprintln!("Error mounting nix store: {}", e);
         std::process::exit(1);

@@ -6,46 +6,23 @@ use std::time::Duration;
 
 /// Custom streamer for real-time installer output.
 /// Replaces the legacy `web/stream.php` capture loops.
-pub fn stream_install(args: &[String]) {
-    let mut action = "";
-    let mut install_type = "";
-    let mut uri = "";
-    let mut appdata = "";
-    let mut media = "";
-    let mut puid = "99";
-    let mut pgid = "100";
-    let mut gpu = "0";
-    let mut gpus = "";
-    let mut extra_binds = "";
-    let mut port = "";
-    let mut bind_address = "";
-    let mut env_vars = "";
-    let mut compile_locally = false;
-    let mut command_override = "";
-    let mut network_isolation = "0";
-
-    let mut i = 2;
-    while i < args.len() {
-        match args[i].as_str() {
-            "--action" => { if i + 1 < args.len() { action = &args[i+1]; } i += 2; }
-            "--type" => { if i + 1 < args.len() { install_type = &args[i+1]; } i += 2; }
-            "--uri" => { if i + 1 < args.len() { uri = &args[i+1]; } i += 2; }
-            "--appdata" => { if i + 1 < args.len() { appdata = &args[i+1]; } i += 2; }
-            "--media" => { if i + 1 < args.len() { media = &args[i+1]; } i += 2; }
-            "--puid" => { if i + 1 < args.len() { puid = &args[i+1]; } i += 2; }
-            "--pgid" => { if i + 1 < args.len() { pgid = &args[i+1]; } i += 2; }
-            "--gpu" => { if i + 1 < args.len() { gpu = &args[i+1]; } i += 2; }
-            "--gpus" => { if i + 1 < args.len() { gpus = &args[i+1]; } i += 2; }
-            "--extra-binds" => { if i + 1 < args.len() { extra_binds = &args[i+1]; } i += 2; }
-            "--port" => { if i + 1 < args.len() { port = &args[i+1]; } i += 2; }
-            "--bind-address" => { if i + 1 < args.len() { bind_address = &args[i+1]; } i += 2; }
-            "--env-vars" => { if i + 1 < args.len() { env_vars = &args[i+1]; } i += 2; }
-            "--network-isolation" => { if i + 1 < args.len() { network_isolation = &args[i+1]; } i += 2; }
-            "--compile-locally" => { compile_locally = true; i += 1; }
-            "--command-override" => { if i + 1 < args.len() { command_override = &args[i+1]; } i += 2; }
-            _ => { i += 1; }
-        }
-    }
+pub fn stream_install(args: &crate::cli::args::StreamInstallArgs) {
+    let action = &args.action;
+    let install_type = args.r#type.as_deref().unwrap_or("");
+    let uri = &args.uri;
+    let appdata = args.appdata.as_deref().unwrap_or("");
+    let media = args.media.as_deref().unwrap_or("");
+    let puid = args.puid.as_deref().unwrap_or("99");
+    let pgid = args.pgid.as_deref().unwrap_or("100");
+    let gpu = args.gpu.as_deref().unwrap_or("0");
+    let gpus = args.gpus.as_deref().unwrap_or("");
+    let extra_binds = args.extra_binds.as_deref().unwrap_or("");
+    let port = args.port.as_deref().unwrap_or("");
+    let bind_address = args.bind_address.as_deref().unwrap_or("");
+    let env_vars = args.env_vars.as_deref().unwrap_or("");
+    let compile_locally = args.compile_locally;
+    let command_override = args.command_override.as_deref().unwrap_or("");
+    let network_isolation = args.network_isolation.as_deref().unwrap_or("0");
 
     let mut cmd_args = Vec::new();
     let mut is_service = false;

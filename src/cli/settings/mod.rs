@@ -5,116 +5,24 @@ pub mod migration;
 
 pub use helpers::{parse_ini_file, detect_default_store_path, detect_appdata_root};
 
-pub fn save_settings(args: &[String]) {
-    let mut store_path = String::new();
-    let mut autostart = "yes".to_string();
-    let mut enable_sandbox = "no".to_string();
-    let mut enable_cli = "no".to_string();
-    let mut show_in_nav = "yes".to_string();
-    let mut allow_source_builds = "no".to_string();
-    let mut filter_presets_by_hardware = "yes".to_string();
-    let mut enable_pid_isolation = "yes".to_string();
-    let mut enable_uts_isolation = "yes".to_string();
-    let mut enable_ipc_isolation = "yes".to_string();
-    let mut auto_gc = "no".to_string();
-    let mut store_quota = "30".to_string();
-    let mut build_cores = "0".to_string();
-    let mut build_jobs = "0".to_string();
-    let mut gc_min_free = "5".to_string();
-    let mut gc_max_free = "10".to_string();
-    let mut nix_channel = "nixos-unstable".to_string();
-
-    let mut i = 2;
-    while i < args.len() {
-        match args[i].as_str() {
-            "--store-path" => {
-                if i + 1 >= args.len() { eprintln!("Error: Missing store path"); exit(1); }
-                store_path = args[i+1].clone();
-                i += 2;
-            }
-            "--autostart" => {
-                if i + 1 >= args.len() { eprintln!("Error: Missing autostart"); exit(1); }
-                autostart = args[i+1].clone();
-                i += 2;
-            }
-            "--enable-sandbox" => {
-                if i + 1 >= args.len() { eprintln!("Error: Missing enable-sandbox"); exit(1); }
-                enable_sandbox = args[i+1].clone();
-                i += 2;
-            }
-            "--enable-cli" => {
-                if i + 1 >= args.len() { eprintln!("Error: Missing enable-cli"); exit(1); }
-                enable_cli = args[i+1].clone();
-                i += 2;
-            }
-            "--show-in-nav" => {
-                if i + 1 >= args.len() { eprintln!("Error: Missing show-in-nav"); exit(1); }
-                show_in_nav = args[i+1].clone();
-                i += 2;
-            }
-            "--allow-source-builds" => {
-                if i + 1 >= args.len() { eprintln!("Error: Missing allow-source-builds value"); exit(1); }
-                allow_source_builds = args[i+1].clone();
-                i += 2;
-            }
-            "--filter-presets-by-hardware" => {
-                if i + 1 >= args.len() { eprintln!("Error: Missing filter-presets-by-hardware value"); exit(1); }
-                filter_presets_by_hardware = args[i+1].clone();
-                i += 2;
-            }
-            "--enable-pid-isolation" => {
-                if i + 1 >= args.len() { eprintln!("Error: Missing enable-pid-isolation value"); exit(1); }
-                enable_pid_isolation = args[i+1].clone();
-                i += 2;
-            }
-            "--enable-uts-isolation" => {
-                if i + 1 >= args.len() { eprintln!("Error: Missing enable-uts-isolation value"); exit(1); }
-                enable_uts_isolation = args[i+1].clone();
-                i += 2;
-            }
-            "--enable-ipc-isolation" => {
-                if i + 1 >= args.len() { eprintln!("Error: Missing enable-ipc-isolation value"); exit(1); }
-                enable_ipc_isolation = args[i+1].clone();
-                i += 2;
-            }
-            "--auto-gc" => {
-                if i + 1 >= args.len() { eprintln!("Error: Missing auto-gc value"); exit(1); }
-                auto_gc = args[i+1].clone();
-                i += 2;
-            }
-            "--store-quota" => {
-                if i + 1 >= args.len() { eprintln!("Error: Missing store-quota value"); exit(1); }
-                store_quota = args[i+1].clone();
-                i += 2;
-            }
-            "--build-cores" => {
-                if i + 1 >= args.len() { eprintln!("Error: Missing build-cores value"); exit(1); }
-                build_cores = args[i+1].clone();
-                i += 2;
-            }
-            "--build-jobs" => {
-                if i + 1 >= args.len() { eprintln!("Error: Missing build-jobs value"); exit(1); }
-                build_jobs = args[i+1].clone();
-                i += 2;
-            }
-            "--gc-min-free" => {
-                if i + 1 >= args.len() { eprintln!("Error: Missing gc-min-free value"); exit(1); }
-                gc_min_free = args[i+1].clone();
-                i += 2;
-            }
-            "--gc-max-free" => {
-                if i + 1 >= args.len() { eprintln!("Error: Missing gc-max-free value"); exit(1); }
-                gc_max_free = args[i+1].clone();
-                i += 2;
-            }
-            "--nix-channel" => {
-                if i + 1 >= args.len() { eprintln!("Error: Missing nix-channel value"); exit(1); }
-                nix_channel = args[i+1].clone();
-                i += 2;
-            }
-            _ => { eprintln!("Unknown save-settings flag: {}", args[i]); exit(1); }
-        }
-    }
+pub fn save_settings(args: &crate::cli::args::SaveSettingsArgs) {
+    let store_path = args.store_path.clone().unwrap_or_default();
+    let autostart = args.autostart.clone().unwrap_or_else(|| "yes".to_string());
+    let enable_sandbox = args.enable_sandbox.clone().unwrap_or_else(|| "no".to_string());
+    let enable_cli = args.enable_cli.clone().unwrap_or_else(|| "no".to_string());
+    let show_in_nav = args.show_in_nav.clone().unwrap_or_else(|| "yes".to_string());
+    let allow_source_builds = args.allow_source_builds.clone().unwrap_or_else(|| "no".to_string());
+    let filter_presets_by_hardware = args.filter_presets_by_hardware.clone().unwrap_or_else(|| "yes".to_string());
+    let enable_pid_isolation = args.enable_pid_isolation.clone().unwrap_or_else(|| "yes".to_string());
+    let enable_uts_isolation = args.enable_uts_isolation.clone().unwrap_or_else(|| "yes".to_string());
+    let enable_ipc_isolation = args.enable_ipc_isolation.clone().unwrap_or_else(|| "yes".to_string());
+    let auto_gc = args.auto_gc.clone().unwrap_or_else(|| "no".to_string());
+    let store_quota = args.store_quota.clone().unwrap_or_else(|| "30".to_string());
+    let build_cores = args.build_cores.clone().unwrap_or_else(|| "0".to_string());
+    let build_jobs = args.build_jobs.clone().unwrap_or_else(|| "0".to_string());
+    let gc_min_free = args.gc_min_free.clone().unwrap_or_else(|| "5".to_string());
+    let gc_max_free = args.gc_max_free.clone().unwrap_or_else(|| "10".to_string());
+    let nix_channel = args.nix_channel.clone().unwrap_or_else(|| "nixos-unstable".to_string());
 
     let cfg_file = "/boot/config/plugins/nix/nix.cfg";
     let old_cfg = parse_ini_file(cfg_file);

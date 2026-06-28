@@ -8,7 +8,7 @@ pub mod builder;
 pub mod cli;
 
 pub use builder::build_bwrap_command;
-pub use cli::{parse_sandbox_args, parse_binds_string};
+pub use cli::parse_binds_string;
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct PortMapping {

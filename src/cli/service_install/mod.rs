@@ -11,115 +11,21 @@ pub struct ExtraBind {
     pub sandbox: String,
 }
 
-pub fn install_service(args: &[String]) {
-    let mut uri = String::new();
-    let mut appdata = String::new();
-    let mut media = None;
-    let mut puid = 99;
-    let mut pgid = 100;
-    let mut gpu = false;
-    let mut gpus = None;
-    let mut extra_binds_json = String::new();
-    let mut port = None;
-    let mut bind_address = None;
-    let mut env_vars_json = String::new();
-    let mut compile_locally = false;
-    let mut command_override = String::new();
-    let mut network_isolation = false;
-
-    let mut i = 2;
-    while i < args.len() {
-        match args[i].as_str() {
-            "--uri" => {
-                if i + 1 >= args.len() { eprintln!("Error: Missing value for --uri"); exit(1); }
-                uri = args[i+1].clone();
-                i += 2;
-            }
-            "--appdata" => {
-                if i + 1 >= args.len() { eprintln!("Error: Missing value for --appdata"); exit(1); }
-                appdata = args[i+1].clone();
-                i += 2;
-            }
-            "--media" => {
-                if i + 1 >= args.len() { eprintln!("Error: Missing value for --media"); exit(1); }
-                let val = args[i+1].clone();
-                media = if val.trim().is_empty() || val == "-" { None } else { Some(val) };
-                i += 2;
-            }
-            "--puid" => {
-                if i + 1 >= args.len() { eprintln!("Error: Missing value for --puid"); exit(1); }
-                puid = args[i+1].parse::<u32>().unwrap_or(99);
-                i += 2;
-            }
-            "--pgid" => {
-                if i + 1 >= args.len() { eprintln!("Error: Missing value for --pgid"); exit(1); }
-                pgid = args[i+1].parse::<u32>().unwrap_or(100);
-                i += 2;
-            }
-            "--gpu" => {
-                if i + 1 < args.len() && (args[i+1] == "1" || args[i+1] == "true") {
-                    gpu = true;
-                    i += 2;
-                } else if i + 1 < args.len() && (args[i+1] == "0" || args[i+1] == "false") {
-                    gpu = false;
-                    i += 2;
-                } else {
-                    gpu = true;
-                    i += 1;
-                }
-            }
-            "--extra-binds" => {
-                if i + 1 >= args.len() { eprintln!("Error: Missing value for --extra-binds"); exit(1); }
-                extra_binds_json = args[i+1].clone();
-                i += 2;
-            }
-            "--port" => {
-                if i + 1 >= args.len() { eprintln!("Error: Missing value for --port"); exit(1); }
-                let val = args[i+1].clone();
-                port = if val.trim().is_empty() || val == "-" { None } else { Some(val) };
-                i += 2;
-            }
-            "--bind-address" => {
-                if i + 1 >= args.len() { eprintln!("Error: Missing value for --bind-address"); exit(1); }
-                let val = args[i+1].clone();
-                bind_address = if val.trim().is_empty() || val == "-" { None } else { Some(val) };
-                i += 2;
-            }
-            "--gpus" => {
-                if i + 1 >= args.len() { eprintln!("Error: Missing value for --gpus"); exit(1); }
-                let val = args[i+1].clone();
-                gpus = if val.trim().is_empty() || val == "-" { None } else { Some(val) };
-                i += 2;
-            }
-            "--env-vars" => {
-                if i + 1 >= args.len() { eprintln!("Error: Missing value for --env-vars"); exit(1); }
-                env_vars_json = args[i+1].clone();
-                i += 2;
-            }
-            "--network-isolation" => {
-                if i + 1 < args.len() && (args[i+1] == "1" || args[i+1] == "true" || args[i+1] == "yes") {
-                    network_isolation = true;
-                    i += 2;
-                } else if i + 1 < args.len() && (args[i+1] == "0" || args[i+1] == "false" || args[i+1] == "no") {
-                    network_isolation = false;
-                    i += 2;
-                } else {
-                    network_isolation = true;
-                    i += 1;
-                }
-            }
-            "--compile-locally" => {
-                compile_locally = true;
-                i += 1;
-            }
-            "--command-override" => {
-                if i + 1 >= args.len() { eprintln!("Error: Missing value for --command-override"); exit(1); }
-                command_override = args[i+1].clone();
-                i += 2;
-            }
-            _ => { eprintln!("Unknown install-service flag: {}", args[i]); exit(1); }
-        }
-    }
+pub fn install_service(args: &crate::cli::args::InstallServiceArgs) {
+    let uri = &args.uri;
+    let appdata = &args.appdata;
+    let media = &args.media;
+    let puid = args.puid;
+    let pgid = args.pgid;
+    let gpu = args.gpu;
+    let gpus = &args.gpus;
+    let extra_binds_json = args.extra_binds.as_deref().unwrap_or("");
+    let port = &args.port;
+    let bind_address = &args.bind_address;
+    let env_vars_json = args.env_vars.as_deref().unwrap_or("");
+    let compile_locally = args.compile_locally;
+    let command_override = args.command_override.as_deref().unwrap_or("");
+    let network_isolation = args.network_isolation;
 
     let extra_binds = setup::parse_and_create_binds(&extra_binds_json, puid, pgid);
     setup::setup_appdata_dir(&appdata, puid, pgid);
@@ -154,7 +60,7 @@ pub fn install_service(args: &[String]) {
             pgid,
             enable_gpu: gpu,
             gpus: gpus.clone(),
-            inner_command: command_override.clone(),
+            inner_command: command_override.to_string(),
             extra_binds: binds_vec.clone(),
             port: port.clone(),
             bind_address: bind_address.clone(),

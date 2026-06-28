@@ -2,12 +2,7 @@ use crate::config;
 use serde_json::Value;
 use std::process::exit;
 
-pub fn get_metadata(args: &[String]) {
-    if args.len() < 3 {
-        eprintln!("Error: Missing service name.");
-        exit(1);
-    }
-    let name = &args[2];
+pub fn get_metadata(name: &str) {
     if name.is_empty() || !name.chars().all(|c| c.is_alphanumeric() || c == '_' || c == '-') {
         eprintln!("Error: Invalid service name.");
         exit(1);
