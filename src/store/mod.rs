@@ -128,10 +128,10 @@ pub fn setup_nix_conf() -> Result<(), String> {
     log_event("INFO", "Writing nix.conf to apply resource and builder settings...");
     
     let allow_source = config::read_allow_source_builds();
-    let build_cores = config::read_cfg_val("BUILD_CORES=", "0");
-    let build_jobs = config::read_cfg_val("BUILD_JOBS=", "0");
-    let gc_min_free_gb: u64 = config::read_cfg_val("GC_MIN_FREE=", "5").parse().unwrap_or(5);
-    let gc_max_free_gb: u64 = config::read_cfg_val("GC_MAX_FREE=", "10").parse().unwrap_or(10);
+    let build_cores = config::read_cfg_val("BUILD_CORES", "0");
+    let build_jobs = config::read_cfg_val("BUILD_JOBS", "0");
+    let gc_min_free_gb: u64 = config::read_cfg_val("GC_MIN_FREE", "5").parse().unwrap_or(5);
+    let gc_max_free_gb: u64 = config::read_cfg_val("GC_MAX_FREE", "10").parse().unwrap_or(10);
 
     let default_conf = generate_nix_conf_content(
         allow_source,
@@ -149,7 +149,7 @@ pub fn setup_nix_conf() -> Result<(), String> {
 
     // Configure system-wide flake registry overrides to pin nixpkgs channel
     let registry_path = "/nix/etc/nix/registry.json";
-    let channel_ref = config::read_cfg_val("NIX_CHANNEL=", "nixos-unstable");
+    let channel_ref = config::read_cfg_val("NIX_CHANNEL", "nixos-unstable");
     let registry_content = format!(
         r#"{{"flakes": [{{"from": {{"id": "nixpkgs", "type": "indirect"}}, "to": {{"owner": "NixOS", "repo": "nixpkgs", "ref": "{}", "type": "github"}}}}], "version": 2}}"#,
         channel_ref

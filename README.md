@@ -120,5 +120,17 @@ The Template Library allows you to deploy over 165+ pre-configured, self-hosted 
 
 ---
 
+## 7. Debugging & Troubleshooting
+
+### Enabling Verbose Logs via NIX_DEBUG
+If you encounter issues during service mounting, initialization, or settings changes, you can enable verbose error forwarding to standard error by setting the `NIX_DEBUG` environment variable:
+```bash
+export NIX_DEBUG=1
+nix-helper [command]
+```
+When `NIX_DEBUG` is defined, the Rust helper will write detailed runtime diagnostics to `stderr` in addition to `/var/log/nix-plugin.log`.
+
+---
+
 ## 📋 TODO / Future Roadmap
 - [ ] **Nix Services Dashboard Widget**: Add a premium, high-density widget to the main Unraid Dashboard tab showing aggregated CPU/RAM progress bars, running service details, and quick start/stop buttons.

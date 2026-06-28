@@ -1,4 +1,4 @@
-use std::process::exit;
+use std::process::{exit, Command};
 
 pub mod helpers;
 pub mod migration;
@@ -62,7 +62,7 @@ pub fn save_settings(args: &crate::cli::args::SaveSettingsArgs) {
     if auto_gc == "yes" {
         let cron_content = "#!/bin/sh\nif [ -f /nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh ]; then\n    . /nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh\n    nix-collect-garbage -d >/var/log/nix-gc.log 2>&1\nfi\n";
         let _ = std::fs::write(cron_path, cron_content);
-        let _ = std::process::Command::new("chmod").args(["+x", cron_path]).output();
+        let _ = Command::new("chmod").args(["+x", cron_path]).output();
     } else {
         let _ = std::fs::remove_file(cron_path);
     }
@@ -89,7 +89,7 @@ pub fn save_settings(args: &crate::cli::args::SaveSettingsArgs) {
       }
 
       if migration_performed {
-          let _ = std::process::Command::new("/usr/local/emhttp/plugins/nix/event/disks_mounted").output();
+          let _ = Command::new("/usr/local/emhttp/plugins/nix/event/disks_mounted").output();
       }
       println!("Settings saved successfully.");
   }

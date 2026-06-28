@@ -6,7 +6,6 @@ pub fn log_event(level: &str, msg: &str) {
 }
 
 fn log_event_to_path(log_path: &str, level: &str, msg: &str, max_size: u64) {
-    let now = Local::now().format("%Y-%m-%d %H:%M:%S");
     
     struct LockGuard {
         path: String,
@@ -64,6 +63,7 @@ fn log_event_to_path(log_path: &str, level: &str, msg: &str, max_size: u64) {
     let safe_level = level.replace('\n', " ").replace('\r', " ").replace('[', "(").replace(']', ")");
     let safe_msg = msg.replace('\n', " ").replace('\r', " ").replace('[', "(").replace(']', ")");
     
+    let now = Local::now().format("%Y-%m-%d %H:%M:%S");
     let line = format!("{} [{}] {}\n", now, safe_level, safe_msg);
     
     if let Ok(mut file) = std::fs::OpenOptions::new()
@@ -103,12 +103,11 @@ pub fn validate_store_path(path: &str) -> Result<(), String> {
 pub fn read_cfg_val(key: &str, default: &str) -> String {
     let cfg_file = "/boot/config/plugins/nix/nix.cfg";
     let map = crate::unraid::parse_ini_file(cfg_file);
-    let clean_key = key.strip_suffix('=').unwrap_or(key);
-    map.get(clean_key).cloned().unwrap_or_else(|| default.to_string())
+    map.get(key).cloned().unwrap_or_else(|| default.to_string())
 }
 
 pub fn read_allow_source_builds() -> bool {
-    read_cfg_val("ALLOW_SOURCE_BUILDS=", "no") == "yes"
+    read_cfg_val("ALLOW_SOURCE_BUILDS", "no") == "yes"
 }
 
 pub fn generate_nix_conf_content(

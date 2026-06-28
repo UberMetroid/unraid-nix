@@ -82,7 +82,7 @@ fn test_generate_nix_conf_content() {
 
 #[test]
 fn test_log_event_sanitization_and_rotation() {
-    let log_file = std::env::temp_dir().join(format!("nix-plugin-test-{}.log", chrono::Utc::now().timestamp_micros()));
+    let log_file = std::env::temp_dir().join(format!("nix-plugin-test-{}.log", std::process::id()));
     let log_file_str = log_file.to_str().unwrap();
 
     // 1. Test sanitization of newlines and brackets
