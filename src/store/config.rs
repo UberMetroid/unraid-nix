@@ -121,6 +121,47 @@ mod tests {
     }
 
     #[test]
+    fn test_is_valid_service_name_equivalence() {
+        let regex_equiv = |name: &str| -> bool {
+            if name.is_empty() { return false; }
+            let parts: Vec<&str> = name.split('.').collect();
+            for part in parts {
+                if part.is_empty() { return false; }
+                if !part.chars().all(|c| c.is_alphanumeric() || c == '_' || c == '-') {
+                    return false;
+                }
+            }
+            true
+        };
+
+        // Assert 100+ ASCII strings match
+        let test_cases = vec![
+            "homepage", "seafile-client", "my.service", "", ".service", "service.", "my..service",
+            "a", "1", "_", "-", "a-b", "a_b", "a.b.c", "a-b.c-d.e_f",
+        ];
+        
+        let mut leakage = Vec::new();
+        for c in 32u8..=126 {
+            let ch = c as char;
+            leakage.push(format!("a{}b", ch));
+            leakage.push(format!("{}ab", ch));
+            leakage.push(format!("ab{}", ch));
+        }
+
+        for case in &test_cases {
+            let is_valid = is_valid_service_name(case);
+            let expected = regex_equiv(case);
+            assert_eq!(is_valid, expected, "Mismatch for case '{}'", case);
+        }
+
+        for case in &leakage {
+            let is_valid = is_valid_service_name(case);
+            let expected = regex_equiv(case);
+            assert_eq!(is_valid, expected, "Mismatch for case '{}'", case);
+        }
+    }
+
+    #[test]
     fn test_validate_store_path() {
         assert!(validate_store_path("").is_err());
         assert!(validate_store_path("/boot/nix").is_err());

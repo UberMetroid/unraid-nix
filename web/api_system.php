@@ -54,6 +54,11 @@ if ($action === 'nix-sys-logs') {
         $service = substr($log_type, 8);
         if (preg_match('/^[a-zA-Z0-9_-]+(?:\.[a-zA-Z0-9_-]+)*$/', $service)) {
             $file = "/var/log/nix-services/{$service}.log";
+            $dir = dirname($file);
+            $real_dir = realpath($dir);
+            if ($real_dir === false || $real_dir !== '/var/log/nix-services') {
+                error("Invalid service log path.");
+            }
         } else {
             error("Invalid service log name.");
         }
@@ -72,7 +77,10 @@ if ($action === 'nix-sys-logs') {
             $files = glob('/var/log/nix-services/*.log');
             if ($files !== false) {
                 foreach ($files as $f) {
-                    $service_logs[] = basename($f, '.log');
+                    $name = basename($f, '.log');
+                    if (preg_match('/^[a-zA-Z0-9_-]+(?:\.[a-zA-Z0-9_-]+)*$/', $name)) {
+                        $service_logs[] = $name;
+                    }
                 }
             }
         }
