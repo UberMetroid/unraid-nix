@@ -112,23 +112,23 @@ pub fn render_service_row(
     let autostart_html = render_autostart_cell(&s.name, autostart_enabled);
 
     let start_btn = if !is_running {
-        format!(r#"<button type="button" class="nix-btn" onclick="serviceAction('{}', 'start')" title="Start"><i class="fa fa-play" style="color: #2ecc71;"></i></button>"#, s.name)
+        format!(r#"<button type="button" class="nix-btn nix-btn-sm" onclick="serviceAction('{}', 'start')" title="Start"><i class="fa fa-play" style="color: #2ecc71;"></i></button>"#, s.name)
     } else {
-        format!(r#"<button type="button" class="nix-btn" disabled title="Service is running"><i class="fa fa-play" style="color: var(--nix-text-muted);"></i></button>"#)
+        format!(r#"<button type="button" class="nix-btn nix-btn-sm" disabled title="Service is running"><i class="fa fa-play" style="color: var(--nix-text-muted);"></i></button>"#)
     };
 
     let stop_btn = if is_running {
-        format!(r#"<button type="button" class="nix-btn" onclick="serviceAction('{}', 'stop')" title="Stop"><i class="fa fa-stop" style="color: #e74c3c;"></i></button>"#, s.name)
+        format!(r#"<button type="button" class="nix-btn nix-btn-sm" onclick="serviceAction('{}', 'stop')" title="Stop"><i class="fa fa-stop" style="color: #e74c3c;"></i></button>"#, s.name)
     } else {
-        format!(r#"<button type="button" class="nix-btn" disabled title="Service is stopped"><i class="fa fa-stop" style="color: var(--nix-text-muted);"></i></button>"#)
+        format!(r#"<button type="button" class="nix-btn nix-btn-sm" disabled title="Service is stopped"><i class="fa fa-stop" style="color: var(--nix-text-muted);"></i></button>"#)
     };
 
     let edit_btn = format!(
-        r#"<button type="button" class="nix-btn" onclick="editService('{}')" title="Edit Config"><i class="fa fa-edit"></i></button>"#,
+        r#"<button type="button" class="nix-btn nix-btn-sm" onclick="editService('{}')" title="Edit Config"><i class="fa fa-edit"></i></button>"#,
         s.name
     );
 
-    let logs_btn = format!(r#"<button type="button" class="nix-btn" onclick="openLogs('{}')" title="Logs"><i class="fa fa-file-text-o"></i></button>"#, s.name);
+    let logs_btn = format!(r#"<button type="button" class="nix-btn nix-btn-sm" onclick="openLogs('{}')" title="Logs"><i class="fa fa-file-text-o"></i></button>"#, s.name);
 
     let resources_html = render_resources_cell(&s.name, is_running, s.cpu, s.memory, &gpus_override, &legacy_gpu, &s.gpu_stats);
 
@@ -136,37 +136,43 @@ pub fn render_service_row(
     let cfg = get_service_fa_config(&s.name);
 
     format!(
-        r#"<div class="nix-preset-card nix-service-card" data-name="{}" style="background: var(--nix-bg-secondary); border: 1px solid var(--nix-border-primary); border-radius: 6px; padding: 16px; display: flex; flex-direction: column; justify-content: space-between; transition: transform 0.2s ease, border-color 0.2s ease, background 0.2s ease, box-shadow 0.2s ease; height: 260px; position: relative;">
+        r#"<div class="nix-preset-card nix-service-card" data-name="{}" style="background: var(--nix-bg-secondary); border: 1px solid var(--nix-border-primary); border-radius: 6px; padding: 16px; display: flex; flex-direction: column; justify-content: space-between; transition: transform 0.2s ease, border-color 0.2s ease, background 0.2s ease, box-shadow 0.2s ease; height: 200px; position: relative;">
             <div>
                 <!-- Top Row: Icon and Title info -->
-                <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 12px;">
+                <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 10px;">
                     <div style="width: 32px; height: 32px; border-radius: 4px; background: {}; border: 1px solid {}; display: flex; align-items: center; justify-content: center; color: {}; flex-shrink: 0;">
                         <i class="fa {}" style="font-size: 15px;"></i>
                     </div>
                     <div style="display: flex; flex-direction: column; overflow: hidden; width: 100%;">
                         <div style="display: flex; align-items: center; justify-content: space-between; gap: 8px; width: 100%;">
                             <strong style="font-size: 14px; color: var(--nix-text-primary); text-overflow: ellipsis; white-space: nowrap; overflow: hidden;" title="{}">{}</strong>
-                            <div style="flex-shrink: 0;" class="nix-service-status-badge" data-service="{}">
-                                <span class="status-indicator {}">{}</span>
+                            <div style="display: flex; flex-direction: column; align-items: flex-end; gap: 4px; flex-shrink: 0;">
+                                <div style="display: inline-flex; align-items: center; gap: 4px;" title="Auto Restart">
+                                    <span style="font-size: 8px; color: var(--nix-text-muted); font-weight: 600;">AUTOSTART</span>
+                                    {}
+                                </div>
+                                <div class="nix-service-status-badge" data-service="{}">
+                                    <span class="status-indicator {}">{}</span>
+                                </div>
                             </div>
                         </div>
-                        <div style="display: flex; align-items: center; gap: 6px; font-size: 10px; margin-top: 1px;">
+                        <div style="display: flex; align-items: center; gap: 6px; font-size: 10px; margin-top: 2px;">
                             <span style="font-family: monospace; color: var(--nix-text-secondary);">nixpkgs#{}</span>
                         </div>
                     </div>
                 </div>
 
                 <!-- Info list -->
-                <div style="display: flex; flex-direction: column; gap: 8px; font-size: 11px; margin-top: 15px; border-top: 1px solid var(--nix-border-primary); padding-top: 10px;">
-                    <div style="display: flex; justify-content: space-between; align-items: center; line-height: 1.4;">
+                <div style="display: flex; flex-direction: column; gap: 6px; font-size: 11px; margin-top: 10px; border-top: 1px solid var(--nix-border-primary); padding-top: 8px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; line-height: 1.3;">
                         <span style="color: var(--nix-text-secondary);">Version / Info:</span>
                         <span style="text-align: right; color: var(--nix-text-primary);">{}</span>
                     </div>
-                    <div style="display: flex; justify-content: space-between; align-items: center; line-height: 1.4;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; line-height: 1.3;">
                         <span style="color: var(--nix-text-secondary);">Web Interface:</span>
                         <span style="text-align: right; max-width: 170px; word-break: break-all; overflow-wrap: break-word;">{}</span>
                     </div>
-                    <div style="display: flex; justify-content: space-between; align-items: flex-start; line-height: 1.4;">
+                    <div style="display: flex; justify-content: space-between; align-items: flex-start; line-height: 1.3;">
                         <span style="color: var(--nix-text-secondary); margin-top: 2px;">Resources:</span>
                         <div style="text-align: right; display: flex; flex-direction: column; align-items: flex-end;">{}</div>
                     </div>
@@ -174,22 +180,16 @@ pub fn render_service_row(
             </div>
 
             <!-- Footer Toggles / Buttons -->
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 15px; padding-top: 10px; border-top: 1px solid var(--nix-border-primary);">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 10px; padding-top: 8px; border-top: 1px solid var(--nix-border-primary);">
                 <div style="display: flex; gap: 6px; align-items: center;">
                     {}
                     {}
                     {}
                     {}
                 </div>
-                <div style="display: flex; align-items: center; gap: 8px;">
-                    <div style="display: inline-flex; align-items: center; gap: 4px;" title="Autostart">
-                        <span style="font-size: 10px; color: var(--nix-text-muted);">Autostart</span>
-                        {}
-                    </div>
-                    <button type="button" class="nix-btn" style="color: #e74c3c; border-color: var(--nix-border-primary); margin: 0; padding: 4px 8px;" onclick="removeService('{}')" title="Remove"><i class="fa fa-trash-o" style="color: #e74c3c;"></i></button>
-                </div>
+                <button type="button" class="nix-btn nix-btn-sm" style="color: #e74c3c; border-color: var(--nix-border-primary); margin: 0;" onclick="removeService('{}')" title="Remove"><i class="fa fa-trash-o" style="color: #e74c3c;"></i></button>
             </div>
         </div>"#,
-        s.name, cfg.bg, cfg.border, cfg.color, cfg.icon, s.name, s.name, s.name, status_class, status_label, s.name, version_badge, lan_ip_port_html, resources_html, start_btn, stop_btn, edit_btn, logs_btn, autostart_html, s.name
+        s.name, cfg.bg, cfg.border, cfg.color, cfg.icon, s.name, s.name, autostart_html, s.name, status_class, status_label, s.name, version_badge, lan_ip_port_html, resources_html, start_btn, stop_btn, edit_btn, logs_btn, s.name
     )
 }

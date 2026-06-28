@@ -110,25 +110,23 @@ pub fn render_resources_cell(
         let mem_str = format!("{:.1} MB", mb);
         
         res.push_str(&format!(
-            r#"<div class="nix-stat-row" data-service="{}" data-type="cpu" style="display: flex; align-items: center; gap: 8px; margin-bottom: 2px;">
-                <svg class="nix-sparkline" style="width: 60px; height: 12px; overflow: visible; display: inline-block; vertical-align: middle;"></svg>
-                <span class="nix-stat-val" style="font-size: 11px; color: #00d5ff; font-family: monospace; font-weight: 500; min-width: 45px; text-align: right; display: inline-block;">{}</span>
-                <span style="font-size: 10px; color: var(--nix-text-muted); font-family: monospace;">CPU</span>
-               </div>
-               <div class="nix-stat-row" data-service="{}" data-type="ram" style="display: flex; align-items: center; gap: 8px; margin-bottom: 2px;">
-                <svg class="nix-sparkline" style="width: 60px; height: 12px; overflow: visible; display: inline-block; vertical-align: middle;"></svg>
-                <span class="nix-stat-val" style="font-size: 11px; color: #d946ef; font-family: monospace; font-weight: 500; min-width: 45px; text-align: right; display: inline-block;">{}</span>
-                <span style="font-size: 10px; color: var(--nix-text-muted); font-family: monospace;">RAM</span>
-               </div>
-               <div class="nix-stat-row" data-service="{}" data-type="io-in" style="display: flex; align-items: center; gap: 8px; margin-bottom: 2px;">
-                <svg class="nix-sparkline" style="width: 60px; height: 12px; overflow: visible; display: inline-block; vertical-align: middle;"></svg>
-                <span class="nix-stat-val" style="font-size: 11px; color: #2ecc71; font-family: monospace; font-weight: 500; min-width: 45px; text-align: right; display: inline-block;">0.0 B/s</span>
-                <span style="font-size: 10px; color: var(--nix-text-muted); font-family: monospace;">I/O In</span>
-               </div>
-               <div class="nix-stat-row" data-service="{}" data-type="io-out" style="display: flex; align-items: center; gap: 8px; margin-bottom: 4px;">
-                <svg class="nix-sparkline" style="width: 60px; height: 12px; overflow: visible; display: inline-block; vertical-align: middle;"></svg>
-                <span class="nix-stat-val" style="font-size: 11px; color: #e67e22; font-family: monospace; font-weight: 500; min-width: 45px; text-align: right; display: inline-block;">0.0 B/s</span>
-                <span style="font-size: 10px; color: var(--nix-text-muted); font-family: monospace;">I/O Out</span>
+            r#"<div style="display: flex; flex-direction: column; align-items: flex-end; gap: 4px;">
+                <div>
+                    <div class="nix-stat-row" data-service="{}" data-type="cpu" style="display: inline-block; margin-right: 6px;">
+                        <span class="nix-stat-val" style="font-size: 11px; color: #00d5ff; font-family: monospace; font-weight: 500;">{}</span> <span style="font-size: 10px; color: var(--nix-text-muted);">CPU</span>
+                    </div>
+                    <div class="nix-stat-row" data-service="{}" data-type="ram" style="display: inline-block;">
+                        <span class="nix-stat-val" style="font-size: 11px; color: #d946ef; font-family: monospace; font-weight: 500;">{}</span> <span style="font-size: 10px; color: var(--nix-text-muted);">RAM</span>
+                    </div>
+                </div>
+                <div>
+                    <div class="nix-stat-row" data-service="{}" data-type="io-in" style="display: inline-block; margin-right: 6px;">
+                        <i class="fa fa-arrow-down" style="color: #2ecc71; font-size: 9px; margin-right: 1px;"></i><span class="nix-stat-val" style="font-size: 11px; color: #2ecc71; font-family: monospace; font-weight: 500;">0.0 B/s</span>
+                    </div>
+                    <div class="nix-stat-row" data-service="{}" data-type="io-out" style="display: inline-block;">
+                        <i class="fa fa-arrow-up" style="color: #e67e22; font-size: 9px; margin-right: 1px;"></i><span class="nix-stat-val" style="font-size: 11px; color: #e67e22; font-family: monospace; font-weight: 500;">0.0 B/s</span>
+                    </div>
+                </div>
                </div>"#,
             name, cpu_str, name, mem_str, name, name
         ));
