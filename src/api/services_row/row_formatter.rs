@@ -148,16 +148,16 @@ pub fn render_service_row(
     let mapped_drives_html = if mapped_drives.is_empty() {
         r#"<span style="color: var(--nix-text-muted);">None</span>"#.to_string()
     } else {
-        let hover_lines: Vec<String> = mapped_drives.iter().map(|(h, s)| format!("{} -> {}", h, s)).collect();
-        let hover_text = hover_lines.join("\n");
-        if mapped_drives.len() == 1 {
-            let (h, s) = &mapped_drives[0];
-            let h_short = if h.len() > 18 { format!("...{}", &h[h.len()-15..]) } else { h.to_string() };
-            let s_short = if s.len() > 18 { format!("...{}", &s[s.len()-15..]) } else { s.to_string() };
-            format!(r#"<span style="color: var(--nix-text-primary); cursor: help;" title="{}">{} → {}</span>"#, hover_text, h_short, s_short)
-        } else {
-            format!(r#"<span style="color: var(--nix-text-primary); cursor: help; font-weight: 500;" title="{}">{} paths mapped</span>"#, hover_text, mapped_drives.len())
+        let mut lines = Vec::new();
+        for (h, s) in &mapped_drives {
+            let h_short = if h.len() > 18 { format!("...{}", &h[h.len()-15..]) } else { h.clone() };
+            let s_short = if s.len() > 18 { format!("...{}", &s[s.len()-15..]) } else { s.clone() };
+            lines.push(format!(
+                r#"<div style="font-family: monospace; font-size: 10px; color: var(--nix-text-primary); text-overflow: ellipsis; white-space: nowrap; overflow: hidden;" title="{} → {}">{} → {}</div>"#,
+                h, s, h_short, s_short
+            ));
         }
+        lines.join("")
     };
 
     let resources_html = render_resources_cell(&s.name, is_running, s.cpu, s.memory, &gpus_override, &legacy_gpu, &s.gpu_stats);
@@ -166,7 +166,7 @@ pub fn render_service_row(
     let cfg = get_service_fa_config(&s.name);
 
     format!(
-        r#"<div class="nix-preset-card nix-service-card" data-name="{}" style="background: var(--nix-bg-secondary); border: 1px solid var(--nix-border-primary); border-radius: 6px; padding: 16px; display: flex; flex-direction: column; justify-content: space-between; transition: transform 0.2s ease, border-color 0.2s ease, background 0.2s ease, box-shadow 0.2s ease; height: 240px; position: relative;">
+        r#"<div class="nix-preset-card nix-service-card" data-name="{}" style="background: var(--nix-bg-secondary); border: 1px solid var(--nix-border-primary); border-radius: 6px; padding: 16px; display: flex; flex-direction: column; justify-content: space-between; transition: transform 0.2s ease, border-color 0.2s ease, background 0.2s ease, box-shadow 0.2s ease; min-height: 240px; height: auto; position: relative;">
             <div>
                 <!-- Header Row 1: Button Bar on Right -->
                 <div style="display: flex; justify-content: flex-end; margin-bottom: 8px;">
@@ -206,9 +206,9 @@ pub fn render_service_row(
                         <span style="color: var(--nix-text-secondary);">Web Interface:</span>
                         <span style="text-align: right; max-width: 170px; word-break: break-all; overflow-wrap: break-word;">{}</span>
                     </div>
-                    <div style="display: flex; justify-content: space-between; align-items: center; line-height: 1.3;">
-                        <span style="color: var(--nix-text-secondary);">Mapped Drives:</span>
-                        <span style="text-align: right; max-width: 170px; word-break: break-all; overflow-wrap: break-word;">{}</span>
+                    <div style="display: flex; justify-content: space-between; align-items: flex-start; line-height: 1.3;">
+                        <span style="color: var(--nix-text-secondary); margin-top: 1px;">Mapped Drives:</span>
+                        <div style="text-align: right; display: flex; flex-direction: column; align-items: flex-end; gap: 3px; max-width: 170px; overflow: hidden;">{}</div>
                     </div>
                     <div style="display: flex; justify-content: space-between; align-items: flex-start; line-height: 1.3;">
                         <span style="color: var(--nix-text-secondary); margin-top: 2px;">Resources:</span>
