@@ -4,7 +4,7 @@ A native, 100% Rust-backed plugin to run the Nix package manager and manage Nix 
 
 ---
 
-## 🚀 Quick Installation
+## Quick Installation
 
 To install this plugin on your Unraid server:
 
@@ -133,5 +133,5 @@ When `NIX_DEBUG` is defined, the Rust helper will write detailed runtime diagnos
 
 ---
 
-## 📋 TODO / Future Roadmap
+## TODO / Future Roadmap
 - [ ] **Nix Services Dashboard Widget**: Add a premium, high-density widget to the main Unraid Dashboard tab showing aggregated CPU/RAM progress bars, running service details, and quick start/stop buttons.
