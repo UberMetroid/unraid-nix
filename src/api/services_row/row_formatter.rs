@@ -180,22 +180,20 @@ pub fn render_service_row(
                     </div>
                 </div>
                 
-                <!-- Header Row 2: Icon next to Flake Name & Resources on Left, Status Badge on Right -->
-                <div style="display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; margin-bottom: 10px;">
-                    <div style="display: flex; align-items: flex-start; gap: 10px; min-width: 0; flex: 1;">
-                        <div style="width: 32px; height: 32px; border-radius: 4px; background: {}; border: 1px solid {}; display: flex; align-items: center; justify-content: center; color: {}; flex-shrink: 0; margin-top: 2px;">
-                            <i class="fa {}" style="font-size: 15px;"></i>
-                        </div>
-                        <div style="display: flex; flex-direction: column; overflow: hidden; min-width: 0; flex: 1;">
-                            <strong style="font-size: 14px; color: var(--nix-text-primary); word-break: break-word; overflow-wrap: break-word;" title="{}">{}</strong>
-                            <span style="font-family: monospace; color: var(--nix-text-secondary); font-size: 10px; margin-top: 1px;">nixpkgs#{} {}</span>
-                            <div style="display: flex; flex-direction: column; font-size: 10px; color: var(--nix-text-secondary); margin-top: 4px; gap: 2px;">
-                                {}
-                            </div>
-                        </div>
+                <!-- Header Row 2: Icon next to Flake Name & Resources on Left -->
+                <div style="display: flex; align-items: flex-start; gap: 10px; margin-bottom: 10px;">
+                    <div style="width: 32px; height: 32px; border-radius: 4px; background: {}; border: 1px solid {}; display: flex; align-items: center; justify-content: center; color: {}; flex-shrink: 0; margin-top: 2px;">
+                        <i class="fa {}" style="font-size: 15px;"></i>
                     </div>
-                    <div class="nix-service-status-badge" data-service="{}" style="flex-shrink: 0; margin-top: 2px;">
-                        <span class="status-indicator {}">{}</span>
+                    <div style="display: flex; flex-direction: column; overflow: hidden; min-width: 0; flex: 1;">
+                        <div style="display: flex; align-items: center; gap: 6px; flex-wrap: wrap;">
+                            <strong style="font-size: 14px; color: var(--nix-text-primary); word-break: break-word; overflow-wrap: break-word;" title="{}">{}</strong>
+                            <span class="status-dot {}" data-service="{}" title="{}"></span>
+                        </div>
+                        <span style="font-family: monospace; color: var(--nix-text-secondary); font-size: 10px; margin-top: 1px;">nixpkgs#{} {}</span>
+                        <div style="display: flex; flex-direction: column; font-size: 10px; color: var(--nix-text-secondary); margin-top: 4px; gap: 2px;">
+                            {}
+                        </div>
                     </div>
                 </div>
 

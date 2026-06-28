@@ -379,3 +379,30 @@
     color: #f1c40f;
     border: 1px solid rgba(241, 196, 15, 0.3);
 }
+
+/* Subtle glowing status dot indicators */
+.status-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    display: inline-block;
+    vertical-align: middle;
+    flex-shrink: 0;
+}
+.status-dot.status-running {
+    background-color: #2ecc71;
+    box-shadow: 0 0 6px #2ecc71;
+}
+.status-dot.status-stopped {
+    background-color: var(--nix-text-muted);
+}
+.status-dot.status-failed {
+    background-color: #e74c3c;
+    box-shadow: 0 0 6px #e74c3c;
+    animation: nix-blink 1.5s infinite;
+}
+@keyframes nix-blink {
+    0% { opacity: 1; }
+    50% { opacity: 0.4; }
+    100% { opacity: 1; }
+}
