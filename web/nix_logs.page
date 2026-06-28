@@ -11,7 +11,7 @@ if (is_dir('/var/log/nix-services')) {
     if ($files !== false) {
         foreach ($files as $f) {
             $name = basename($f, '.log');
-            if (preg_match('/^[a-zA-Z0-9_-]+(?:\.[a-zA-Z0-9_-]+)*$/', $name)) {
+            if (preg_match(NIX_SERVICE_NAME_REGEX, $name)) {
                 $service_logs[$name] = $f;
             }
         }

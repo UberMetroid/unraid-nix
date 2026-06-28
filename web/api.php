@@ -5,6 +5,10 @@
 /// executes subcommands on the compiled Rust helper, and returns JSON or HTML.
 header('Content-Type: application/json');
 
+if (!defined('NIX_SERVICE_NAME_REGEX')) {
+    define('NIX_SERVICE_NAME_REGEX', '/^[a-zA-Z0-9_-]+(?:\.[a-zA-Z0-9_-]+)*$/');
+}
+
 $action = isset($_REQUEST['action']) ? $_REQUEST['action'] : '';
 
 // Helper function to write debug logs safely against log injection
@@ -41,7 +45,7 @@ function success() {
 if ($action === 'logs') {
     header('Content-Type: text/html');
     $service = isset($_GET['service']) ? $_GET['service'] : '';
-    if (empty($service) || !preg_match('/^[a-zA-Z0-9_-]+(?:\.[a-zA-Z0-9_-]+)*$/', $service)) {
+    if (empty($service) || !preg_match(NIX_SERVICE_NAME_REGEX, $service)) {
         echo "Invalid service name.";
         exit;
     }

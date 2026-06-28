@@ -64,17 +64,20 @@ fn test_validate_store_path() {
 
 #[test]
 fn test_generate_nix_conf_content() {
-    let conf_no_source = generate_nix_conf_content(false, "4", "2", 5, 10);
+    let conf_no_source = generate_nix_conf_content(false, "4", "2", 5, 10).unwrap();
     assert!(conf_no_source.contains("max-jobs = 0"));
     assert!(conf_no_source.contains("cores = 0"));
     assert!(conf_no_source.contains("min-free = 5368709120")); // 5 GB in bytes
     assert!(conf_no_source.contains("max-free = 10737418240")); // 10 GB in bytes
 
-    let conf_source = generate_nix_conf_content(true, "8", "4", 10, 20);
+    let conf_source = generate_nix_conf_content(true, "8", "4", 10, 20).unwrap();
     assert!(conf_source.contains("max-jobs = 4"));
     assert!(conf_source.contains("cores = 8"));
     assert!(conf_source.contains("min-free = 10737418240"));
     assert!(conf_source.contains("max-free = 21474836480"));
+
+    // Verify checked multiplication overflow detection
+    assert!(generate_nix_conf_content(false, "4", "2", 18446744073709551, 10).is_err());
 }
 
 #[test]

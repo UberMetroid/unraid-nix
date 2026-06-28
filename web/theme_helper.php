@@ -7,4 +7,8 @@ if (file_exists($dynamix_cfg_path)) {
         $nix_theme = strtolower(trim($dynamix_cfg['display']['theme']));
     }
 }
+
+if (!defined('NIX_SERVICE_NAME_REGEX')) {
+    define('NIX_SERVICE_NAME_REGEX', '/^[a-zA-Z0-9_-]+(?:\.[a-zA-Z0-9_-]+)*$/');
+}
 ?>

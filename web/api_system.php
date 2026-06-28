@@ -3,6 +3,8 @@
 ///
 /// Handles daemon service operations, garbage collection, updates checks, Settings saves, etc.
 
+define('NIX_SERVICE_NAME_REGEX', '/^[a-zA-Z0-9_-]+(?:\.[a-zA-Z0-9_-]+)*$/');
+
 if ($action === 'nix-daemon-start') {
     $output = [];
     $code = 0;
@@ -52,7 +54,7 @@ if ($action === 'nix-sys-logs') {
         $file = '/var/log/nix-gc.log';
     } elseif (strpos($log_type, 'service:') === 0) {
         $service = substr($log_type, 8);
-        if (preg_match('/^[a-zA-Z0-9_-]+(?:\.[a-zA-Z0-9_-]+)*$/', $service)) {
+        if (preg_match(NIX_SERVICE_NAME_REGEX, $service)) {
             $file = "/var/log/nix-services/{$service}.log";
             $dir = dirname($file);
             $real_dir = realpath($dir);
@@ -78,7 +80,7 @@ if ($action === 'nix-sys-logs') {
             if ($files !== false) {
                 foreach ($files as $f) {
                     $name = basename($f, '.log');
-                    if (preg_match('/^[a-zA-Z0-9_-]+(?:\.[a-zA-Z0-9_-]+)*$/', $name)) {
+                    if (preg_match(NIX_SERVICE_NAME_REGEX, $name)) {
                         $service_logs[] = $name;
                     }
                 }

@@ -23,7 +23,8 @@ fn log_event_to_path(log_path: &str, level: &str, msg: &str, max_size: u64) {
     let lock_path = format!("{}.lock", log_path);
     let mut guard = LockGuard { path: lock_path.clone(), active: false };
 
-    for _ in 0..5 {
+    let mut delay = std::time::Duration::from_millis(5);
+    for _ in 0..30 {
         if std::fs::OpenOptions::new()
             .write(true)
             .create_new(true)
@@ -33,22 +34,29 @@ fn log_event_to_path(log_path: &str, level: &str, msg: &str, max_size: u64) {
             guard.active = true;
             break;
         }
-        std::thread::sleep(std::time::Duration::from_millis(10));
+        std::thread::sleep(delay);
+        delay = std::cmp::min(delay * 2, std::time::Duration::from_secs(1));
+    }
+
+    if !guard.active && std::env::var_os("NIX_DEBUG").is_some() {
+        eprintln!("[NIX_DEBUG] Failed to acquire log lock for {}", log_path);
     }
 
     // Rotate log file if it exceeds max_size (up to 3 backups)
-    if let Ok(metadata) = std::fs::metadata(log_path) {
-        if metadata.len() > max_size {
-            let p2 = format!("{}.2", log_path);
-            let p3 = format!("{}.3", log_path);
-            if std::path::Path::new(&p2).exists() {
-                let _ = std::fs::rename(&p2, &p3);
+    if guard.active {
+        if let Ok(metadata) = std::fs::metadata(log_path) {
+            if metadata.len() > max_size {
+                let p2 = format!("{}.2", log_path);
+                let p3 = format!("{}.3", log_path);
+                if std::path::Path::new(&p2).exists() {
+                    let _ = std::fs::rename(&p2, &p3);
+                }
+                let p1 = format!("{}.1", log_path);
+                if std::path::Path::new(&p1).exists() {
+                    let _ = std::fs::rename(&p1, &p2);
+                }
+                let _ = std::fs::rename(log_path, &p1);
             }
-            let p1 = format!("{}.1", log_path);
-            if std::path::Path::new(&p1).exists() {
-                let _ = std::fs::rename(&p1, &p2);
-            }
-            let _ = std::fs::rename(log_path, &p1);
         }
     }
     
@@ -109,7 +117,7 @@ pub fn generate_nix_conf_content(
     build_jobs: &str,
     gc_min_free_gb: u64,
     gc_max_free_gb: u64,
-) -> String {
+) -> Result<String, String> {
     let (jobs_val, cores_val) = if allow_source {
         let j = if build_jobs == "0" {
             let total = std::thread::available_parallelism()
@@ -124,13 +132,16 @@ pub fn generate_nix_conf_content(
         ("0".to_string(), "0".to_string())
     };
 
-    let min_free_bytes = gc_min_free_gb * 1024 * 1024 * 1024;
-    let max_free_bytes = gc_max_free_gb * 1024 * 1024 * 1024;
+    const BYTES_PER_GB: u64 = 1 << 30;
+    let min_free_bytes = gc_min_free_gb.checked_mul(BYTES_PER_GB)
+        .ok_or_else(|| "min_free_gb overflow".to_string())?;
+    let max_free_bytes = gc_max_free_gb.checked_mul(BYTES_PER_GB)
+        .ok_or_else(|| "max_free_gb overflow".to_string())?;
 
-    format!(
+    Ok(format!(
         "experimental-features = nix-command flakes\nmax-jobs = {}\ncores = {}\nmin-free = {}\nmax-free = {}\n",
         jobs_val, cores_val, min_free_bytes, max_free_bytes
-    )
+    ))
 }
 
 pub fn is_valid_service_name(name: &str) -> bool {

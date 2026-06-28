@@ -139,7 +139,7 @@ pub fn setup_nix_conf() -> Result<(), String> {
         &build_jobs,
         gc_min_free_gb,
         gc_max_free_gb,
-    );
+    )?;
 
     if let Err(e) = fs::write(conf_path, default_conf) {
         let err_msg = format!("Failed to write nix.conf: {}", e);
