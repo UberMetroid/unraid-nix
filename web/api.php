@@ -14,7 +14,11 @@ function log_debug($msg) {
     file_put_contents($log_path, "$now [DEBUG] $msg\n", FILE_APPEND);
 }
 
-log_debug("API Route invoked: action='{$action}', method='{$_SERVER['REQUEST_METHOD']}'");
+// Skip logging for high-frequency polling actions to keep debug logs clean
+$polling_actions = ['get_dashboard', 'get_dashboard_json', 'nix-sys-logs', 'render-services', 'check-updates'];
+if (!in_array($action, $polling_actions)) {
+    log_debug("API Route invoked: action='{$action}', method='" . (isset($_SERVER['REQUEST_METHOD']) ? $_SERVER['REQUEST_METHOD'] : 'CLI') . "'");
+}
 
 // Helper function to return JSON error responses
 function error($msg) {
