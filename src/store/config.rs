@@ -22,24 +22,6 @@ pub fn log_event(level: &str, msg: &str) {
     eprintln!("[{}] {}", level, msg);
 }
 
-/// Native Unraid WebUI notification helper
-pub fn send_unraid_notification(subject: &str, description: &str, importance: &str) {
-    let importance_flag = match importance {
-        "alert" => "alert",
-        "warning" => "warning",
-        _ => "normal",
-    };
-    let _ = std::process::Command::new("/usr/local/emhttp/webGui/scripts/notify")
-        .args([
-            "-e", "Nix Plugin",
-            "-s", subject,
-            "-d", description,
-            "-i", importance_flag,
-        ])
-        .stdin(std::process::Stdio::null())
-        .output();
-}
-
 /// Validation check for the persistent store path.
 pub fn validate_store_path(path: &str) -> Result<(), String> {
     if path.trim().is_empty() {
