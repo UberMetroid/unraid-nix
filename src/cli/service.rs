@@ -4,15 +4,11 @@ use crate::sandbox;
 use crate::config;
 use std::process::exit;
 
-fn validate_name(name: &str) {
+pub fn service_action(action: &str, name: &str) {
     if !crate::store::is_valid_service_name(name) {
         eprintln!("Error: Invalid service name.");
         exit(1);
     }
-}
-
-pub fn service_action(action: &str, name: &str) {
-    validate_name(name);
     if let Err(e) = process::send_service_action(29704, name, action) {
         eprintln!("Service action failed: {}", e);
         exit(1);
@@ -21,7 +17,10 @@ pub fn service_action(action: &str, name: &str) {
 }
 
 pub fn autostart(name: &str, toggle: &str) {
-    validate_name(name);
+    if !crate::store::is_valid_service_name(name) {
+        eprintln!("Error: Invalid service name.");
+        exit(1);
+    }
     let toggle_lower = toggle.to_lowercase();
     let restart_policy = if toggle_lower == "on" || toggle_lower == "true" || toggle_lower == "1" {
         "always".to_string()
@@ -66,7 +65,10 @@ pub fn autostart(name: &str, toggle: &str) {
 }
 
 pub fn remove_service(name: &str) {
-    validate_name(name);
+    if !crate::store::is_valid_service_name(name) {
+        eprintln!("Error: Invalid service name.");
+        exit(1);
+    }
 
     let mut cfg = match config::load_config("/boot/config/plugins/nix/process-compose.yml") {
         Ok(c) => c,
@@ -144,7 +146,10 @@ pub fn preset_cmd(
     port_str: Option<&str>,
     bind_address_str: Option<&str>,
 ) {
-    validate_name(name);
+    if !crate::store::is_valid_service_name(name) {
+        eprintln!("Error: Invalid service name.");
+        exit(1);
+    }
     let media_val = if media == "-" { "" } else { media };
     let gpu = gpu_str == "1" || gpu_str == "true";
     let extra_binds = extra_binds_str
@@ -163,7 +168,10 @@ pub fn preset_cmd(
 }
 
 pub fn add_service(name: &str, cmd: &str, restart_policy: Option<&str>) {
-    validate_name(name);
+    if !crate::store::is_valid_service_name(name) {
+        eprintln!("Error: Invalid service name.");
+        exit(1);
+    }
     let restart = restart_policy.unwrap_or("always").to_string();
 
     let mut cfg = match config::load_config("/boot/config/plugins/nix/process-compose.yml") {

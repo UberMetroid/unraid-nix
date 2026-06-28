@@ -39,7 +39,11 @@ fn log_event_to_path(log_path: &str, level: &str, msg: &str, max_size: u64) {
     }
     
     #[cfg(not(test))]
-    eprintln!("[{}] {}", safe_level, safe_msg);
+    {
+        if safe_level == "ERROR" || safe_level == "WARN" || std::env::var_os("NIX_DEBUG").is_some() {
+            eprintln!("[{}] {}", safe_level, safe_msg);
+        }
+    }
 }
 
 /// Validation check for the persistent store path.

@@ -57,7 +57,7 @@ ksort($service_logs);
                         <option value="plugin" selected>Nix Plugin Operations (/var/log/nix-plugin.log)</option>
                         <option value="compose">Process Supervisor (/var/log/nix-process-compose.log)</option>
                         <option value="daemon">Nix Daemon Service (/var/log/nix-daemon.log)</option>
-                        <option value="gc">Nix Garbage Collector (/var/log/nix-gc.log)</option>
+                        <option value="gc">Nix Garbage Collector (weekly if scheduled, /var/log/nix-gc.log)</option>
                     </optgroup>
                     <?php if (!empty($service_logs)): ?>
                         <optgroup label="Nix Services">
