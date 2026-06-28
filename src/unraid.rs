@@ -110,3 +110,29 @@ pub fn detect_appdata_root() -> String {
     }
     "".to_string()
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_parse_ini_file() {
+        let content = "
+; This is a comment
+# Another comment
+key1 = value1
+key2 = \"value2\"
+key3=value3
+";
+        let temp_dir = std::env::temp_dir();
+        let file_path = temp_dir.join("test_ini.cfg");
+        std::fs::write(&file_path, content).unwrap();
+
+        let map = parse_ini_file(file_path.to_str().unwrap());
+        assert_eq!(map.get("key1").unwrap(), "value1");
+        assert_eq!(map.get("key2").unwrap(), "value2");
+        assert_eq!(map.get("key3").unwrap(), "value3");
+
+        let _ = std::fs::remove_file(file_path);
+    }
+}
