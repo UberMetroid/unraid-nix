@@ -1,28 +1,31 @@
 # Project Status Update
 
-**Date**: June 26, 2026
+**Date**: June 27, 2026
 
-We have resolved the Jellyfin transcoding and GPU passthrough issue and pushed it to GitHub. Below is the updated state of the `unraid-nix` plugin project:
+We have completed the major compiled Rust migrations, CLI modernization, and sandbox hardening. Below is the updated state of the `unraid-nix` plugin project:
 
 ---
 
 ## 1. Accomplished Features & Refactoring
 
-* **GPU Hardware Acceleration / Passthrough**:
-  * Implemented host GPU/CUDA library detection and exposure in [`src/sandbox/builder.rs`](src/sandbox/builder.rs).
-  * Created [`web/nix-gpu-setup.sh`](web/nix-gpu-setup.sh) to handle the discovery of NVIDIA/CUDA libraries on the host and populate symlinks in a clean path `/var/run/nix-nvidia-driver/lib` without shell escaping conflicts.
-  * Configured `nix-helper` to read-only bind-mount host library paths (`/usr/lib64`, `/lib64`, `/usr/lib`, `/lib`) and the symlink directory inside the chroot jail when storage sandboxing is enabled.
-  * Added environment variables (`LD_LIBRARY_PATH=/run/opengl-driver/lib`, `LIBVA_DRIVERS_PATH=/usr/lib64/dri`) to allow Nix-built packages (such as `ffmpeg`) to load host drivers.
-  * Added unit test cases `test_build_bwrap_command_gpu` and `test_build_bwrap_command_gpu_sandboxed` in [`src/sandbox/builder_tests.rs`](src/sandbox/builder_tests.rs) to verify output command matching.
-* **Remote Deployment & Verification**:
-  * Built and deployed the updated `nix-helper` release binary and assets to the Unraid test host (`100.68.35.70`).
-  * Reinstalled the Jellyfin service on the Unraid test host and verified that `ffmpeg -init_hw_device cuda=cu:0 -version` successfully initializes the host's dual RTX 4060 Ti GPUs from within the chroot jail.
-* **Git Sync**:
-  * All code modifications have been committed and successfully pushed to `origin/main` on GitHub.
+* **GPU Hardware Acceleration & Passthrough (Rust Port)**:
+  * Ported the legacy `web/nix-gpu-setup.sh` script to a native Rust command `nix-helper setup-gpus`.
+  * Employs tmpfs RAM-disk caching (`/var/run/nix-detected-gpus.json`) to store GPU scan results across settings pages and template browsing, reducing process-spawning overhead.
+  * Added hardware check bypasses in background telemetry loops (`get_gpu_active_services()` and `get_nvidia_pmon_stats()`) to completely prevent running `nvidia-smi` on hosts without NVIDIA GPUs.
+* **Installer Output Stream (Rust Port)**:
+  * Ported the installer process streaming loop and log tailing from `web/stream.php` to a native Rust command `nix-helper stream-install` and `nix-helper view-logs`.
+  * Trimmed `web/stream.php` and `web/stream_init.php` to act as simple pass-through scripts, keeping all files well under the 250-line limit.
+* **CLI Modernization via Clap**:
+  * Migrated the hand-rolled dispatcher to a type-safe `clap` enum parser inside `src/cli/args.rs`.
+  * Provides nested subcommands support, command validation, and automatic help flag outputs.
+* **Hardened Sandbox Isolations**:
+  * Configured all chroot sandbox directories to mount host files (`/etc/passwd`, `/etc/group`, `/etc/hosts`, `/etc/resolv.conf`, `/etc/ssl`, `/etc/nix` and `/nix`) as **read-only** (`-o ro`).
+  * Replaced recursive procfs binds with a clean isolated mount (`mount -t proc proc`) inside the namespaces.
+  * Added thread-local override states in tests to prevent parallel test runner environment races.
 
 ---
 
 ## 2. Next Steps / Current Action Item
 
-1. **Test Jellyfin Transcoding playback**: Perform a live play test of an AV1/HEVC file to confirm Jellyfin transcodes to H.264 using the GPUs.
-2. **Review UI/Theme Integration**: Check if the folder drop-down box styling and plugin colors blend perfectly with Unraid's theme.
+1. **Telemetry Sparklines & Graph Integrations**: Integrate combined CPU/RAM/GPU telemetry metrics graphs at the top of the Flakes tab.
+2. **Onboarding & Tour Guide**: Design a visual walkthrough modal for first-time plugin installs.

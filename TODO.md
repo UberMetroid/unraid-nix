@@ -50,3 +50,15 @@ Below is the structured roadmap of features to be added to the `unraid-nix` plug
   - Create a secure settings location for API keys (e.g., Cloudflare API tokens, Tailscale auth keys) to automatically fetch tunnel mappings and status.
 - [ ] **Per-Flake Routing Selection**:
   - Add a dropdown to each flake's edit config screen to choose its default network gateway (e.g., Host LAN, specific VPN netns, or Loopback Only).
+
+## 8. Core Architecture Migrations
+- [x] **Port GPU Setup script to Rust**:
+  - Expose CUDA/NVIDIA driver symlinks natively via `nix-helper setup-gpus`.
+- [x] **Port Installer SSE stream to Rust**:
+  - Capture stdout/stderr in real-time and tail logs natively via `nix-helper stream-install`.
+- [x] **Type-safe CLI Parser**:
+  - Replace hand-rolled dispatcher with standard `clap` modules.
+- [x] **GPU Discovery Caching**:
+  - Add RAM tmpfs cache for settings/presets scans and bypass `nvidia-smi` on non-Nvidia hosts.
+- [x] **Hardened Chroot Sandboxing**:
+  - Implement read-only mounts overlay and proper isolated `procfs` namespaces.
