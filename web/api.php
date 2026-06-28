@@ -51,7 +51,7 @@ function log_debug($msg) {
 }
 
 // Skip logging for high-frequency or verbose actions to keep debug logs clean
-$no_debug_actions = ['get_dashboard', 'get_dashboard_json', 'nix-sys-logs', 'render-services', 'check-updates'];
+$no_debug_actions = ['get_dashboard', 'get_dashboard_json', 'get_dashboard_diff', 'nix-sys-logs', 'render-services', 'check-updates'];
 $safe_action = str_replace(["\n", "\r", "[", "]"], [" ", " ", "(", ")"], $action);
 if (!in_array($safe_action, $no_debug_actions)) {
     log_debug("API Route invoked: action='{$safe_action}', method='" . (isset($_SERVER['REQUEST_METHOD']) ? $_SERVER['REQUEST_METHOD'] : 'CLI') . "'");
@@ -127,6 +127,22 @@ if ($action === 'get_dashboard_json') {
     header('Content-Type: application/json');
     header('X-Content-Type-Options: nosniff');
     passthru("/usr/local/emhttp/plugins/nix/nix-helper render dashboard-json 2>/dev/null");
+    exit;
+}
+
+// 2e.2. Render dashboard diff as JSON. Accepts a `since` query param
+// (the last version the client received); the helper returns only the
+// rows whose state changed since that snapshot plus a `removed` list
+// for any names that disappeared. Wire-format replacement for the
+// full re-render that the dashboard widget used to do every 3 s.
+if ($action === 'get_dashboard_diff') {
+    header('Content-Type: application/json');
+    header('X-Content-Type-Options: nosniff');
+    $since_raw = $_GET['since'] ?? '0';
+    if (!preg_match('/^\d+$/', $since_raw)) {
+        $since_raw = '0';
+    }
+    passthru("/usr/local/emhttp/plugins/nix/nix-helper render dashboard-diff --since " . escapeshellarg($since_raw) . " 2>/dev/null");
     exit;
 }
 

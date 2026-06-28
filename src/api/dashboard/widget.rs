@@ -72,6 +72,8 @@ pub fn render_dashboard_widget(api_port: u16) -> String {
     }
 
     if (typeof window.refreshNixDash === 'undefined') {
+        window.nixDashVersion = window.nixDashVersion || 0;
+
         window.refreshNixDash = function() {
             var tbody = document.querySelector('tbody.nix-dash-rows');
             if (!tbody) {
@@ -81,47 +83,35 @@ pub fn render_dashboard_widget(api_port: u16) -> String {
                 return;
             }
 
-            fetch('/plugins/nix/api.php?action=get_dashboard_json')
+            fetch('/plugins/nix/api.php?action=get_dashboard_diff&since=' + (window.nixDashVersion || 0))
                 .then(function(resp) { return resp.json(); })
-                .then(function(services) {
-                    if (Array.isArray(services)) {
-                        services.forEach(function(s) {
-                            var row = tbody.querySelector('tr[data-service="' + s.name + '"]');
-                            if (row) {
-                                var isRunning = s.status.toLowerCase() === 'running';
-                                var dot = row.querySelector('.status-dot');
-                                var txt = row.querySelector('.status-text');
-                                var gpuWrap = row.querySelector('.gpu-wrapper');
-                                var btn = row.querySelector('.nix-dash-toggle-btn');
-                                var btnIcon = btn ? btn.querySelector('i') : null;
+                .then(function(data) {
+                    if (!data || typeof data.version !== 'number') return;
 
-                                if (dot) {
-                                    dot.style.background = isRunning ? '#2ecc71' : '#e74c3c';
-                                    dot.style.boxShadow = isRunning ? '0 0 5px #2ecc71' : 'none';
-                                }
-                                if (txt) {
-                                    txt.textContent = isRunning ? 'Running' : 'Stopped';
-                                }
-                                if (gpuWrap) {
-                                    if (s.gpu_active) {
-                                        if (!gpuWrap.querySelector('.nix-dash-gpu-active')) {
-                                            gpuWrap.innerHTML = '<i class="fa fa-microchip nix-dash-gpu-active" style="font-size: 11px; color: #00a1ff; vertical-align: middle;" title="GPU Active"></i>';
-                                        }
-                                    } else {
-                                        gpuWrap.innerHTML = '<span style="color: #666;">-</span>';
-                                    }
-                                }
-                                if (btn && btnIcon && !btnIcon.classList.contains('fa-spinner')) {
-                                    btn.disabled = false;
-                                    btnIcon.className = 'fa ' + (isRunning ? 'fa-stop' : 'fa-play');
-                                    btn.title = isRunning ? 'Stop Service' : 'Start Service';
-                                    btn.setAttribute('onclick', "toggleDashService('" + s.name + "', '" + (isRunning ? 'stop' : 'start') + "')");
-                                }
+                    if (Array.isArray(data.removed)) {
+                        data.removed.forEach(function(name) {
+                            var existing = tbody.querySelector('tr[data-service="' + name + '"]');
+                            if (existing && existing.parentNode) {
+                                existing.parentNode.removeChild(existing);
                             }
                         });
                     }
+
+                    if (Array.isArray(data.changed)) {
+                        data.changed.forEach(function(c) {
+                            if (!c || !c.name || typeof c.html !== 'string') return;
+                            var existing = tbody.querySelector('tr[data-service="' + c.name + '"]');
+                            if (existing) {
+                                existing.outerHTML = c.html;
+                            } else {
+                                tbody.insertAdjacentHTML('beforeend', c.html);
+                            }
+                        });
+                    }
+
+                    window.nixDashVersion = data.version;
                 })
-                .catch(function(err) { console.error('Error refreshing dashboard json:', err); });
+                .catch(function(err) { console.error('Error refreshing dashboard diff:', err); });
         };
 
         window.nixDashTimer = setInterval(window.refreshNixDash, 3000);

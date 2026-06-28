@@ -124,6 +124,16 @@ pub enum RenderTargets {
     DashboardRows,
     #[command(name = "dashboard-json")]
     DashboardJson,
+    /// Emits only the rows whose state changed since the last poll,
+    /// as a JSON diff. Wire-format replacement for full re-render on
+    /// the 3-second dashboard polling interval.
+    #[command(name = "dashboard-diff")]
+    DashboardDiff {
+        /// Last version the client received; the server emits only
+        /// rows whose fingerprint changed since that snapshot.
+        #[arg(long)]
+        since: u64,
+    },
     Report { name: String },
 }
 

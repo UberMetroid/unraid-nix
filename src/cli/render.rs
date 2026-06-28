@@ -22,6 +22,9 @@ pub fn render(target: RenderTargets) {
         RenderTargets::DashboardJson => {
             println!("{}", api::render_dashboard_json(SUPERVISOR_PORT));
         }
+        RenderTargets::DashboardDiff { since } => {
+            println!("{}", api::dashboard_diff(SUPERVISOR_PORT, since));
+        }
         RenderTargets::Report { name } => {
             println!("{}", api::render_verification_report(&name));
         }

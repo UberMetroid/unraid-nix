@@ -12,6 +12,7 @@ pub use search::render_search_results;
 pub use dashboard::render_dashboard_widget;
 pub use dashboard::render_dashboard_rows;
 pub use dashboard::render_dashboard_json;
+pub use dashboard::dashboard_diff;
 pub use report::render_verification_report;
 pub use presets_store::render_presets_store;
 
