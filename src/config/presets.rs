@@ -12,6 +12,10 @@ pub fn get_preset_path(name: &str) -> String {
 
 /// Retrieves the command preset templates for common services.
 /// Customizes directory paths and applies drop-privileges wrapper parameters.
+// reason: preset parameters mirror the service-config struct fields so the
+// dispatcher can pass them straight through; collapsing them into a wrapper
+// would just rename the same arguments without simplifying the call sites.
+#[allow(clippy::too_many_arguments)]
 pub fn get_service_command_preset(
     name: &str,
     appdata: &str,

@@ -23,10 +23,10 @@ mod tests {
     #[test]
     fn test_is_port_in_use() {
         let port = 19842;
-        assert_eq!(is_port_in_use(port), false);
+        assert!(!is_port_in_use(port));
 
         let _listener = TcpListener::bind(("127.0.0.1", port)).unwrap();
-        assert_eq!(is_port_in_use(port), true);
+        assert!(is_port_in_use(port));
 
         drop(_listener);
     }

@@ -10,8 +10,7 @@ fn is_valid_uri(uri: &str) -> bool {
     if uri.contains("..") {
         return false;
     }
-    if uri.starts_with("nixpkgs#") {
-        let attr = &uri["nixpkgs#".len()..];
+    if let Some(attr) = uri.strip_prefix("nixpkgs#") {
         return !attr.is_empty()
             && attr
                 .chars()

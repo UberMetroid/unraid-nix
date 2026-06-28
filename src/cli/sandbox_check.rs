@@ -221,7 +221,7 @@ fn write_fallback_to_nix_cfg() -> Result<(), String> {
         if trimmed.starts_with("sandbox") && trimmed.contains('=') {
             // Preserve any inline comment after the value
             let comment_start = trimmed.find('#').unwrap_or(trimmed.len());
-            new_content.push_str(&trimmed[..comment_start].trim_end());
+            new_content.push_str(trimmed[..comment_start].trim_end());
             new_content.push_str(" = false\n");
             replaced = true;
         } else {

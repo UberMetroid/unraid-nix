@@ -131,6 +131,10 @@ pub fn sandbox_cmd(args: &crate::cli::args::SandboxArgs) {
     }
 }
 
+// reason: preset CLI flags mirror the service config surface 1:1; bundling
+// them into a struct would only add an indirection without simplifying
+// dispatch from clap, so the long signature stays.
+#[allow(clippy::too_many_arguments)]
 pub fn preset_cmd(
     name: &str,
     appdata: &str,

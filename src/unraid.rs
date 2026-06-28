@@ -166,8 +166,8 @@ quoted_empty = \"\"
 
         let map = parse_ini_file(file_path.to_str().unwrap());
         assert_eq!(map.get("present").unwrap(), "hello");
-        assert!(map.get("empty").is_none(), "empty value should be skipped");
-        assert!(map.get("quoted_empty").is_none(), "quoted empty value should be skipped");
+        assert!(!map.contains_key("empty"), "empty value should be skipped");
+        assert!(!map.contains_key("quoted_empty"), "quoted empty value should be skipped");
 
         let _ = std::fs::remove_file(file_path);
     }

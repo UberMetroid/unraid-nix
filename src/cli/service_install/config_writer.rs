@@ -2,6 +2,11 @@ use crate::config;
 use crate::unraid::{METADATA_DIR, PROCESS_COMPOSE_CONFIG};
 use std::process::exit;
 
+// reason: writes a ProcessCompose service entry end-to-end; every field maps
+// to a distinct JSON key so the signature mirrors the on-disk schema. A
+// wrapper struct would only rename the same arguments, so the explicit list
+// keeps the writer self-documenting.
+#[allow(clippy::too_many_arguments)]
 pub fn write_config_and_metadata(
     name: &str,
     uri: &str,

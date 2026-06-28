@@ -45,6 +45,9 @@ jobs:
       - name: Build release binary
         run: cargo build --release --target ${{ matrix.target }}
 
+      - name: Run clippy (strict)
+        run: cargo clippy --all-targets --target ${{ matrix.target }} -- -D warnings
+
       - name: Generate SHA256 sidecar
         run: |
           cd target/${{ matrix.target }}/release

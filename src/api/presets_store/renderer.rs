@@ -1,5 +1,4 @@
 use std::fs;
-use std::path::Path;
 
 use rayon::prelude::*;
 
@@ -245,24 +244,24 @@ fn collect_presets(
         .collect()
 }
 
-/// Count `.json` preset files in a directory (non-recursive). Used by tests to
-/// verify that [`collect_presets`] returns the expected number of presets for
-/// a given directory layout.
-fn count_json_files(dir: &Path) -> usize {
-    fs::read_dir(dir)
-        .map(|entries| {
-            entries
-                .flatten()
-                .filter(|e| e.path().extension().and_then(|s| s.to_str()) == Some("json"))
-                .count()
-        })
-        .unwrap_or(0)
-}
-
 #[cfg(test)]
 mod tests {
     use super::*;
-    use std::path::PathBuf;
+    use std::path::{Path, PathBuf};
+
+    /// Count `.json` preset files in a directory (non-recursive). Used by tests
+    /// to verify that [`collect_presets`] returns the expected number of presets
+    /// for a given directory layout.
+    fn count_json_files(dir: &Path) -> usize {
+        fs::read_dir(dir)
+            .map(|entries| {
+                entries
+                    .flatten()
+                    .filter(|e| e.path().extension().and_then(|s| s.to_str()) == Some("json"))
+                    .count()
+            })
+            .unwrap_or(0)
+    }
 
     fn repo_presets_root() -> PathBuf {
         // CARGO_MANIFEST_DIR points at the crate root, which is also where
