@@ -51,12 +51,23 @@ if ($action === 'nix-sys-logs') {
     } else {
         error("Invalid log type.");
     }
+    $lines = isset($_GET['lines']) ? intval($_GET['lines']) : 1000;
+    if ($lines <= 0 || $lines > 5000) {
+        $lines = 1000;
+    }
     
     if (file_exists($file)) {
-        echo json_encode([
-            'success' => true, 
-            'content' => (string)shell_exec("tail -n 250 " . escapeshellarg($file))
-        ]);
+        if (!is_readable($file)) {
+            echo json_encode([
+                'success' => true,
+                'content' => "Permission Error: Log file is not readable: $file\n(Ensure Unraid system permissions allow access to this file.)"
+            ]);
+        } else {
+            echo json_encode([
+                'success' => true, 
+                'content' => (string)shell_exec("tail -n " . escapeshellarg($lines) . " " . escapeshellarg($file))
+            ]);
+        }
     } else {
         echo json_encode([
             'success' => true, 

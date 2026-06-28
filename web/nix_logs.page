@@ -9,6 +9,7 @@ echo "<div class=\"nix-plugin-container theme-{$nix_theme}\">";
 <link type="text/css" rel="stylesheet" href="/plugins/nix/styles_layout.css">
 <link type="text/css" rel="stylesheet" href="/plugins/nix/styles_widgets.css">
 <script src="/plugins/nix/nix.js"></script>
+
 <div class="nix-section" style="margin-bottom: 20px; background: var(--nix-bg-secondary);">
     <h3>Troubleshooting & Diagnostics</h3>
     <p class="nix-subtext">Generate a diagnostic package to share for debugging or report issues on GitHub.</p>
@@ -34,16 +35,18 @@ echo "<div class=\"nix-plugin-container theme-{$nix_theme}\">";
 </div>
 
 <div class="nix-section">
-    <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 15px;">
+    <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 15px; flex-wrap: wrap; gap: 15px;">
         <h3 style="margin: 0;">Logs</h3>
-        <div>
-            <label for="nix-log-select" style="margin-right: 10px; color: var(--nix-text-bright); font-size: 13px;">Select Log:</label>
-            <select id="nix-log-select" onchange="loadLogs()" style="background: var(--nix-bg-secondary); border: 1px solid var(--nix-border-primary); color: var(--nix-text-primary); padding: 6px 12px; border-radius: 4px; width: auto; display: inline-block;">
-                <option value="plugin" selected>Nix Plugin Operations (/var/log/nix-plugin.log)</option>
-                <option value="compose">Process Supervisor (/var/log/nix-process-compose.log)</option>
-                <option value="daemon">Low-level Nix Daemon Socket (/var/log/nix-daemon.log)</option>
-            </select>
-            <div style="display: inline-flex; align-items: center; gap: 10px; margin-left: 15px; vertical-align: middle;">
+        <div style="display: flex; align-items: center; gap: 15px; flex-wrap: wrap;">
+            <div>
+                <label for="nix-log-select" style="margin-right: 10px; color: var(--nix-text-bright); font-size: 13px;">Select Log:</label>
+                <select id="nix-log-select" onchange="loadLogs()" style="background: var(--nix-bg-secondary); border: 1px solid var(--nix-border-primary); color: var(--nix-text-primary); padding: 6px 12px; border-radius: 4px; width: auto; display: inline-block;">
+                    <option value="plugin" selected>Nix Plugin Operations (/var/log/nix-plugin.log)</option>
+                    <option value="compose">Process Supervisor (/var/log/nix-process-compose.log)</option>
+                    <option value="daemon">Low-level Nix Daemon Socket (/var/log/nix-daemon.log)</option>
+                </select>
+            </div>
+            <div style="display: inline-flex; align-items: center; gap: 10px; vertical-align: middle;">
                 <span style="color: var(--nix-text-secondary); font-size: 13px;">Filter:</span>
                 <label style="color: var(--nix-accent); font-size: 13px; cursor: pointer; display: inline-flex; align-items: center; gap: 4px; user-select: none;">
                     <input type="checkbox" id="nix-log-filter-info" checked onchange="loadLogs()" style="margin: 0; vertical-align: middle;"> Info
@@ -58,7 +61,10 @@ echo "<div class=\"nix-plugin-container theme-{$nix_theme}\">";
                     <input type="checkbox" id="nix-log-filter-debug" checked onchange="loadLogs()" style="margin: 0; vertical-align: middle;"> Debug
                 </label>
             </div>
-            <button class="nix-btn" onclick="loadLogs()" style="margin-left: 15px; padding: 6px 12px; display: inline-block;"><i class="fa fa-refresh"></i> Refresh</button>
+            <div style="display: inline-flex; gap: 8px;">
+                <button id="nix-log-refresh-btn" class="nix-btn" onclick="loadLogs()" style="padding: 6px 12px; display: inline-block; min-width: 90px;"><i class="fa fa-refresh"></i> Refresh</button>
+                <button class="nix-btn" onclick="copyLogsToClipboard()" style="padding: 6px 12px; display: inline-block;" title="Copy logs to clipboard"><i class="fa fa-copy"></i> Copy</button>
+            </div>
         </div>
     </div>
     
@@ -68,12 +74,25 @@ echo "<div class=\"nix-plugin-container theme-{$nix_theme}\">";
 </div>
 
 <script>
-function loadLogs() {
+var isLogHovered = false;
+var logRefreshInterval = null;
+
+function loadLogs(isAutoRefresh) {
     var type = document.getElementById('nix-log-select').value;
     var container = document.getElementById('nix-log-content');
-    container.innerHTML = 'Loading log entries...';
+    var refreshBtn = $('#nix-log-refresh-btn');
     
-    $.get('/plugins/nix/api.php?action=nix-sys-logs&type=' + type, function(resp) {
+    // Check if user is scrolled to the bottom before loading new content
+    var isAtBottom = (container.scrollHeight - container.clientHeight - container.scrollTop) < 40;
+    if (container.scrollHeight <= container.clientHeight) {
+        isAtBottom = true;
+    }
+
+    if (!isAutoRefresh) {
+        refreshBtn.prop('disabled', true).html('<i class="fa fa-spinner fa-spin"></i> Loading...');
+    }
+
+    $.get('/plugins/nix/api.php?action=nix-sys-logs&type=' + type + '&lines=1000', function(resp) {
         if (resp.success) {
             var rawText = resp.content;
             var showInfo = document.getElementById('nix-log-filter-info').checked;
@@ -88,10 +107,10 @@ function loadLogs() {
                 var line = lines[i];
                 var lowerLine = line.toLowerCase();
                 
-                var isInfo = lowerLine.indexOf('[info]') !== -1 || lowerLine.indexOf('[inf]') !== -1;
-                var isWarn = lowerLine.indexOf('[warn]') !== -1 || lowerLine.indexOf('[warning]') !== -1 || lowerLine.indexOf('[wrn]') !== -1;
-                var isError = lowerLine.indexOf('[error]') !== -1 || lowerLine.indexOf('[fatal]') !== -1 || lowerLine.indexOf('[err]') !== -1;
-                var isDebug = lowerLine.indexOf('[debug]') !== -1 || lowerLine.indexOf('[dbg]') !== -1;
+                var isInfo = lowerLine.indexOf('[info]') !== -1 || lowerLine.indexOf('[inf]') !== -1 || lowerLine.indexOf('info:') !== -1;
+                var isWarn = lowerLine.indexOf('[warn]') !== -1 || lowerLine.indexOf('[warning]') !== -1 || lowerLine.indexOf('[wrn]') !== -1 || lowerLine.indexOf('warning:') !== -1;
+                var isError = lowerLine.indexOf('[error]') !== -1 || lowerLine.indexOf('[fatal]') !== -1 || lowerLine.indexOf('[err]') !== -1 || lowerLine.indexOf('error:') !== -1 || lowerLine.indexOf('fatal:') !== -1;
+                var isDebug = lowerLine.indexOf('[debug]') !== -1 || lowerLine.indexOf('[dbg]') !== -1 || lowerLine.indexOf('debug:') !== -1;
                 
                 var matchesAny = isInfo || isWarn || isError || isDebug;
                 
@@ -109,7 +128,7 @@ function loadLogs() {
             var filteredText = filteredLines.join('\n');
             var escaped = $('<div>').text(filteredText).html();
             
-            // Highlight bracket log levels
+            // Highlight bracket log levels (case-sensitive replacements first)
             escaped = escaped.replace(/\[ERROR\]/g, '<span style="color: #ef4444; font-weight: bold;">[ERROR]</span>');
             escaped = escaped.replace(/\[FATAL\]/g, '<span style="color: #ef4444; font-weight: bold;">[FATAL]</span>');
             escaped = escaped.replace(/\[ERR\]/g, '<span style="color: #ef4444; font-weight: bold;">[ERR]</span>');
@@ -124,23 +143,70 @@ function loadLogs() {
             escaped = escaped.replace(/\[DEBUG\]/g, '<span style="color: var(--nix-text-muted);">[DEBUG]</span>');
             escaped = escaped.replace(/\[DBG\]/g, '<span style="color: var(--nix-text-muted);">[DBG]</span>');
             
+            // Case-insensitive replacements for systemd or standard linux headers
+            escaped = escaped.replace(/(error:)/ig, '<span style="color: #ef4444; font-weight: bold;">$1</span>');
+            escaped = escaped.replace(/(warning:)/ig, '<span style="color: #f59e0b; font-weight: bold;">$1</span>');
+            escaped = escaped.replace(/(info:)/ig, '<span style="color: var(--nix-accent); font-weight: bold;">$1</span>');
+            escaped = escaped.replace(/(debug:)/ig, '<span style="color: var(--nix-text-muted);">$1</span>');
+            
             container.innerHTML = escaped;
-            container.scrollTop = container.scrollHeight;
+            
+            // Re-scroll only if user was at bottom
+            if (isAtBottom) {
+                container.scrollTop = container.scrollHeight;
+            }
         } else {
             container.innerHTML = "<span style='color: #ef4444;'>Error loading logs: " + $('<div>').text(resp.error).html() + "</span>";
         }
-    }, 'json');
+        if (!isAutoRefresh) {
+            refreshBtn.prop('disabled', false).html('<i class="fa fa-refresh"></i> Refresh');
+        }
+    }, 'json').fail(function() {
+        container.innerHTML = "<span style='color: #ef4444;'>Failed to fetch log entries from server. Check network connection.</span>";
+        if (!isAutoRefresh) {
+            refreshBtn.prop('disabled', false).html('<i class="fa fa-refresh"></i> Refresh');
+        }
+    });
 }
 
 function downloadDiagnostics() {
     window.location.href = '/plugins/nix/api.php?action=download-diagnostics';
 }
 
+function copyLogsToClipboard() {
+    var content = document.getElementById('nix-log-content').innerText;
+    navigator.clipboard.writeText(content).then(function() {
+        if (typeof showNotice === 'function') {
+            showNotice("Logs copied to clipboard!", "success");
+        } else {
+            alert("Logs copied to clipboard!");
+        }
+    }, function() {
+        if (typeof showNotice === 'function') {
+            showNotice("Failed to copy logs.", "error");
+        } else {
+            alert("Failed to copy logs.");
+        }
+    });
+}
+
 $(function() {
     loadLogs();
+    
+    // Pause auto-refresh on hover
+    $('#nix-log-content').hover(
+        function() { isLogHovered = true; },
+        function() { isLogHovered = false; }
+    );
+    
+    // Auto-refresh every 5s if not hovered
+    if (logRefreshInterval) clearInterval(logRefreshInterval);
+    logRefreshInterval = setInterval(function() {
+        if (!isLogHovered) {
+            loadLogs(true);
+        }
+    }, 5000);
 });
 </script>
-
-
 
 </div>

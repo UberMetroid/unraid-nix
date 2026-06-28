@@ -7,17 +7,20 @@ header('Content-Type: application/json');
 
 $action = isset($_REQUEST['action']) ? $_REQUEST['action'] : '';
 
-// Helper function to write debug logs
+// Helper function to write debug logs safely against log injection
 function log_debug($msg) {
     $log_path = '/var/log/nix-plugin.log';
     $now = date('Y-m-d H:i:s');
-    file_put_contents($log_path, "$now [DEBUG] $msg\n", FILE_APPEND);
+    // Sanitize carriage returns, newlines and brackets to prevent forged lines
+    $safe_msg = str_replace(["\n", "\r", "[", "]"], [" ", " ", "(", ")"], $msg);
+    file_put_contents($log_path, "$now [DEBUG] $safe_msg\n", FILE_APPEND);
 }
 
-// Skip logging for high-frequency polling actions to keep debug logs clean
-$polling_actions = ['get_dashboard', 'get_dashboard_json', 'nix-sys-logs', 'render-services', 'check-updates'];
-if (!in_array($action, $polling_actions)) {
-    log_debug("API Route invoked: action='{$action}', method='" . (isset($_SERVER['REQUEST_METHOD']) ? $_SERVER['REQUEST_METHOD'] : 'CLI') . "'");
+// Skip logging for high-frequency or verbose actions to keep debug logs clean
+$no_debug_actions = ['get_dashboard', 'get_dashboard_json', 'nix-sys-logs', 'render-services', 'check-updates'];
+$safe_action = str_replace(["\n", "\r", "[", "]"], [" ", " ", "(", ")"], $action);
+if (!in_array($safe_action, $no_debug_actions)) {
+    log_debug("API Route invoked: action='{$safe_action}', method='" . (isset($_SERVER['REQUEST_METHOD']) ? $_SERVER['REQUEST_METHOD'] : 'CLI') . "'");
 }
 
 // Helper function to return JSON error responses
