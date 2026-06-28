@@ -180,18 +180,21 @@ pub fn render_service_row(
                     </div>
                 </div>
                 
-                <!-- Header Row 2: Icon next to Flake Name on Left, Status Badge on Right -->
-                <div style="display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 10px;">
-                    <div style="display: flex; align-items: center; gap: 10px; min-width: 0; flex: 1;">
-                        <div style="width: 32px; height: 32px; border-radius: 4px; background: {}; border: 1px solid {}; display: flex; align-items: center; justify-content: center; color: {}; flex-shrink: 0;">
+                <!-- Header Row 2: Icon next to Flake Name & Resources on Left, Status Badge on Right -->
+                <div style="display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; margin-bottom: 10px;">
+                    <div style="display: flex; align-items: flex-start; gap: 10px; min-width: 0; flex: 1;">
+                        <div style="width: 32px; height: 32px; border-radius: 4px; background: {}; border: 1px solid {}; display: flex; align-items: center; justify-content: center; color: {}; flex-shrink: 0; margin-top: 2px;">
                             <i class="fa {}" style="font-size: 15px;"></i>
                         </div>
-                        <div style="display: flex; flex-direction: column; overflow: hidden;">
+                        <div style="display: flex; flex-direction: column; overflow: hidden; min-width: 0; flex: 1;">
                             <strong style="font-size: 14px; color: var(--nix-text-primary); word-break: break-word; overflow-wrap: break-word;" title="{}">{}</strong>
-                            <span style="font-family: monospace; color: var(--nix-text-secondary); font-size: 10px; margin-top: 2px;">nixpkgs#{}</span>
+                            <span style="font-family: monospace; color: var(--nix-text-secondary); font-size: 10px; margin-top: 1px;">nixpkgs#{}</span>
+                            <div style="display: flex; flex-direction: column; font-size: 10px; color: var(--nix-text-secondary); margin-top: 4px; gap: 2px;">
+                                {}
+                            </div>
                         </div>
                     </div>
-                    <div class="nix-service-status-badge" data-service="{}" style="flex-shrink: 0;">
+                    <div class="nix-service-status-badge" data-service="{}" style="flex-shrink: 0; margin-top: 2px;">
                         <span class="status-indicator {}">{}</span>
                     </div>
                 </div>
@@ -210,13 +213,9 @@ pub fn render_service_row(
                         <span style="color: var(--nix-text-secondary); margin-top: 1px;">Mapped Drives:</span>
                         <div style="text-align: right; display: flex; flex-direction: column; align-items: flex-end; gap: 3px; max-width: 170px; overflow: hidden;">{}</div>
                     </div>
-                    <div style="display: flex; justify-content: space-between; align-items: flex-start; line-height: 1.3;">
-                        <span style="color: var(--nix-text-secondary); margin-top: 2px;">Resources:</span>
-                        <div style="text-align: right; display: flex; flex-direction: column; align-items: flex-end;">{}</div>
-                    </div>
                 </div>
             </div>
         </div>"#,
-        s.name, start_btn, stop_btn, edit_btn, logs_btn, autostart_html, s.name, cfg.bg, cfg.border, cfg.color, cfg.icon, s.name, s.name, s.name, s.name, status_class, status_label, version_badge, lan_ip_port_html, mapped_drives_html, resources_html
+        s.name, start_btn, stop_btn, edit_btn, logs_btn, autostart_html, s.name, cfg.bg, cfg.border, cfg.color, cfg.icon, s.name, s.name, s.name, resources_html, s.name, status_class, status_label, version_badge, lan_ip_port_html, mapped_drives_html
     )
 }
