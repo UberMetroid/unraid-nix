@@ -108,7 +108,31 @@ $suggested_quota = 15 + ($num_flakes * 3);
 exec("/etc/rc.d/rc.nix-daemon status 2>/dev/null", $status_output, $status_code);
 $is_nix_running = ($status_code === 0);
 // Hardware capability detection
-$has_kvm = (trim(shell_exec('[ -c /dev/kvm ] && echo "yes" || echo "no"')) === 'yes');
+$cpu_info = shell_exec('cat /proc/cpuinfo 2>/dev/null');
+$supports_intel = (strpos($cpu_info, ' vmx ') !== false);
+$supports_amd = (strpos($cpu_info, ' svm ') !== false);
+
+$kvm_status = 'inactive';
+$kvm_details = 'Not Supported';
+
+if (trim(shell_exec('[ -c /dev/kvm ] && echo "yes" || echo "no"')) === 'yes') {
+    $kvm_status = 'active';
+    if ($supports_intel) {
+        $kvm_details = 'Intel VT-x (Active)';
+    } elseif ($supports_amd) {
+        $kvm_details = 'AMD-V (Active)';
+    } else {
+        $kvm_details = 'Generic KVM (Active)';
+    }
+} else {
+    if ($supports_intel || $supports_amd) {
+        $kvm_status = 'disabled';
+        $kvm_details = ($supports_intel ? 'Intel VT-x' : 'AMD-V') . ' (Disabled in BIOS)';
+    } else {
+        $kvm_status = 'unsupported';
+        $kvm_details = 'Hardware Virtualization Not Supported';
+    }
+}
 
 $gpu_info = [];
 $gpus_file = '/var/run/nix-detected-gpus.json';

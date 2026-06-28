@@ -64,8 +64,8 @@
     </div>
 
     <div class="nix-form-group">
-        <label for="settings-autostart">Autostart Services:</label>
-        <div class="nix-field-help" style="margin-top: 0; margin-bottom: 6px;">Choose whether background services should automatically start up when the Unraid array mounts.</div>
+        <label for="settings-autostart">Autostart Flake Services:</label>
+        <div class="nix-field-help" style="margin-top: 0; margin-bottom: 6px;">Choose whether guest application services should automatically start up when the Unraid array mounts.</div>
         <select id="settings-autostart">
             <option value="yes" <?php echo $autostart === 'yes' ? 'selected' : ''; ?>>Yes</option>
             <option value="no" <?php echo $autostart === 'no' ? 'selected' : ''; ?>>No</option>
@@ -91,9 +91,11 @@
         <label for="settings-nix-channel">Nix Channel Pin:</label>
         <div class="nix-field-help" style="margin-top: 0; margin-bottom: 6px;">Select the default Nix channel to resolve and fetch packages (stable or unstable releases).</div>
         <select id="settings-nix-channel">
-            <option value="nixos-unstable" <?php echo $nix_channel === 'nixos-unstable' ? 'selected' : ''; ?>>nixos-unstable</option>
+            <option value="nixos-unstable" <?php echo $nix_channel === 'nixos-unstable' ? 'selected' : ''; ?>>nixos-unstable (Recommended)</option>
+            <option value="nixos-25.11" <?php echo $nix_channel === 'nixos-25.11' ? 'selected' : ''; ?>>nixos-25.11 (Stable)</option>
+            <option value="nixos-25.05" <?php echo $nix_channel === 'nixos-25.05' ? 'selected' : ''; ?>>nixos-25.05 (Stable)</option>
+            <option value="nixos-24.11" <?php echo $nix_channel === 'nixos-24.11' ? 'selected' : ''; ?>>nixos-24.11 (Stable)</option>
             <option value="nixos-24.05" <?php echo $nix_channel === 'nixos-24.05' ? 'selected' : ''; ?>>nixos-24.05 (Stable)</option>
-            <option value="nixos-23.11" <?php echo $nix_channel === 'nixos-23.11' ? 'selected' : ''; ?>>nixos-23.11 (Stable)</option>
         </select>
     </div>
 
@@ -237,12 +239,15 @@
         <div style="flex: 1; min-width: 240px; padding: 12px; background: var(--nix-bg-secondary); border-radius: 6px; border: 1px solid var(--nix-border-primary);">
             <div style="font-size: 10px; font-weight: bold; text-transform: uppercase; color: var(--nix-text-muted); margin-bottom: 6px; letter-spacing: 0.5px;">CPU Virtualization (KVM)</div>
             <div style="display: flex; align-items: center; gap: 8px;">
-                <?php if ($has_kvm): ?>
+                <?php if ($kvm_status === 'active'): ?>
                     <i class="fa fa-check-circle" style="color: #2ecc71; font-size: 16px;"></i>
-                    <span style="font-size: 13px; font-weight: bold; color: var(--nix-text-primary);">Active (SVM/VT-x Enabled)</span>
-                <?php else: ?>
+                    <span style="font-size: 13px; font-weight: bold; color: var(--nix-text-primary);"><?php echo htmlspecialchars($kvm_details); ?></span>
+                <?php elseif ($kvm_status === 'disabled'): ?>
                     <i class="fa fa-warning" style="color: #e67e22; font-size: 16px;"></i>
-                    <span style="font-size: 13px; font-weight: bold; color: #e67e22;">Not Enabled (Virtualization disabled in BIOS)</span>
+                    <span style="font-size: 13px; font-weight: bold; color: #e67e22;"><?php echo htmlspecialchars($kvm_details); ?></span>
+                <?php else: ?>
+                    <i class="fa fa-times-circle" style="color: var(--nix-text-muted); font-size: 16px;"></i>
+                    <span style="font-size: 13px; font-weight: bold; color: var(--nix-text-muted);"><?php echo htmlspecialchars($kvm_details); ?></span>
                 <?php endif; ?>
             </div>
         </div>
