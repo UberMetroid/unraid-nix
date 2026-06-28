@@ -132,14 +132,14 @@ pub fn render_presets_store() -> String {
                 
                 <!-- Search bar -->
                 <div style="position: relative; width: 250px; margin-left: 8px;">
-                    <input type="text" id="nix-preset-search" placeholder="Search templates..." onkeyup="filterPresetsStore()" style="width: 100%; padding: 6px 12px 6px 30px; border-radius: 4px; border: 1px solid rgba(255,255,255,0.1); background: rgba(0,0,0,0.2); color: #fff; font-size: 13px; outline: none; transition: border-color 0.15s ease;">
-                    <i class="fa fa-search" style="position: absolute; left: 10px; top: 9px; color: #666; font-size: 12px;"></i>
+                    <input type="text" id="nix-preset-search" placeholder="Search templates..." onkeyup="filterPresetsStore()" style="width: 100%; padding: 6px 12px 6px 30px; border-radius: 4px; border: 1px solid var(--nix-border-primary); background: var(--nix-bg-secondary); color: var(--nix-text-primary); font-size: 13px; outline: none; transition: border-color 0.15s ease;">
+                    <i class="fa fa-search" style="position: absolute; left: 10px; top: 9px; color: var(--nix-text-muted); font-size: 12px;"></i>
                 </div>
             </div>
         </div>
 
         <!-- Category pills (Alphabetically Sorted) -->
-        <div class="nix-preset-pills" style="display: flex; gap: 8px; flex-wrap: wrap; padding-bottom: 5px; border-bottom: 1px solid rgba(255,255,255,0.05);">
+        <div class="nix-preset-pills" style="display: flex; gap: 8px; flex-wrap: wrap; padding-bottom: 5px; border-bottom: 1px solid var(--nix-border-primary);">
             <button type="button" class="nix-preset-pill" onclick="filterPresetCategory('ai', this)">AI</button>
             <button type="button" class="nix-preset-pill" onclick="filterPresetCategory('automation', this)">Automation</button>
             <button type="button" class="nix-preset-pill" onclick="filterPresetCategory('backup', this)">Backup</button>
@@ -237,8 +237,8 @@ pub fn render_presets_store() -> String {
 
             let pkg_search_name = extract_pkg_name(&p.command, &p.name);
 
-            html.push_str(&format!(
-                r#"<div class="nix-preset-card" data-name="{}" data-desc="{}" data-category="{}" data-is-composed="{}" style="background: var(--nix-bg-primary); border: 1px solid var(--nix-border-primary); border-radius: 6px; padding: 16px; display: flex; flex-direction: column; justify-content: space-between; transition: transform 0.2s ease, border-color 0.2s ease, background 0.2s ease, box-shadow 0.2s ease; height: 210px;">
+             html.push_str(&format!(
+                r#"<div class="nix-preset-card" data-name="{}" data-desc="{}" data-category="{}" data-is-composed="{}" style="background: var(--nix-bg-secondary); border: 1px solid var(--nix-border-primary); border-radius: 6px; padding: 16px; display: flex; flex-direction: column; justify-content: space-between; transition: transform 0.2s ease, border-color 0.2s ease, background 0.2s ease, box-shadow 0.2s ease; height: 210px;">
                     <div>
                         <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 12px;">
                             <div style="width: 32px; height: 32px; border-radius: 4px; background: {}; border: 1px solid {}; display: flex; align-items: center; justify-content: center; color: {}; flex-shrink: 0;">
@@ -347,56 +347,56 @@ pub fn render_presets_store() -> String {
     <style>
     .nix-preset-card:hover {
         transform: translateY(-2px);
-        border-color: rgba(0, 161, 255, 0.25) !important;
-        background: rgba(255, 255, 255, 0.035) !important;
-        box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        border-color: var(--nix-accent) !important;
+        background: var(--nix-bg-tertiary) !important;
+        box-shadow: var(--nix-card-shadow);
     }
     #nix-preset-search:focus {
-        border-color: rgba(0, 161, 255, 0.5) !important;
+        border-color: var(--nix-accent) !important;
     }
     .nix-preset-pill {
-        background: rgba(255, 255, 255, 0.03);
-        border: 1px solid rgba(255, 255, 255, 0.08);
+        background: var(--nix-bg-secondary);
+        border: 1px solid var(--nix-border-primary);
         border-radius: 12px;
         padding: 4px 12px;
-        color: #a0a0a5;
+        color: var(--nix-text-secondary);
         font-size: 11px;
         cursor: pointer;
         outline: none;
         margin: 0;
     }
     .nix-preset-pill:hover {
-        background: rgba(255, 255, 255, 0.08);
-        color: #fff;
+        background: var(--nix-bg-tertiary);
+        color: var(--nix-text-primary);
     }
     .nix-preset-pill.active {
         background: rgba(0, 161, 255, 0.1) !important;
-        border-color: rgba(0, 161, 255, 0.3) !important;
-        color: #00a1ff !important;
+        border-color: var(--nix-accent) !important;
+        color: var(--nix-accent) !important;
     }
     .nix-store-link:hover {
-        color: #fff !important;
+        color: var(--nix-text-bright) !important;
         text-decoration: underline !important;
     }
     .nix-scope-btn {
-        background: rgba(255, 255, 255, 0.03);
-        border: 1px solid rgba(255, 255, 255, 0.08);
+        background: var(--nix-bg-secondary);
+        border: 1px solid var(--nix-border-primary);
         border-radius: 12px;
         padding: 4px 12px;
-        color: #a0a0a5;
+        color: var(--nix-text-secondary);
         font-size: 11px;
         cursor: pointer;
         margin: 0;
         outline: none;
     }
     .nix-scope-btn:hover {
-        background: rgba(255, 255, 255, 0.08);
-        color: #fff;
+        background: var(--nix-bg-tertiary);
+        color: var(--nix-text-primary);
     }
     .nix-scope-btn.active {
         background: rgba(0, 161, 255, 0.1) !important;
-        border-color: rgba(0, 161, 255, 0.3) !important;
-        color: #00a1ff !important;
+        border-color: var(--nix-accent) !important;
+        color: var(--nix-accent) !important;
     }
     </style>
     "##);
