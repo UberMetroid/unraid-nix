@@ -72,6 +72,25 @@ $suggested_quota = 15 + ($num_flakes * 3);
 
 exec("/etc/rc.d/rc.nix-daemon status 2>/dev/null", $status_output, $status_code);
 $is_nix_running = ($status_code === 0);
+
+// Hardware capability detection
+$has_kvm = file_exists('/dev/kvm');
+
+$gpu_info = [];
+$gpus_file = '/var/run/nix-detected-gpus.json';
+if (file_exists($gpus_file)) {
+    $gpus_data = json_decode(file_get_contents($gpus_file), true);
+    if (is_array($gpus_data)) {
+        foreach ($gpus_data as $g) {
+            if (isset($g['name'])) {
+                $gpu_info[] = $g['name'];
+            }
+        }
+    }
+}
+if (empty($gpu_info)) {
+    $gpu_info[] = "No compatible GPUs detected (NVIDIA/AMD/Intel)";
+}
 ?>
 
 <?php

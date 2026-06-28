@@ -1,3 +1,33 @@
+<!-- 0. Hardware Capabilities -->
+<div class="nix-section" style="margin-bottom: 20px;">
+    <h3 style="margin: 0 0 10px 0;">Hardware Capabilities</h3>
+    <div style="display: flex; gap: 15px; flex-wrap: wrap;">
+        <div style="flex: 1; min-width: 240px; padding: 12px; background: var(--nix-bg-secondary); border-radius: 6px; border: 1px solid var(--nix-border-primary);">
+            <div style="font-size: 10px; font-weight: bold; text-transform: uppercase; color: var(--nix-text-muted); margin-bottom: 6px; letter-spacing: 0.5px;">CPU Virtualization (KVM)</div>
+            <div style="display: flex; align-items: center; gap: 8px;">
+                <?php if ($has_kvm): ?>
+                    <i class="fa fa-check-circle" style="color: #2ecc71; font-size: 16px;"></i>
+                    <span style="font-size: 13px; font-weight: bold; color: var(--nix-text-primary);">Active (SVM/VT-x Enabled)</span>
+                <?php else: ?>
+                    <i class="fa fa-warning" style="color: #e67e22; font-size: 16px;"></i>
+                    <span style="font-size: 13px; font-weight: bold; color: #e67e22;">Not Enabled (Virtualization disabled in BIOS)</span>
+                <?php endif; ?>
+            </div>
+        </div>
+        <div style="flex: 1; min-width: 280px; padding: 12px; background: var(--nix-bg-secondary); border-radius: 6px; border: 1px solid var(--nix-border-primary);">
+            <div style="font-size: 10px; font-weight: bold; text-transform: uppercase; color: var(--nix-text-muted); margin-bottom: 6px; letter-spacing: 0.5px;">GPU Transcoding & Passthrough</div>
+            <div style="font-size: 13px; font-weight: bold; color: var(--nix-text-primary); display: flex; flex-direction: column; gap: 4px;">
+                <?php foreach ($gpu_info as $gpu): ?>
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                        <i class="fa fa-desktop" style="color: var(--nix-accent); font-size: 14px;"></i>
+                        <span><?php echo htmlspecialchars($gpu); ?></span>
+                    </div>
+                <?php endforeach; ?>
+            </div>
+        </div>
+    </div>
+</div>
+
 <!-- 1. Daemon -->
 <div class="nix-section" style="margin-bottom: 20px;">
     <div style="display: flex; align-items: center; justify-content: space-between;">
