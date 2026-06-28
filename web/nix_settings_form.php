@@ -251,20 +251,20 @@
                 <?php endif; ?>
             </div>
             <?php if ($kvm_status === 'active' && !empty($kvm_features)): ?>
-                <div style="margin-top: 10px; border-top: 1px solid rgba(255,255,255,0.05); padding-top: 8px; display: flex; flex-direction: column; gap: 4px; font-size: 11px;">
-                    <div style="display: flex; justify-content: space-between;">
-                        <span style="color: var(--nix-text-muted);">Nested Virtualization:</span>
-                        <span style="color: <?php echo $kvm_features['nested'] === 'Enabled' ? '#2ecc71' : 'var(--nix-text-muted)'; ?>; font-weight: bold;"><?php echo $kvm_features['nested']; ?></span>
-                    </div>
-                    <div style="display: flex; justify-content: space-between;">
-                        <span style="color: var(--nix-text-muted);">IOMMU (VT-d/AMD-Vi):</span>
-                        <span style="color: <?php echo $kvm_features['iommu'] === 'Enabled (IOMMU active)' ? '#2ecc71' : '#e67e22'; ?>; font-weight: bold;"><?php echo $kvm_features['iommu']; ?></span>
-                    </div>
-                    <div style="display: flex; justify-content: space-between;">
-                        <span style="color: var(--nix-text-muted);">SLAT (EPT/RVI):</span>
-                        <span style="color: var(--nix-text-primary); font-weight: bold;"><?php echo $kvm_features['slat']; ?></span>
-                    </div>
-                </div>
+                <table style="width: 100% !important; border-collapse: collapse !important; border: none !important; margin-top: 10px !important; font-size: 11px !important; line-height: 1.4 !important; box-shadow: none !important; background: transparent !important;">
+                    <tr style="background: transparent !important; border: none !important; box-shadow: none !important;">
+                        <td style="color: var(--nix-text-muted) !important; padding: 4px 0 !important; border: none !important; background: transparent !important; text-align: left !important; font-size: 11px !important;">Nested Virtualization:</td>
+                        <td style="text-align: right !important; font-weight: bold !important; color: <?php echo $kvm_features['nested'] === 'Enabled' ? '#2ecc71' : 'var(--nix-text-muted)'; ?> !important; padding: 4px 0 !important; border: none !important; background: transparent !important; font-size: 11px !important;"><?php echo $kvm_features['nested']; ?></td>
+                    </tr>
+                    <tr style="background: transparent !important; border: none !important; box-shadow: none !important;">
+                        <td style="color: var(--nix-text-muted) !important; padding: 4px 0 !important; border: none !important; background: transparent !important; text-align: left !important; font-size: 11px !important;">IOMMU (VT-d/AMD-Vi):</td>
+                        <td style="text-align: right !important; font-weight: bold !important; color: <?php echo $kvm_features['iommu'] === 'Enabled (IOMMU active)' ? '#2ecc71' : '#e67e22'; ?> !important; padding: 4px 0 !important; border: none !important; background: transparent !important; font-size: 11px !important;"><?php echo $kvm_features['iommu']; ?></td>
+                    </tr>
+                    <tr style="background: transparent !important; border: none !important; box-shadow: none !important;">
+                        <td style="color: var(--nix-text-muted) !important; padding: 4px 0 !important; border: none !important; background: transparent !important; text-align: left !important; font-size: 11px !important;">SLAT (EPT/RVI):</td>
+                        <td style="text-align: right !important; font-weight: bold !important; color: var(--nix-text-primary) !important; padding: 4px 0 !important; border: none !important; background: transparent !important; font-size: 11px !important;"><?php echo $kvm_features['slat']; ?></td>
+                    </tr>
+                </table>
             <?php endif; ?>
         </div>
         <div style="flex: 1; min-width: 280px; padding: 12px; background: var(--nix-bg-secondary); border-radius: 6px; border: 1px solid var(--nix-border-primary);">
