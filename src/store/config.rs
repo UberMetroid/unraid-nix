@@ -91,7 +91,7 @@ pub fn generate_nix_conf_content(
             let total = std::thread::available_parallelism()
                 .map(|p| p.get())
                 .unwrap_or(4);
-            std::cmp::max(1, total / 2).to_string()
+            std::cmp::max(1, (total + 1) / 2).to_string()
         } else {
             build_jobs.to_string()
         };
