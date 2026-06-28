@@ -212,14 +212,29 @@ function loadLogs(isAutoRefresh) {
                         }
                     });
                     
+                    var selectedVal = select.val();
+                    var selectedOptionWasRemoved = false;
                     for (var name in existingServices) {
+                        if ($(existingServices[name]).val() === selectedVal) {
+                            selectedOptionWasRemoved = true;
+                        }
                         $(existingServices[name]).remove();
                     }
                     
                     if (servicesGroup.find('option').length === 0) {
                         servicesGroup.remove();
                     }
+                    
+                    if (selectedOptionWasRemoved) {
+                        select.val('plugin');
+                        loadLogs(false);
+                    }
                 } else {
+                    var selectedVal = select.val();
+                    if (selectedVal && selectedVal.indexOf('service:') === 0) {
+                        select.val('plugin');
+                        loadLogs(false);
+                    }
                     servicesGroup.remove();
                 }
             }
