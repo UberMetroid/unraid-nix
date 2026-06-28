@@ -166,7 +166,7 @@ pub fn render_service_row(
     let cfg = get_service_fa_config(&s.name);
 
     format!(
-        r#"<div class="nix-preset-card nix-service-card" data-name="{}" style="background: var(--nix-bg-secondary); border: 1px solid var(--nix-border-primary); border-radius: 6px; padding: 16px; display: flex; flex-direction: column; justify-content: space-between; transition: transform 0.2s ease, border-color 0.2s ease, background 0.2s ease, box-shadow 0.2s ease; min-height: 240px; height: auto; position: relative;">
+        r#"<div class="nix-preset-card nix-service-card" data-name="{}" style="background: var(--nix-bg-secondary); border: 1px solid var(--nix-border-primary); border-radius: 6px; padding: 16px; display: flex; flex-direction: column; justify-content: space-between; transition: transform 0.2s ease, border-color 0.2s ease, background 0.2s ease, box-shadow 0.2s ease; min-height: 220px; height: auto; position: relative;">
             <div>
                 <!-- Header Row 1: Button Bar on Right -->
                 <div style="display: flex; justify-content: flex-end; margin-bottom: 8px;">
@@ -188,7 +188,7 @@ pub fn render_service_row(
                         </div>
                         <div style="display: flex; flex-direction: column; overflow: hidden; min-width: 0; flex: 1;">
                             <strong style="font-size: 14px; color: var(--nix-text-primary); word-break: break-word; overflow-wrap: break-word;" title="{}">{}</strong>
-                            <span style="font-family: monospace; color: var(--nix-text-secondary); font-size: 10px; margin-top: 1px;">nixpkgs#{}</span>
+                            <span style="font-family: monospace; color: var(--nix-text-secondary); font-size: 10px; margin-top: 1px;">nixpkgs#{} {}</span>
                             <div style="display: flex; flex-direction: column; font-size: 10px; color: var(--nix-text-secondary); margin-top: 4px; gap: 2px;">
                                 {}
                             </div>
@@ -202,10 +202,6 @@ pub fn render_service_row(
                 <!-- Info list -->
                 <div style="display: flex; flex-direction: column; gap: 6px; font-size: 11px; border-top: 1px solid var(--nix-border-primary); padding-top: 8px;">
                     <div style="display: flex; justify-content: space-between; align-items: center; line-height: 1.3;">
-                        <span style="color: var(--nix-text-secondary);">Version / Info:</span>
-                        <span style="text-align: right; color: var(--nix-text-primary);">{}</span>
-                    </div>
-                    <div style="display: flex; justify-content: space-between; align-items: center; line-height: 1.3;">
                         <span style="color: var(--nix-text-secondary);">Web Interface:</span>
                         <span style="text-align: right; max-width: 170px; word-break: break-all; overflow-wrap: break-word;">{}</span>
                     </div>
@@ -216,6 +212,6 @@ pub fn render_service_row(
                 </div>
             </div>
         </div>"#,
-        s.name, start_btn, stop_btn, edit_btn, logs_btn, autostart_html, s.name, cfg.bg, cfg.border, cfg.color, cfg.icon, s.name, s.name, s.name, resources_html, s.name, status_class, status_label, version_badge, lan_ip_port_html, mapped_drives_html
+        s.name, start_btn, stop_btn, edit_btn, logs_btn, autostart_html, s.name, cfg.bg, cfg.border, cfg.color, cfg.icon, s.name, s.name, s.name, version_badge, resources_html, s.name, status_class, status_label, lan_ip_port_html, mapped_drives_html
     )
 }
