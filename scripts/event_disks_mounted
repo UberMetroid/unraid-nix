@@ -55,6 +55,14 @@ if [ -f "$CFG_FILE" ]; then
     # Parse simple INI properties
     NIX_STORE_PATH=$(grep -oP 'NIX_STORE_PATH="\K[^"]+' "$CFG_FILE" || echo "$DEFAULT_STORE_PATH")
     AUTOSTART_FLAKES=$(grep -oP 'AUTOSTART_FLAKES="\K[^"]+' "$CFG_FILE" || echo "yes")
+    SETTINGS_CONFIRMED=$(grep -oP 'SETTINGS_CONFIRMED="\K[^"]+' "$CFG_FILE" || echo "no")
+else
+    SETTINGS_CONFIRMED="no"
+fi
+
+if [ "$SETTINGS_CONFIRMED" != "yes" ]; then
+    log_event "INFO" "Nix configuration is pending user confirmation. Please configure and apply settings in the Nix Settings tab first."
+    exit 0
 fi
 
 if [ -z "$NIX_STORE_PATH" ]; then

@@ -59,6 +59,7 @@ $build_jobs = isset($nix_cfg['BUILD_JOBS']) ? $nix_cfg['BUILD_JOBS'] : '0';
 $gc_min_free = isset($nix_cfg['GC_MIN_FREE']) ? $nix_cfg['GC_MIN_FREE'] : '5';
 $gc_max_free = isset($nix_cfg['GC_MAX_FREE']) ? $nix_cfg['GC_MAX_FREE'] : '10';
 $nix_channel = isset($nix_cfg['NIX_CHANNEL']) ? $nix_cfg['NIX_CHANNEL'] : 'nixos-unstable';
+$settings_confirmed = isset($nix_cfg['SETTINGS_CONFIRMED']) ? $nix_cfg['SETTINGS_CONFIRMED'] : 'no';
 
 $num_flakes = 0;
 $meta_dir = "/boot/config/plugins/nix/metadata";

@@ -1,3 +1,17 @@
+<?php if ($settings_confirmed !== 'yes'): ?>
+    <div class="nix-section" style="margin-bottom: 20px; border-left: 4px solid #f39c12; background: rgba(243, 156, 18, 0.08); padding: 15px; border-radius: 4px;">
+        <div style="display: flex; align-items: flex-start; gap: 12px;">
+            <i class="fa fa-warning" style="color: #f39c12; font-size: 20px; margin-top: 2px;"></i>
+            <div>
+                <h4 style="margin: 0 0 5px 0; color: #f39c12; font-size: 14px;">Initial Setup Required</h4>
+                <p class="nix-subtext" style="margin: 0; color: var(--nix-text-primary); font-size: 12px; line-height: 1.5;">
+                    The Nix Package Manager is not initialized. Please verify your <strong>Storage Location</strong> under Configuration below (do <strong>NOT</strong> use your USB boot flash drive '/boot') and click <strong>Apply Configuration</strong> to start the Nix system daemon.
+                </p>
+            </div>
+        </div>
+    </div>
+<?php endif; ?>
+
 <!-- 1. Daemon -->
 <div class="nix-section" style="margin-bottom: 20px;">
     <div style="display: flex; align-items: center; justify-content: space-between;">

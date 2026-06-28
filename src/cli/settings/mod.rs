@@ -34,6 +34,11 @@ pub fn save_settings(args: &crate::cli::args::SaveSettingsArgs) {
     let clean_store_path = store_path.trim_end_matches('/').to_string();
     let clean_old_store_path = old_store_path.trim_end_matches('/').to_string();
 
+    if clean_store_path.starts_with("/boot") {
+        eprintln!("Error: Storage location cannot be on your USB flash drive (/boot).");
+        exit(1);
+    }
+
     let mut migration_performed = false;
     if !clean_store_path.is_empty() && clean_store_path != clean_old_store_path {
         migration_performed = migration::migrate_nix_store(&clean_old_store_path, &clean_store_path);
@@ -42,7 +47,7 @@ pub fn save_settings(args: &crate::cli::args::SaveSettingsArgs) {
     // Write settings to ini config
     let _ = std::fs::create_dir_all("/boot/config/plugins/nix");
     let cfg_content = format!(
-        "NIX_STORE_PATH=\"{}\"\nAUTOSTART_FLAKES=\"{}\"\nENABLE_STORAGE_SANDBOX=\"{}\"\nENABLE_CLI_INSTALL=\"{}\"\nSHOW_IN_NAVIGATION=\"{}\"\nALLOW_SOURCE_BUILDS=\"{}\"\nFILTER_PRESETS_BY_HARDWARE=\"{}\"\nENABLE_PID_ISOLATION=\"{}\"\nENABLE_UTS_ISOLATION=\"{}\"\nENABLE_IPC_ISOLATION=\"{}\"\nAUTO_GC=\"{}\"\nNIX_STORE_QUOTA=\"{}\"\nBUILD_CORES=\"{}\"\nBUILD_JOBS=\"{}\"\nGC_MIN_FREE=\"{}\"\nGC_MAX_FREE=\"{}\"\nNIX_CHANNEL=\"{}\"\n",
+        "NIX_STORE_PATH=\"{}\"\nAUTOSTART_FLAKES=\"{}\"\nENABLE_STORAGE_SANDBOX=\"{}\"\nENABLE_CLI_INSTALL=\"{}\"\nSHOW_IN_NAVIGATION=\"{}\"\nALLOW_SOURCE_BUILDS=\"{}\"\nFILTER_PRESETS_BY_HARDWARE=\"{}\"\nENABLE_PID_ISOLATION=\"{}\"\nENABLE_UTS_ISOLATION=\"{}\"\nENABLE_IPC_ISOLATION=\"{}\"\nAUTO_GC=\"{}\"\nNIX_STORE_QUOTA=\"{}\"\nBUILD_CORES=\"{}\"\nBUILD_JOBS=\"{}\"\nGC_MIN_FREE=\"{}\"\nGC_MAX_FREE=\"{}\"\nNIX_CHANNEL=\"{}\"\nSETTINGS_CONFIRMED=\"yes\"\n",
         clean_store_path, autostart, enable_sandbox, enable_cli, show_in_nav, allow_source_builds, filter_presets_by_hardware, enable_pid_isolation, enable_uts_isolation, enable_ipc_isolation, auto_gc, store_quota, build_cores, build_jobs, gc_min_free, gc_max_free, nix_channel
     );
     if std::fs::write(cfg_file, cfg_content).is_err() {
