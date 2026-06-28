@@ -111,9 +111,11 @@ $is_nix_running = ($status_code === 0);
 $cpu_info = shell_exec('cat /proc/cpuinfo 2>/dev/null');
 $supports_intel = (strpos($cpu_info, ' vmx ') !== false);
 $supports_amd = (strpos($cpu_info, ' svm ') !== false);
+$supports_slat = (strpos($cpu_info, ' ept ') !== false || strpos($cpu_info, ' npt ') !== false);
 
 $kvm_status = 'inactive';
 $kvm_details = 'Not Supported';
+$kvm_features = [];
 
 if (trim(shell_exec('[ -c /dev/kvm ] && echo "yes" || echo "no"')) === 'yes') {
     $kvm_status = 'active';
@@ -124,6 +126,26 @@ if (trim(shell_exec('[ -c /dev/kvm ] && echo "yes" || echo "no"')) === 'yes') {
     } else {
         $kvm_details = 'Generic KVM (Active)';
     }
+    
+    // Detailed features
+    $kvm_features['slat'] = $supports_slat ? 'Supported (EPT/RVI)' : 'Not Supported';
+    
+    $has_iommu = trim(shell_exec('[ -d /sys/kernel/iommu_groups ] && [ "$(ls -A /sys/kernel/iommu_groups 2>/dev/null)" ] && echo "yes" || echo "no"')) === 'yes';
+    $kvm_features['iommu'] = $has_iommu ? 'Enabled (IOMMU active)' : 'Disabled';
+    
+    $nested = 'Disabled';
+    if (file_exists('/sys/module/kvm_intel/parameters/nested')) {
+        $n_val = trim(file_get_contents('/sys/module/kvm_intel/parameters/nested'));
+        if (in_array(strtolower($n_val), ['y', '1'])) {
+            $nested = 'Enabled';
+        }
+    } elseif (file_exists('/sys/module/kvm_amd/parameters/nested')) {
+        $n_val = trim(file_get_contents('/sys/module/kvm_amd/parameters/nested'));
+        if (in_array(strtolower($n_val), ['1', 'y'])) {
+            $nested = 'Enabled';
+        }
+    }
+    $kvm_features['nested'] = $nested;
 } else {
     if ($supports_intel || $supports_amd) {
         $kvm_status = 'disabled';

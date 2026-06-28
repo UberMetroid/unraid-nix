@@ -250,6 +250,22 @@
                     <span style="font-size: 13px; font-weight: bold; color: var(--nix-text-muted);"><?php echo htmlspecialchars($kvm_details); ?></span>
                 <?php endif; ?>
             </div>
+            <?php if ($kvm_status === 'active' && !empty($kvm_features)): ?>
+                <div style="margin-top: 10px; border-top: 1px solid rgba(255,255,255,0.05); padding-top: 8px; display: flex; flex-direction: column; gap: 4px; font-size: 11px;">
+                    <div style="display: flex; justify-content: space-between;">
+                        <span style="color: var(--nix-text-muted);">Nested Virtualization:</span>
+                        <span style="color: <?php echo $kvm_features['nested'] === 'Enabled' ? '#2ecc71' : 'var(--nix-text-muted)'; ?>; font-weight: bold;"><?php echo $kvm_features['nested']; ?></span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between;">
+                        <span style="color: var(--nix-text-muted);">IOMMU (VT-d/AMD-Vi):</span>
+                        <span style="color: <?php echo $kvm_features['iommu'] === 'Enabled (IOMMU active)' ? '#2ecc71' : '#e67e22'; ?>; font-weight: bold;"><?php echo $kvm_features['iommu']; ?></span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between;">
+                        <span style="color: var(--nix-text-muted);">SLAT (EPT/RVI):</span>
+                        <span style="color: var(--nix-text-primary); font-weight: bold;"><?php echo $kvm_features['slat']; ?></span>
+                    </div>
+                </div>
+            <?php endif; ?>
         </div>
         <div style="flex: 1; min-width: 280px; padding: 12px; background: var(--nix-bg-secondary); border-radius: 6px; border: 1px solid var(--nix-border-primary);">
             <div style="font-size: 10px; font-weight: bold; text-transform: uppercase; color: var(--nix-text-muted); margin-bottom: 6px; letter-spacing: 0.5px;">GPU Transcoding & Passthrough</div>
