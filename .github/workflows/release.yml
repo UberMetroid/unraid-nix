@@ -50,6 +50,21 @@ jobs:
           cd target/${{ matrix.target }}/release
           sha256sum nix-helper > nix-helper.sha256
 
+      - name: Verify Cargo.lock is current
+        run: cargo install --locked --frozen 2>&1 | tail -20
+
+      - name: Run cargo audit
+        uses: taiki-e/install-action@v1
+        with:
+          tool: cargo-audit
+      - name: cargo audit
+        run: |
+          cargo audit --json --output audit.json || true
+          if [ -s audit.json ]; then
+            echo "Audit results:" && cat audit.json | head -20
+          fi
+          cargo audit --deny warnings
+
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
