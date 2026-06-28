@@ -76,6 +76,13 @@ fn test_build_bwrap_command_storage_sandboxed() {
     assert!(cmd.contains("exec unshare "));
     assert!(cmd.contains("mount -t tmpfs tmpfs /var/run/nix-chroot-test-app"));
     assert!(cmd.contains("mount --bind -o ro /nix /var/run/nix-chroot-test-app/nix"));
+    assert!(cmd.contains("mount -t proc proc /var/run/nix-chroot-test-app/proc"));
+    assert!(cmd.contains("mount --rbind -o ro /sys /var/run/nix-chroot-test-app/sys"));
+    assert!(cmd.contains("mount --bind -o ro /etc/passwd /var/run/nix-chroot-test-app/etc/passwd"));
+    assert!(cmd.contains("mount --bind -o ro /etc/group /var/run/nix-chroot-test-app/etc/group"));
+    assert!(cmd.contains("mount --bind -o ro /etc/hosts /var/run/nix-chroot-test-app/etc/hosts"));
+    assert!(cmd.contains("mount --bind -o ro /etc/resolv.conf /var/run/nix-chroot-test-app/etc/resolv.conf"));
+    assert!(cmd.contains("mount --bind -o ro /etc/ssl /var/run/nix-chroot-test-app/etc/ssl"));
     assert!(cmd.contains("mount --bind /mnt/cache/appdata/test-app /var/run/nix-chroot-test-app/config"));
     assert!(cmd.contains("mount --bind /mnt/user/media /var/run/nix-chroot-test-app/media"));
     assert!(cmd.contains("mount --bind /mnt/user/downloads /var/run/nix-chroot-test-app/downloads"));
