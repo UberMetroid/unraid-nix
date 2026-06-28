@@ -150,8 +150,8 @@ pub fn render_service_row(
     } else {
         let mut lines = Vec::new();
         for (h, s) in &mapped_drives {
-            let h_short = if h.len() > 18 { format!("...{}", &h[h.len()-15..]) } else { h.clone() };
-            let s_short = if s.len() > 18 { format!("...{}", &s[s.len()-15..]) } else { s.clone() };
+            let h_short = if h.len() > 40 { format!("...{}", &h[h.len()-37..]) } else { h.clone() };
+            let s_short = if s.len() > 30 { format!("...{}", &s[s.len()-27..]) } else { s.clone() };
             lines.push(format!(
                 r#"<div style="font-family: monospace; font-size: 10px; color: var(--nix-text-primary); text-overflow: ellipsis; white-space: nowrap; overflow: hidden;" title="{} → {}">{} → {}</div>"#,
                 h, s, h_short, s_short
@@ -166,7 +166,7 @@ pub fn render_service_row(
     let cfg = get_service_fa_config(&s.name);
 
     format!(
-        r#"<div class="nix-preset-card nix-service-card" data-name="{}" style="background: var(--nix-bg-secondary); border: 1px solid var(--nix-border-primary); border-radius: 6px; padding: 16px; display: flex; flex-direction: column; justify-content: space-between; transition: transform 0.2s ease, border-color 0.2s ease, background 0.2s ease, box-shadow 0.2s ease; min-height: 220px; height: auto; position: relative;">
+        r#"<div class="nix-preset-card nix-service-card" data-name="{}" style="background: var(--nix-bg-secondary); border: 1px solid var(--nix-border-primary); border-radius: 6px; padding: 16px; display: flex; flex-direction: column; justify-content: space-between; transition: transform 0.2s ease, border-color 0.2s ease, background 0.2s ease, box-shadow 0.2s ease; min-height: 250px; height: auto; position: relative;">
             <div>
                 <!-- Header Row 1: Button Bar on Right -->
                 <div style="display: flex; justify-content: flex-end; margin-bottom: 8px;">
@@ -200,14 +200,14 @@ pub fn render_service_row(
                 </div>
 
                 <!-- Info list -->
-                <div style="display: flex; flex-direction: column; gap: 6px; font-size: 11px; border-top: 1px solid var(--nix-border-primary); padding-top: 8px;">
-                    <div style="display: flex; justify-content: space-between; align-items: center; line-height: 1.3;">
-                        <span style="color: var(--nix-text-secondary);">Web Interface:</span>
-                        <span style="text-align: right; max-width: 170px; word-break: break-all; overflow-wrap: break-word;">{}</span>
+                <div style="display: flex; flex-direction: column; gap: 8px; font-size: 11px; border-top: 1px solid var(--nix-border-primary); padding-top: 10px;">
+                    <div style="display: flex; flex-direction: column; gap: 3px; line-height: 1.3;">
+                        <span style="color: var(--nix-text-secondary); font-size: 10px; font-weight: 600;">WEB INTERFACE</span>
+                        <div style="padding-left: 6px;">{}</div>
                     </div>
-                    <div style="display: flex; justify-content: space-between; align-items: flex-start; line-height: 1.3;">
-                        <span style="color: var(--nix-text-secondary); margin-top: 1px;">Mapped Drives:</span>
-                        <div style="text-align: right; display: flex; flex-direction: column; align-items: flex-end; gap: 3px; max-width: 170px; overflow: hidden;">{}</div>
+                    <div style="display: flex; flex-direction: column; gap: 3px; line-height: 1.3;">
+                        <span style="color: var(--nix-text-secondary); font-size: 10px; font-weight: 600;">MAPPED DRIVES</span>
+                        <div style="display: flex; flex-direction: column; gap: 3px; padding-left: 6px;">{}</div>
                     </div>
                 </div>
             </div>
