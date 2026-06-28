@@ -15,7 +15,7 @@ pub fn get_detected_gpus() -> DetectedGpus {
 
     // 1. Try running nvidia-smi
     if let Ok(output) = Command::new("nvidia-smi")
-        .args(&["--query-gpu=index", "--format=csv,noheader,nounits"])
+        .args(["--query-gpu=index", "--format=csv,noheader,nounits"])
         .stdin(Stdio::null())
         .output() {
         if output.status.success() {
@@ -63,7 +63,7 @@ pub fn detect_gpus(_args: &[String]) {
 
     // 1. Try running nvidia-smi
     if let Ok(output) = Command::new("nvidia-smi")
-        .args(&["--query-gpu=index,name,uuid,pci.bus_id", "--format=csv,noheader,nounits"])
+        .args(["--query-gpu=index,name,uuid,pci.bus_id", "--format=csv,noheader,nounits"])
         .stdin(Stdio::null())
         .output() {
         if output.status.success() {

@@ -3,7 +3,7 @@ use crate::api::utils::{get_service_web_port, get_host_ips};
 
 fn get_sorted_statuses(api_port: u16) -> Result<Vec<crate::process::ServiceStatus>, String> {
     let mut statuses = get_services_status(api_port)?;
-    statuses.sort_by(|a, b| a.name.to_lowercase().cmp(&b.name.to_lowercase()));
+    statuses.sort_by_key(|a| a.name.to_lowercase());
     Ok(statuses)
 }
 

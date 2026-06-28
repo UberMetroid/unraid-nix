@@ -1,8 +1,8 @@
-/// Nix Host Execution Runner Module
-///
-/// This module constructs the execution commands using 'unshare' and 'setpriv'
-/// to run processes in an isolated mount namespace on the host under the specified PUID/PGID,
-/// preventing access to sensitive directories like /boot, /root, and other services' appdata.
+//! Nix Host Execution Runner Module
+//!
+//! This module constructs the execution commands using 'unshare' and 'setpriv'
+//! to run processes in an isolated mount namespace on the host under the specified PUID/PGID,
+//! preventing access to sensitive directories like /boot, /root, and other services' appdata.
 
 pub mod builder;
 pub mod cli;

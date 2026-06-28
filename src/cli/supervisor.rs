@@ -1,6 +1,6 @@
 pub fn restart_nix_supervisor() -> Result<(), String> {
     let _ = std::process::Command::new("sh")
-        .args(&["-c", ". /nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh && nix run nixpkgs#process-compose -- -p 29704 down"])
+        .args(["-c", ". /nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh && nix run nixpkgs#process-compose -- -p 29704 down"])
         .stdin(std::process::Stdio::null())
         .output();
 
@@ -21,7 +21,7 @@ pub fn restart_nix_supervisor() -> Result<(), String> {
 
     if !freed {
         let _ = std::process::Command::new("fuser")
-            .args(&["-k", "29704/tcp"])
+            .args(["-k", "29704/tcp"])
             .stdin(std::process::Stdio::null())
             .output();
     }
@@ -36,7 +36,7 @@ pub fn restart_nix_supervisor() -> Result<(), String> {
             cfg_file
         );
         let status = std::process::Command::new("sh")
-            .args(&["-c", &cmd])
+            .args(["-c", &cmd])
             .stdin(std::process::Stdio::null())
             .status();
         if let Ok(s) = status {

@@ -36,7 +36,7 @@ pub fn sync_templates() {
     let tmp_zip = "/tmp/templates.zip";
     
     let curl_status = std::process::Command::new("curl")
-        .args(&["-sSf", "-L", "-o", tmp_zip, zip_url])
+        .args(["-sSf", "-L", "-o", tmp_zip, zip_url])
         .status();
         
     match curl_status {
@@ -51,7 +51,7 @@ pub fn sync_templates() {
     
     let tmp_dir = "/tmp";
     let unzip_status = std::process::Command::new("unzip")
-        .args(&["-q", "-o", tmp_zip, "-d", tmp_dir])
+        .args(["-q", "-o", tmp_zip, "-d", tmp_dir])
         .status();
         
     match unzip_status {

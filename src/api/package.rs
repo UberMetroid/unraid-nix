@@ -7,7 +7,7 @@ pub fn resolve_package_version(uri: &str) -> String {
         uri
     );
     let output = Command::new("sh")
-        .args(&["-c", &cmd])
+        .args(["-c", &cmd])
         .stdin(std::process::Stdio::null())
         .output();
 
@@ -25,7 +25,7 @@ pub fn resolve_package_version(uri: &str) -> String {
         uri
     );
     let output_name = Command::new("sh")
-        .args(&["-c", &cmd_name])
+        .args(["-c", &cmd_name])
         .stdin(std::process::Stdio::null())
         .output();
         
@@ -34,7 +34,7 @@ pub fn resolve_package_version(uri: &str) -> String {
             let name_ver = String::from_utf8_lossy(&out.stdout).trim().to_string();
             if let Some(pos) = name_ver.rfind('-') {
                 let ver = &name_ver[pos + 1..];
-                if !ver.is_empty() && ver.chars().next().unwrap().is_digit(10) {
+                if !ver.is_empty() && ver.chars().next().unwrap().is_ascii_digit() {
                     return ver.to_string();
                 }
             }

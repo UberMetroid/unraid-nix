@@ -1,7 +1,7 @@
-/// Nix Package Search & Install Module
-///
-/// This module handles searching the nixpkgs registry using 'nix search'
-/// and managing CLI packages in the user profile via 'nix profile'.
+//! Nix Package Search & Install Module
+//!
+//! This module handles searching the nixpkgs registry using 'nix search'
+//! and managing CLI packages in the user profile via 'nix profile'.
 
 pub mod parser;
 

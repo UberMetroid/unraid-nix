@@ -13,7 +13,7 @@ pub fn render_services_table(api_port: u16) -> String {
         Err(e) => return format!(r#"<div class="alert alert-danger"><i class="fa fa-times"></i> Error connecting to supervisor API: {}</div>"#, e),
     };
 
-    statuses.sort_by(|a, b| a.name.to_lowercase().cmp(&b.name.to_lowercase()));
+    statuses.sort_by_key(|a| a.name.to_lowercase());
 
     let config_path = "/boot/config/plugins/nix/process-compose.yml";
     let config = crate::config::load_config(config_path).ok();

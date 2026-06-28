@@ -78,7 +78,7 @@ pub fn get_service_web_port(name: &str) -> Option<u16> {
 pub fn extract_package_uri(command: &str) -> Option<String> {
     if let Some(pos) = command.find("nixpkgs#") {
         let sub = &command[pos..];
-        let end = sub.find(|c: char| c == ' ' || c == '"' || c == '\'' || c == ';')
+        let end = sub.find([' ', '"', '\'', ';'])
             .unwrap_or(sub.len());
         let mut uri = sub[..end].to_string();
         while uri.ends_with('\\') || uri.ends_with('"') || uri.ends_with('\'') {
@@ -89,7 +89,7 @@ pub fn extract_package_uri(command: &str) -> Option<String> {
     
     if let Some(pos) = command.find("nix run ") {
         let sub = &command[pos + "nix run ".len()..];
-        let end = sub.find(|c: char| c == ' ' || c == '"' || c == '\'' || c == ';')
+        let end = sub.find([' ', '"', '\'', ';'])
             .unwrap_or(sub.len());
         let mut uri = sub[..end].trim().to_string();
         while uri.ends_with('\\') || uri.ends_with('"') || uri.ends_with('\'') {
@@ -105,7 +105,7 @@ pub fn extract_package_uri(command: &str) -> Option<String> {
 pub fn get_host_ips() -> Vec<HostAddr> {
     let mut ips = Vec::new();
     let output = Command::new("ip")
-        .args(&["-o", "-4", "addr", "show"])
+        .args(["-o", "-4", "addr", "show"])
         .stdin(std::process::Stdio::null())
         .output();
 

@@ -124,13 +124,13 @@ pub fn render_service_row(
       let start_btn = if !is_running {
           format!(r#"<button type="button" class="nix-btn nix-btn-sm" onclick="serviceAction('{}', 'start')" title="Start"><i class="fa fa-play" style="color: #2ecc71;"></i></button>"#, s.name)
       } else {
-          format!(r#"<button type="button" class="nix-btn nix-btn-sm" disabled title="Service is running"><i class="fa fa-play" style="color: var(--nix-text-muted);"></i></button>"#)
+          r#"<button type="button" class="nix-btn nix-btn-sm" disabled title="Service is running"><i class="fa fa-play" style="color: var(--nix-text-muted);"></i></button>"#.to_string()
       };
 
       let stop_btn = if is_running {
           format!(r#"<button type="button" class="nix-btn nix-btn-sm" onclick="serviceAction('{}', 'stop')" title="Stop"><i class="fa fa-stop" style="color: #e74c3c;"></i></button>"#, s.name)
       } else {
-          format!(r#"<button type="button" class="nix-btn nix-btn-sm" disabled title="Service is stopped"><i class="fa fa-stop" style="color: var(--nix-text-muted);"></i></button>"#)
+          r#"<button type="button" class="nix-btn nix-btn-sm" disabled title="Service is stopped"><i class="fa fa-stop" style="color: var(--nix-text-muted);"></i></button>"#.to_string()
       };
 
       let edit_btn = format!(
@@ -179,12 +179,10 @@ pub fn render_service_row(
           lines.join("")
       };
 
-      let rollback_html = format!(
-          r#"<div style="display: flex; align-items: center; justify-content: space-between; width: 100%; height: 16px;">
+      let rollback_html = r#"<div style="display: flex; align-items: center; justify-content: space-between; width: 100%; height: 16px;">
               <span style="color: var(--nix-text-primary); font-family: monospace; font-size: 10px;">Gen 1 (Active)</span>
               <button type="button" class="nix-btn" style="padding: 1px 4px; font-size: 8px; line-height: 1; min-width: unset; margin: 0; height: 16px; border: 1px solid var(--nix-border-primary); background: var(--nix-bg-tertiary); color: var(--nix-text-secondary); border-radius: 3px; cursor: pointer;" onclick="alert('Rollback support is coming in a future update!')">Rollback</button>
-          </div>"#
-      );
+          </div>"#.to_string();
 
       let time_html = if is_running {
           format!(

@@ -52,12 +52,12 @@ pub fn get_metadata_json(name: &str) -> String {
             }
             if let Some(pos) = cmd.find("export HOME=") {
                 let s = &cmd[pos + 12..];
-                let end = s.find(|c: char| c == ' ' || c == '&' || c == ';' || c == '"').unwrap_or(s.len());
+                let end = s.find([' ', '&', ';', '"']).unwrap_or(s.len());
                 appdata = s[..end].to_string();
             }
             if let Some(pos) = cmd.find("exec nix run ") {
                 let s = &cmd[pos + 13..];
-                let end = s.find(|c: char| c == ' ' || c == '"').unwrap_or(s.len());
+                let end = s.find([' ', '"']).unwrap_or(s.len());
                 let raw_uri = s[..end].to_string();
                 if raw_uri.contains('#') || raw_uri.contains(':') {
                     uri = raw_uri;

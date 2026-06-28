@@ -58,7 +58,7 @@ pub fn run(args: Vec<String>) {
             if let Some(path) = crate::api::utils::get_service_icon_path(name) {
                 println!("{}", path);
             } else {
-                println!("");
+                println!();
             }
         }
         _ => {

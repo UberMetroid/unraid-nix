@@ -143,10 +143,7 @@ pub fn send_service_action(api_port: u16, name: &str, action: &str) -> Result<()
         return Err("Nix process supervisor is not running.".to_string());
     }
 
-    let is_starting = match action.to_lowercase().as_str() {
-        "start" | "restart" => true,
-        _ => false,
-    };
+    let is_starting = matches!(action.to_lowercase().as_str(), "start" | "restart");
 
     if is_starting {
         run_preflight_checks(name);

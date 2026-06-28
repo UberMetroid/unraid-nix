@@ -41,7 +41,7 @@ fn parse_license(val: &serde_json::Value) -> Option<String> {
         }
         if let Some(arr) = lic.as_array() {
             let names: Vec<String> = arr.iter()
-                .filter_map(|item| parse_license(item))
+                .filter_map(parse_license)
                 .collect();
             if !names.is_empty() {
                 return Some(names.join(", "));
@@ -114,7 +114,7 @@ pub fn parse_search_json(json_content: &str) -> Result<Vec<SearchResult>, String
 
     let mut results = Vec::new();
     for (key, item) in raw_map {
-        let short_name = key.split('.').last().unwrap_or(&key);
+        let short_name = key.split('.').next_back().unwrap_or(&key);
         let normalized_name = format!("nixpkgs#{}", short_name);
 
         let mut homepage = None;

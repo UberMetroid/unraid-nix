@@ -84,7 +84,7 @@ fn html_escape(s: &str) -> String {
 
 fn run_tail(file: &str, lines: usize) -> Result<String, String> {
     let output = std::process::Command::new("tail")
-        .args(&["-n", &lines.to_string(), file])
+        .args(["-n", &lines.to_string(), file])
         .output()
         .map_err(|e| e.to_string())?;
     if output.status.success() {

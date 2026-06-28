@@ -5,10 +5,7 @@ use std::net::TcpListener;
 /// Uses standard TcpListener binding. If it fails due to address in use,
 /// it means there is a port conflict with a Docker container or host process.
 pub fn is_port_in_use(port: u16) -> bool {
-    match TcpListener::bind(("127.0.0.1", port)) {
-        Ok(_) => false,
-        Err(_) => true,
-    }
+    TcpListener::bind(("127.0.0.1", port)).is_err()
 }
 
 #[cfg(test)]

@@ -113,7 +113,7 @@ pub fn get_service_command_preset(
                 ));
                 host_init_commands.push(format!("chown -R {}:{} {}", puid, pgid, appdata));
 
-                format!("exec nix run nixpkgs#jellyfin -- --datadir /config/data --cachedir /config/cache --configdir /config/config")
+                "exec nix run nixpkgs#jellyfin -- --datadir /config/data --cachedir /config/cache --configdir /config/config".to_string()
             }
             "syncthing" => {
                 let mappings = port.as_ref().map(|s| parse_ports(s)).unwrap_or_default();

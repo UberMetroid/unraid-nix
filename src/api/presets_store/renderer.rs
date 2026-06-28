@@ -52,7 +52,7 @@ pub fn render_presets_store() -> String {
         }
     }
 
-    presets.sort_by(|a, b| a.display_name.to_lowercase().cmp(&b.display_name.to_lowercase()));
+    presets.sort_by_key(|a| a.display_name.to_lowercase());
 
     let mut html = r##"
     <div class="nix-preset-store-header" style="display: flex; flex-direction: column; gap: 15px; margin-bottom: 20px;">

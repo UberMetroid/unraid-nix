@@ -114,7 +114,7 @@ pub fn setup_nix_conf() -> Result<(), String> {
     }
 
     // Symlink /etc/nix to /nix/etc/nix if /etc/nix doesn't exist
-    if !fs::metadata("/etc/nix").is_ok() {
+    if fs::metadata("/etc/nix").is_err() {
         log_event("INFO", "Creating symlink /etc/nix -> /nix/etc/nix...");
         if let Err(e) = symlink(target_dir, "/etc/nix") {
             let err_msg = format!("Failed to create symlink /etc/nix -> {}: {}", target_dir, e);

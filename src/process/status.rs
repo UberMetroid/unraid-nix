@@ -58,7 +58,7 @@ pub fn is_supervisor_running() -> bool {
         Ok(resp) => resp.status() == 200,
         Err(_) => {
             let pid_path = "/var/run/nix-process-compose.pid";
-            if !fs::metadata(pid_path).is_ok() {
+            if fs::metadata(pid_path).is_err() {
                 return false;
             }
             let pid_str = match fs::read_to_string(pid_path) {

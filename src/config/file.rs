@@ -3,7 +3,7 @@ use std::fs;
 
 /// Loads the process-compose configuration from the specified file path.
 pub fn load_config(file_path: &str) -> Result<ProcessComposeConfig, String> {
-    if !fs::metadata(file_path).is_ok() {
+    if fs::metadata(file_path).is_err() {
         return Ok(ProcessComposeConfig {
             version: "0.5".to_string(),
             environment: Some(vec!["NIX_REMOTE=daemon".to_string()]),

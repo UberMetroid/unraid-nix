@@ -6,7 +6,7 @@ pub fn get_gpu_active_services() -> std::collections::HashSet<String> {
     let mut active_services = std::collections::HashSet::new();
 
     let output = Command::new("nvidia-smi")
-        .args(&["--query-compute-apps=pid", "--format=csv,noheader,nounits"])
+        .args(["--query-compute-apps=pid", "--format=csv,noheader,nounits"])
         .stdin(std::process::Stdio::null())
         .output();
  
@@ -60,21 +60,19 @@ pub fn get_proc_io(pid: i32) -> Option<(u64, u64)> {
 pub fn get_descendant_pids(parent_pid: i32) -> Vec<i32> {
     let mut ppid_map: std::collections::HashMap<i32, Vec<i32>> = std::collections::HashMap::new();
     if let Ok(entries) = std::fs::read_dir("/proc") {
-        for entry in entries {
-            if let Ok(entry) = entry {
-                let path = entry.path();
-                if path.is_dir() {
-                    if let Some(name) = path.file_name().and_then(|n| n.to_str()) {
-                        if let Ok(child_pid) = name.parse::<i32>() {
-                            if let Ok(stat) = std::fs::read_to_string(format!("/proc/{}/stat", child_pid)) {
-                                if let Some(pos) = stat.rfind(')') {
-                                    let fields_after_name = &stat[pos+1..];
-                                    let mut parts = fields_after_name.split_whitespace();
-                                    let _state = parts.next();
-                                    if let Some(ppid_str) = parts.next() {
-                                        if let Ok(ppid) = ppid_str.parse::<i32>() {
-                                            ppid_map.entry(ppid).or_insert_with(Vec::new).push(child_pid);
-                                        }
+        for entry in entries.flatten() {
+            let path = entry.path();
+            if path.is_dir() {
+                if let Some(name) = path.file_name().and_then(|n| n.to_str()) {
+                    if let Ok(child_pid) = name.parse::<i32>() {
+                        if let Ok(stat) = std::fs::read_to_string(format!("/proc/{}/stat", child_pid)) {
+                            if let Some(pos) = stat.rfind(')') {
+                                let fields_after_name = &stat[pos+1..];
+                                let mut parts = fields_after_name.split_whitespace();
+                                let _state = parts.next();
+                                if let Some(ppid_str) = parts.next() {
+                                    if let Ok(ppid) = ppid_str.parse::<i32>() {
+                                        ppid_map.entry(ppid).or_default().push(child_pid);
                                     }
                                 }
                             }
@@ -104,7 +102,7 @@ pub fn get_descendant_pids(parent_pid: i32) -> Vec<i32> {
 pub fn get_nvidia_pmon_stats() -> std::collections::HashMap<i32, Vec<(i32, GpuStat)>> {
     let mut stats = std::collections::HashMap::new();
     let output = Command::new("nvidia-smi")
-        .args(&["pmon", "-c", "1"])
+        .args(["pmon", "-c", "1"])
         .stdin(std::process::Stdio::null())
         .output();
     if let Ok(out) = output {
