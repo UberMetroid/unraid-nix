@@ -86,14 +86,19 @@ pub fn get_descendant_pids(parent_pid: i32) -> Vec<i32> {
             }
         }
     }
-    
+
+    // Use a HashSet for O(1) membership tests during BFS instead of
+    // pids.contains(&c) which is O(n) — keeps the walk O(n) overall even
+    // on hosts with thousands of processes.
     let mut pids = vec![parent_pid];
+    let mut seen: std::collections::HashSet<i32> = std::collections::HashSet::new();
+    seen.insert(parent_pid);
     let mut i = 0;
     while i < pids.len() {
         let p = pids[i];
         if let Some(children) = ppid_map.get(&p) {
             for &c in children {
-                if !pids.contains(&c) {
+                if seen.insert(c) {
                     pids.push(c);
                 }
             }

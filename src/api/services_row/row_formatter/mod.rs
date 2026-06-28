@@ -13,6 +13,26 @@ pub mod templates;
 
 pub use ports::get_service_ports;
 
+/// Truncates `s` to a maximum of `max_chars` characters, keeping the trailing
+/// `keep_chars` characters if truncation is needed. Returns the string with a
+/// leading "..." prefix when truncated. Uses `char_indices` to walk UTF-8
+/// character boundaries safely — a naive byte slice would panic on multi-byte
+/// sequences that span the cutoff.
+fn truncate_path_ellipsis(s: &str, max_chars: usize, keep_chars: usize) -> String {
+    if s.chars().count() <= max_chars {
+        return s.to_string();
+    }
+    let skip = s.chars().count().saturating_sub(keep_chars);
+    let mut buf = String::with_capacity(keep_chars + 3);
+    buf.push_str("...");
+    for (i, c) in s.chars().enumerate() {
+        if i >= skip {
+            buf.push(c);
+        }
+    }
+    buf
+}
+
 pub fn render_service_row(
     s: &ServiceStatus,
     config: &Option<ProcessComposeConfig>,
@@ -155,8 +175,8 @@ pub fn render_service_row(
       } else {
           let mut lines = Vec::new();
           for (h, s) in &mapped_drives {
-              let h_short = if h.len() > 40 { format!("...{}", &h[h.len()-37..]) } else { h.clone() };
-              let s_short = if s.len() > 30 { format!("...{}", &s[s.len()-27..]) } else { s.clone() };
+              let h_short = truncate_path_ellipsis(h, 40, 37);
+              let s_short = truncate_path_ellipsis(s, 30, 27);
               lines.push(format!(
                   r#"<div style="font-family: monospace; font-size: 10px; color: var(--nix-text-primary); text-overflow: ellipsis; white-space: nowrap; overflow: hidden;" title="{} → {}">{} → {}</div>"#,
                   h, s, h_short, s_short
@@ -220,3 +240,42 @@ pub fn render_service_row(
           autostart_html: &autostart_html,
       })
   }
+
+#[cfg(test)]
+mod tests {
+    use super::truncate_path_ellipsis;
+
+    #[test]
+    fn test_truncate_path_ellipsis_under_limit() {
+        let s = "/mnt/cache/appdata/test";
+        assert_eq!(truncate_path_ellipsis(s, 40, 37), "/mnt/cache/appdata/test");
+    }
+
+    #[test]
+    fn test_truncate_path_ellipsis_over_limit() {
+        let s = "/mnt/cache/appdata/this-is-a-very-long-path-that-exceeds-forty-chars";
+        let result = truncate_path_ellipsis(s, 40, 37);
+        assert!(result.starts_with("..."));
+        assert_eq!(result.chars().count(), 40);
+    }
+
+    #[test]
+    fn test_truncate_path_ellipsis_at_exact_boundary() {
+        // Exactly 40 chars: should NOT be truncated.
+        let s = "a".repeat(40);
+        assert_eq!(truncate_path_ellipsis(&s, 40, 37), s);
+    }
+
+    #[test]
+    fn test_truncate_path_ellipsis_handles_multibyte_utf8() {
+        // Multi-byte chars: each is 1 char but multiple bytes. A naive byte
+        // slice at the cutoff would panic on a boundary. Counting chars
+        // avoids that.
+        let s = "/mnt/数据/测试/路径/with-very-long-prefix-so-truncation-kicks-in";
+        let result = truncate_path_ellipsis(s, 20, 17);
+        assert!(result.starts_with("..."));
+        // Result is valid UTF-8 (Rust strings guarantee this, but the test
+        // also asserts we got at most 20 chars).
+        assert!(result.chars().count() <= 20);
+    }
+}

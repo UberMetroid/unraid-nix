@@ -1,5 +1,6 @@
 use std::fs::File;
 use std::io::{BufRead, BufReader, Seek, SeekFrom};
+use std::os::unix::fs::MetadataExt;
 use std::time::{Duration, Instant};
 use std::thread::sleep;
 use serde::Deserialize;
@@ -40,28 +41,49 @@ pub fn tail_service_logs(svc: &str, timeout_limit_secs: u64) -> Result<bool, Str
 
     let tail_start = Instant::now();
     let mut success_found = false;
-    let mut last_pos = 0;
+    let mut last_pos = 0u64;
+    let mut inode: Option<u64> = None;
 
     while tail_start.elapsed() < Duration::from_secs(timeout_limit_secs) {
-        // Read new lines if any
+        // Read new lines if any. Detect log rotation/truncation by inode change
+        // and reset `last_pos` to 0 in that case. Falling back to `len` on seek
+        // failure would also mis-report position after a rotation.
         if let Ok(metadata) = std::fs::metadata(&log_file_path) {
+            let current_inode = metadata.ino();
             let len = metadata.len();
+            if inode.map(|i| i != current_inode).unwrap_or(false) {
+                // File was rotated/replaced — start over from the beginning.
+                last_pos = 0;
+                inode = Some(current_inode);
+                let _ = reader.get_mut().seek(SeekFrom::Start(0));
+            }
+            inode.get_or_insert(current_inode);
+
             if len > last_pos {
-                let _ = reader.get_mut().seek(SeekFrom::Start(last_pos));
-                let mut line = String::new();
-                while reader.read_line(&mut line).unwrap_or(0) > 0 {
-                    if let Ok(log_data) = serde_json::from_str::<LogLine>(&line) {
-                        if let Some(msg) = log_data.message {
-                            println!("{}", msg);
+                if reader.get_mut().seek(SeekFrom::Start(last_pos)).is_ok() {
+                    let mut line = String::new();
+                    while reader.read_line(&mut line).unwrap_or(0) > 0 {
+                        if let Ok(log_data) = serde_json::from_str::<LogLine>(&line) {
+                            if let Some(msg) = log_data.message {
+                                println!("{}", msg);
+                            } else {
+                                print!("{}", line);
+                            }
                         } else {
                             print!("{}", line);
                         }
-                    } else {
-                        print!("{}", line);
+                        line.clear();
                     }
-                    line.clear();
+                    // Use stream_position only when seek succeeded; otherwise
+                    // last_pos stays where it was and we re-seek next iteration.
+                    if let Ok(pos) = reader.get_mut().stream_position() {
+                        last_pos = pos;
+                    }
                 }
-                last_pos = reader.get_mut().stream_position().unwrap_or(len);
+            } else if len < last_pos {
+                // File was truncated in place. Reset to start.
+                last_pos = 0;
+                let _ = reader.get_mut().seek(SeekFrom::Start(0));
             }
         }
 
