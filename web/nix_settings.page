@@ -90,6 +90,11 @@ $gc_max_free = isset($nix_cfg['GC_MAX_FREE']) ? $nix_cfg['GC_MAX_FREE'] : '10';
 $nix_channel = isset($nix_cfg['NIX_CHANNEL']) ? $nix_cfg['NIX_CHANNEL'] : 'nixos-unstable';
 $settings_confirmed = isset($nix_cfg['SETTINGS_CONFIRMED']) ? $nix_cfg['SETTINGS_CONFIRMED'] : 'no';
 
+if ($settings_confirmed !== 'yes') {
+    $store_path = '';
+    $default_appdata_path = '';
+}
+
 $num_flakes = 0;
 $meta_dir = "/boot/config/plugins/nix/metadata";
 if (is_dir($meta_dir)) {
