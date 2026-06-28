@@ -56,13 +56,13 @@ ksort($service_logs);
                     <optgroup label="System Logs">
                         <option value="plugin" selected>Nix Plugin Operations (/var/log/nix-plugin.log)</option>
                         <option value="compose">Process Supervisor (/var/log/nix-process-compose.log)</option>
-                        <option value="daemon">Low-level Nix Daemon Socket (/var/log/nix-daemon.log)</option>
+                        <option value="daemon">Nix Daemon Service (/var/log/nix-daemon.log)</option>
                         <option value="gc">Nix Garbage Collector (/var/log/nix-gc.log)</option>
                     </optgroup>
                     <?php if (!empty($service_logs)): ?>
                         <optgroup label="Nix Services">
                             <?php foreach ($service_logs as $name => $path): ?>
-                                <option value="service:<?php echo htmlspecialchars($name); ?>">Service: <?php echo htmlspecialchars($name); ?></option>
+                                <option value="service:<?php echo htmlspecialchars($name); ?>"><?php echo htmlspecialchars($name); ?></option>
                             <?php endforeach; ?>
                         </optgroup>
                     <?php endif; ?>
