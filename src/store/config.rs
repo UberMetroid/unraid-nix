@@ -12,8 +12,32 @@ pub fn log_event(level: &str, msg: &str) {
             use std::io::Write;
             let _ = file.write_all(line.as_bytes());
         }
+
+    // Forward to native Unraid syslog
+    let _ = std::process::Command::new("logger")
+        .args(["-t", "nix-plugin", &format!("[{}] {}", level, msg)])
+        .stdin(std::process::Stdio::null())
+        .output();
     
     eprintln!("[{}] {}", level, msg);
+}
+
+/// Native Unraid WebUI notification helper
+pub fn send_unraid_notification(subject: &str, description: &str, importance: &str) {
+    let importance_flag = match importance {
+        "alert" => "alert",
+        "warning" => "warning",
+        _ => "normal",
+    };
+    let _ = std::process::Command::new("/usr/local/emhttp/webGui/scripts/notify")
+        .args([
+            "-e", "Nix Plugin",
+            "-s", subject,
+            "-d", description,
+            "-i", importance_flag,
+        ])
+        .stdin(std::process::Stdio::null())
+        .output();
 }
 
 /// Validation check for the persistent store path.

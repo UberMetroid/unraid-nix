@@ -104,6 +104,36 @@ pub fn stream_install(args: &crate::cli::args::StreamInstallArgs) {
         println!("<script>if (document.getElementById('overall-status')) {{ document.getElementById('overall-status').innerHTML = '<i class=\"fa fa-times-circle error\"></i> Failed'; }}</script>");
     }
 
+    if is_service {
+        if code == 0 {
+            crate::store::config::send_unraid_notification(
+                &format!("Nix: Service '{}' Installed", svc),
+                &format!("The service '{}' has been successfully installed and launched inside the Nix sandbox.", svc),
+                "normal",
+            );
+        } else {
+            crate::store::config::send_unraid_notification(
+                &format!("Nix: Service '{}' Install Failed", svc),
+                &format!("The installation or startup of service '{}' failed. Check the install log for details.", svc),
+                "alert",
+            );
+        }
+    } else {
+        if code == 0 {
+            crate::store::config::send_unraid_notification(
+                "Nix: Package Installed",
+                "The package/operation was completed successfully.",
+                "normal",
+            );
+        } else {
+            crate::store::config::send_unraid_notification(
+                "Nix: Package Install Failed",
+                "The package installation or shell execution failed.",
+                "alert",
+            );
+        }
+    }
+
     let report_html = if code == 0 && is_service {
         get_report_html(&svc)
     } else {

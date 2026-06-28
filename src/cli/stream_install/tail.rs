@@ -78,6 +78,11 @@ pub fn tail_service_logs(svc: &str, timeout_limit_secs: u64) -> Result<bool, Str
                     }
                     if state == "failed" {
                         println!("\n[FATAL] Service failed to start!");
+                        crate::store::config::send_unraid_notification(
+                            &format!("Nix: Service '{}' Failed", svc),
+                            &format!("The newly installed service '{}' exited with status 'failed' inside the process-compose supervisor.", svc),
+                            "alert",
+                        );
                         set_service_autostart(svc, false);
                         return Ok(false);
                     }
@@ -92,6 +97,11 @@ pub fn tail_service_logs(svc: &str, timeout_limit_secs: u64) -> Result<bool, Str
 
     if !success_found {
         println!("\n[WARNING] Service startup verification timed out. Turning off autostart.");
+        crate::store::config::send_unraid_notification(
+            &format!("Nix: Service '{}' Startup Timeout", svc),
+            &format!("The service '{}' took too long to enter 'running' state. Please check its log file.", svc),
+            "warning",
+        );
         set_service_autostart(svc, false);
         return Ok(false);
     }

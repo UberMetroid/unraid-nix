@@ -20,6 +20,11 @@ fn run_preflight_checks(name: &str) {
                     port, name
                 ),
             );
+            crate::store::config::send_unraid_notification(
+                &format!("Nix: Port Conflict Warning for '{}'", name),
+                &format!("Port {} is already in use on the host. Service '{}' may fail to start.", port, name),
+                "warning",
+            );
         } else {
             crate::store::log_event(
                 "INFO",
@@ -72,6 +77,11 @@ fn run_preflight_checks(name: &str) {
                                                         "Directory permissions warning: Service '{}' configuration location '{}' owner UID ({}) does not match configured PUID ({}).",
                                                         name, appdata_path, owner_uid, expected_puid
                                                      ),
+                                                );
+                                                crate::store::config::send_unraid_notification(
+                                                    &format!("Nix: Permissions Warning for '{}'", name),
+                                                    &format!("AppData directory '{}' is owned by UID {}, but service runs as PUID {}.", appdata_path, owner_uid, expected_puid),
+                                                    "warning",
                                                 );
                                             } else {
                                                 crate::store::log_event(
