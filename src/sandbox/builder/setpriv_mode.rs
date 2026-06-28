@@ -12,7 +12,7 @@ pub fn build_setpriv_command(
 
     for cmd in &config.host_init_commands {
         if !cmd.trim().is_empty() {
-            mounts_cmd.push(cmd.clone());
+            mounts_cmd.push(cmd.to_owned());
         }
     }
 
@@ -20,26 +20,26 @@ pub fn build_setpriv_command(
     mounts_cmd.push("mount -t tmpfs tmpfs /root".to_string());
     mounts_cmd.push("if [ -d /home ]; then mount -t tmpfs tmpfs /home; fi".to_string());
     mounts_cmd.push("mkdir -p /tmp/sandbox-appdata".to_string());
-    mounts_cmd.push(format!("mount --bind {} /tmp/sandbox-appdata", appdata_canon));
-    mounts_cmd.push(format!("mount -t tmpfs tmpfs {}", appdata_parent));
-    mounts_cmd.push(format!("mkdir -p {}", appdata_canon));
-    mounts_cmd.push(format!("mount --move /tmp/sandbox-appdata {}", appdata_canon));
+    mounts_cmd.push(format!("mount --bind {} /tmp/sandbox-appdata", sh_quote(appdata_canon)));
+    mounts_cmd.push(format!("mount -t tmpfs tmpfs {}", sh_quote(appdata_parent)));
+    mounts_cmd.push(format!("mkdir -p {}", sh_quote(appdata_canon)));
+    mounts_cmd.push(format!("mount --move /tmp/sandbox-appdata {}", sh_quote(appdata_canon)));
     mounts_cmd.push("rmdir /tmp/sandbox-appdata".to_string());
-    
+
     mounts_cmd.push("mkdir -p /config".to_string());
-    mounts_cmd.push(format!("mount --bind {} /config", appdata_canon));
+    mounts_cmd.push(format!("mount --bind {} /config", sh_quote(appdata_canon)));
 
     if let Some(ref media) = config.media_path {
         if !media.trim().is_empty() {
             mounts_cmd.push("mkdir -p /media".to_string());
-            mounts_cmd.push(format!("mount --bind {} /media", media));
+            mounts_cmd.push(format!("mount --bind {} /media", sh_quote(media)));
         }
     }
 
     for (host, sandbox) in &config.extra_binds {
         if !host.trim().is_empty() && !sandbox.trim().is_empty() {
-            mounts_cmd.push(format!("mkdir -p {}", sandbox));
-            mounts_cmd.push(format!("mount --bind {} {}", host, sandbox));
+            mounts_cmd.push(format!("mkdir -p {}", sh_quote(sandbox)));
+            mounts_cmd.push(format!("mount --bind {} {}", sh_quote(host), sh_quote(sandbox)));
         }
     }
 
@@ -49,10 +49,6 @@ pub fn build_setpriv_command(
         mounts_cmd.push("mount --bind /var/run/nix-nvidia-driver/lib /run/opengl-driver/lib".to_string());
     }
 
-    // Single-quote each mounted path so shell metacharacters in user-supplied
-    // appdata/media/extra_binds values cannot break out of the sh -c sink.
-    // The joined mounts string still uses `&&` as a separator (safe — the
-    // joined fragments are themselves escaped individually).
     let mounts_str = mounts_cmd.join(" && ");
 
     let mut env_vars = vec!["export HOME=/config".to_string()];
@@ -70,7 +66,7 @@ pub fn build_setpriv_command(
         env_vars.push("export LIBVA_DRIVERS_PATH=/usr/lib64/dri:$(nix build --no-link --print-out-paths nixpkgs#intel-media-driver 2>/dev/null || true)/lib/dri".to_string());
     }
     if let Some(ref devices) = cuda_devices {
-        env_vars.push(format!("export CUDA_VISIBLE_DEVICES={}", devices));
+        env_vars.push(format!("export CUDA_VISIBLE_DEVICES={}", sh_quote(devices)));
     }
     if let Some(ref p_str) = config.port {
         let mappings = parse_ports(p_str);
@@ -80,19 +76,19 @@ pub fn build_setpriv_command(
     }
     if let Some(ref addr) = config.bind_address {
         if !addr.trim().is_empty() {
-            env_vars.push(format!("export BIND_ADDRESS={}", addr));
-            env_vars.push(format!("export HOST={}", addr));
+            env_vars.push(format!("export BIND_ADDRESS={}", sh_quote(addr)));
+            env_vars.push(format!("export HOST={}", sh_quote(addr)));
         }
     }
     let env_str = env_vars.join(" && ");
 
     let runuser_cmd = format!(
-        "exec unshare -m sh -c \"mount --make-rprivate / && {} && exec setpriv --reuid={} --regid={} --init-groups sh -c \\\"{} && . /nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh && {}\\\"\"",
-        mounts_str,
-        config.puid,
-        config.pgid,
-        env_str,
-        sh_quote(&config.inner_command)
+        "exec unshare -m sh -c \"mount --make-rprivate / && {mounts_str} && exec setpriv --reuid={puid} --regid={pgid} --init-groups sh -c \\\"{env_str} && . /nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh && {inner}\\\"\"",
+        mounts_str = mounts_str,
+        puid = config.puid,
+        pgid = config.pgid,
+        env_str = env_str,
+        inner = sh_quote(&config.inner_command)
     );
 
     Ok(runuser_cmd)

@@ -14,20 +14,25 @@ window.showNotice = function(message, type) {
         window.top.eventMessage('Nix', message, 'nix.png', type || 'info', 3000);
         return;
     }
-    var toast = $('<div class="nix-toast"></div>');
-    if (type === 'error') {
-        toast.addClass('error').html('<i class="fa fa-times-circle"></i> ' + message);
-    } else if (type === 'warning') {
-        toast.addClass('warning').html('<i class="fa fa-exclamation-triangle"></i> ' + message);
-    } else {
-        toast.addClass('success').html('<i class="fa fa-check-circle"></i> ' + message);
-    }
-    $('body').append(toast);
+    var toast = document.createElement('div');
+    toast.className = 'nix-toast';
+    if (type === 'error') toast.classList.add('error');
+    else if (type === 'warning') toast.classList.add('warning');
+    else toast.classList.add('success');
+    var icon = document.createElement('i');
+    if (type === 'error') icon.className = 'fa fa-times-circle';
+    else if (type === 'warning') icon.className = 'fa fa-exclamation-triangle';
+    else icon.className = 'fa fa-check-circle';
+    toast.appendChild(icon);
+    toast.appendChild(document.createTextNode(' ' + message));
+    document.body.appendChild(toast);
     setTimeout(function() {
-        toast.css({ 'opacity': '1', 'transform': 'translateY(0)' });
+        toast.style.opacity = '1';
+        toast.style.transform = 'translateY(0)';
     }, 50);
     setTimeout(function() {
-        toast.css({ 'opacity': '0', 'transform': 'translateY(-10px)' });
-        setTimeout(function() { toast.remove(); }, 300);
+        toast.style.opacity = '0';
+        toast.style.transform = 'translateY(-10px)';
+        setTimeout(function() { if (toast.parentNode) toast.parentNode.removeChild(toast); }, 300);
     }, 3000);
 };

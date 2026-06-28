@@ -1,17 +1,20 @@
+use crate::unraid::METADATA_DIR;
+
 pub fn get_service_ports(name: &str) -> Vec<crate::sandbox::PortMapping> {
     let mut ports = Vec::new();
-    // Validate service name to prevent path traversal before file I/O.
     if !crate::store::is_valid_service_name(name) {
         return ports;
     }
-    let metadata_path = format!("/boot/config/plugins/nix/metadata/{}.json", name);
+    let metadata_path = format!("{METADATA_DIR}/{name}.json");
     if std::path::Path::new(&metadata_path).exists() {
         if let Ok(content) = std::fs::read_to_string(&metadata_path) {
             if let Ok(val) = serde_json::from_str::<serde_json::Value>(&content) {
                 if let Some(port_val) = val.get("port") {
                     if let Some(num) = port_val.as_u64() {
-                        if num > 0 && num <= u16::MAX as u64 {
-                            ports.push(crate::sandbox::PortMapping { host: num as u16, container: num as u16 });
+                        if num > 0 {
+                            if let Ok(p) = u16::try_from(num) {
+                                ports.push(crate::sandbox::PortMapping { host: p, container: p });
+                            }
                         }
                     }
                     if let Some(s) = port_val.as_str() {
@@ -33,8 +36,8 @@ pub fn get_service_ports(name: &str) -> Vec<crate::sandbox::PortMapping> {
                 if let Some(ports_arr) = json.get("default_ports").and_then(|p| p.as_array()) {
                     for port_item in ports_arr {
                         if let (Some(h), Some(c)) = (port_item.get("host").and_then(|v| v.as_u64()), port_item.get("container").and_then(|v| v.as_u64())) {
-                            if h <= u16::MAX as u64 && c <= u16::MAX as u64 {
-                                ports.push(crate::sandbox::PortMapping { host: h as u16, container: c as u16 });
+                            if let (Ok(host), Ok(container)) = (u16::try_from(h), u16::try_from(c)) {
+                                ports.push(crate::sandbox::PortMapping { host, container });
                             }
                         }
                     }

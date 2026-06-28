@@ -27,20 +27,20 @@ pub fn install_service(args: &crate::cli::args::InstallServiceArgs) {
     let command_override = args.command_override.as_deref().unwrap_or("");
     let network_isolation = args.network_isolation;
 
-    let extra_binds = setup::parse_and_create_binds(&extra_binds_json, puid, pgid);
-    setup::setup_appdata_dir(&appdata, puid, pgid);
+    let extra_binds = setup::parse_and_create_binds(extra_binds_json, puid, pgid);
+    setup::setup_appdata_dir(appdata, puid, pgid);
 
     let mut name = uri.replace("nixpkgs#", "");
     if let Some(pos) = name.rfind('/') { name = name[pos + 1..].to_string(); }
     if let Some(pos) = name.rfind(':') { name = name[pos + 1..].to_string(); }
     if let Some(pos) = name.rfind('#') { name = name[pos + 1..].to_string(); }
-    
+
     if !crate::store::is_valid_service_name(&name) {
-        eprintln!("Error: Derived service name '{}' is invalid.", name);
+        eprintln!("Error: Derived service name '{name}' is invalid.");
         exit(1);
     }
 
-    setup::verify_port_conflicts(&name, &port);
+    setup::verify_port_conflicts(&name, port);
 
     let mut binds_vec = Vec::new();
     for b in &extra_binds {
@@ -72,12 +72,12 @@ pub fn install_service(args: &crate::cli::args::InstallServiceArgs) {
             enable_network_isolation: network_isolation,
         }) {
             Ok(c) => c,
-            Err(e) => { eprintln!("Error building sandbox command: {}", e); exit(1); }
+            Err(e) => { eprintln!("Error building sandbox command: {e}"); exit(1); }
         }
     } else if has_preset {
         match config::get_service_command_preset(
             &name,
-            &appdata,
+            appdata,
             media.as_deref().unwrap_or("-"),
             puid,
             pgid,
@@ -88,7 +88,7 @@ pub fn install_service(args: &crate::cli::args::InstallServiceArgs) {
             bind_address.clone()
         ) {
             Ok(c) => c,
-            Err(e) => { eprintln!("Error resolving preset: {}", e); exit(1); }
+            Err(e) => { eprintln!("Error resolving preset: {e}"); exit(1); }
         }
     } else {
         match sandbox::build_bwrap_command(&sandbox::SandboxConfig {
@@ -99,7 +99,7 @@ pub fn install_service(args: &crate::cli::args::InstallServiceArgs) {
             pgid,
             enable_gpu: gpu,
             gpus: gpus.clone(),
-            inner_command: format!("nix run {}", uri),
+            inner_command: format!("nix run {uri}"),
             extra_binds: binds_vec.clone(),
             port: port.clone(),
             bind_address: bind_address.clone(),
@@ -107,7 +107,7 @@ pub fn install_service(args: &crate::cli::args::InstallServiceArgs) {
             enable_network_isolation: network_isolation,
         }) {
             Ok(c) => c,
-            Err(e) => { eprintln!("Error building sandbox command: {}", e); exit(1); }
+            Err(e) => { eprintln!("Error building sandbox command: {e}"); exit(1); }
         }
     };
 
@@ -119,18 +119,18 @@ pub fn install_service(args: &crate::cli::args::InstallServiceArgs) {
 
     config_writer::write_config_and_metadata(
         &name,
-        &uri,
-        &appdata,
+        uri,
+        appdata,
         puid,
         pgid,
         gpu,
         gpus.as_deref().unwrap_or(""),
-        &extra_binds_json,
+        extra_binds_json,
         port.as_deref().unwrap_or(""),
         bind_address.as_deref().unwrap_or(""),
-        &env_vars_json,
+        env_vars_json,
         compile_locally,
-        &command_override,
+        command_override,
         network_isolation,
         cmd,
     );

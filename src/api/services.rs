@@ -1,5 +1,7 @@
 use crate::process::{get_services_status, is_supervisor_running};
 use crate::api::utils::get_host_ips;
+use crate::api::utils::html_escape;
+use crate::unraid::PROCESS_COMPOSE_CONFIG;
 
 /// Renders the services dashboard table as an HTML string.
 /// Mirrors the styling and visual cues of Unraid's native Docker container list.
@@ -10,13 +12,12 @@ pub fn render_services_table(api_port: u16) -> String {
 
     let mut statuses = match get_services_status(api_port) {
         Ok(s) => s,
-        Err(e) => return format!(r#"<div class="alert alert-danger"><i class="fa fa-times"></i> Error connecting to supervisor API: {}</div>"#, e),
+        Err(e) => return format!(r#"<div class="alert alert-danger"><i class="fa fa-times"></i> Error connecting to supervisor API: {}</div>"#, html_escape(&e)),
     };
 
     statuses.sort_by_key(|a| a.name.to_lowercase());
 
-    let config_path = "/boot/config/plugins/nix/process-compose.yml";
-    let config = crate::config::load_config(config_path).ok();
+    let config = crate::config::load_config(PROCESS_COMPOSE_CONFIG).ok();
     let host_ips = get_host_ips();
 
     let mut html = r#"<div class="nix-presets-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 16px; margin-bottom: 20px;">"#.to_string();

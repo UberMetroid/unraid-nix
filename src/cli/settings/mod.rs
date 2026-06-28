@@ -3,7 +3,7 @@ use std::process::{exit, Command};
 pub mod helpers;
 pub mod migration;
 
-pub use crate::unraid::{parse_ini_file, detect_default_store_path};
+pub use crate::unraid::{detect_default_store_path, parse_ini_file, NIX_CFG_PATH};
 
 pub fn save_settings(args: &crate::cli::args::SaveSettingsArgs) {
     let store_path = args.store_path.clone().unwrap_or_default();
@@ -23,8 +23,7 @@ pub fn save_settings(args: &crate::cli::args::SaveSettingsArgs) {
     let nix_channel = args.nix_channel.clone().unwrap_or_else(|| "nixos-unstable".to_string());
     let default_appdata_path = args.default_appdata_path.clone().unwrap_or_default();
 
-    let cfg_file = "/boot/config/plugins/nix/nix.cfg";
-    let old_cfg = parse_ini_file(cfg_file);
+    let old_cfg = parse_ini_file(NIX_CFG_PATH);
     let mut old_store_path = old_cfg.get("NIX_STORE_PATH").cloned().unwrap_or_default();
     if old_store_path.is_empty() {
         old_store_path = detect_default_store_path();
@@ -34,7 +33,7 @@ pub fn save_settings(args: &crate::cli::args::SaveSettingsArgs) {
     let clean_old_store_path = old_store_path.trim_end_matches('/').to_string();
 
     if let Err(e) = validate_settings(&clean_store_path, &default_appdata_path) {
-        eprintln!("Error: {}", e);
+        eprintln!("Error: {e}");
         std::process::exit(1);
     }
 
@@ -43,21 +42,33 @@ pub fn save_settings(args: &crate::cli::args::SaveSettingsArgs) {
         migration_performed = migration::migrate_nix_store(&clean_old_store_path, &clean_store_path);
     }
 
-    // Write settings to ini config
     let _ = std::fs::create_dir_all("/boot/config/plugins/nix");
     let mut cfg_content = format!(
-        "NIX_STORE_PATH=\"{}\"\nAUTOSTART_FLAKES=\"{}\"\nENABLE_STORAGE_SANDBOX=\"{}\"\nSHOW_IN_NAVIGATION=\"{}\"\nALLOW_SOURCE_BUILDS=\"{}\"\nFILTER_PRESETS_BY_HARDWARE=\"{}\"\nENABLE_PID_ISOLATION=\"{}\"\nENABLE_UTS_ISOLATION=\"{}\"\nENABLE_IPC_ISOLATION=\"{}\"\nAUTO_GC=\"{}\"\nBUILD_CORES=\"{}\"\nBUILD_JOBS=\"{}\"\nGC_MIN_FREE=\"{}\"\nGC_MAX_FREE=\"{}\"\nNIX_CHANNEL=\"{}\"\nSETTINGS_CONFIRMED=\"yes\"\n",
-        clean_store_path, autostart, enable_sandbox, show_in_nav, allow_source_builds, filter_presets_by_hardware, enable_pid_isolation, enable_uts_isolation, enable_ipc_isolation, auto_gc, build_cores, build_jobs, gc_min_free, gc_max_free, nix_channel
+        "NIX_STORE_PATH=\"{clean_store_path}\"\n\
+         AUTOSTART_FLAKES=\"{autostart}\"\n\
+         ENABLE_STORAGE_SANDBOX=\"{enable_sandbox}\"\n\
+         SHOW_IN_NAVIGATION=\"{show_in_nav}\"\n\
+         ALLOW_SOURCE_BUILDS=\"{allow_source_builds}\"\n\
+         FILTER_PRESETS_BY_HARDWARE=\"{filter_presets_by_hardware}\"\n\
+         ENABLE_PID_ISOLATION=\"{enable_pid_isolation}\"\n\
+         ENABLE_UTS_ISOLATION=\"{enable_uts_isolation}\"\n\
+         ENABLE_IPC_ISOLATION=\"{enable_ipc_isolation}\"\n\
+         AUTO_GC=\"{auto_gc}\"\n\
+         BUILD_CORES=\"{build_cores}\"\n\
+         BUILD_JOBS=\"{build_jobs}\"\n\
+         GC_MIN_FREE=\"{gc_min_free}\"\n\
+         GC_MAX_FREE=\"{gc_max_free}\"\n\
+         NIX_CHANNEL=\"{nix_channel}\"\n\
+         SETTINGS_CONFIRMED=\"yes\"\n"
     );
     if !default_appdata_path.is_empty() {
-        cfg_content.push_str(&format!("DEFAULT_APPDATA_PATH=\"{}\"\n", default_appdata_path));
+        cfg_content.push_str(&format!("DEFAULT_APPDATA_PATH=\"{default_appdata_path}\"\n"));
     }
-    if std::fs::write(cfg_file, cfg_content).is_err() {
+    if std::fs::write(NIX_CFG_PATH, cfg_content).is_err() {
         eprintln!("Failed to write nix.cfg to flash drive.");
         exit(1);
     }
 
-    // Configure weekly cron job based on AUTO_GC setting
     let cron_path = "/etc/cron.weekly/nix-gc";
     if auto_gc == "yes" {
         let cron_content = "#!/bin/sh\nif [ -f /nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh ]; then\n    . /nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh\n    nix-collect-garbage -d >/var/log/nix-gc.log 2>&1\nfi\n";
@@ -67,7 +78,6 @@ pub fn save_settings(args: &crate::cli::args::SaveSettingsArgs) {
         let _ = std::fs::remove_file(cron_path);
     }
 
-    // Update Unraid side navigation config registry
     let nix_page_file = "/usr/local/emhttp/plugins/nix/Nix.page";
     let nix_launcher_file = "/usr/local/emhttp/plugins/nix/NixLauncher.page";
     if std::path::Path::new(nix_page_file).exists() {
@@ -83,16 +93,16 @@ pub fn save_settings(args: &crate::cli::args::SaveSettingsArgs) {
                 content.lines().map(|line| {
                     if line.starts_with("Menu=") { "Menu=\"Utilities\"".to_string() } else { line.to_string() }
                 }).collect::<Vec<String>>().join("\n")
-              };
-              let _ = std::fs::write(nix_page_file, updated_content);
-          }
-      }
+            };
+            let _ = std::fs::write(nix_page_file, updated_content);
+        }
+    }
 
-      if migration_performed {
-          let _ = Command::new("/usr/local/emhttp/plugins/nix/event/disks_mounted").output();
-      }
-      println!("Settings saved successfully.");
-  }
+    if migration_performed {
+        let _ = Command::new("/usr/local/emhttp/plugins/nix/event/disks_mounted").output();
+    }
+    println!("Settings saved successfully.");
+}
 
 pub fn validate_settings(store_path: &str, default_appdata_path: &str) -> Result<(), String> {
     crate::store::validate_store_path(store_path)?;
@@ -108,14 +118,11 @@ mod tests {
 
     #[test]
     fn test_validate_settings() {
-        // Valid inputs
         assert!(validate_settings("/mnt/user/system/nix", "/mnt/user/appdata").is_ok());
-        
-        // Invalid store path
+
         assert!(validate_settings("", "/mnt/user/appdata").is_err());
         assert!(validate_settings("/boot/nix", "/mnt/user/appdata").is_err());
-        
-        // Invalid default appdata path
+
         assert!(validate_settings("/mnt/user/system/nix", "/boot/appdata").is_err());
     }
 }

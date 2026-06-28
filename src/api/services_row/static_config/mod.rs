@@ -1,3 +1,5 @@
+use crate::unraid::METADATA_DIR;
+
 pub mod part1;
 pub mod part2;
 
@@ -23,7 +25,6 @@ pub fn get_static_config(name_lower: &str) -> StaticConfig {
         return cfg;
     }
 
-    // Default Generic Server (Grey)
     StaticConfig {
         icon: "fa-server",
         color: "#7f8c8d",
@@ -33,7 +34,6 @@ pub fn get_static_config(name_lower: &str) -> StaticConfig {
 }
 
 pub fn get_service_fa_config(name: &str) -> FaIconConfig {
-    // Validate service name to prevent path traversal before file I/O.
     if !crate::store::is_valid_service_name(name) {
         let sc = get_static_config(&name.to_lowercase());
         return FaIconConfig {
@@ -44,13 +44,13 @@ pub fn get_service_fa_config(name: &str) -> FaIconConfig {
         };
     }
     let name_lower = name.to_lowercase();
-    let meta_file = format!("/boot/config/plugins/nix/metadata/{}.json", name);
+    let meta_file = format!("{METADATA_DIR}/{name}.json");
     let mut custom_icon = None;
     if let Ok(content) = std::fs::read_to_string(&meta_file) {
         if let Ok(val) = serde_json::from_str::<serde_json::Value>(&content) {
             custom_icon = val.get("icon")
                 .and_then(|v| v.as_str())
-                .map(|s| s.to_string());
+                .map(String::from);
         }
     }
 

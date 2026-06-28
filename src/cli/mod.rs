@@ -106,10 +106,9 @@ pub fn run(args_list: Vec<String>) {
             stream_install::stream_install(&stream_args);
         }
         args::Commands::GetIcon { name } => {
-            if let Some(path) = crate::api::utils::get_service_icon_path(&name) {
-                println!("{}", path);
-            } else {
-                println!();
+            match crate::api::utils::get_service_icon_path(&name) {
+                Some(path) => println!("{path}"),
+                None => println!(),
             }
         }
         args::Commands::DaemonStatus => {

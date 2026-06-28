@@ -3,6 +3,14 @@
 ///
 /// This script intercepts AJAX actions from the Unraid browser interface,
 /// executes subcommands on the compiled Rust helper, and returns JSON or HTML.
+
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+if (empty($_SESSION['csrf_token'])) {
+    $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+}
+
 header('Content-Type: application/json');
 
 if (!defined('NIX_SERVICE_NAME_REGEX')) {
@@ -44,6 +52,7 @@ function success() {
 // 1. Logs viewer (outputs raw HTML, bypasses JSON header)
 if ($action === 'logs') {
     header('Content-Type: text/html');
+    header('X-Content-Type-Options: nosniff');
     $service = isset($_GET['service']) ? $_GET['service'] : '';
     if (empty($service) || !preg_match(NIX_SERVICE_NAME_REGEX, $service)) {
         echo "Invalid service name.";
@@ -56,6 +65,7 @@ if ($action === 'logs') {
 // 2. Search packages (outputs HTML directly, bypasses JSON header)
 if ($action === 'search') {
     header('Content-Type: text/html');
+    header('X-Content-Type-Options: nosniff');
     $query = isset($_GET['q']) ? $_GET['q'] : '';
     passthru("/usr/local/emhttp/plugins/nix/nix-helper render search " . escapeshellarg($query));
     exit;
@@ -64,6 +74,7 @@ if ($action === 'search') {
 // 2b. Render services table (outputs HTML directly, bypasses JSON header)
 if ($action === 'render-services') {
     header('Content-Type: text/html');
+    header('X-Content-Type-Options: nosniff');
     passthru("/usr/local/emhttp/plugins/nix/nix-helper render services 2>&1");
     exit;
 }
@@ -71,6 +82,7 @@ if ($action === 'render-services') {
 // 2c. Render presets store grid (outputs HTML directly)
 if ($action === 'render-presets') {
     header('Content-Type: text/html');
+    header('X-Content-Type-Options: nosniff');
     passthru("/usr/local/emhttp/plugins/nix/nix-helper render presets 2>&1");
     exit;
 }
@@ -78,6 +90,7 @@ if ($action === 'render-presets') {
 // 2d. Render dashboard widget (outputs HTML directly, bypasses JSON header)
 if ($action === 'get_dashboard') {
     header('Content-Type: text/html');
+    header('X-Content-Type-Options: nosniff');
     passthru("/usr/local/emhttp/plugins/nix/nix-helper render dashboard 2>/dev/null");
     exit;
 }
@@ -85,6 +98,7 @@ if ($action === 'get_dashboard') {
 // 2e. Render dashboard rows as JSON (outputs JSON directly)
 if ($action === 'get_dashboard_json') {
     header('Content-Type: application/json');
+    header('X-Content-Type-Options: nosniff');
     passthru("/usr/local/emhttp/plugins/nix/nix-helper render dashboard-json 2>/dev/null");
     exit;
 }
@@ -141,6 +155,25 @@ if ($action === 'get-metadata') {
     }
     passthru("/usr/local/emhttp/plugins/nix/nix-helper get-metadata " . escapeshellarg($service));
     exit;
+}
+
+// CSRF check for state-changing actions delegated to api_service.php / api_system.php.
+// Read-only actions (logs, search, render-*, get-icon, detect-gpus, get-metadata,
+// nix-sys-logs, check-updates) exit() above and never reach this block.
+$csrf_required_actions = [
+    'start', 'stop', 'restart', 'toggle-autostart', 'remove', 'install-cli', 'install-custom',
+    'save-settings', 'sync-templates', 'collect-garbage', 'global-rebuild',
+    'nix-daemon-start', 'nix-daemon-stop', 'nix-daemon-restart', 'download-diagnostics',
+];
+if (in_array($action, $csrf_required_actions, true)) {
+    if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+        error("This action requires POST.");
+    }
+    $csrf_token = $_POST['csrf_token'] ?? '';
+    $session_csrf = $_SESSION['csrf_token'] ?? '';
+    if (empty($session_csrf) || !hash_equals($session_csrf, $csrf_token)) {
+        error("Invalid or missing CSRF token.");
+    }
 }
 
 // 3. Service actions and installation triggers delegated to helper

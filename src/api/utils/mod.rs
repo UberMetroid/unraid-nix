@@ -1,4 +1,5 @@
 use std::process::Command;
+use crate::unraid::METADATA_DIR;
 
 pub mod icons;
 pub use icons::get_service_icon_path;
@@ -11,18 +12,19 @@ pub struct HostAddr {
 }
 
 pub fn get_service_web_port(name: &str) -> Option<u16> {
-    // Validate service name to prevent path traversal before file I/O.
     if !crate::store::is_valid_service_name(name) {
         return None;
     }
-    let metadata_path = format!("/boot/config/plugins/nix/metadata/{}.json", name);
+    let metadata_path = format!("{METADATA_DIR}/{name}.json");
     if std::path::Path::new(&metadata_path).exists() {
         if let Ok(content) = std::fs::read_to_string(&metadata_path) {
             if let Ok(val) = serde_json::from_str::<serde_json::Value>(&content) {
                 if let Some(port_val) = val.get("port") {
                     if let Some(num) = port_val.as_u64() {
-                        if num > 0 && num <= u16::MAX as u64 {
-                            return Some(num as u16);
+                        if num > 0 {
+                            if let Ok(p) = u16::try_from(num) {
+                                return Some(p);
+                            }
                         }
                     }
                     if let Some(s) = port_val.as_str() {
@@ -57,8 +59,8 @@ pub fn get_service_web_port(name: &str) -> Option<u16> {
                 if let Some(ports_arr) = json.get("default_ports").and_then(|p| p.as_array()) {
                     if !ports_arr.is_empty() {
                         if let Some(host_port) = ports_arr[0].get("host").and_then(|hp| hp.as_u64()) {
-                            if host_port <= u16::MAX as u64 {
-                                return Some(host_port as u16);
+                            if let Ok(p) = u16::try_from(host_port) {
+                                return Some(p);
                             }
                         }
                     }
@@ -81,6 +83,29 @@ pub fn get_service_web_port(name: &str) -> Option<u16> {
 }
 
 
+/// HTML-escape a string for safe interpolation into HTML text content or
+/// attribute values. Replaces `&`, `<`, `>`, `"`, and `'` with their
+/// HTML entity equivalents. Use this for ALL user-controlled data before
+/// interpolating into `format!`-built HTML in api/* files.
+pub fn html_escape(s: &str) -> String {
+    s.replace('&', "&amp;")
+        .replace('<', "&lt;")
+        .replace('>', "&gt;")
+        .replace('"', "&quot;")
+        .replace('\'', "&#x27;")
+}
+
+/// JavaScript-context escape. Use for values being interpolated into
+/// inline event handlers like `onclick="fn('...')"`. Escapes `\`, `'`,
+/// `"`, and `<`/`>`. Apply before `html_escape` to be safe in both
+/// HTML attribute and JS string contexts.
+pub fn js_escape(s: &str) -> String {
+    s.replace('\\', "\\\\")
+        .replace('\'', "\\'")
+        .replace('"', "\\\"")
+}
+
+
 pub fn extract_package_uri(command: &str) -> Option<String> {
     if let Some(pos) = command.find("nixpkgs#") {
         let sub = &command[pos..];
@@ -92,7 +117,7 @@ pub fn extract_package_uri(command: &str) -> Option<String> {
         }
         return Some(uri);
     }
-    
+
     if let Some(pos) = command.find("nix run ") {
         let sub = &command[pos + "nix run ".len()..];
         let end = sub.find([' ', '"', '\'', ';'])
@@ -123,12 +148,12 @@ pub fn get_host_ips() -> Vec<HostAddr> {
                 if parts.len() >= 4 {
                     let iface = parts[1];
                     let ip_net = parts[3];
-                    
+
                     let iface_lower = iface.to_lowercase();
-                    if iface_lower == "lo" || 
-                       iface_lower.starts_with("veth") || 
-                       iface_lower.starts_with("docker") || 
-                       iface_lower.starts_with("br-") || 
+                    if iface_lower == "lo" ||
+                       iface_lower.starts_with("veth") ||
+                       iface_lower.starts_with("docker") ||
+                       iface_lower.starts_with("br-") ||
                        iface_lower.starts_with("virbr") ||
                        iface_lower.starts_with("shim") {
                         continue;

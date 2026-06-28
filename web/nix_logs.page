@@ -1,8 +1,12 @@
 Menu="Nix:6"
 Title="Logs"
 ---
-<?php 
-require_once "/usr/local/emhttp/plugins/nix/theme_helper.php"; 
+<?php
+header('X-Content-Type-Options: nosniff');
+?>
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; base-uri 'self'; form-action 'self';">
+<?php
+require_once "/usr/local/emhttp/plugins/nix/theme_helper.php";
 echo "<div class=\"nix-plugin-container theme-{$nix_theme}\">";
 
 $service_logs = [];

@@ -12,7 +12,6 @@ pub struct DetectedGpus {
 pub fn run_live_gpu_detection() -> Vec<Value> {
     let mut gpus = Vec::new();
 
-    // 1. Try running nvidia-smi
     if let Ok(output) = Command::new("nvidia-smi")
         .args(["--query-gpu=index,name,uuid,pci.bus_id", "--format=csv,noheader,nounits"])
         .stdin(Stdio::null())
@@ -23,12 +22,13 @@ pub fn run_live_gpu_detection() -> Vec<Value> {
                 let parts: Vec<&str> = line.split(',').map(|s| s.trim()).collect();
                 if parts.len() >= 2 {
                     if let Ok(index) = parts[0].parse::<u32>() {
+                        let bus_id = parts.get(3).copied().unwrap_or("");
                         gpus.push(json!({
-                            "id": format!("nvidia-{}", index),
-                            "name": format!("NVIDIA {} (GPU-{})", parts[1], index),
+                            "id": format!("nvidia-{index}"),
+                            "name": format!("NVIDIA {} (GPU-{index})", parts[1]),
                             "type": "nvidia",
                             "index": index,
-                            "bus_id": parts.get(3).unwrap_or(&"").to_string(),
+                            "bus_id": bus_id,
                         }));
                     }
                 }
@@ -36,7 +36,6 @@ pub fn run_live_gpu_detection() -> Vec<Value> {
         }
     }
 
-    // 2. Scan /sys/class/drm for other GPUs
     if let Ok(entries) = fs::read_dir("/sys/class/drm") {
         for entry in entries.flatten() {
             let name = entry.file_name().to_string_lossy().to_string();
@@ -53,24 +52,23 @@ pub fn run_live_gpu_detection() -> Vec<Value> {
                                 pci_id = line.trim_start_matches("PCI_ID=").to_string();
                             }
                         }
-                        
-                        // Skip nvidia here to avoid duplicate toggles, unless nvidia-smi failed and no nvidia GPUs were added
+
                         if driver == "nvidia" && !gpus.is_empty() {
                             continue;
                         }
 
                         let friendly_name = match driver.as_str() {
-                            "i915" | "xe" => format!("Intel QuickSync GPU ({})", name),
-                            "amdgpu" | "radeon" => format!("AMD Radeon GPU ({})", name),
-                            "nvidia" => format!("NVIDIA GPU ({})", name),
-                            _ => format!("Generic GPU ({} - {})", name, driver),
+                            "i915" | "xe" => format!("Intel QuickSync GPU ({name})"),
+                            "amdgpu" | "radeon" => format!("AMD Radeon GPU ({name})"),
+                            "nvidia" => format!("NVIDIA GPU ({name})"),
+                            _ => format!("Generic GPU ({name} - {driver})"),
                         };
 
                         gpus.push(json!({
                             "id": name.clone(),
                             "name": friendly_name,
                             "type": if driver == "nvidia" { "nvidia" } else { "render" },
-                            "path": format!("/dev/dri/{}", name),
+                            "path": format!("/dev/dri/{name}"),
                             "driver": driver,
                             "pci_id": pci_id,
                         }));
@@ -131,18 +129,16 @@ pub fn detect_gpus() {
 pub fn setup_gpu_driver_symlinks() {
     let target_dir = std::path::Path::new("/var/run/nix-nvidia-driver/lib");
     if let Err(e) = fs::create_dir_all(target_dir) {
-        eprintln!("Failed to create GPU target directory: {}", e);
+        eprintln!("Failed to create GPU target directory: {e}");
         return;
     }
-    
-    // Clean up existing entries
+
     if let Ok(entries) = fs::read_dir(target_dir) {
         for entry in entries.flatten() {
             let _ = fs::remove_file(entry.path());
         }
     }
-    
-    // Scan /usr/lib64 for libraries
+
     let lib64_dir = std::path::Path::new("/usr/lib64");
     if lib64_dir.exists() && lib64_dir.is_dir() {
         if let Ok(entries) = fs::read_dir(lib64_dir) {

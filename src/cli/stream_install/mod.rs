@@ -88,13 +88,10 @@ pub fn stream_install(args: &crate::cli::args::StreamInstallArgs) {
             sleep(Duration::from_millis(400));
             print_step_script(4, "done", "4. Injecting env variables & log rotation limits...", "Complete");
             print_step_script(5, "running", "5. Starting process supervisor & verifying liveness...", "Running");
-            
-            // Tail service log file and verify liveness
+
             match tail::tail_service_logs(&svc, timeout_limit) {
-                Ok(success) => {
-                    if !success { code = -1; }
-                }
-                Err(_) => { code = -1; }
+                Ok(true) => {},
+                Ok(false) | Err(_) => { code = -1; },
             }
         } else {
             print_step_script(1, "done", "1. Resolving Flake package & dependencies...", "Complete");
@@ -107,40 +104,37 @@ pub fn stream_install(args: &crate::cli::args::StreamInstallArgs) {
     if is_service {
         if code == 0 {
             crate::unraid::send_unraid_notification(
-                &format!("Nix: Service '{}' Installed", svc),
-                &format!("The service '{}' has been successfully installed and launched inside the Nix sandbox.", svc),
+                &format!("Nix: Service '{svc}' Installed"),
+                &format!("The service '{svc}' has been successfully installed and launched inside the Nix sandbox."),
                 "normal",
             );
         } else {
             crate::unraid::send_unraid_notification(
-                &format!("Nix: Service '{}' Install Failed", svc),
-                &format!("The installation or startup of service '{}' failed. Check the install log for details.", svc),
+                &format!("Nix: Service '{svc}' Install Failed"),
+                &format!("The installation or startup of service '{svc}' failed. Check the install log for details."),
                 "alert",
             );
         }
+    } else if code == 0 {
+        crate::unraid::send_unraid_notification(
+            "Nix: Package Installed",
+            "The package/operation was completed successfully.",
+            "normal",
+        );
     } else {
-        if code == 0 {
-            crate::unraid::send_unraid_notification(
-                "Nix: Package Installed",
-                "The package/operation was completed successfully.",
-                "normal",
-            );
-        } else {
-            crate::unraid::send_unraid_notification(
-                "Nix: Package Install Failed",
-                "The package installation or shell execution failed.",
-                "alert",
-            );
-        }
+        crate::unraid::send_unraid_notification(
+            "Nix: Package Install Failed",
+            "The package installation or shell execution failed.",
+            "alert",
+        );
     }
 
     let report_html = if code == 0 && is_service {
         get_report_html(&svc)
     } else {
-        "".to_string()
+        String::new()
     };
 
-    // Print final JS finish call
     println!(
         "<script>finishInstallation({}, {}, {}, {}, {});</script>",
         code,
@@ -153,12 +147,12 @@ pub fn stream_install(args: &crate::cli::args::StreamInstallArgs) {
 
 fn parse_service_name(uri: &str) -> String {
     let mut svc = uri.to_lowercase().replace("nixpkgs#", "");
-    if let Some(last) = svc.split('/').last() { svc = last.to_string(); }
-    if let Some(last) = svc.split(':').last() { svc = last.to_string(); }
-    if let Some(last) = svc.split('#').last() { svc = last.to_string(); }
-    
+    if let Some(last) = svc.split('/').next_back() { svc = last.to_string(); }
+    if let Some(last) = svc.split(':').next_back() { svc = last.to_string(); }
+    if let Some(last) = svc.split('#').next_back() { svc = last.to_string(); }
+
     if !crate::store::is_valid_service_name(&svc) {
-        eprintln!("Error: Derived service name '{}' is invalid.", svc);
+        eprintln!("Error: Derived service name '{svc}' is invalid.");
         exit(1);
     }
     svc
@@ -166,8 +160,11 @@ fn parse_service_name(uri: &str) -> String {
 
 fn print_step_script(step: u32, status: &str, text: &str, badge: &str) {
     println!(
-        "<script>if (typeof setStepStatus === 'function') {{ setStepStatus({}, '{}', '{}', '{}'); }}</script>",
-        step, status, text, badge
+        "<script>if (typeof setStepStatus === 'function') {{ setStepStatus({}, {}, {}, {}); }}</script>",
+        step,
+        serde_json::to_string(status).unwrap_or_else(|_| "\"\"".to_string()),
+        serde_json::to_string(text).unwrap_or_else(|_| "\"\"".to_string()),
+        serde_json::to_string(badge).unwrap_or_else(|_| "\"\"".to_string()),
     );
 }
 
@@ -178,6 +175,6 @@ fn get_report_html(svc: &str) -> String {
         .output();
     match output {
         Ok(out) => String::from_utf8_lossy(&out.stdout).to_string(),
-        Err(_) => "".to_string(),
+        Err(_) => String::new(),
     }
 }

@@ -1,4 +1,5 @@
 use crate::config;
+use crate::unraid::{METADATA_DIR, PROCESS_COMPOSE_CONFIG};
 use std::process::exit;
 
 pub fn write_config_and_metadata(
@@ -18,7 +19,7 @@ pub fn write_config_and_metadata(
     network_isolation: bool,
     cmd: String,
 ) {
-    let mut cfg = config::load_config("/boot/config/plugins/nix/process-compose.yml").unwrap_or_else(|_| {
+    let mut cfg = config::load_config(PROCESS_COMPOSE_CONFIG).unwrap_or_else(|_| {
         config::ProcessComposeConfig {
             version: "0.5".to_string(),
             environment: None,
@@ -56,16 +57,16 @@ pub fn write_config_and_metadata(
         if let Ok(serde_json::Value::Object(map)) = serde_json::from_str::<serde_json::Value>(env_vars_json) {
             for (k, v) in map {
                 if let Some(val_str) = v.as_str() {
-                    env_list.push(format!("{}={}", k, val_str));
+                    env_list.push(format!("{k}={val_str}"));
                 } else {
-                    env_list.push(format!("{}={}", k, v));
+                    env_list.push(format!("{k}={v}"));
                 }
             }
         }
     }
     let env_opt = if env_list.is_empty() { None } else { Some(env_list) };
 
-    let log_location = Some(format!("/var/log/nix-services/{}.log", name));
+    let log_location = Some(format!("/var/log/nix-services/{name}.log"));
     cfg.processes.insert(name.to_string(), config::ProcessDefinition {
         command: cmd,
         availability: Some(config::Availability {
@@ -78,7 +79,7 @@ pub fn write_config_and_metadata(
         log_configuration: None,
     });
 
-    if let Err(e) = config::save_config(&cfg, "/boot/config/plugins/nix/process-compose.yml") {
+    if let Err(e) = config::save_config(&cfg, PROCESS_COMPOSE_CONFIG) {
         eprintln!("Error saving config: {}", e);
         exit(1);
     }
@@ -99,31 +100,30 @@ pub fn write_config_and_metadata(
         "command_override": command_override,
         "network_isolation": if network_isolation { "1" } else { "0" },
     });
-    let meta_dir = "/boot/config/plugins/nix/metadata";
-    if let Err(e) = std::fs::create_dir_all(meta_dir) {
-        crate::store::log_event("ERROR", &format!("Failed to create metadata dir '{}': {}", meta_dir, e));
-        eprintln!("Error: failed to create metadata dir: {}", e);
+    if let Err(e) = std::fs::create_dir_all(METADATA_DIR) {
+        crate::store::log_event("ERROR", &format!("Failed to create metadata dir '{METADATA_DIR}': {e}"));
+        eprintln!("Error: failed to create metadata dir: {e}");
         exit(1);
     }
     let body = match serde_json::to_string_pretty(&metadata) {
         Ok(s) => s,
         Err(e) => {
-            crate::store::log_event("ERROR", &format!("Failed to serialize metadata for '{}': {}", name, e));
-            eprintln!("Error: failed to serialize metadata: {}", e);
+            crate::store::log_event("ERROR", &format!("Failed to serialize metadata for '{name}': {e}"));
+            eprintln!("Error: failed to serialize metadata: {e}");
             exit(1);
         }
     };
-    if let Err(e) = std::fs::write(format!("{}/{}.json", meta_dir, name), body) {
-        crate::store::log_event("ERROR", &format!("Failed to write metadata file for '{}': {}", name, e));
-        eprintln!("Error: failed to write metadata: {}", e);
+    if let Err(e) = std::fs::write(format!("{METADATA_DIR}/{name}.json"), body) {
+        crate::store::log_event("ERROR", &format!("Failed to write metadata file for '{name}': {e}"));
+        eprintln!("Error: failed to write metadata: {e}");
         exit(1);
     }
 
     if let Err(e) = crate::cli::supervisor::restart_nix_supervisor() {
-        crate::store::log_event("ERROR", &format!("Failed to restart supervisor after installing service '{}': {}", name, e));
-        eprintln!("Error restarting supervisor: {}", e);
+        crate::store::log_event("ERROR", &format!("Failed to restart supervisor after installing service '{name}': {e}"));
+        eprintln!("Error restarting supervisor: {e}");
         exit(1);
     }
-    crate::store::log_event("INFO", &format!("Service '{}' installed/updated successfully. URI: {}", name, uri));
+    crate::store::log_event("INFO", &format!("Service '{name}' installed/updated successfully. URI: {uri}"));
     println!("Service successfully installed.");
 }

@@ -1,3 +1,4 @@
+use crate::unraid::SUPERVISOR_PORT;
 use serde_json::Value;
 use std::process::{exit, Command};
 
@@ -22,8 +23,6 @@ pub fn view_logs(service: &str) {
                     let time = v.get("time").and_then(|t| t.as_str()).unwrap_or("");
                     let message = v.get("message").and_then(|m| m.as_str()).unwrap_or("");
                     if !time.is_empty() {
-                        // Take the first 19 chars (handles multi-byte UTF-8 safely)
-                        // and only slice if the byte position is a char boundary.
                         let time_display: String = time
                             .chars()
                             .take(19)
@@ -47,7 +46,7 @@ pub fn view_logs(service: &str) {
     }
 
     if !rendered {
-        let url = format!("http://127.0.0.1:29704/process/logs/{}/0/200", service);
+        let url = format!("http://127.0.0.1:{SUPERVISOR_PORT}/process/logs/{service}/0/200");
         if let Ok(resp) = ureq::get(&url).timeout(std::time::Duration::from_secs(2)).call() {
             if let Ok(Value::Object(map)) = resp.into_json::<Value>() {
                 if let Some(Value::Array(lines)) = map.get("logs") {
@@ -93,13 +92,9 @@ fn run_tail(file: &str, lines: usize) -> Result<String, String> {
 
 #[cfg(test)]
 mod tests {
-    use super::*;
-
     /// Build a synthetic log JSON line with a given `time` string. Used to
     /// exercise the time-formatting code path without writing to disk.
     fn render_time(time: &str) -> String {
-        // Mirror the body of view_logs's per-line handling, but isolated for
-        // unit testing without touching the filesystem.
         if time.is_empty() {
             return String::new();
         }
@@ -111,7 +106,6 @@ mod tests {
 
     #[test]
     fn test_render_time_short_unchanged() {
-        // Fewer than 19 chars: return as-is (no truncation).
         assert_eq!(render_time("2026-06-27"), "2026-06-27");
     }
 
@@ -122,8 +116,6 @@ mod tests {
 
     #[test]
     fn test_render_time_multibyte_utf8_does_not_panic() {
-        // 19 multi-byte chars (each is multiple bytes). The old code would
-        // panic with "byte index N is not a char boundary".
         let time = "é".repeat(19);
         let rendered = render_time(&time);
         assert_eq!(rendered.chars().count(), 19);

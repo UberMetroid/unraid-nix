@@ -26,14 +26,14 @@ pub fn teardown_store() {
 
 pub fn sync_templates() {
     crate::store::log_event("INFO", "Syncing preset templates from unraid-nix-templates repository...");
-    
+
     let zip_url = "https://github.com/UberMetroid/unraid-nix-templates/archive/refs/heads/main.zip";
     let tmp_zip = "/tmp/templates.zip";
-    
+
     let curl_status = std::process::Command::new("curl")
         .args(["-sSf", "-L", "-o", tmp_zip, zip_url])
         .status();
-        
+
     match curl_status {
         Ok(status) if status.success() => {},
         _ => {
@@ -43,12 +43,12 @@ pub fn sync_templates() {
             std::process::exit(1);
         }
     }
-    
+
     let tmp_dir = "/tmp";
     let unzip_status = std::process::Command::new("unzip")
         .args(["-q", "-o", tmp_zip, "-d", tmp_dir])
         .status();
-        
+
     match unzip_status {
         Ok(status) if status.success() => {},
         _ => {
@@ -59,14 +59,11 @@ pub fn sync_templates() {
             std::process::exit(1);
         }
     }
-    
+
     let extracted_dir = "/tmp/unraid-nix-templates-main";
     let dest_usr = "/usr/local/emhttp/plugins/nix";
     let dest_boot = "/boot/config/plugins/nix";
 
-    // Sync presets to both the runtime plugin dir and the persistent flash
-    // mirror. Prior versions of this command duplicated each `cp -rf` and
-    // never actually copied into `dest_boot` — fix is to do four real copies.
     let cp_status = std::process::Command::new("sh")
         .arg("-c")
         .arg(format!(
@@ -80,10 +77,10 @@ pub fn sync_templates() {
             src = extracted_dir,
         ))
         .status();
-        
+
     let _ = std::fs::remove_file(tmp_zip);
     let _ = std::fs::remove_dir_all(extracted_dir);
-    
+
     match cp_status {
         Ok(status) if status.success() => {
             crate::store::log_event("INFO", "Templates successfully synced and updated.");

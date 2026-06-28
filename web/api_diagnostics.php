@@ -8,16 +8,18 @@ if ($action !== 'download-diagnostics') {
 }
 
 $tmp_dir = '/tmp/nix-diagnostics-' . uniqid();
-if (!mkdir($tmp_dir, 0755, true)) {
+if (!mkdir($tmp_dir, 0700, true)) {
     die("Failed to create temporary diagnostics directory.");
 }
 
 $cfg_dir = '/boot/config/plugins/nix';
 if (file_exists("$cfg_dir/nix.cfg")) {
     copy("$cfg_dir/nix.cfg", "$tmp_dir/nix.cfg");
+    @chmod("$tmp_dir/nix.cfg", 0600);
 }
 if (file_exists("$cfg_dir/process-compose.yml")) {
     copy("$cfg_dir/process-compose.yml", "$tmp_dir/process-compose.yml");
+    @chmod("$tmp_dir/process-compose.yml", 0600);
 }
 
 $log_files = [
@@ -28,16 +30,19 @@ $log_files = [
 foreach ($log_files as $src => $dest) {
     if (file_exists($src)) {
         copy($src, "$tmp_dir/$dest");
+        @chmod("$tmp_dir/$dest", 0600);
     }
 }
 
 $services_log_dir = '/var/log/nix-services';
 if (is_dir($services_log_dir)) {
-    @mkdir("$tmp_dir/services", 0755);
+    @mkdir("$tmp_dir/services", 0700);
     $files = glob("$services_log_dir/*.log");
     if ($files !== false) {
         foreach ($files as $file) {
-            copy($file, "$tmp_dir/services/" . basename($file));
+            $dest = "$tmp_dir/services/" . basename($file);
+            copy($file, $dest);
+            @chmod($dest, 0600);
         }
     }
 }
@@ -82,6 +87,7 @@ if (is_dir($meta_dir)) {
 }
 
 file_put_contents("$tmp_dir/system_info.txt", implode("\n", $sys_info));
+@chmod("$tmp_dir/system_info.txt", 0600);
 
 $archive_name = 'nix-diagnostics-' . date('Ymd-His') . '.tar.gz';
 $archive_path = "/tmp/$archive_name";

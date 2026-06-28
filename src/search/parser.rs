@@ -56,7 +56,7 @@ pub fn get_github_source_link(pos: &str) -> Option<String> {
     if let Some(idx) = pos.find("/pkgs/") {
         let rel_path = &pos[idx + 1..];
         let cleaned = rel_path.replace(':', "#L");
-        return Some(format!("https://github.com/NixOS/nixpkgs/blob/master/{}", cleaned));
+        return Some(format!("https://github.com/NixOS/nixpkgs/blob/master/{cleaned}"));
     }
     None
 }
@@ -122,7 +122,7 @@ pub fn parse_search_json(json_content: &str) -> Result<Vec<SearchResult>, String
         let mut position = None;
 
         if let Some(meta) = meta_map.get(&key) {
-            homepage = meta.get("homepage").and_then(|v| v.as_str()).map(|s| s.to_string());
+            homepage = meta.get("homepage").and_then(|v| v.as_str()).map(String::from);
             license = parse_license(meta);
             position = meta.get("position").and_then(|v| v.as_str()).and_then(get_github_source_link);
         }

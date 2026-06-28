@@ -10,6 +10,8 @@ pub mod cli;
 pub use builder::build_bwrap_command;
 pub use cli::parse_binds_string;
 
+use crate::unraid::NIX_CFG_PATH;
+
 /// Single-quote-escape a string for safe interpolation into a POSIX shell
 /// `sh -c` command. The output is wrapped in single quotes; any single quote
 /// inside is encoded as the standard `'\''` close-escape-reopen sequence.
@@ -84,7 +86,24 @@ pub struct SandboxConfig {
 }
 
 thread_local! {
-    pub static TEST_FORCE_STORAGE_SANDBOX: std::cell::Cell<Option<bool>> = std::cell::Cell::new(None);
+    pub static TEST_FORCE_STORAGE_SANDBOX: std::cell::Cell<Option<bool>> = const { std::cell::Cell::new(None) };
+}
+
+/// Reads a boolean value from nix.cfg for `key`. If the config file does
+/// not exist, returns `default_if_missing`. If the file exists but does
+/// not contain `key`, also returns `default_if_missing`. Otherwise returns
+/// `true` iff the value (after trimming surrounding quotes) equals "yes".
+fn read_bool_cfg(key: &str, default_if_missing: bool) -> bool {
+    let Ok(content) = std::fs::read_to_string(NIX_CFG_PATH) else {
+        return default_if_missing;
+    };
+    for line in content.lines() {
+        if let Some(rest) = line.strip_prefix(&format!("{key}=")) {
+            let val = rest.trim_matches('"');
+            return val == "yes";
+        }
+    }
+    default_if_missing
 }
 
 pub fn is_storage_sandbox_enabled() -> bool {
@@ -97,56 +116,19 @@ pub fn is_storage_sandbox_enabled() -> bool {
     if std::env::var("NIX_FORCE_STORAGE_SANDBOX").unwrap_or_default() == "1" {
         return true;
     }
-    if let Ok(content) = std::fs::read_to_string("/boot/config/plugins/nix/nix.cfg") {
-        for line in content.lines() {
-            if line.starts_with("ENABLE_STORAGE_SANDBOX=") {
-                let val = line.trim_start_matches("ENABLE_STORAGE_SANDBOX=").trim_matches('"');
-                return val == "yes";
-            }
-        }
-    }
-    false
+    read_bool_cfg("ENABLE_STORAGE_SANDBOX", false)
 }
 
 pub fn is_pid_isolation_enabled() -> bool {
-    if let Ok(content) = std::fs::read_to_string("/boot/config/plugins/nix/nix.cfg") {
-        for line in content.lines() {
-            if line.starts_with("ENABLE_PID_ISOLATION=") {
-                let val = line.trim_start_matches("ENABLE_PID_ISOLATION=").trim_matches('"');
-                return val == "yes";
-            }
-        }
-        // If config file exists but option is not defined, default to yes
-        return true;
-    }
-    // If no config file, default to true
-    true
+    read_bool_cfg("ENABLE_PID_ISOLATION", true)
 }
 
 pub fn is_uts_isolation_enabled() -> bool {
-    if let Ok(content) = std::fs::read_to_string("/boot/config/plugins/nix/nix.cfg") {
-        for line in content.lines() {
-            if line.starts_with("ENABLE_UTS_ISOLATION=") {
-                let val = line.trim_start_matches("ENABLE_UTS_ISOLATION=").trim_matches('"');
-                return val == "yes";
-            }
-        }
-        return true;
-    }
-    true
+    read_bool_cfg("ENABLE_UTS_ISOLATION", true)
 }
 
 pub fn is_ipc_isolation_enabled() -> bool {
-    if let Ok(content) = std::fs::read_to_string("/boot/config/plugins/nix/nix.cfg") {
-        for line in content.lines() {
-            if line.starts_with("ENABLE_IPC_ISOLATION=") {
-                let val = line.trim_start_matches("ENABLE_IPC_ISOLATION=").trim_matches('"');
-                return val == "yes";
-            }
-        }
-        return true;
-    }
-    true
+    read_bool_cfg("ENABLE_IPC_ISOLATION", true)
 }
 
 #[cfg(test)]

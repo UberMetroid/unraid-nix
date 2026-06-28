@@ -1,5 +1,6 @@
 use crate::process::{get_services_status, is_supervisor_running};
 use crate::api::utils::{get_service_web_port, get_host_ips};
+use crate::api::utils::{html_escape, js_escape};
 
 fn get_sorted_statuses(api_port: u16) -> Result<Vec<crate::process::ServiceStatus>, String> {
     let mut statuses = get_services_status(api_port)?;
@@ -35,12 +36,12 @@ pub fn render_dashboard_rows(api_port: u16) -> String {
         let port = get_service_web_port(&s.name);
         let name_link_html = if let Some(p) = port {
             format!(
-                r#"<a href="http://{}:{}/" target="_blank" title="Open Web UI" style="text-decoration: none; color: inherit; display: inline-flex; align-items: center; gap: 6px;">
+                r#"<a href="http://{}:{p}/" target="_blank" title="Open Web UI" style="text-decoration: none; color: inherit; display: inline-flex; align-items: center; gap: 6px;">
                     <img src="/plugins/nix/api.php?action=get-icon&service={}" style="width: 16px; height: 16px; border-radius: 2px; vertical-align: middle;" />
                     <span style="vertical-align: middle; font-weight: 500;">{}</span>
                     <i class="fa fa-external-link" style="font-size: 8px; color: #00a1ff; opacity: 0.7; vertical-align: middle;"></i>
                 </a>"#,
-                ip_str, p, s.name, s.name
+                html_escape(ip_str), html_escape(&s.name), html_escape(&s.name)
             )
         } else {
             format!(
@@ -48,7 +49,7 @@ pub fn render_dashboard_rows(api_port: u16) -> String {
                     <img src="/plugins/nix/api.php?action=get-icon&service={}" style="width: 16px; height: 16px; border-radius: 2px; vertical-align: middle;" />
                     <span style="vertical-align: middle; font-weight: 500;">{}</span>
                 </span>"#,
-                s.name, s.name
+                html_escape(&s.name), html_escape(&s.name)
             )
         };
 
@@ -80,7 +81,7 @@ pub fn render_dashboard_rows(api_port: u16) -> String {
                     </button>
                 </td>
             </tr>"#,
-            s.name, name_link_html, status_color, shadow, status_text, gpu_indicator, s.name, btn_action, btn_title, btn_icon
+            html_escape(&s.name), name_link_html, status_color, shadow, status_text, gpu_indicator, html_escape(&js_escape(&s.name)), btn_action, btn_title, btn_icon
         ));
     }
     html
@@ -88,11 +89,9 @@ pub fn render_dashboard_rows(api_port: u16) -> String {
 
 /// Returns the service statuses directly as a JSON string (used for dynamic updates).
 pub fn render_dashboard_json(api_port: u16) -> String {
-    if let Ok(statuses) = get_sorted_statuses(api_port) {
-        serde_json::to_string(&statuses).unwrap_or_else(|_| "[]".to_string())
-    } else {
-        "[]".to_string()
-    }
+    get_sorted_statuses(api_port)
+        .map(|statuses| serde_json::to_string(&statuses).unwrap_or_else(|_| "[]".to_string()))
+        .unwrap_or_else(|_| "[]".to_string())
 }
 
 /// Renders the complete native Unraid Dashboard widget tile structure (<table>).

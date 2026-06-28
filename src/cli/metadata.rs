@@ -1,4 +1,5 @@
 use crate::config;
+use crate::unraid::{METADATA_DIR, NIX_CFG_PATH, PROCESS_COMPOSE_CONFIG};
 use serde_json::Value;
 use std::process::exit;
 
@@ -11,12 +12,11 @@ pub fn get_metadata(name: &str) {
 }
 
 pub fn get_metadata_json(name: &str) -> String {
-    // Reject path-traversal in the service name before constructing the path.
     if !crate::store::is_valid_service_name(name) {
         eprintln!("Error: Invalid service name.");
         exit(1);
     }
-    let meta_file = format!("/boot/config/plugins/nix/metadata/{}.json", name);
+    let meta_file = format!("{METADATA_DIR}/{name}.json");
     if let Ok(content) = std::fs::read_to_string(&meta_file) {
         if let Ok(v) = serde_json::from_str::<Value>(&content) {
             let result = serde_json::json!({
@@ -28,7 +28,7 @@ pub fn get_metadata_json(name: &str) -> String {
     }
 
     let mut detected_root = String::new();
-    if let Ok(content) = std::fs::read_to_string("/boot/config/plugins/nix/nix.cfg") {
+    if let Ok(content) = std::fs::read_to_string(NIX_CFG_PATH) {
         for line in content.lines() {
             let line = line.trim();
             if line.starts_with("DEFAULT_APPDATA_PATH=") {
@@ -45,12 +45,11 @@ pub fn get_metadata_json(name: &str) -> String {
 
     let mut puid = "99".to_string();
     let mut pgid = "100".to_string();
-    let mut appdata = format!("{}/{}", fallback_appdata_root, name);
-    let mut uri = format!("nixpkgs#{}", name);
+    let mut appdata = format!("{fallback_appdata_root}/{name}");
+    let mut uri = format!("nixpkgs#{name}");
     let gpu = "0".to_string();
 
-    let cfg_file = "/boot/config/plugins/nix/process-compose.yml";
-    if let Ok(cfg) = config::load_config(cfg_file) {
+    if let Ok(cfg) = config::load_config(PROCESS_COMPOSE_CONFIG) {
         if let Some(proc) = cfg.processes.get(name) {
             let cmd = &proc.command;
             if let Some(pos) = cmd.find("--reuid=") {
@@ -75,7 +74,7 @@ pub fn get_metadata_json(name: &str) -> String {
                 if raw_uri.contains('#') || raw_uri.contains(':') {
                     uri = raw_uri;
                 } else {
-                    uri = format!("nixpkgs#{}", raw_uri);
+                    uri = format!("nixpkgs#{raw_uri}");
                 }
             }
         }

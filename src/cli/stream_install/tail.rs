@@ -1,3 +1,4 @@
+use crate::unraid::SUPERVISOR_PORT;
 use std::fs::File;
 use std::io::{BufRead, BufReader, Seek, SeekFrom};
 use std::os::unix::fs::MetadataExt;
@@ -13,30 +14,27 @@ struct LogLine {
 /// Tails the log file of a newly installed service and queries process-compose.
 /// Returns true if service starts successfully, false otherwise.
 pub fn tail_service_logs(svc: &str, timeout_limit_secs: u64) -> Result<bool, String> {
-    let log_file_path = format!("/var/log/nix-services/{}.log", svc);
+    let log_file_path = format!("/var/log/nix-services/{svc}.log");
     println!("\nService config written. Waiting for service to spawn logs...");
-    
-    // 1. Wait for log file to exist (up to 8 seconds)
+
     let start_wait = Instant::now();
-    let mut file_opened = false;
     let mut file = None;
     while start_wait.elapsed() < Duration::from_secs(8) {
         if let Ok(f) = File::open(&log_file_path) {
             file = Some(f);
-            file_opened = true;
             break;
         }
         sleep(Duration::from_millis(500));
     }
 
-    if !file_opened || file.is_none() {
+    let Some(file) = file else {
         println!("No logs spawned within 8 seconds. Service might be starting slowly in the background. Turning off autostart.");
         set_service_autostart(svc, false);
         return Ok(false);
-    }
+    };
 
-    let mut reader = BufReader::new(file.unwrap());
-    println!("Tailing startup logs for service: {}...", svc);
+    let mut reader = BufReader::new(file);
+    println!("Tailing startup logs for service: {svc}...");
     println!("--------------------------------------------------");
 
     let tail_start = Instant::now();
@@ -45,14 +43,10 @@ pub fn tail_service_logs(svc: &str, timeout_limit_secs: u64) -> Result<bool, Str
     let mut inode: Option<u64> = None;
 
     while tail_start.elapsed() < Duration::from_secs(timeout_limit_secs) {
-        // Read new lines if any. Detect log rotation/truncation by inode change
-        // and reset `last_pos` to 0 in that case. Falling back to `len` on seek
-        // failure would also mis-report position after a rotation.
         if let Ok(metadata) = std::fs::metadata(&log_file_path) {
             let current_inode = metadata.ino();
             let len = metadata.len();
-            if inode.map(|i| i != current_inode).unwrap_or(false) {
-                // File was rotated/replaced — start over from the beginning.
+            if inode.is_some_and(|i| i != current_inode) {
                 last_pos = 0;
                 inode = Some(current_inode);
                 let _ = reader.get_mut().seek(SeekFrom::Start(0));
@@ -65,30 +59,26 @@ pub fn tail_service_logs(svc: &str, timeout_limit_secs: u64) -> Result<bool, Str
                     while reader.read_line(&mut line).unwrap_or(0) > 0 {
                         if let Ok(log_data) = serde_json::from_str::<LogLine>(&line) {
                             if let Some(msg) = log_data.message {
-                                println!("{}", msg);
+                                println!("{msg}");
                             } else {
-                                print!("{}", line);
+                                print!("{line}");
                             }
                         } else {
-                            print!("{}", line);
+                            print!("{line}");
                         }
                         line.clear();
                     }
-                    // Use stream_position only when seek succeeded; otherwise
-                    // last_pos stays where it was and we re-seek next iteration.
                     if let Ok(pos) = reader.get_mut().stream_position() {
                         last_pos = pos;
                     }
                 }
             } else if len < last_pos {
-                // File was truncated in place. Reset to start.
                 last_pos = 0;
                 let _ = reader.get_mut().seek(SeekFrom::Start(0));
             }
         }
 
-        // Query process-compose status
-        if let Ok(statuses) = crate::process::status::get_services_status(29704) {
+        if let Ok(statuses) = crate::process::status::get_services_status(SUPERVISOR_PORT) {
             for status in statuses {
                 if status.name == svc {
                     let state = status.status.to_lowercase();
@@ -101,8 +91,8 @@ pub fn tail_service_logs(svc: &str, timeout_limit_secs: u64) -> Result<bool, Str
                     if state == "failed" {
                         println!("\n[FATAL] Service failed to start!");
                         crate::unraid::send_unraid_notification(
-                            &format!("Nix: Service '{}' Failed", svc),
-                            &format!("The newly installed service '{}' exited with status 'failed' inside the process-compose supervisor.", svc),
+                            &format!("Nix: Service '{svc}' Failed"),
+                            &format!("The newly installed service '{svc}' exited with status 'failed' inside the process-compose supervisor."),
                             "alert",
                         );
                         set_service_autostart(svc, false);
@@ -120,8 +110,8 @@ pub fn tail_service_logs(svc: &str, timeout_limit_secs: u64) -> Result<bool, Str
     if !success_found {
         println!("\n[WARNING] Service startup verification timed out. Turning off autostart.");
         crate::unraid::send_unraid_notification(
-            &format!("Nix: Service '{}' Startup Timeout", svc),
-            &format!("The service '{}' took too long to enter 'running' state. Please check its log file.", svc),
+            &format!("Nix: Service '{svc}' Startup Timeout"),
+            &format!("The service '{svc}' took too long to enter 'running' state. Please check its log file."),
             "warning",
         );
         set_service_autostart(svc, false);

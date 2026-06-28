@@ -2,6 +2,7 @@ use std::fs;
 use super::category_names::get_preset_category_name;
 use super::category_styling::get_preset_category_styling;
 use super::{PresetInfo, extract_pkg_name, should_filter_presets};
+use crate::api::utils::{html_escape, js_escape};
 
 pub fn render_presets_store() -> String {
     let mut presets = Vec::new();
@@ -28,7 +29,7 @@ pub fn render_presets_store() -> String {
                 let path = entry.path();
                 if path.extension().and_then(|s| s.to_str()) == Some("json") {
                     let filename = path.file_name().and_then(|s| s.to_str()).unwrap_or("");
-                    
+
                     if filter_enabled {
                         if filename.ends_with("-cuda.json") && !detected_gpus.has_nvidia {
                             continue;
@@ -60,16 +61,16 @@ pub fn render_presets_store() -> String {
             <div>
                 <h3 style="margin: 0;">Template Library</h3>
                 <p class="nix-subtext" style="margin: 5px 0 0 0;">"##.to_string();
-    
+
     html.push_str(&presets.len().to_string());
-    
+
     html.push_str(r##" verified templates ready for native deployment.</p>
             </div>
             <div style="display: flex; gap: 8px; align-items: center;">
                 <!-- Scope Filters -->
                 <button type="button" class="nix-scope-btn" onclick="filterPresetScope('composed', this)">Composed</button>
                 <button type="button" class="nix-scope-btn" onclick="filterPresetScope('standard', this)">Standard</button>
-                
+
                 <!-- Search bar -->
                 <div style="position: relative; width: 250px; margin-left: 8px;">
                     <input type="text" id="nix-preset-search" placeholder="Search templates..." onkeyup="filterPresetsStore()" style="width: 100%; padding: 6px 12px 6px 30px; border-radius: 4px; border: 1px solid var(--nix-border-primary); background: var(--nix-bg-secondary); color: var(--nix-text-primary); font-size: 13px; outline: none; transition: border-color 0.15s ease;">
@@ -101,7 +102,7 @@ pub fn render_presets_store() -> String {
             <button type="button" class="nix-preset-pill" onclick="filterPresetCategory('vpn', this)">VPN</button>
         </div>
     </div>
-    
+
     <div class="nix-presets-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 16px; margin-bottom: 30px;">
     "##);
 
@@ -119,16 +120,16 @@ pub fn render_presets_store() -> String {
             } else {
                 get_preset_category_name(&p.name)
             };
-            
+
             let subtitle_html = if let Some(ref parts) = p.composed_parts {
                 let tags: Vec<String> = parts.iter().map(|part| {
-                    format!(r#"<span style="font-size: 9px; padding: 1px 4px; border-radius: 3px; background: rgba(224, 86, 253, 0.12); border: 1px solid rgba(224, 86, 253, 0.25); color: #e056fd; font-family: monospace;">{}</span>"#, part)
+                    format!(r#"<span style="font-size: 9px; padding: 1px 4px; border-radius: 3px; background: rgba(224, 86, 253, 0.12); border: 1px solid rgba(224, 86, 253, 0.25); color: #e056fd; font-family: monospace;">{}</span>"#, html_escape(part))
                 }).collect();
                 format!(r#"<div style="display: flex; flex-wrap: wrap; gap: 4px; margin-top: 2px;">{}</div>"#, tags.join(""))
             } else {
-                format!(r#"<span style="font-size: 10px; color: var(--nix-text-secondary); font-family: monospace;">nixpkgs#{}</span>"#, p.name)
+                format!(r#"<span style="font-size: 10px; color: var(--nix-text-secondary); font-family: monospace;">nixpkgs#{}</span>"#, html_escape(&p.name))
             };
-            
+
             let mut meta_html = String::new();
             if let Some(ref m) = p.meta {
                 meta_html.push_str(r#"<div style="display: flex; gap: 5px; margin-top: 4px; flex-wrap: wrap; align-items: center;">"#);
@@ -136,7 +137,7 @@ pub fn render_presets_store() -> String {
                     if !v.is_empty() {
                         meta_html.push_str(&format!(
                             r#"<span style="font-size: 8px; color: var(--nix-text-bright); background: var(--nix-bg-tertiary); padding: 1px 4px; border-radius: 3px; border: 1px solid var(--nix-border-primary); display: inline-flex; align-items: center; gap: 2px;" title="Version"><i class="fa fa-tag" style="font-size: 7px;"></i> {}</span>"#,
-                            v
+                            html_escape(v)
                         ));
                     }
                 }
@@ -144,7 +145,7 @@ pub fn render_presets_store() -> String {
                     if !lic.is_empty() {
                         meta_html.push_str(&format!(
                             r#"<span style="font-size: 8px; color: var(--nix-text-secondary); background: var(--nix-bg-secondary); padding: 1px 4px; border-radius: 3px; border: 1px solid var(--nix-border-primary); display: inline-flex; align-items: center; gap: 2px;" title="License"><i class="fa fa-gavel" style="font-size: 7px;"></i> {}</span>"#,
-                            lic
+                            html_escape(lic)
                         ));
                     }
                 }
@@ -168,7 +169,7 @@ pub fn render_presets_store() -> String {
                         let progs_str = progs.join(", ");
                         meta_html.push_str(&format!(
                             r#"<div style="font-size: 8px; color: var(--nix-text-muted); margin-top: 4px; width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; display: inline-flex; align-items: center; gap: 3px;" title="Programs Provided: {}"><i class="fa fa-terminal" style="font-size: 7px; color: var(--nix-text-muted);"></i> {}</div>"#,
-                            progs_str, progs_str
+                            html_escape(&progs_str), html_escape(&progs_str)
                         ));
                     }
                 }
@@ -206,7 +207,7 @@ pub fn render_presets_store() -> String {
                         </button>
                     </div>
                 </div>"#,
-                p.name, p.description.to_lowercase(), category_name, if p.is_composed { "true" } else { "false" }, styling.bg, styling.border, styling.color, styling.icon, p.display_name, p.display_name, subtitle_html, meta_html, p.description, p.url, pkg_search_name, pkg_search_name, p.name
+                html_escape(&p.name), html_escape(&p.description.to_lowercase()), html_escape(category_name), if p.is_composed { "true" } else { "false" }, styling.bg, styling.border, styling.color, html_escape(&styling.icon), html_escape(&p.display_name), html_escape(&p.display_name), subtitle_html, meta_html, html_escape(&p.description), html_escape(&p.url), html_escape(&pkg_search_name), html_escape(&pkg_search_name), html_escape(&js_escape(&p.name))
             ));
         }
     }

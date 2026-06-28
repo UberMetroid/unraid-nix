@@ -26,8 +26,16 @@ detect_default_store_path() {
     if [ -f "$CFG_SHARE" ]; then
         # Parse pool name
         POOL=$(grep -oP '^shareCachePool="\K[^"]+' "$CFG_SHARE" || grep -oP '^shareCachePool=\K[^\s]+' "$CFG_SHARE" | tr -d '"')
+        if [[ -n "$POOL" ]] && ! [[ "$POOL" =~ ^[a-zA-Z0-9_.-]+$ ]]; then
+            log_event "ERROR" "Invalid shareCachePool: '$POOL'"
+            POOL=""
+        fi
         if [ -z "$POOL" ]; then
             USE_CACHE=$(grep -oP '^shareUseCache="\K[^"]+' "$CFG_SHARE" || grep -oP '^shareUseCache=\K[^\s]+' "$CFG_SHARE" | tr -d '"')
+            if [[ -n "$USE_CACHE" ]] && ! [[ "$USE_CACHE" =~ ^(yes|no|prefer|only)$ ]]; then
+                log_event "ERROR" "Invalid shareUseCache: '$USE_CACHE'"
+                USE_CACHE=""
+            fi
             if [[ "$USE_CACHE" == "yes" || "$USE_CACHE" == "prefer" || "$USE_CACHE" == "only" ]]; then
                 POOL="cache"
             fi
@@ -54,6 +62,10 @@ AUTOSTART_FLAKES="yes"
 if [ -f "$CFG_FILE" ]; then
     # Parse simple INI properties
     NIX_STORE_PATH=$(grep -oP 'NIX_STORE_PATH="\K[^"]+' "$CFG_FILE" || echo "$DEFAULT_STORE_PATH")
+    if [[ -n "$NIX_STORE_PATH" ]] && ! [[ "$NIX_STORE_PATH" =~ ^/[a-zA-Z0-9_./-]+$ ]]; then
+        log_event "ERROR" "Invalid NIX_STORE_PATH: '$NIX_STORE_PATH'"
+        NIX_STORE_PATH="$DEFAULT_STORE_PATH"
+    fi
     AUTOSTART_FLAKES=$(grep -oP 'AUTOSTART_FLAKES="\K[^"]+' "$CFG_FILE" || echo "yes")
     SETTINGS_CONFIRMED=$(grep -oP 'SETTINGS_CONFIRMED="\K[^"]+' "$CFG_FILE" || echo "no")
 else

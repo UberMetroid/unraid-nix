@@ -13,7 +13,7 @@ pub fn get_gpu_active_services() -> std::collections::HashSet<String> {
         .args(["--query-compute-apps=pid", "--format=csv,noheader,nounits"])
         .stdin(std::process::Stdio::null())
         .output();
- 
+
     if let Ok(out) = output {
         if out.status.success() {
             let stdout = String::from_utf8_lossy(&out.stdout);
@@ -23,14 +23,14 @@ pub fn get_gpu_active_services() -> std::collections::HashSet<String> {
                     continue;
                 }
                 if let Ok(pid) = pid_str.parse::<i32>() {
-                    let root_link = format!("/proc/{}/root", pid);
+                    let root_link = format!("/proc/{pid}/root");
                     if let Ok(target) = std::fs::read_link(&root_link) {
                         let target_str = target.to_string_lossy();
                         if let Some(pos) = target_str.find("nix-chroot-") {
                             let start = pos + "nix-chroot-".len();
                             let service_name = &target_str[start..];
                             if !service_name.is_empty() {
-                                  active_services.insert(service_name.to_string());
+                                active_services.insert(service_name.to_string());
                             }
                         }
                     }
@@ -43,7 +43,7 @@ pub fn get_gpu_active_services() -> std::collections::HashSet<String> {
 }
 
 pub fn get_proc_io(pid: i32) -> Option<(u64, u64)> {
-    let io_file = format!("/proc/{}/io", pid);
+    let io_file = format!("/proc/{pid}/io");
     if let Ok(content) = fs::read_to_string(io_file) {
         let mut rchar = None;
         let mut wchar = None;
@@ -66,30 +66,22 @@ pub fn get_descendant_pids(parent_pid: i32) -> Vec<i32> {
     if let Ok(entries) = std::fs::read_dir("/proc") {
         for entry in entries.flatten() {
             let path = entry.path();
-            if path.is_dir() {
-                if let Some(name) = path.file_name().and_then(|n| n.to_str()) {
-                    if let Ok(child_pid) = name.parse::<i32>() {
-                        if let Ok(stat) = std::fs::read_to_string(format!("/proc/{}/stat", child_pid)) {
-                            if let Some(pos) = stat.rfind(')') {
-                                let fields_after_name = &stat[pos+1..];
-                                let mut parts = fields_after_name.split_whitespace();
-                                let _state = parts.next();
-                                if let Some(ppid_str) = parts.next() {
-                                    if let Ok(ppid) = ppid_str.parse::<i32>() {
-                                        ppid_map.entry(ppid).or_default().push(child_pid);
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
+            path.is_dir().then(|| {
+                let name = path.file_name().and_then(|n| n.to_str())?;
+                let child_pid: i32 = name.parse().ok()?;
+                let stat = std::fs::read_to_string(format!("/proc/{child_pid}/stat")).ok()?;
+                let pos = stat.rfind(')')?;
+                let fields_after_name = &stat[pos+1..];
+                let mut parts = fields_after_name.split_whitespace();
+                parts.next();
+                let ppid_str = parts.next()?;
+                let ppid: i32 = ppid_str.parse().ok()?;
+                ppid_map.entry(ppid).or_default().push(child_pid);
+                Some(())
+            });
         }
     }
 
-    // Use a HashSet for O(1) membership tests during BFS instead of
-    // pids.contains(&c) which is O(n) — keeps the walk O(n) overall even
-    // on hosts with thousands of processes.
     let mut pids = vec![parent_pid];
     let mut seen: std::collections::HashSet<i32> = std::collections::HashSet::new();
     seen.insert(parent_pid);
@@ -135,10 +127,10 @@ pub fn get_nvidia_pmon_stats() -> std::collections::HashMap<i32, Vec<(i32, GpuSt
                         let sm = sm_str.parse::<i32>().unwrap_or(0);
                         let mem = mem_str.parse::<i32>().unwrap_or(0);
                         stats.entry(pid).or_insert_with(Vec::new).push((gpu, GpuStat { sm, mem }));
-                      }
-                  }
-              }
-          }
-      }
-      stats
-  }
+                    }
+                }
+            }
+        }
+    }
+    stats
+}

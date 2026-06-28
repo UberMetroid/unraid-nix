@@ -3,7 +3,34 @@
 ///
 /// Handles daemon service operations, garbage collection, updates checks, Settings saves, etc.
 
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+if (empty($_SESSION['csrf_token'])) {
+    $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+}
+
+header('X-Content-Type-Options: nosniff');
+
 define('NIX_SERVICE_NAME_REGEX', '/^[a-zA-Z0-9_-]+(?:\.[a-zA-Z0-9_-]+)*$/');
+
+// CSRF check only for state-changing actions in this file.
+// nix-sys-logs and check-updates are read-only GET-style endpoints and skip this gate.
+$csrf_required_actions = [
+    'nix-daemon-start', 'nix-daemon-stop', 'nix-daemon-restart',
+    'sync-templates', 'save-settings', 'download-diagnostics',
+    'collect-garbage', 'global-rebuild',
+];
+if (in_array($action, $csrf_required_actions, true)) {
+    if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+        error("This action requires POST.");
+    }
+    $csrf_token = $_POST['csrf_token'] ?? '';
+    $session_csrf = $_SESSION['csrf_token'] ?? '';
+    if (empty($session_csrf) || !hash_equals($session_csrf, $csrf_token)) {
+        error("Invalid or missing CSRF token.");
+    }
+}
 
 if ($action === 'nix-daemon-start') {
     $output = [];
@@ -134,22 +161,54 @@ if ($action === 'sync-templates') {
 
 if ($action === 'save-settings') {
     $store_path = isset($_POST['store_path']) ? $_POST['store_path'] : '';
-    $autostart = isset($_POST['autostart']) ? $_POST['autostart'] : 'yes';
-    $enable_sandbox = isset($_POST['enable_sandbox']) ? $_POST['enable_sandbox'] : 'no';
-    $show_in_nav = isset($_POST['show_in_nav']) ? $_POST['show_in_nav'] : 'yes';
-    $allow_source_builds = isset($_POST['allow_source_builds']) ? $_POST['allow_source_builds'] : 'no';
-    $filter_presets_by_hardware = isset($_POST['filter_presets_by_hardware']) ? $_POST['filter_presets_by_hardware'] : 'yes';
-    $enable_pid_isolation = isset($_POST['enable_pid_isolation']) ? $_POST['enable_pid_isolation'] : 'yes';
-    $enable_uts_isolation = isset($_POST['enable_uts_isolation']) ? $_POST['enable_uts_isolation'] : 'yes';
-    $enable_ipc_isolation = isset($_POST['enable_ipc_isolation']) ? $_POST['enable_ipc_isolation'] : 'yes';
-    $auto_gc = isset($_POST['auto_gc']) ? $_POST['auto_gc'] : 'no';
-    $build_cores = isset($_POST['build_cores']) ? $_POST['build_cores'] : '0';
-    $build_jobs = isset($_POST['build_jobs']) ? $_POST['build_jobs'] : '0';
-    $gc_min_free = isset($_POST['gc_min_free']) ? $_POST['gc_min_free'] : '5';
-    $gc_max_free = isset($_POST['gc_max_free']) ? $_POST['gc_max_free'] : '10';
-    $nix_channel = isset($_POST['nix_channel']) ? $_POST['nix_channel'] : 'nixos-unstable';
+    if ($store_path !== '' && (preg_match('/(\.\.|\\/\\/)/', $store_path) || $store_path[0] !== '/')) {
+        error("Invalid store_path.");
+    }
     $default_appdata_path = isset($_POST['default_appdata_path']) ? $_POST['default_appdata_path'] : '';
-    
+    if ($default_appdata_path !== '' && (preg_match('/(\.\.|\\/\\/)/', $default_appdata_path) || $default_appdata_path[0] !== '/')) {
+        error("Invalid default_appdata_path.");
+    }
+
+    $yes_no = ['yes', 'no'];
+    $autostart = isset($_POST['autostart']) ? $_POST['autostart'] : 'yes';
+    if (!in_array($autostart, $yes_no, true)) { error("Invalid autostart."); }
+    $enable_sandbox = isset($_POST['enable_sandbox']) ? $_POST['enable_sandbox'] : 'no';
+    if (!in_array($enable_sandbox, $yes_no, true)) { error("Invalid enable_sandbox."); }
+    $show_in_nav = isset($_POST['show_in_nav']) ? $_POST['show_in_nav'] : 'yes';
+    if (!in_array($show_in_nav, $yes_no, true)) { error("Invalid show_in_nav."); }
+    $allow_source_builds = isset($_POST['allow_source_builds']) ? $_POST['allow_source_builds'] : 'no';
+    if (!in_array($allow_source_builds, $yes_no, true)) { error("Invalid allow_source_builds."); }
+    $filter_presets_by_hardware = isset($_POST['filter_presets_by_hardware']) ? $_POST['filter_presets_by_hardware'] : 'yes';
+    if (!in_array($filter_presets_by_hardware, $yes_no, true)) { error("Invalid filter_presets_by_hardware."); }
+    $enable_pid_isolation = isset($_POST['enable_pid_isolation']) ? $_POST['enable_pid_isolation'] : 'yes';
+    if (!in_array($enable_pid_isolation, $yes_no, true)) { error("Invalid enable_pid_isolation."); }
+    $enable_uts_isolation = isset($_POST['enable_uts_isolation']) ? $_POST['enable_uts_isolation'] : 'yes';
+    if (!in_array($enable_uts_isolation, $yes_no, true)) { error("Invalid enable_uts_isolation."); }
+    $enable_ipc_isolation = isset($_POST['enable_ipc_isolation']) ? $_POST['enable_ipc_isolation'] : 'yes';
+    if (!in_array($enable_ipc_isolation, $yes_no, true)) { error("Invalid enable_ipc_isolation."); }
+    $auto_gc = isset($_POST['auto_gc']) ? $_POST['auto_gc'] : 'no';
+    if (!in_array($auto_gc, $yes_no, true)) { error("Invalid auto_gc."); }
+
+    $build_cores_raw = isset($_POST['build_cores']) ? $_POST['build_cores'] : '0';
+    if (!ctype_digit((string)$build_cores_raw)) { error("Invalid build_cores."); }
+    $build_cores = max(0, min(256, intval($build_cores_raw)));
+
+    $build_jobs_raw = isset($_POST['build_jobs']) ? $_POST['build_jobs'] : '0';
+    if (!ctype_digit((string)$build_jobs_raw)) { error("Invalid build_jobs."); }
+    $build_jobs = max(0, min(256, intval($build_jobs_raw)));
+
+    $gc_min_free_raw = isset($_POST['gc_min_free']) ? $_POST['gc_min_free'] : '5';
+    if (!ctype_digit((string)$gc_min_free_raw)) { error("Invalid gc_min_free."); }
+    $gc_min_free = max(0, min(100, intval($gc_min_free_raw)));
+
+    $gc_max_free_raw = isset($_POST['gc_max_free']) ? $_POST['gc_max_free'] : '10';
+    if (!ctype_digit((string)$gc_max_free_raw)) { error("Invalid gc_max_free."); }
+    $gc_max_free = max(0, min(100, intval($gc_max_free_raw)));
+
+    $allowed_channels = ['nixos-unstable', 'nixos-stable', 'nixpkgs-unstable', 'nixpkgs-stable'];
+    $nix_channel = isset($_POST['nix_channel']) ? $_POST['nix_channel'] : 'nixos-unstable';
+    if (!in_array($nix_channel, $allowed_channels, true)) { error("Invalid nix_channel."); }
+
     $output = [];
     $code = 0;
     $cmd = "/usr/local/emhttp/plugins/nix/nix-helper save-settings " .
@@ -163,13 +222,13 @@ if ($action === 'save-settings') {
            "--enable-uts-isolation " . escapeshellarg($enable_uts_isolation) . " " .
            "--enable-ipc-isolation " . escapeshellarg($enable_ipc_isolation) . " " .
            "--auto-gc " . escapeshellarg($auto_gc) . " " .
-           "--build-cores " . escapeshellarg($build_cores) . " " .
-           "--build-jobs " . escapeshellarg($build_jobs) . " " .
-           "--gc-min-free " . escapeshellarg($gc_min_free) . " " .
-           "--gc-max-free " . escapeshellarg($gc_max_free) . " " .
+           "--build-cores " . escapeshellarg((string)$build_cores) . " " .
+           "--build-jobs " . escapeshellarg((string)$build_jobs) . " " .
+           "--gc-min-free " . escapeshellarg((string)$gc_min_free) . " " .
+           "--gc-max-free " . escapeshellarg((string)$gc_max_free) . " " .
            "--nix-channel " . escapeshellarg($nix_channel) . " " .
            "--default-appdata-path " . escapeshellarg($default_appdata_path);
-           
+
     exec($cmd . " 2>&1", $output, $code);
     if ($code !== 0) {
         error(implode("\n", $output));

@@ -1,5 +1,10 @@
 use std::collections::HashMap;
 
+pub const SUPERVISOR_PORT: u16 = 29704;
+pub const PROCESS_COMPOSE_CONFIG: &str = "/boot/config/plugins/nix/process-compose.yml";
+pub const METADATA_DIR: &str = "/boot/config/plugins/nix/metadata";
+pub const NIX_CFG_PATH: &str = "/boot/config/plugins/nix/nix.cfg";
+
 /// Native Unraid WebUI notification helper
 pub fn send_unraid_notification(subject: &str, description: &str, importance: &str) {
     let importance_flag = match importance {
@@ -25,11 +30,10 @@ pub fn get_docker_mapped_ports() -> Vec<u16> {
         .args(["ps", "-a", "--format", "{{.Ports}}"])
         .stdin(std::process::Stdio::null())
         .output();
-        
+
     if let Ok(out) = output {
         let stdout = String::from_utf8_lossy(&out.stdout);
         for line in stdout.lines() {
-            // e.g. "0.0.0.0:8080->80/tcp, :::8080->80/tcp"
             for part in line.split(',') {
                 if let Some(arrow_idx) = part.find("->") {
                     let before_arrow = &part[..arrow_idx];
@@ -79,7 +83,7 @@ pub fn detect_default_store_path() -> String {
         }
     }
     if !pool.is_empty() {
-        let path = format!("/mnt/{}/system/nix", pool);
+        let path = format!("/mnt/{pool}/system/nix");
         if std::path::Path::new(&path).is_dir() {
             return path;
         }
@@ -87,7 +91,7 @@ pub fn detect_default_store_path() -> String {
     if std::path::Path::new("/mnt/user/system").is_dir() {
         return "/mnt/user/system/nix".to_string();
     }
-    "".to_string()
+    String::new()
 }
 
 /// Auto-detect Unraid's AppData pool root path
@@ -102,7 +106,7 @@ pub fn detect_appdata_root() -> String {
         }
     }
     if !pool.is_empty() {
-        let path = format!("/mnt/{}/appdata", pool);
+        let path = format!("/mnt/{pool}/appdata");
         if std::path::Path::new(&path).is_dir() {
             return path;
         }
@@ -110,7 +114,7 @@ pub fn detect_appdata_root() -> String {
     if std::path::Path::new("/mnt/user/appdata").is_dir() {
         return "/mnt/user/appdata".to_string();
     }
-    "".to_string()
+    String::new()
 }
 
 #[cfg(test)]

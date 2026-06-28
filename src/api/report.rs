@@ -1,27 +1,26 @@
 use std::fs;
 use serde_json::Value;
+use crate::api::utils::html_escape;
+use crate::unraid::METADATA_DIR;
 
 pub fn render_verification_report(service: &str) -> String {
-    // Reject path traversal in `service` before constructing the read path.
-    // The caller (web/nix_*.page) passes a service name from process-compose,
-    // which we treat as untrusted.
     if !crate::store::is_valid_service_name(service) {
-        return "".to_string();
+        return String::new();
     }
-    let metadata_file = format!("/boot/config/plugins/nix/metadata/{}.json", service);
+    let metadata_file = format!("{METADATA_DIR}/{service}.json");
     let content = match fs::read_to_string(&metadata_file) {
         Ok(c) => c,
-        Err(_) => return "".to_string(),
+        Err(_) => return String::new(),
     };
 
     let meta: Value = match serde_json::from_str(&content) {
         Ok(m) => m,
-        Err(_) => return "".to_string(),
+        Err(_) => return String::new(),
     };
 
     let name = meta.get("name").and_then(|v| v.as_str()).unwrap_or(service);
     let uri = meta.get("uri").and_then(|v| v.as_str()).unwrap_or("");
-    
+
     let puid = meta.get("puid")
         .and_then(|v| v.as_u64())
         .map(|v| v.to_string())
@@ -47,11 +46,11 @@ pub fn render_verification_report(service: &str) -> String {
     let is_gpu = gpu == "1" || gpu == "true";
     let gpus = meta.get("gpus").and_then(|v| v.as_str()).unwrap_or("");
 
-    let puid_label = if puid == "99" { "nobody (99)".to_string() } else { puid };
-    let pgid_label = if pgid == "100" { "users (100)".to_string() } else { pgid };
-    
+    let puid_label = if puid == "99" { "nobody (99)".to_string() } else { html_escape(&puid) };
+    let pgid_label = if pgid == "100" { "users (100)".to_string() } else { html_escape(&pgid) };
+
     let gpu_label = if !gpus.trim().is_empty() {
-        format!("Enabled (Exposing GPU: {})", gpus)
+        format!("Enabled (Exposing GPU: {})", html_escape(gpus))
     } else if is_gpu {
         "Enabled (Exposing All GPUs)".to_string()
     } else {
@@ -73,7 +72,7 @@ pub fn render_verification_report(service: &str) -> String {
                 if let (Some(host), Some(sandbox)) = (item.get("host").and_then(|v| v.as_str()), item.get("sandbox").and_then(|v| v.as_str())) {
                     extra_binds_html.push_str(&format!(
                         "<div style='margin-bottom:4px;'><i class='fa fa-check success'></i> {} &rarr; {}</div>",
-                        host, sandbox
+                        html_escape(host), html_escape(sandbox)
                     ));
                 }
             }
@@ -90,7 +89,7 @@ pub fn render_verification_report(service: &str) -> String {
                 if !p.trim().is_empty() {
                     ports_html.push_str(&format!(
                         "<div style='margin-bottom:4px;'><i class='fa fa-check success'></i> Host Port Mapped: {}</div>",
-                        p.trim()
+                        html_escape(p.trim())
                     ));
                 }
             }
@@ -114,7 +113,7 @@ pub fn render_verification_report(service: &str) -> String {
                 let v_str = if let Some(s) = v.as_str() { s.to_string() } else { v.to_string() };
                 env_vars_html.push_str(&format!(
                     "<div style='margin-bottom:4px;'><i class='fa fa-check success'></i> <code>{}</code> = <code>{}</code></div>",
-                    k, v_str
+                    html_escape(&k), html_escape(&v_str)
                 ));
             }
         }
@@ -126,7 +125,7 @@ pub fn render_verification_report(service: &str) -> String {
     let sandbox_desc = if crate::sandbox::is_storage_sandbox_enabled() {
         format!(
             "Private mount namespace (unshare -m) chroot jail at /var/run/nix-chroot-{}",
-            name
+            html_escape(name)
         )
     } else {
         "Disabled (running directly in host mount namespace)".to_string()
@@ -152,6 +151,6 @@ pub fn render_verification_report(service: &str) -> String {
                 <div><strong>Shared Storage Paths:</strong></div><div>{}</div>
             </div>
         </div>"#,
-        name, uri, puid_label, pgid_label, gpu_icon, gpu_label, sandbox_desc, appdata, ports_html, env_vars_html, extra_binds_html
+        html_escape(name), html_escape(uri), puid_label, pgid_label, gpu_icon, gpu_label, sandbox_desc, html_escape(appdata), ports_html, env_vars_html, extra_binds_html
     )
 }

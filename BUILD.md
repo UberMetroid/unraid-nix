@@ -35,6 +35,53 @@ The binary is placed at the repo root as `./nix-helper` (matching what
 cargo test
 ```
 
+> **Note:** this is `cargo test`, **not** `cargo test --workspace`. The
+> plugin is a single binary crate (`nix-helper`) at the repository root; the
+> `--workspace` flag is unnecessary and will fail if a top-level `Cargo.toml`
+> is later moved into a workspace root.
+
+### Test coverage
+
+The unit test suite (51 tests as of the most recent sweep) covers:
+
+* **Config parser/serializer** (`src/config/mod.rs`, `src/config/file.rs`):
+  process-compose YAML round-trip, default settings initialization,
+  process definition sanity.
+* **Service command presets** (`src/config/mod.rs`): assert that
+  `get_service_command_preset` produces the expected `unshare`, mount,
+  `setpriv`, and `sed` substitutions for Radarr, Jellyfin, and unknown
+  services (rejection path).
+* **Storage sandbox builder** (`src/sandbox/mod.rs`,
+  `src/sandbox/builder_tests.rs`, `src/sandbox/cli.rs`): verify that the
+  generated `bwrap` / `unshare -m` command exposes only the requested
+  bind-mounts, includes the GPU stub when GPU access is requested, and
+  rejects store-on-`/boot` paths.
+* **Sandbox CLI argument parser** (`src/sandbox/cli.rs`): every public
+  flag of `nix-helper sandbox …` produces the right inner argv under
+  representative invocations.
+* **Process / supervisor parser** (`src/process/status.rs`,
+  `src/process/ports.rs`): uptime, port, and resource-extraction
+  helpers used by the dashboard renderer.
+* **Logs CLI** (`src/cli/logs.rs`): log-level filtering, sanitisation
+  of log-injection metacharacters, and tail-window clamping.
+* **Settings CLI** (`src/cli/settings/mod.rs`): `save-settings`
+  argument assembly for every boolean flag and numeric bound.
+* **Unraid share detection** (`src/unraid.rs`): parsing of
+  `shares/*.cfg`, cache-pool selection, and default-store-path
+  inference.
+* **Search JSON mapper** (`src/search/mod.rs`, `src/search/parser.rs`):
+  Nix search.nixos.org result normalization.
+* **Store account bootstrap** (`src/store/accounts.rs`,
+  `src/store/config/tests.rs`): user/group creation, sanitisation of
+  arbitrary service names, and log-rotation defaults.
+* **Preset store renderer** (`src/api/presets_store/mod.rs`): category
+  bucketing and HTML escape behaviour for service descriptions.
+* **Services row formatter** (`src/api/services_row/row_formatter/mod.rs`):
+  status badge, version badge, and resource cell HTML escaping for
+  arbitrary service names.
+* **API helpers** (`src/api/mod.rs`): version-header construction for
+  the `get_dashboard_json` endpoint.
+
 ---
 
 ## Cutting a release

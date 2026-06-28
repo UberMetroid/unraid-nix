@@ -1,24 +1,6 @@
 use crate::api::utils::HostAddr;
 use crate::process::GpuStat;
-use super::static_config::get_service_fa_config;
-
-#[allow(dead_code)]
-pub fn render_app_cell(name: &str, version_badge: &str, status_subtext: &str) -> String {
-    let cfg = get_service_fa_config(name);
-    format!(
-        r#"<div style="display: flex; align-items: center; gap: 10px;">
-            <div style="width: 28px; height: 28px; border-radius: 4px; background: {}; border: 1px solid {}; display: inline-flex; align-items: center; justify-content: center; color: {}; flex-shrink: 0;">
-                <i class="fa {}" style="font-size: 14px;"></i>
-            </div>
-            <div style="display: flex; flex-direction: column; gap: 2px;">
-                <strong style="font-size: 13px;">{}</strong>
-                {}
-                <div style="font-size: 11px; color: var(--nix-text-secondary);">{}</div>
-            </div>
-        </div>"#,
-        cfg.bg, cfg.border, cfg.color, cfg.icon, name, version_badge, status_subtext
-    )
-}
+use crate::api::utils::{html_escape, js_escape};
 
 pub fn render_lan_ip_port_cell(
     port_num: Option<u16>,
@@ -48,12 +30,12 @@ pub fn render_lan_ip_port_cell(
             let link = if is_running {
                 format!(
                     r##"<div style="margin-bottom: 4px;"><a href="#" onclick="window.open('http://{}:{}/', '_blank'); return false;" style="color: var(--nix-accent); text-decoration: none; font-weight: 500;">{}:{} <i class="fa fa-external-link" style="font-size: 9px; margin-left: 1px;"></i></a></div>"##,
-                    addr.ip, port, addr.ip, port
+                    html_escape(&js_escape(&addr.ip)), port, html_escape(&addr.ip), port
                 )
             } else {
                 format!(
                     r##"<div style="margin-bottom: 4px;"><span style="color: var(--nix-text-secondary);">{}:{}</span></div>"##,
-                    addr.ip, port
+                    html_escape(&addr.ip), port
                 )
             };
             ip_links.push(link);
@@ -64,12 +46,12 @@ pub fn render_lan_ip_port_cell(
                 let link = if is_running {
                     format!(
                         r##"<div style="margin-bottom: 4px;"><a href="#" onclick="window.open('http://{}:{}/', '_blank'); return false;" style="color: var(--nix-accent); text-decoration: none; font-weight: 500;">{}:{} <i class="fa fa-external-link" style="font-size: 9px; margin-left: 1px;"></i></a></div>"##,
-                        target, port, target, port
+                        html_escape(&js_escape(target)), port, html_escape(target), port
                     )
                 } else {
                     format!(
                         r##"<div style="margin-bottom: 4px;"><span style="color: var(--nix-text-secondary);">{}:{}</span></div>"##,
-                        target, port
+                        html_escape(target), port
                     )
                 };
                 ip_links.push(link);
@@ -126,7 +108,7 @@ pub fn render_resources_cell(
                     <span style="color: var(--nix-text-secondary); font-size: 10px;">VRAM</span>
                     <span class="nix-stat-val" style="color: #a855f7; font-family: monospace; font-weight: 500;">{}%</span>
                 </div>"#,
-                name, gpu_sm, name, gpu_mem
+                html_escape(name), gpu_sm, html_escape(name), gpu_mem
             )
         } else {
             "".to_string()
@@ -155,7 +137,7 @@ pub fn render_resources_cell(
                 <!-- Row 3 -->
                 {}
             </div>"#,
-            name, cpu_str, name, name, mem_str, name, gpu_html
+            html_escape(name), cpu_str, html_escape(name), html_escape(name), mem_str, html_escape(name), gpu_html
         ));
     } else {
         res.push_str(r#"<span style="color: var(--nix-text-muted);">-</span>"#);
@@ -167,12 +149,12 @@ pub fn render_autostart_cell(name: &str, autostart_enabled: bool) -> String {
     if autostart_enabled {
         format!(
             r#"<button type="button" class="nix-btn nix-btn-sm" onclick="toggleAutostart('{}', false)" title="Autostart: Enabled"><i class="fa fa-toggle-on" style="color: #2ecc71;"></i></button>"#,
-            name
+            html_escape(&js_escape(name))
         )
     } else {
         format!(
             r#"<button type="button" class="nix-btn nix-btn-sm" onclick="toggleAutostart('{}', true)" title="Autostart: Disabled"><i class="fa fa-toggle-off" style="color: var(--nix-text-muted);"></i></button>"#,
-            name
+            html_escape(&js_escape(name))
         )
     }
 }

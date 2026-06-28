@@ -1,4 +1,5 @@
 use serde::Deserialize;
+use crate::unraid::NIX_CFG_PATH;
 
 pub mod category_names;
 pub mod category_styling;
@@ -33,9 +34,6 @@ pub struct PresetInfo {
 pub fn extract_pkg_name(command: &str, preset_name: &str) -> String {
     if let Some(pos) = command.find("nixpkgs#") {
         let start_byte = pos + "nixpkgs#".len();
-        // Walk `command` char-by-char starting at `start_byte`, collecting
-        // chars into a new String. Avoids `command[start..end]` byte slicing
-        // which would panic if the substring contains multi-byte UTF-8 chars.
         let after = &command[start_byte..];
         let pkg: String = after
             .chars()
@@ -49,7 +47,7 @@ pub fn extract_pkg_name(command: &str, preset_name: &str) -> String {
 }
 
 pub fn should_filter_presets() -> bool {
-    if let Ok(content) = std::fs::read_to_string("/boot/config/plugins/nix/nix.cfg") {
+    if let Ok(content) = std::fs::read_to_string(NIX_CFG_PATH) {
         for line in content.lines() {
             if line.starts_with("FILTER_PRESETS_BY_HARDWARE=") {
                 let val = line.trim_start_matches("FILTER_PRESETS_BY_HARDWARE=").trim_matches('"');
@@ -57,7 +55,7 @@ pub fn should_filter_presets() -> bool {
             }
         }
     }
-    true // Defaults to true
+    true
 }
 
 #[cfg(test)]
@@ -71,7 +69,6 @@ mod tests {
 
     #[test]
     fn test_extract_pkg_name_with_version_in_command() {
-        // After the pkg name, anything non-identifier terminates the package.
         assert_eq!(extract_pkg_name("nixpkgs#hello --foo bar", "hello"), "hello");
     }
 
@@ -87,9 +84,6 @@ mod tests {
 
     #[test]
     fn test_extract_pkg_name_multibyte_utf8_does_not_panic() {
-        // Old code did `command[start..end]` where `start` was a byte offset
-        // and `end` was a char-count. With multi-byte UTF-8 the slice would
-        // panic on a non-char-boundary. New code walks chars via take_while.
         let pkg = extract_pkg_name("nixpkgs#中文包名", "fallback");
         assert_eq!(pkg, "中文包名");
     }

@@ -2,6 +2,7 @@ use crate::process;
 use crate::search;
 use crate::sandbox;
 use crate::config;
+use crate::unraid::{METADATA_DIR, PROCESS_COMPOSE_CONFIG, SUPERVISOR_PORT};
 use std::process::{exit, Command};
 
 pub fn service_action(action: &str, name: &str) {
@@ -9,11 +10,11 @@ pub fn service_action(action: &str, name: &str) {
         eprintln!("Error: Invalid service name.");
         exit(1);
     }
-    if let Err(e) = process::send_service_action(29704, name, action) {
+    if let Err(e) = process::send_service_action(SUPERVISOR_PORT, name, action) {
         eprintln!("Service action failed: {}", e);
         exit(1);
     }
-    println!("Action {} sent to service {}.", action, name);
+    println!("Action {action} sent to service {name}.");
 }
 
 pub fn autostart(name: &str, toggle: &str) {
@@ -28,7 +29,7 @@ pub fn autostart(name: &str, toggle: &str) {
         "no".to_string()
     };
 
-    let mut cfg = match config::load_config("/boot/config/plugins/nix/process-compose.yml") {
+    let mut cfg = match config::load_config(PROCESS_COMPOSE_CONFIG) {
         Ok(c) => c,
         Err(e) => {
             eprintln!("Error loading config: {}", e);
@@ -47,19 +48,19 @@ pub fn autostart(name: &str, toggle: &str) {
             });
         }
 
-        if let Err(e) = config::save_config(&cfg, "/boot/config/plugins/nix/process-compose.yml") {
+        if let Err(e) = config::save_config(&cfg, PROCESS_COMPOSE_CONFIG) {
             eprintln!("Error saving config: {}", e);
             exit(1);
         }
 
         let _ = Command::new("sh")
-            .args(["-c", ". /nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh && nix run nixpkgs#process-compose -- -p 29704 project update -f /boot/config/plugins/nix/process-compose.yml 2>&1"])
+            .args(["-c", &format!(". /nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh && nix run nixpkgs#process-compose -- -p {SUPERVISOR_PORT} project update -f {PROCESS_COMPOSE_CONFIG} 2>&1")])
             .stdin(std::process::Stdio::null())
             .output();
-        crate::store::log_event("INFO", &format!("Service '{}' autostart set to '{}'.", name, toggle));
+        crate::store::log_event("INFO", &format!("Service '{name}' autostart set to '{toggle}'."));
         println!("Autostart updated successfully.");
     } else {
-        eprintln!("Error: Service {} not found in configuration.", name);
+        eprintln!("Error: Service {name} not found in configuration.");
         exit(1);
     }
 }
@@ -70,7 +71,7 @@ pub fn remove_service(name: &str) {
         exit(1);
     }
 
-    let mut cfg = match config::load_config("/boot/config/plugins/nix/process-compose.yml") {
+    let mut cfg = match config::load_config(PROCESS_COMPOSE_CONFIG) {
         Ok(c) => c,
         Err(e) => {
             eprintln!("Error loading config: {}", e);
@@ -79,36 +80,33 @@ pub fn remove_service(name: &str) {
     };
 
     if cfg.processes.remove(name).is_some() {
-        if let Err(e) = config::save_config(&cfg, "/boot/config/plugins/nix/process-compose.yml") {
+        if let Err(e) = config::save_config(&cfg, PROCESS_COMPOSE_CONFIG) {
             eprintln!("Error saving config: {}", e);
             exit(1);
         }
 
-        let _ = process::send_service_action(29704, name, "stop");
+        let _ = process::send_service_action(SUPERVISOR_PORT, name, "stop");
         let _ = Command::new("sh")
-            .args(["-c", ". /nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh && nix run nixpkgs#process-compose -- -p 29704 project update -f /boot/config/plugins/nix/process-compose.yml 2>&1"])
+            .args(["-c", &format!(". /nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh && nix run nixpkgs#process-compose -- -p {SUPERVISOR_PORT} project update -f {PROCESS_COMPOSE_CONFIG} 2>&1")])
             .stdin(std::process::Stdio::null())
             .output();
-        let _ = std::fs::remove_file(format!("/boot/config/plugins/nix/metadata/{}.json", name));
-        // name was already validated by remove_service's validate_name() call,
-        // but double-check before removing to keep this call site safe if the
-        // function is ever invoked with a different name source.
-        crate::store::log_event("INFO", &format!("Service '{}' successfully removed.", name));
-        println!("Service {} successfully removed.", name);
+        let _ = std::fs::remove_file(format!("{METADATA_DIR}/{name}.json"));
+        crate::store::log_event("INFO", &format!("Service '{name}' successfully removed."));
+        println!("Service {name} successfully removed.");
     } else {
-        eprintln!("Error: Service {} not found in configuration.", name);
+        eprintln!("Error: Service {name} not found in configuration.");
         exit(1);
     }
 }
 
 pub fn install(package: &str) {
     if let Err(e) = search::install_package(package) {
-        crate::store::log_event("ERROR", &format!("CLI package installation failed for '{}': {}", package, e));
+        crate::store::log_event("ERROR", &format!("CLI package installation failed for '{package}': {e}"));
         eprintln!("Installation failed: {}", e);
         exit(1);
     }
-    crate::store::log_event("INFO", &format!("CLI package '{}' successfully installed/added.", package));
-    println!("Successfully installed package: {}", package);
+    crate::store::log_event("INFO", &format!("CLI package '{package}' successfully installed/added."));
+    println!("Successfully installed package: {package}");
 }
 
 pub fn sandbox_cmd(args: &crate::cli::args::SandboxArgs) {
@@ -130,7 +128,7 @@ pub fn sandbox_cmd(args: &crate::cli::args::SandboxArgs) {
         enable_network_isolation: args.network_isolation,
     };
     match sandbox::build_bwrap_command(&config) {
-        Ok(cmd) => println!("{}", cmd),
+        Ok(cmd) => println!("{cmd}"),
         Err(e) => {
             eprintln!("Error: {}", e);
             exit(1);
@@ -162,7 +160,7 @@ pub fn preset_cmd(
     let bind_address = bind_address_str.and_then(|s| if s != "-" && !s.is_empty() { Some(s.to_string()) } else { None });
 
     match config::get_service_command_preset(name, appdata, media_val, puid, pgid, gpu, None, extra_binds, port, bind_address) {
-        Ok(cmd) => println!("{}", cmd),
+        Ok(cmd) => println!("{cmd}"),
         Err(e) => {
             eprintln!("Error: {}", e);
             exit(1);
@@ -177,7 +175,7 @@ pub fn add_service(name: &str, cmd: &str, restart_policy: Option<&str>) {
     }
     let restart = restart_policy.unwrap_or("always").to_string();
 
-    let mut cfg = match config::load_config("/boot/config/plugins/nix/process-compose.yml") {
+    let mut cfg = match config::load_config(PROCESS_COMPOSE_CONFIG) {
         Ok(c) => c,
         Err(e) => {
             eprintln!("Error loading config: {}", e);
@@ -205,7 +203,7 @@ pub fn add_service(name: &str, cmd: &str, restart_policy: Option<&str>) {
         }
     }
 
-    let log_location = Some(format!("/var/log/nix-services/{}.log", name));
+    let log_location = Some(format!("/var/log/nix-services/{name}.log"));
     cfg.processes.insert(name.to_string(), config::ProcessDefinition {
         command: cmd.to_string(),
         availability: Some(config::Availability {
@@ -218,7 +216,7 @@ pub fn add_service(name: &str, cmd: &str, restart_policy: Option<&str>) {
         log_configuration: None,
     });
 
-    if let Err(e) = config::save_config(&cfg, "/boot/config/plugins/nix/process-compose.yml") {
+    if let Err(e) = config::save_config(&cfg, PROCESS_COMPOSE_CONFIG) {
         eprintln!("Error saving config: {}", e);
         exit(1);
     }

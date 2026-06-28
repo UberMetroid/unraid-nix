@@ -3,6 +3,24 @@
 ///
 /// Parses POST parameters and constructs helper command-lines.
 
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+if (empty($_SESSION['csrf_token'])) {
+    $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+}
+
+if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+    http_response_code(405);
+    die("This action requires POST.");
+}
+$csrf_token = $_POST['csrf_token'] ?? '';
+$session_csrf = $_SESSION['csrf_token'] ?? '';
+if (empty($session_csrf) || !hash_equals($session_csrf, $csrf_token)) {
+    http_response_code(403);
+    die("Invalid or missing CSRF token.");
+}
+
 set_time_limit(1800);
 while (@ob_end_flush());
 ob_implicit_flush(true);
@@ -22,7 +40,7 @@ if (!empty($type)) {
 
 $forward_keys = [
     'appdata', 'media', 'puid', 'pgid', 'gpu', 'gpus',
-    'extra_binds', 'port', 'bind_address', 'env_vars',
+    'extra_binds', 'port', 'bind_address',
     'network_isolation', 'command_override'
 ];
 
@@ -31,6 +49,30 @@ foreach ($forward_keys as $key) {
         $flag = str_replace('_', '-', $key);
         $args[] = "--" . $flag . " " . escapeshellarg($_POST[$key]);
     }
+}
+
+if (isset($_POST['env_vars']) && $_POST['env_vars'] !== '') {
+    $env_raw = $_POST['env_vars'];
+    $env_decoded = json_decode($env_raw, true);
+    if (json_last_error() !== JSON_ERROR_NONE || !is_array($env_decoded)) {
+        http_response_code(400);
+        die("Invalid env_vars JSON.");
+    }
+    foreach ($env_decoded as $env_key => $env_val) {
+        if (!is_string($env_key)) {
+            http_response_code(400);
+            die("Invalid env_vars key.");
+        }
+        if (preg_match('/[\r\n]/', $env_key)) {
+            http_response_code(400);
+            die("Invalid env_vars key.");
+        }
+        if (stripos($env_key, 'LD_') === 0) {
+            http_response_code(400);
+            die("LD_PRELOAD injection rejected.");
+        }
+    }
+    $args[] = "--env-vars " . escapeshellarg($env_raw);
 }
 
 if (isset($_POST['compile_locally']) && $_POST['compile_locally'] === '1') {

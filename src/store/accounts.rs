@@ -1,17 +1,18 @@
 use std::process::Command;
 use super::config::log_event;
 
+const NIXBLD_BASE_UID: u32 = 30000;
+
 /// Generates the system commands to create static nixbld groups and users.
 /// Enforces high UID/GID range (30000+) to prevent clashes with Unraid GUI users.
 pub fn get_user_add_commands() -> Vec<String> {
     let mut cmds = vec![
-        "groupadd -g 30000 nixbld 2>/dev/null || true".to_string()
+        format!("groupadd -g {NIXBLD_BASE_UID} nixbld 2>/dev/null || true")
     ];
     for i in 1..=32 {
-        let uid = 30000 + i;
+        let uid = NIXBLD_BASE_UID + i;
         cmds.push(format!(
-            "useradd -u {} -g nixbld -G nixbld -d /var/empty -s /bin/false -c \"Nix build user {}\" nixbld{} 2>/dev/null || true",
-            uid, i, i
+            "useradd -u {uid} -g nixbld -G nixbld -d /var/empty -s /bin/false -c \"Nix build user {i}\" nixbld{i} 2>/dev/null || true"
         ));
     }
     cmds
@@ -27,12 +28,11 @@ pub fn create_builder_accounts() -> Result<(), String> {
             .stdin(std::process::Stdio::null())
             .status()
             .map_err(|e| {
-                let err_msg = format!("Failed to execute builder user/group command: {}", e);
+                let err_msg = format!("Failed to execute builder user/group command: {e}");
                 log_event("ERROR", &err_msg);
                 err_msg
             })?;
         if !status.success() {
-            // Ignore failures if group/user already exists
             continue;
         }
     }

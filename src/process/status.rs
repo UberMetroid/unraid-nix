@@ -2,6 +2,10 @@ use serde::{Deserialize, Serialize};
 use std::fs;
 use std::process::Command;
 use super::sys;
+use crate::unraid::SUPERVISOR_PORT;
+
+const PROCESSES_PATH: &str = "/processes";
+const HTTP_OK: u16 = 200;
 
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 pub struct GpuStat {
@@ -35,7 +39,7 @@ impl ServiceStatus {
         if let Some(nanos) = self.uptime_nanoseconds {
             let secs = nanos / 1_000_000_000;
             if secs < 60 {
-                format!("{}s", secs)
+                format!("{secs}s")
             } else if secs < 3600 {
                 format!("{}m", secs / 60)
             } else {
@@ -53,9 +57,9 @@ pub struct ProcessComposeResponse {
 }
 
 pub fn is_supervisor_running() -> bool {
-    let url = "http://127.0.0.1:29704/processes";
-    match ureq::get(url).timeout(std::time::Duration::from_millis(150)).call() {
-        Ok(resp) => resp.status() == 200,
+    let url = format!("http://127.0.0.1:{SUPERVISOR_PORT}{PROCESSES_PATH}");
+    match ureq::get(&url).timeout(std::time::Duration::from_millis(150)).call() {
+        Ok(resp) => resp.status() == HTTP_OK,
         Err(_) => {
             let pid_path = "/var/run/nix-process-compose.pid";
             if fs::metadata(pid_path).is_err() {
@@ -84,12 +88,12 @@ pub fn get_services_status(api_port: u16) -> Result<Vec<ServiceStatus>, String> 
     if !is_supervisor_running() {
         return Err("Nix process supervisor (process-compose) is not running.".to_string());
     }
-    let url = format!("http://127.0.0.1:{}/processes", api_port);
+    let url = format!("http://127.0.0.1:{api_port}{PROCESSES_PATH}");
     let resp = ureq::get(&url)
         .call()
-        .map_err(|e| format!("Failed to connect to process-compose API: {}", e))?;
+        .map_err(|e| format!("Failed to connect to process-compose API: {e}"))?;
     let wrapper: ProcessComposeResponse = resp.into_json()
-        .map_err(|e| format!("Failed to parse status JSON: {}", e))?;
+        .map_err(|e| format!("Failed to parse status JSON: {e}"))?;
 
     let mut data = wrapper.data;
     let active_gpus = sys::get_gpu_active_services();
@@ -101,7 +105,7 @@ pub fn get_services_status(api_port: u16) -> Result<Vec<ServiceStatus>, String> 
                 s.io_read = Some(rc);
                 s.io_write = Some(wc);
             }
-            
+
             let descendants = sys::get_descendant_pids(pid);
             let mut service_gpu_map = std::collections::HashMap::new();
             for desc_pid in descendants {

@@ -2,6 +2,8 @@ use crate::process::ServiceStatus;
 use crate::config::ProcessComposeConfig;
 use crate::api::utils::{HostAddr, get_service_web_port, extract_package_uri};
 use crate::api::package::{get_cached_version, get_package_link_url};
+use crate::api::utils::{html_escape, js_escape};
+use crate::unraid::METADATA_DIR;
 
 use super::cells::{
     render_lan_ip_port_cell,
@@ -65,7 +67,7 @@ pub fn render_service_row(
         .and_then(|c| c.processes.get(&s.name))
         .map(|p| p.command.as_str())
         .unwrap_or("");
-    
+
     let uri = extract_package_uri(cmd).unwrap_or_else(|| format!("nixpkgs#{}", s.name));
     let version = get_cached_version(&uri);
 
@@ -73,22 +75,19 @@ pub fn render_service_row(
         if let Some(link_url) = get_package_link_url(&uri) {
             format!(
                 r#"v<a href="{}" target="_blank" style="color: var(--nix-accent); text-decoration: none;">{} <i class="fa fa-external-link" style="font-size: 8px;"></i></a>"#,
-                link_url, version
+                html_escape(&link_url), html_escape(&version)
             )
         } else {
-            format!("v{}", version)
+            format!("v{}", html_escape(&version))
         }
     } else {
         "v0.0.0".to_string()
     };
 
     let port_num = get_service_web_port(&s.name);
-    // Validate service name to prevent path traversal before file I/O.
     let metadata_file = if crate::store::is_valid_service_name(&s.name) {
-        format!("/boot/config/plugins/nix/metadata/{}.json", s.name)
+        format!("{METADATA_DIR}/{}.json", s.name)
     } else {
-        // Skip metadata read for invalid names. get_service_web_port already
-        // guards the same case internally.
         String::new()
     };
     let mut bind_address_override = None;
@@ -101,20 +100,20 @@ pub fn render_service_row(
         if let Ok(meta) = serde_json::from_str::<serde_json::Value>(&content) {
             appdata_path = meta.get("appdata")
                 .and_then(|v| v.as_str())
-                .map(|s| s.to_string());
+                .map(String::from);
 
             bind_address_override = meta.get("bind_address")
                 .and_then(|v| v.as_str())
-                .map(|s| s.to_string());
-                
+                .map(String::from);
+
             gpus_override = meta.get("gpus")
                 .and_then(|v| v.as_str())
-                .map(|s| s.to_string());
+                .map(String::from);
 
             legacy_gpu = meta.get("gpu")
                 .and_then(|v| v.as_str())
-                .map(|s| s.to_string());
-                
+                .map(String::from);
+
             if let Some(binds_val) = meta.get("extra_binds") {
                 if let Some(binds_str) = binds_val.as_str() {
                     if let Ok(parsed_binds) = serde_json::from_str::<serde_json::Value>(binds_str) {
@@ -149,23 +148,23 @@ pub fn render_service_row(
       let autostart_html = render_autostart_cell(&s.name, autostart_enabled);
 
       let start_btn = if !is_running {
-          format!(r#"<button type="button" class="nix-btn nix-btn-sm" onclick="serviceAction('{}', 'start')" title="Start"><i class="fa fa-play" style="color: #2ecc71;"></i></button>"#, s.name)
+          format!(r#"<button type="button" class="nix-btn nix-btn-sm" onclick="serviceAction('{}', 'start')" title="Start"><i class="fa fa-play" style="color: #2ecc71;"></i></button>"#, html_escape(&js_escape(&s.name)))
       } else {
           r#"<button type="button" class="nix-btn nix-btn-sm" disabled title="Service is running"><i class="fa fa-play" style="color: var(--nix-text-muted);"></i></button>"#.to_string()
       };
 
       let stop_btn = if is_running {
-          format!(r#"<button type="button" class="nix-btn nix-btn-sm" onclick="serviceAction('{}', 'stop')" title="Stop"><i class="fa fa-stop" style="color: #e74c3c;"></i></button>"#, s.name)
+          format!(r#"<button type="button" class="nix-btn nix-btn-sm" onclick="serviceAction('{}', 'stop')" title="Stop"><i class="fa fa-stop" style="color: #e74c3c;"></i></button>"#, html_escape(&js_escape(&s.name)))
       } else {
           r#"<button type="button" class="nix-btn nix-btn-sm" disabled title="Service is stopped"><i class="fa fa-stop" style="color: var(--nix-text-muted);"></i></button>"#.to_string()
       };
 
       let edit_btn = format!(
           r#"<button type="button" class="nix-btn nix-btn-sm" onclick="editService('{}')" title="Edit Config"><i class="fa fa-edit"></i></button>"#,
-          s.name
+          html_escape(&js_escape(&s.name))
       );
 
-      let logs_btn = format!(r#"<button type="button" class="nix-btn nix-btn-sm" onclick="openLogs('{}')" title="Logs"><i class="fa fa-file-text-o"></i></button>"#, s.name);
+      let logs_btn = format!(r#"<button type="button" class="nix-btn nix-btn-sm" onclick="openLogs('{}')" title="Logs"><i class="fa fa-file-text-o"></i></button>"#, html_escape(&js_escape(&s.name)));
 
       let mut mapped_drives = Vec::new();
       if let Some(ref path) = appdata_path {
@@ -186,7 +185,7 @@ pub fn render_service_row(
               let s_short = truncate_path_ellipsis(s, 30, 27);
               lines.push(format!(
                   r#"<div style="font-family: monospace; font-size: 10px; color: var(--nix-text-primary); text-overflow: ellipsis; white-space: nowrap; overflow: hidden;" title="{} → {}">{} → {}</div>"#,
-                  h, s, h_short, s_short
+                  html_escape(h), html_escape(s), html_escape(&h_short), html_escape(&s_short)
               ));
           }
           lines.join("")
@@ -214,10 +213,10 @@ pub fn render_service_row(
       let time_html = if is_running {
           format!(
               r#"<span style="font-size: 10px; color: var(--nix-text-secondary); font-family: monospace; line-height: 1;">{}</span>"#,
-              s.uptime()
+              html_escape(&s.uptime())
           )
       } else {
-          "".to_string()
+          String::new()
       };
 
       let resources_html = render_resources_cell(&s.name, is_running, s.cpu, s.memory, &gpus_override, &legacy_gpu, &s.gpu_stats);

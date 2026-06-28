@@ -1,5 +1,6 @@
 use chrono::Local;
 use std::io::Write;
+use crate::unraid::NIX_CFG_PATH;
 
 const BYTES_PER_GB: u64 = 1 << 30;
 
@@ -8,7 +9,7 @@ pub fn log_event(level: &str, msg: &str) {
 }
 
 fn log_event_to_path(log_path: &str, level: &str, msg: &str, max_size: u64) {
-    
+
     struct LockGuard {
         path: String,
         active: bool,
@@ -21,7 +22,7 @@ fn log_event_to_path(log_path: &str, level: &str, msg: &str, max_size: u64) {
         }
     }
 
-    let lock_path = format!("{}.lock", log_path);
+    let lock_path = format!("{log_path}.lock");
     let mut guard = LockGuard { path: lock_path.clone(), active: false };
 
     let mut delay = std::time::Duration::from_millis(5);
@@ -40,19 +41,18 @@ fn log_event_to_path(log_path: &str, level: &str, msg: &str, max_size: u64) {
     }
 
     if !guard.active && std::env::var_os("NIX_DEBUG").is_some() {
-        eprintln!("[NIX_DEBUG] Failed to acquire log lock for {}", log_path);
+        eprintln!("[NIX_DEBUG] Failed to acquire log lock for {log_path}");
     }
 
-    // Rotate log file if it exceeds max_size (up to 3 backups)
     if guard.active {
         if let Ok(metadata) = std::fs::metadata(log_path) {
             if metadata.len() > max_size {
-                let p2 = format!("{}.2", log_path);
-                let p3 = format!("{}.3", log_path);
+                let p2 = format!("{log_path}.2");
+                let p3 = format!("{log_path}.3");
                 if std::path::Path::new(&p2).exists() {
                     let _ = std::fs::rename(&p2, &p3);
                 }
-                let p1 = format!("{}.1", log_path);
+                let p1 = format!("{log_path}.1");
                 if std::path::Path::new(&p1).exists() {
                     let _ = std::fs::rename(&p1, &p2);
                 }
@@ -60,14 +60,13 @@ fn log_event_to_path(log_path: &str, level: &str, msg: &str, max_size: u64) {
             }
         }
     }
-    
-    // Sanitize carriage returns, newlines and brackets to prevent forged lines
-    let safe_level = level.replace('\n', " ").replace('\r', " ").replace('[', "(").replace(']', ")");
-    let safe_msg = msg.replace('\n', " ").replace('\r', " ").replace('[', "(").replace(']', ")");
-    
+
+    let safe_level = sanitize_log_token(level);
+    let safe_msg = sanitize_log_token(msg);
+
     let now = Local::now().format("%Y-%m-%d %H:%M:%S");
-    let line = format!("{} [{}] {}\n", now, safe_level, safe_msg);
-    
+    let line = format!("{now} [{safe_level}] {safe_msg}\n");
+
     if let Ok(mut file) = std::fs::OpenOptions::new()
         .create(true)
         .append(true)
@@ -75,20 +74,27 @@ fn log_event_to_path(log_path: &str, level: &str, msg: &str, max_size: u64) {
             let _ = file.write_all(line.as_bytes());
         }
 
-    // Forward to native Unraid syslog safely
     if log_path == "/var/log/nix-plugin.log" {
         let _ = std::process::Command::new("logger")
-            .args(["-t", "nix-plugin", &format!("[{}] {}", safe_level, safe_msg)])
+            .args(["-t", "nix-plugin", &format!("[{safe_level}] {safe_msg}")])
             .stdin(std::process::Stdio::null())
             .output();
     }
-    
+
     #[cfg(not(test))]
     {
         if safe_level == "ERROR" || safe_level == "WARN" || std::env::var_os("NIX_DEBUG").is_some() {
-            eprintln!("[{}] {}", safe_level, safe_msg);
+            eprintln!("[{safe_level}] {safe_msg}");
         }
     }
+}
+
+/// Sanitize a log token (level or message) so a malicious caller cannot
+/// forge extra log lines by embedding CR/LF or bracket markers.
+fn sanitize_log_token(s: &str) -> String {
+    s.replace(['\n', '\r'], " ")
+        .replace('[', "(")
+        .replace(']', ")")
 }
 
 /// Validation check for the persistent store path.
@@ -103,8 +109,7 @@ pub fn validate_store_path(path: &str) -> Result<(), String> {
 }
 
 pub fn read_cfg_val(key: &str, default: &str) -> String {
-    let cfg_file = "/boot/config/plugins/nix/nix.cfg";
-    let map = crate::unraid::parse_ini_file(cfg_file);
+    let map = crate::unraid::parse_ini_file(NIX_CFG_PATH);
     map.get(key).cloned().unwrap_or_else(|| default.to_string())
 }
 
@@ -140,8 +145,7 @@ pub fn generate_nix_conf_content(
         .ok_or_else(|| "max_free_gb overflow".to_string())?;
 
     Ok(format!(
-        "experimental-features = nix-command flakes\nmax-jobs = {}\ncores = {}\nmin-free = {}\nmax-free = {}\n",
-        jobs_val, cores_val, min_free_bytes, max_free_bytes
+        "experimental-features = nix-command flakes\nmax-jobs = {jobs_val}\ncores = {cores_val}\nmin-free = {min_free_bytes}\nmax-free = {max_free_bytes}\n"
     ))
 }
 

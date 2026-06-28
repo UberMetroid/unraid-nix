@@ -1,3 +1,5 @@
+use crate::api::utils::{html_escape, js_escape};
+
 pub struct RowTemplateData<'a> {
     pub name: &'a str,
     pub bg: &'a str,
@@ -21,6 +23,9 @@ pub struct RowTemplateData<'a> {
 }
 
 pub fn build_row_html(d: &RowTemplateData) -> String {
+    let name_html = html_escape(d.name);
+    let name_js = html_escape(&js_escape(d.name));
+    let icon_html = html_escape(d.icon);
     format!(
         r#"<div class="nix-preset-card nix-service-card" data-name="{}" style="background: var(--nix-bg-secondary); border: 1px solid var(--nix-border-primary); border-radius: 6px; padding: 16px; display: flex; flex-direction: column; justify-content: space-between; transition: transform 0.2s ease, border-color 0.2s ease, background 0.2s ease, box-shadow 0.2s ease; min-height: 350px; height: auto; position: relative;">
             <div>
@@ -81,6 +86,6 @@ pub fn build_row_html(d: &RowTemplateData) -> String {
                 <button type="button" class="nix-btn nix-btn-sm" style="color: #e74c3c; border-color: var(--nix-border-primary); margin: 0; display: inline-flex; align-items: center; justify-content: center; height: 32px; width: 32px;" onclick="removeService('{}')" title="Remove"><i class="fa fa-trash-o" style="color: #e74c3c;"></i></button>
             </div>
         </div>"#,
-        d.name, d.bg, d.border, d.color, d.icon, d.name, d.name, d.name, d.version_badge, d.time_html, d.status_class, d.name, d.status_label, d.resources_html, d.lan_ip_port_html, d.mapped_drives_html, d.ports_html, d.rollback_html, d.start_btn, d.stop_btn, d.edit_btn, d.logs_btn, d.autostart_html, d.name
+        name_html, d.bg, d.border, d.color, icon_html, name_html, name_html, name_html, d.version_badge, d.time_html, d.status_class, name_html, d.status_label, d.resources_html, d.lan_ip_port_html, d.mapped_drives_html, d.ports_html, d.rollback_html, d.start_btn, d.stop_btn, d.edit_btn, d.logs_btn, d.autostart_html, name_js
     )
 }

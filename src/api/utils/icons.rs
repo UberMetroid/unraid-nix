@@ -1,6 +1,7 @@
+use crate::unraid::PROCESS_COMPOSE_CONFIG;
+
 pub fn get_service_icon_path(name: &str) -> Option<String> {
-    let config_path = "/boot/config/plugins/nix/process-compose.yml";
-    let config = crate::config::load_config(config_path).ok()?;
+    let config = crate::config::load_config(PROCESS_COMPOSE_CONFIG).ok()?;
     let p = config.processes.get(name)?;
     let command = &p.command;
 
@@ -23,7 +24,7 @@ pub fn get_service_icon_path(name: &str) -> Option<String> {
     if let Ok(entries) = std::fs::read_dir("/nix/store") {
         let target_pattern = format!("-{}", name.to_lowercase());
         let mut candidates = Vec::new();
-        
+
         for entry in entries.flatten() {
             let filename = entry.file_name();
             let filename_str = filename.to_string_lossy().to_lowercase();
@@ -59,8 +60,8 @@ fn find_image_in_dir(dir: &std::path::Path, root: &std::path::Path) -> Option<St
         let path = entry.path();
         if path.is_dir() {
             if let Ok(rel_path) = path.strip_prefix(root) {
-                if rel_path == std::path::Path::new("bin") || 
-                   rel_path == std::path::Path::new("man") || 
+                if rel_path == std::path::Path::new("bin") ||
+                   rel_path == std::path::Path::new("man") ||
                    rel_path == std::path::Path::new("nix-support") ||
                    rel_path == std::path::Path::new("lib64") {
                     continue;

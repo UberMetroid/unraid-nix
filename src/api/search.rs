@@ -1,10 +1,11 @@
 use crate::search::search_packages;
+use crate::api::utils::{html_escape, js_escape};
 
 /// Renders search results from the Nixpkgs registry into an HTML table.
 pub fn render_search_results(query: &str) -> String {
     let results = match search_packages(query) {
         Ok(r) => r,
-        Err(e) => return format!(r#"<div class="alert alert-danger"><i class="fa fa-times"></i> Search failed: {}</div>"#, e),
+        Err(e) => return format!(r#"<div class="alert alert-danger"><i class="fa fa-times"></i> Search failed: {}</div>"#, html_escape(&e)),
     };
 
     let mut html = r#"<table class="nix-table">
@@ -24,28 +25,28 @@ pub fn render_search_results(query: &str) -> String {
         for r in results {
             let action_buttons = format!(
                 r#"<button type="button" class="nix-btn-install" style="width: 100px; margin: 0; padding: 4px 8px; font-size: 11px;" onclick="showServiceModal('{}')">Add Service</button>"#,
-                r.package_name
+                html_escape(&js_escape(&r.package_name))
             );
 
             let mut meta_links = Vec::new();
             if let Some(ref lic) = r.license {
                 if !lic.trim().is_empty() {
-                    meta_links.push(format!(r#"<span><i class="fa fa-certificate" style="margin-right: 3px;"></i>{}</span>"#, lic));
+                    meta_links.push(format!(r#"<span><i class="fa fa-certificate" style="margin-right: 3px;"></i>{}</span>"#, html_escape(lic)));
                 }
             }
             if let Some(ref hp) = r.homepage {
                 if !hp.trim().is_empty() {
-                    meta_links.push(format!(r#"<a href="{}" target="_blank" style="color: #00a1ff; text-decoration: none;"><i class="fa fa-globe" style="margin-right: 3px;"></i>Homepage</a>"#, hp));
+                    meta_links.push(format!(r#"<a href="{}" target="_blank" style="color: #00a1ff; text-decoration: none;"><i class="fa fa-globe" style="margin-right: 3px;"></i>Homepage</a>"#, html_escape(hp)));
                 }
             }
             if let Some(ref pos) = r.position {
                 if !pos.trim().is_empty() {
-                    meta_links.push(format!(r#"<a href="{}" target="_blank" style="color: #00a1ff; text-decoration: none;"><i class="fa fa-code" style="margin-right: 3px;"></i>Source</a>"#, pos));
+                    meta_links.push(format!(r#"<a href="{}" target="_blank" style="color: #00a1ff; text-decoration: none;"><i class="fa fa-code" style="margin-right: 3px;"></i>Source</a>"#, html_escape(pos)));
                 }
             }
 
             let meta_html = if meta_links.is_empty() {
-                "".to_string()
+                String::new()
             } else {
                 format!(
                     r#"<div style="margin-top: 6px; font-size: 11px; display: flex; gap: 12px; flex-wrap: wrap; align-items: center; color: var(--nix-text-secondary);">{}</div>"#,
@@ -53,14 +54,14 @@ pub fn render_search_results(query: &str) -> String {
                 )
             };
 
-            let description_cell = format!("<div>{}</div>{}", r.description, meta_html);
+            let description_cell = format!("<div>{}</div>{}", html_escape(&r.description), meta_html);
 
             let short_name = r.package_name.replace("nixpkgs#", "");
             let link_url = crate::api::package::get_package_link_url(&r.package_name)
-                .unwrap_or_else(|| format!("https://search.nixos.org/packages?channel=unstable&show={}&query={}", short_name, short_name));
+                .unwrap_or_else(|| format!("https://search.nixos.org/packages?channel=unstable&show={short_name}&query={short_name}"));
             let package_link = format!(
                 r#"<a href="{}" target="_blank" style="color: #00a1ff; text-decoration: none;"><code>{}</code> <i class="fa fa-external-link" style="font-size: 10px; margin-left: 2px;"></i></a>"#,
-                link_url, short_name
+                html_escape(&link_url), html_escape(&short_name)
             );
 
             html.push_str(&format!(
@@ -70,7 +71,7 @@ pub fn render_search_results(query: &str) -> String {
                     <td>{}</td>
                     <td>{}</td>
                 </tr>"#,
-                package_link, r.version, description_cell, action_buttons
+                package_link, html_escape(&r.version), description_cell, action_buttons
             ));
         }
     }

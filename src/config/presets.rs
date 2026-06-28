@@ -1,4 +1,4 @@
-use crate::sandbox::{build_bwrap_command, parse_ports, SandboxConfig};
+use crate::sandbox::{build_bwrap_command, parse_ports, sh_quote, SandboxConfig};
 
 pub fn get_preset_path(name: &str) -> String {
     let name_lower = name.to_lowercase();
@@ -54,20 +54,20 @@ pub fn get_service_command_preset(
                 let p = mappings.first().map(|m| m.host).unwrap_or(default_port);
                 let addr = bind_address.clone().unwrap_or_else(|| "*".to_string());
                 
-                host_init_commands.push(format!("mkdir -p {}", appdata));
+                host_init_commands.push(format!("mkdir -p {}", sh_quote(appdata)));
                 host_init_commands.push(format!(
                     "if [ ! -f {}/config.xml ]; then echo '<Config><Port>{}</Port><BindAddress>{}</BindAddress></Config>' > {}/config.xml; fi",
-                    appdata, p, addr, appdata
+                    sh_quote(appdata), p, sh_quote(&addr), sh_quote(appdata)
                 ));
                 host_init_commands.push(format!(
                     "sed -i 's|<Port>[^<]*</Port>|<Port>{}</Port>|g' {}/config.xml",
-                    p, appdata
+                    p, sh_quote(appdata)
                 ));
                 host_init_commands.push(format!(
                     "sed -i 's|<BindAddress>[^<]*</BindAddress>|<BindAddress>{}</BindAddress>|g' {}/config.xml",
-                    addr, appdata
+                    sh_quote(&addr), sh_quote(appdata)
                 ));
-                host_init_commands.push(format!("chown -R {}:{} {}", puid, pgid, appdata));
+                host_init_commands.push(format!("chown -R {}:{} {}", puid, pgid, sh_quote(appdata)));
 
                 format!("exec nix run nixpkgs#{}", name_lower)
             }
@@ -86,32 +86,32 @@ pub fn get_service_command_preset(
                 
                 let addr = bind_address.clone().unwrap_or_else(|| "0.0.0.0".to_string());
                 
-                host_init_commands.push(format!("mkdir -p {}/config", appdata));
+                host_init_commands.push(format!("mkdir -p {}/config", sh_quote(appdata)));
                 host_init_commands.push(format!(
                     "if [ ! -f {}/config/network.xml ]; then echo '<?xml version=\"1.0\" encoding=\"utf-8\"?><NetworkConfiguration><LocalPortNumber>8096</LocalPortNumber><HttpsPortNumber>8920</HttpsPortNumber><EnableHttps>false</EnableHttps><PublicPort>8096</PublicPort><PublicHttpsPort>8920</PublicHttpsPort><BindToAddress>0.0.0.0</BindToAddress></NetworkConfiguration>' > {}/config/network.xml; fi",
-                    appdata, appdata
+                    sh_quote(appdata), sh_quote(appdata)
                 ));
                 host_init_commands.push(format!(
                     "sed -i 's|<LocalPortNumber>[^<]*</LocalPortNumber>|<LocalPortNumber>{}</LocalPortNumber>|g' {}/config/network.xml",
-                    http_port, appdata
+                    http_port, sh_quote(appdata)
                 ));
                 host_init_commands.push(format!(
                     "sed -i 's|<HttpsPortNumber>[^<]*</HttpsPortNumber>|<HttpsPortNumber>{}</HttpsPortNumber>|g' {}/config/network.xml",
-                    https_port, appdata
+                    https_port, sh_quote(appdata)
                 ));
                 host_init_commands.push(format!(
                     "sed -i 's|<PublicPort>[^<]*</PublicPort>|<PublicPort>{}</PublicPort>|g' {}/config/network.xml",
-                    http_port, appdata
+                    http_port, sh_quote(appdata)
                 ));
                 host_init_commands.push(format!(
                     "sed -i 's|<PublicHttpsPort>[^<]*</PublicHttpsPort>|<PublicHttpsPort>{}</PublicHttpsPort>|g' {}/config/network.xml",
-                    https_port, appdata
+                    https_port, sh_quote(appdata)
                 ));
                 host_init_commands.push(format!(
                     "sed -i 's|<BindToAddress>[^<]*</BindToAddress>|<BindToAddress>{}</BindToAddress>|g' {}/config/network.xml",
-                    addr, appdata
+                    sh_quote(&addr), sh_quote(appdata)
                 ));
-                host_init_commands.push(format!("chown -R {}:{} {}", puid, pgid, appdata));
+                host_init_commands.push(format!("chown -R {}:{} {}", puid, pgid, sh_quote(appdata)));
 
                 "exec nix run nixpkgs#jellyfin -- --datadir /config/data --cachedir /config/cache --configdir /config/config".to_string()
             }
@@ -133,26 +133,26 @@ pub fn get_service_command_preset(
                 
                 let addr = bind_address.clone().unwrap_or_else(|| "0.0.0.0".to_string());
                 
-                host_init_commands.push(format!("mkdir -p {}", appdata));
+                host_init_commands.push(format!("mkdir -p {}", sh_quote(appdata)));
                 if sync_port != 22000 {
                     host_init_commands.push(format!(
                         "sed -i 's|<listenAddress>tcp://:[^<]*</listenAddress>|<listenAddress>tcp://:{}</listenAddress>|g' {}/config.xml",
-                        sync_port, appdata
+                        sync_port, sh_quote(appdata)
                     ));
                     host_init_commands.push(format!(
                         "sed -i 's|<listenAddress>default</listenAddress>|<listenAddress>tcp://:{}</listenAddress>|g' {}/config.xml",
-                        sync_port, appdata
+                        sync_port, sh_quote(appdata)
                     ));
                 }
                 if local_ann_port != 21027 {
                     host_init_commands.push(format!(
                         "sed -i 's|<localAnnouncePort>[^<]*</localAnnouncePort>|<localAnnouncePort>{}</localAnnouncePort>|g' {}/config.xml",
-                        local_ann_port, appdata
+                        local_ann_port, sh_quote(appdata)
                     ));
                 }
-                host_init_commands.push(format!("chown -R {}:{} {}", puid, pgid, appdata));
+                host_init_commands.push(format!("chown -R {}:{} {}", puid, pgid, sh_quote(appdata)));
 
-                format!("exec nix run nixpkgs#syncthing -- --home=/config --gui-address=http://{}:{}", addr, gui_port)
+                format!("exec nix run nixpkgs#syncthing -- --home=/config --gui-address=http://{}:{}", sh_quote(&addr), gui_port)
             }
             _ => {
                 let preset_path = get_preset_path(&name_lower);

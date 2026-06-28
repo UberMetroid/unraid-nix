@@ -6,6 +6,9 @@ use crate::sandbox::{is_storage_sandbox_enabled, SandboxConfig};
 pub use chroot_mode::build_chroot_command;
 pub use setpriv_mode::build_setpriv_command;
 
+const DEFAULT_APPDATA_PARENT: &str = "/mnt/user/appdata";
+const DEFAULT_NIX_BASH: &str = "/nix/var/nix/profiles/default/bin/bash";
+
 pub fn find_nix_bash() -> String {
     if let Ok(entries) = std::fs::read_dir("/nix/store") {
         for entry in entries.flatten() {
@@ -20,7 +23,7 @@ pub fn find_nix_bash() -> String {
             }
         }
     }
-    "/nix/var/nix/profiles/default/bin/bash".to_string()
+    DEFAULT_NIX_BASH.to_string()
 }
 
 pub fn build_bwrap_command(config: &SandboxConfig) -> Result<String, String> {
@@ -52,14 +55,14 @@ pub fn build_bwrap_command(config: &SandboxConfig) -> Result<String, String> {
             }
         }
     }
-    
+
     let cuda_devices = if nvidia_indexes.is_empty() {
         if let Some(ref g) = config.gpus {
-            if g.trim().is_empty() { Some("".to_string()) } else { None }
+            if g.trim().is_empty() { Some(String::new()) } else { None }
         } else if config.enable_gpu {
             None
         } else {
-            Some("".to_string())
+            Some(String::new())
         }
     } else {
         Some(nvidia_indexes.join(","))
@@ -75,7 +78,7 @@ pub fn build_bwrap_command(config: &SandboxConfig) -> Result<String, String> {
         let appdata_path_buf = std::path::PathBuf::from(&appdata_canon);
         let appdata_parent = appdata_path_buf.parent()
             .map(|p| p.to_string_lossy().to_string())
-            .unwrap_or_else(|| "/mnt/user/appdata".to_string());
+            .unwrap_or_else(|| DEFAULT_APPDATA_PARENT.to_string());
         build_setpriv_command(config, &appdata_canon, &appdata_parent, has_nvidia, has_render, &cuda_devices)
     }
 }

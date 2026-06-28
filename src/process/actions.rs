@@ -1,8 +1,9 @@
 use crate::process::is_supervisor_running;
 use crate::process::ports::is_port_in_use;
+use crate::unraid::METADATA_DIR;
 
 fn run_preflight_checks(name: &str) {
-    crate::store::log_event("INFO", &format!("Running pre-flight checks for service '{}'...", name));
+    crate::store::log_event("INFO", &format!("Running pre-flight checks for service '{name}'..."));
 
     let default_port = match name.to_lowercase().as_str() {
         "jellyfin" => Some(8096),
@@ -16,35 +17,30 @@ fn run_preflight_checks(name: &str) {
             crate::store::log_event(
                 "WARN",
                 &format!(
-                    "Port conflict warning: Port {} (default for preset '{}') is already bound on the host.",
-                    port, name
+                    "Port conflict warning: Port {port} (default for preset '{name}') is already bound on the host."
                 ),
             );
             crate::unraid::send_unraid_notification(
-                &format!("Nix: Port Conflict Warning for '{}'", name),
-                &format!("Port {} is already in use on the host. Service '{}' may fail to start.", port, name),
+                &format!("Nix: Port Conflict Warning for '{name}'"),
+                &format!("Port {port} is already in use on the host. Service '{name}' may fail to start."),
                 "warning",
             );
         } else {
             crate::store::log_event(
                 "INFO",
                 &format!(
-                    "Port check passed: Port {} (default for preset '{}') is free.",
-                    port, name
+                    "Port check passed: Port {port} (default for preset '{name}') is free."
                 ),
             );
         }
     }
 
-    let metadata_path = format!("/boot/config/plugins/nix/metadata/{}.json", name);
-    // actions.rs:run_preflight_checks is invoked with an unvalidated service
-    // name. Reject any name that could escape the metadata directory via `..`,
-    // `/`, or other path characters before forming the read path.
+    let metadata_path = format!("{METADATA_DIR}/{name}.json");
     if !crate::store::is_valid_service_name(name) {
-        crate::store::log_event("WARN", &format!("Skipping preflight metadata check for invalid service name '{}'", name));
+        crate::store::log_event("WARN", &format!("Skipping preflight metadata check for invalid service name '{name}'"));
         return;
     }
-    crate::store::log_event("DEBUG", &format!("Checking metadata configuration at path: {}", metadata_path));
+    crate::store::log_event("DEBUG", &format!("Checking metadata configuration at path: {metadata_path}"));
     if std::path::Path::new(&metadata_path).exists() {
         match std::fs::read_to_string(&metadata_path) {
             Ok(content) => {
@@ -59,7 +55,7 @@ fn run_preflight_checks(name: &str) {
                         if let Some(ref appdata_path) = meta.appdata {
                             if !appdata_path.trim().is_empty() {
                                 let path = std::path::Path::new(appdata_path);
-                                crate::store::log_event("DEBUG", &format!("Checking permissions for AppData path: {}", appdata_path));
+                                crate::store::log_event("DEBUG", &format!("Checking permissions for AppData path: {appdata_path}"));
                                 if path.exists() {
                                     use std::os::unix::fs::MetadataExt;
                                     match std::fs::metadata(path) {
@@ -67,11 +63,7 @@ fn run_preflight_checks(name: &str) {
                                             let owner_uid = fs_meta.uid();
                                             let expected_puid = if let Some(ref val) = meta.puid {
                                                 if let Some(num) = val.as_u64() {
-                                                    if num <= u32::MAX as u64 {
-                                                        num as u32
-                                                    } else {
-                                                        99
-                                                    }
+                                                    u32::try_from(num).unwrap_or(99)
                                                 } else if let Some(s) = val.as_str() {
                                                     s.parse::<u32>().unwrap_or(99)
                                                 } else {
@@ -85,21 +77,19 @@ fn run_preflight_checks(name: &str) {
                                                 crate::store::log_event(
                                                     "WARN",
                                                     &format!(
-                                                        "Directory permissions warning: Service '{}' configuration location '{}' owner UID ({}) does not match configured PUID ({}).",
-                                                        name, appdata_path, owner_uid, expected_puid
+                                                        "Directory permissions warning: Service '{name}' configuration location '{appdata_path}' owner UID ({owner_uid}) does not match configured PUID ({expected_puid})."
                                                      ),
                                                 );
                                                 crate::unraid::send_unraid_notification(
-                                                    &format!("Nix: Permissions Warning for '{}'", name),
-                                                    &format!("AppData directory '{}' is owned by UID {}, but service runs as PUID {}.", appdata_path, owner_uid, expected_puid),
+                                                    &format!("Nix: Permissions Warning for '{name}'"),
+                                                    &format!("AppData directory '{appdata_path}' is owned by UID {owner_uid}, but service runs as PUID {expected_puid}."),
                                                     "warning",
                                                 );
                                             } else {
                                                 crate::store::log_event(
                                                     "INFO",
                                                     &format!(
-                                                        "Directory permissions check passed: Service '{}' configuration location '{}' is owned by UID {}.",
-                                                        name, appdata_path, owner_uid
+                                                        "Directory permissions check passed: Service '{name}' configuration location '{appdata_path}' is owned by UID {owner_uid}."
                                                      ),
                                                 );
                                             }
@@ -108,8 +98,7 @@ fn run_preflight_checks(name: &str) {
                                             crate::store::log_event(
                                                 "WARN",
                                                 &format!(
-                                                    "Failed to read file metadata for configuration location '{}': {}",
-                                                    appdata_path, e
+                                                    "Failed to read file metadata for configuration location '{appdata_path}': {e}"
                                                 ),
                                             );
                                         }
@@ -118,8 +107,7 @@ fn run_preflight_checks(name: &str) {
                                     crate::store::log_event(
                                         "INFO",
                                         &format!(
-                                            "Service '{}' configuration location '{}' does not exist yet.",
-                                            name, appdata_path
+                                            "Service '{name}' configuration location '{appdata_path}' does not exist yet."
                                         ),
                                     );
                                 }
@@ -130,8 +118,7 @@ fn run_preflight_checks(name: &str) {
                         crate::store::log_event(
                             "WARN",
                             &format!(
-                                "Failed to parse metadata JSON for service '{}': {}",
-                                name, e
+                                "Failed to parse metadata JSON for service '{name}': {e}"
                             ),
                         );
                     }
@@ -141,8 +128,7 @@ fn run_preflight_checks(name: &str) {
                 crate::store::log_event(
                     "WARN",
                     &format!(
-                        "Failed to read metadata file for service '{}': {}",
-                        name, e
+                        "Failed to read metadata file for service '{name}': {e}"
                     ),
                 );
             }
@@ -151,8 +137,7 @@ fn run_preflight_checks(name: &str) {
         crate::store::log_event(
             "INFO",
             &format!(
-                "No metadata file found for service '{}'. Skipping directory permission check.",
-                name
+                "No metadata file found for service '{name}'. Skipping directory permission check."
             ),
         );
     }
@@ -171,17 +156,17 @@ pub fn send_service_action(api_port: u16, name: &str, action: &str) -> Result<()
     }
 
     let (endpoint, method) = match action.to_lowercase().as_str() {
-        "start" => (format!("process/start/{}", name), "POST"),
-        "stop" => (format!("process/stop/{}", name), "PATCH"),
-        "restart" => (format!("process/restart/{}", name), "POST"),
-        _ => return Err(format!("Unsupported service action: {}", action)),
+        "start" => (format!("process/start/{name}"), "POST"),
+        "stop" => (format!("process/stop/{name}"), "PATCH"),
+        "restart" => (format!("process/restart/{name}"), "POST"),
+        _ => return Err(format!("Unsupported service action: {action}")),
     };
 
-    let url = format!("http://127.0.0.1:{}/{}", api_port, endpoint);
-    crate::store::log_event("DEBUG", &format!("Sending HTTP request to process-compose: method='{}', url='{}'", method, url));
+    let url = format!("http://127.0.0.1:{api_port}/{endpoint}");
+    crate::store::log_event("DEBUG", &format!("Sending HTTP request to process-compose: method='{method}', url='{url}'"));
     let resp = ureq::request(method, &url)
         .call()
-        .map_err(|e| format!("HTTP request failed: {}", e))?;
+        .map_err(|e| format!("HTTP request failed: {e}"))?;
 
     if resp.status() != 200 {
         return Err(format!("Server returned HTTP status {}", resp.status()));
