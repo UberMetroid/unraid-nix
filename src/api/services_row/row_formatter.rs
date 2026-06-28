@@ -181,11 +181,14 @@ pub fn render_service_row(
         </div>"#
     );
 
-    let uptime_val = if is_running { s.uptime() } else { "Stopped".to_string() };
-    let uptime_html = format!(
-        r#"<span style="font-family: monospace; font-size: 10px; color: var(--nix-text-primary);">{}</span>"#,
-        uptime_val
-    );
+    let uptime_under_dot_html = if is_running {
+        format!(
+            r#"<span style="font-size: 9px; color: var(--nix-text-secondary); margin-top: 4px; font-family: monospace; line-height: 1;">{}</span>"#,
+            s.uptime()
+        )
+    } else {
+        "".to_string()
+    };
 
     let resources_html = render_resources_cell(&s.name, is_running, s.cpu, s.memory, &gpus_override, &legacy_gpu, &s.gpu_stats);
 
@@ -193,9 +196,9 @@ pub fn render_service_row(
     let cfg = get_service_fa_config(&s.name);
 
     format!(
-        r#"<div class="nix-preset-card nix-service-card" data-name="{}" style="background: var(--nix-bg-secondary); border: 1px solid var(--nix-border-primary); border-radius: 6px; padding: 16px; display: flex; flex-direction: column; justify-content: space-between; transition: transform 0.2s ease, border-color 0.2s ease, background 0.2s ease, box-shadow 0.2s ease; min-height: 380px; height: auto; position: relative;">
+        r#"<div class="nix-preset-card nix-service-card" data-name="{}" style="background: var(--nix-bg-secondary); border: 1px solid var(--nix-border-primary); border-radius: 6px; padding: 16px; display: flex; flex-direction: column; justify-content: space-between; transition: transform 0.2s ease, border-color 0.2s ease, background 0.2s ease, box-shadow 0.2s ease; min-height: 350px; height: auto; position: relative;">
             <div>
-                <!-- Top Row: Icon, Name + Path/Version on Left, Status Dot on Right -->
+                <!-- Top Row: Icon, Name + Path/Version on Left, Status Dot & Uptime on Right -->
                 <div style="display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; margin-bottom: 10px;">
                     <div style="display: flex; align-items: flex-start; gap: 10px; min-width: 0; flex: 1;">
                         <div style="width: 32px; height: 32px; border-radius: 4px; background: {}; border: 1px solid {}; display: flex; align-items: center; justify-content: center; color: {}; flex-shrink: 0; margin-top: 2px;">
@@ -209,7 +212,10 @@ pub fn render_service_row(
                             </span>
                         </div>
                     </div>
-                    <span class="status-dot {}" data-service="{}" title="{}" style="margin-top: 6px;"></span>
+                    <div style="display: flex; flex-direction: column; align-items: flex-end; flex-shrink: 0;">
+                        <span class="status-dot {}" data-service="{}" title="{}" style="margin-top: 6px;"></span>
+                        {}
+                    </div>
                 </div>
 
                 <!-- Info list -->
@@ -234,10 +240,6 @@ pub fn render_service_row(
                         <span style="color: var(--nix-text-secondary); font-size: 10px; font-weight: 600;">ROLLBACK</span>
                         <div style="padding-left: 6px;">{}</div>
                     </div>
-                    <div style="display: flex; flex-direction: column; gap: 3px; line-height: 1.3;">
-                        <span style="color: var(--nix-text-secondary); font-size: 10px; font-weight: 600;">UPTIME</span>
-                        <div style="padding-left: 6px;">{}</div>
-                    </div>
                 </div>
             </div>
 
@@ -253,7 +255,7 @@ pub fn render_service_row(
                 <button type="button" class="nix-btn nix-btn-sm" style="color: #e74c3c; border-color: var(--nix-border-primary); margin: 0; display: inline-flex; align-items: center; justify-content: center; height: 32px; width: 32px;" onclick="removeService('{}')" title="Remove"><i class="fa fa-trash-o" style="color: #e74c3c;"></i></button>
             </div>
         </div>"#,
-        s.name, cfg.bg, cfg.border, cfg.color, cfg.icon, s.name, s.name, s.name, version_badge, status_class, s.name, status_label, resources_html, lan_ip_port_html, mapped_drives_html, ports_html, rollback_html, uptime_html, start_btn, stop_btn, edit_btn, logs_btn, autostart_html, s.name
+        s.name, cfg.bg, cfg.border, cfg.color, cfg.icon, s.name, s.name, s.name, version_badge, status_class, s.name, status_label, uptime_under_dot_html, resources_html, lan_ip_port_html, mapped_drives_html, ports_html, rollback_html, start_btn, stop_btn, edit_btn, logs_btn, autostart_html, s.name
     )
 }
 
