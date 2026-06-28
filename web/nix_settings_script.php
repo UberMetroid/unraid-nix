@@ -5,13 +5,13 @@ function showNotice(message, type) {
         window.top.eventMessage('Nix', message, 'nix.png', type || 'info', 3000);
         return;
     }
-    var toast = $('<div style="position: fixed; top: 20px; right: 20px; z-index: 99999; padding: 12px 20px; border-radius: 6px; color: #fff; font-size: 13px; font-weight: 600; display: flex; align-items: center; gap: 10px; box-shadow: 0 4px 12px rgba(0,0,0,0.5); opacity: 0; transition: opacity 0.3s ease, transform 0.3s ease; transform: translateY(-10px);"></div>');
+    var toast = $('<div class="nix-toast"></div>');
     if (type === 'error') {
-        toast.css({ 'background': '#e74c3c', 'border-left': '4px solid #c0392b' }).html('<i class="fa fa-times-circle"></i> ' + message);
+        toast.addClass('error').html('<i class="fa fa-times-circle"></i> ' + message);
     } else if (type === 'warning') {
-        toast.css({ 'background': '#f39c12', 'border-left': '4px solid #d35400' }).html('<i class="fa fa-exclamation-triangle"></i> ' + message);
+        toast.addClass('warning').html('<i class="fa fa-exclamation-triangle"></i> ' + message);
     } else {
-        toast.css({ 'background': '#2ecc71', 'border-left': '4px solid #27ae60' }).html('<i class="fa fa-check-circle"></i> ' + message);
+        toast.addClass('success').html('<i class="fa fa-check-circle"></i> ' + message);
     }
     $('body').append(toast);
     setTimeout(function() {

@@ -191,3 +191,35 @@ div:hover > .nix-folder-picker-btn {
     transform: translateX(16px);
     background-color: #2ecc71;
 }
+
+/* Custom Floating Toast Notifications */
+.nix-toast {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 99999;
+    padding: 12px 20px;
+    border-radius: 6px;
+    color: #fff;
+    font-size: 13px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+    opacity: 0;
+    transition: opacity 0.3s ease, transform 0.3s ease;
+    transform: translateY(-10px);
+}
+.nix-toast.success {
+    background: #2ecc71;
+    border-left: 4px solid #27ae60;
+}
+.nix-toast.warning {
+    background: #f39c12;
+    border-left: 4px solid #d35400;
+}
+.nix-toast.error {
+    background: #e74c3c;
+    border-left: 4px solid #c0392b;
+}

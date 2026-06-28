@@ -94,8 +94,6 @@
             <option value="nixos-unstable" <?php echo $nix_channel === 'nixos-unstable' ? 'selected' : ''; ?>>nixos-unstable (Recommended)</option>
             <option value="nixos-25.11" <?php echo $nix_channel === 'nixos-25.11' ? 'selected' : ''; ?>>nixos-25.11 (Stable)</option>
             <option value="nixos-25.05" <?php echo $nix_channel === 'nixos-25.05' ? 'selected' : ''; ?>>nixos-25.05 (Stable)</option>
-            <option value="nixos-24.11" <?php echo $nix_channel === 'nixos-24.11' ? 'selected' : ''; ?>>nixos-24.11 (Stable)</option>
-            <option value="nixos-24.05" <?php echo $nix_channel === 'nixos-24.05' ? 'selected' : ''; ?>>nixos-24.05 (Stable)</option>
         </select>
     </div>
 

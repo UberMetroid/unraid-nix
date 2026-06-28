@@ -33,13 +33,8 @@ pub fn save_settings(args: &crate::cli::args::SaveSettingsArgs) {
     let clean_store_path = store_path.trim_end_matches('/').to_string();
     let clean_old_store_path = old_store_path.trim_end_matches('/').to_string();
 
-    if let Err(e) = crate::store::validate_store_path(&clean_store_path) {
+    if let Err(e) = validate_settings(&clean_store_path, &default_appdata_path) {
         eprintln!("Error: {}", e);
-        std::process::exit(1);
-    }
-
-    if !default_appdata_path.is_empty() && default_appdata_path.starts_with("/boot") {
-        eprintln!("Error: Default Appdata Path cannot be located on the boot flash drive (/boot).");
         std::process::exit(1);
     }
 
@@ -98,3 +93,29 @@ pub fn save_settings(args: &crate::cli::args::SaveSettingsArgs) {
       }
       println!("Settings saved successfully.");
   }
+
+pub fn validate_settings(store_path: &str, default_appdata_path: &str) -> Result<(), String> {
+    crate::store::validate_store_path(store_path)?;
+    if !default_appdata_path.is_empty() && default_appdata_path.starts_with("/boot") {
+        return Err("Default Appdata Path cannot be located on the boot flash drive (/boot).".to_string());
+    }
+    Ok(())
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_validate_settings() {
+        // Valid inputs
+        assert!(validate_settings("/mnt/user/system/nix", "/mnt/user/appdata").is_ok());
+        
+        // Invalid store path
+        assert!(validate_settings("", "/mnt/user/appdata").is_err());
+        assert!(validate_settings("/boot/nix", "/mnt/user/appdata").is_err());
+        
+        // Invalid default appdata path
+        assert!(validate_settings("/mnt/user/system/nix", "/boot/appdata").is_err());
+    }
+}
