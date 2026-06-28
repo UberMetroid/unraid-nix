@@ -4,6 +4,18 @@ Title="Logs"
 <?php 
 require_once "/usr/local/emhttp/plugins/nix/theme_helper.php"; 
 echo "<div class=\"nix-plugin-container theme-{$nix_theme}\">";
+
+$service_logs = [];
+if (is_dir('/var/log/nix-services')) {
+    $files = glob('/var/log/nix-services/*.log');
+    if ($files !== false) {
+        foreach ($files as $f) {
+            $name = basename($f, '.log');
+            $service_logs[$name] = $f;
+        }
+    }
+}
+ksort($service_logs);
 ?>
 
 <link type="text/css" rel="stylesheet" href="/plugins/nix/styles_layout.css">
@@ -41,9 +53,19 @@ echo "<div class=\"nix-plugin-container theme-{$nix_theme}\">";
             <div>
                 <label for="nix-log-select" style="margin-right: 10px; color: var(--nix-text-bright); font-size: 13px;">Select Log:</label>
                 <select id="nix-log-select" onchange="loadLogs()" style="background: var(--nix-bg-secondary); border: 1px solid var(--nix-border-primary); color: var(--nix-text-primary); padding: 6px 12px; border-radius: 4px; width: auto; display: inline-block;">
-                    <option value="plugin" selected>Nix Plugin Operations (/var/log/nix-plugin.log)</option>
-                    <option value="compose">Process Supervisor (/var/log/nix-process-compose.log)</option>
-                    <option value="daemon">Low-level Nix Daemon Socket (/var/log/nix-daemon.log)</option>
+                    <optgroup label="System Logs">
+                        <option value="plugin" selected>Nix Plugin Operations (/var/log/nix-plugin.log)</option>
+                        <option value="compose">Process Supervisor (/var/log/nix-process-compose.log)</option>
+                        <option value="daemon">Low-level Nix Daemon Socket (/var/log/nix-daemon.log)</option>
+                        <option value="gc">Nix Garbage Collector (/var/log/nix-gc.log)</option>
+                    </optgroup>
+                    <?php if (!empty($service_logs)): ?>
+                        <optgroup label="Nix Services">
+                            <?php foreach ($service_logs as $name => $path): ?>
+                                <option value="service:<?php echo htmlspecialchars($name); ?>">Service: <?php echo htmlspecialchars($name); ?></option>
+                            <?php endforeach; ?>
+                        </optgroup>
+                    <?php endif; ?>
                 </select>
             </div>
             <div style="display: inline-flex; align-items: center; gap: 10px; vertical-align: middle;">

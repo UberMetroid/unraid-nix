@@ -48,6 +48,15 @@ if ($action === 'nix-sys-logs') {
         $file = '/var/log/nix-process-compose.log';
     } elseif ($log_type === 'daemon') {
         $file = '/var/log/nix-daemon.log';
+    } elseif ($log_type === 'gc') {
+        $file = '/var/log/nix-gc.log';
+    } elseif (strpos($log_type, 'service:') === 0) {
+        $service = substr($log_type, 8);
+        if (preg_match('/^[a-zA-Z0-9_-]+$/', $service)) {
+            $file = "/var/log/nix-services/{$service}.log";
+        } else {
+            error("Invalid service log name.");
+        }
     } else {
         error("Invalid log type.");
     }
