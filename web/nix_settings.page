@@ -74,19 +74,17 @@ exec("/etc/rc.d/rc.nix-daemon status 2>/dev/null", $status_output, $status_code)
 $is_nix_running = ($status_code === 0);
 
 // Hardware capability detection
-$has_kvm = file_exists('/dev/kvm');
+$has_kvm = (trim(shell_exec('[ -c /dev/kvm ] && echo "yes" || echo "no"')) === 'yes');
 
 $gpu_info = [];
 $gpus_file = '/var/run/nix-detected-gpus.json';
-if (file_exists($gpus_file)) {
-    $content = @file_get_contents($gpus_file);
-    if ($content !== false) {
-        $gpus_data = json_decode($content, true);
-        if (is_array($gpus_data)) {
-            foreach ($gpus_data as $g) {
-                if (isset($g['name'])) {
-                    $gpu_info[] = $g['name'];
-                }
+$gpu_json = shell_exec('cat ' . escapeshellarg($gpus_file) . ' 2>/dev/null');
+if ($gpu_json) {
+    $gpus_data = json_decode($gpu_json, true);
+    if (is_array($gpus_data)) {
+        foreach ($gpus_data as $g) {
+            if (isset($g['name'])) {
+                $gpu_info[] = $g['name'];
             }
         }
     }
