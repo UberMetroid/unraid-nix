@@ -260,9 +260,32 @@ function checkForUpdates(btn) {
     
     $.getJSON('/plugins/nix/api.php?action=check-updates', function(data) {
         if (data.success) {
+            var sources = data.sources;
+            var tooltipLines = ['=== Checked Nix Sources ==='];
+            var numChecked = 0;
+            var numUpdates = 0;
+            var mainCachedRev = '';
+            
+            for (var src in sources) {
+                if (sources.hasOwnProperty(src)) {
+                    numChecked++;
+                    var info = sources[src];
+                    var statusStr = info.update_available ? ' -> ' + info.latest_rev + ' (UPDATE AVAILABLE)' : ' (up-to-date)';
+                    tooltipLines.push(src + ' [' + info.cached_rev + ']' + statusStr);
+                    if (info.update_available) {
+                        numUpdates++;
+                    }
+                    if (src === 'nixpkgs') {
+                        mainCachedRev = info.cached_rev;
+                    }
+                }
+            }
+            
+            var tooltipText = tooltipLines.join('\n');
+            
             if (data.update_available) {
                 statusContainer.html(
-                    '<span style="color: #e67e22; font-weight: 500;"><i class="fa fa-gift"></i> Update Available (latest: <code>' + data.latest_rev + '</code>)</span>' +
+                    '<span style="color: #e67e22; font-weight: 500; cursor: help;" title="' + $('<div>').text(tooltipText).html() + '"><i class="fa fa-gift"></i> Update Available (' + numUpdates + ' out of ' + numChecked + ' sources)</span>' +
                     '<button type="button" class="nix-btn-primary" style="margin: 0 5px; padding: 4px 10px; font-size: 11px; font-weight: 600; vertical-align: middle;" onclick="triggerGlobalRebuild(this)">' +
                     '<i class="fa fa-arrow-circle-up"></i> Update & Rebuild' +
                     '</button>' +
@@ -271,8 +294,9 @@ function checkForUpdates(btn) {
                     '</button>'
                 );
             } else {
+                var flakesText = (numChecked > 1) ? 'Nix channel & ' + (numChecked - 1) + ' flakes checked' : 'Nix channel checked';
                 statusContainer.html(
-                    '<span style="color: var(--nix-text-secondary);"><i class="fa fa-check-circle" style="color: #2ecc71; margin-right: 4px;"></i> Nix channel up-to-date (<code>' + data.cached_rev + '</code>)</span>' +
+                    '<span style="color: var(--nix-text-secondary); cursor: help;" title="' + $('<div>').text(tooltipText).html() + '"><i class="fa fa-check-circle" style="color: #2ecc71; margin-right: 4px;"></i> ' + flakesText + ': up-to-date (<code>' + mainCachedRev + '</code>)</span>' +
                     '<button type="button" class="nix-btn" style="margin: 0 0 0 8px; padding: 4px 8px; font-size: 11px; vertical-align: middle;" onclick="checkForUpdates(this)" title="Check for updates">' +
                     '<i class="fa fa-refresh"></i> Check' +
                     '</button>'

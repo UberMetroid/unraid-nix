@@ -376,38 +376,76 @@ if ($action === 'collect-garbage') {
     success();
 }
 
-// 11. Check Nix Channel Updates
+// 11. Check Nix Channel and Flake Updates
 if ($action === 'check-updates') {
-    $output_cached = [];
-    $code_cached = 0;
-    exec(". /nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh && nix flake metadata nixpkgs --json 2>/dev/null", $output_cached, $code_cached);
+    $meta_dir = '/boot/config/plugins/nix/metadata';
+    $uris_to_check = ['nixpkgs']; // Always check core nixpkgs
     
-    $output_refresh = [];
-    $code_refresh = 0;
-    exec(". /nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh && nix flake metadata nixpkgs --refresh --json 2>/dev/null", $output_refresh, $code_refresh);
-    
-    if ($code_cached !== 0 || $code_refresh !== 0) {
-        error("Failed to query Nix flake metadata.");
+    if (is_dir($meta_dir)) {
+        $meta_files = glob("$meta_dir/*.json");
+        if ($meta_files !== false) {
+            foreach ($meta_files as $f) {
+                $content = file_get_contents($f);
+                if ($content) {
+                    $meta = json_decode($content, true);
+                    if (isset($meta['uri']) && !empty($meta['uri'])) {
+                        $uri = $meta['uri'];
+                        $source = $uri;
+                        if (strpos($uri, '#') !== false) {
+                            $parts = explode('#', $uri);
+                            $source = $parts[0];
+                        }
+                        if (!in_array($source, $uris_to_check)) {
+                            $uris_to_check[] = $source;
+                        }
+                    }
+                }
+            }
+        }
     }
     
-    $cached_data = json_decode(implode("\n", $output_cached), true);
-    $refresh_data = json_decode(implode("\n", $output_refresh), true);
+    $update_available = false;
+    $checked_sources = [];
     
-    if (!$cached_data || !$refresh_data) {
-        error("Failed to decode flake metadata JSON.");
+    foreach ($uris_to_check as $source) {
+        if (preg_match('/[^a-zA-Z0-9:\/\-_#\.\+@]/', $source)) {
+            continue;
+        }
+        
+        $output_cached = [];
+        $code_cached = 0;
+        exec(". /nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh && nix flake metadata " . escapeshellarg($source) . " --json 2>/dev/null", $output_cached, $code_cached);
+        
+        $output_refresh = [];
+        $code_refresh = 0;
+        exec(". /nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh && nix flake metadata " . escapeshellarg($source) . " --refresh --json 2>/dev/null", $output_refresh, $code_refresh);
+        
+        if ($code_cached === 0 && $code_refresh === 0) {
+            $cached_data = json_decode(implode("\n", $output_cached), true);
+            $refresh_data = json_decode(implode("\n", $output_refresh), true);
+            
+            if ($cached_data && $refresh_data) {
+                $cached_rev = isset($cached_data['locked']['rev']) ? $cached_data['locked']['rev'] : (isset($cached_data['revision']) ? $cached_data['revision'] : '');
+                $latest_rev = isset($refresh_data['locked']['rev']) ? $refresh_data['locked']['rev'] : (isset($refresh_data['revision']) ? $refresh_data['revision'] : '');
+                
+                if (!empty($cached_rev) && !empty($latest_rev)) {
+                    $checked_sources[$source] = [
+                        'cached_rev' => substr($cached_rev, 0, 7),
+                        'latest_rev' => substr($latest_rev, 0, 7),
+                        'update_available' => ($cached_rev !== $latest_rev)
+                    ];
+                    if ($cached_rev !== $latest_rev) {
+                        $update_available = true;
+                    }
+                }
+            }
+        }
     }
-    
-    $cached_rev = isset($cached_data['locked']['rev']) ? $cached_data['locked']['rev'] : '';
-    $latest_rev = isset($refresh_data['locked']['rev']) ? $refresh_data['locked']['rev'] : '';
-    
-    $update_available = ($cached_rev !== $latest_rev && !empty($cached_rev) && !empty($latest_rev));
     
     echo json_encode([
         'success' => true,
         'update_available' => $update_available,
-        'cached_rev' => substr($cached_rev, 0, 7),
-        'latest_rev' => substr($latest_rev, 0, 7),
-        'channel_url' => isset($refresh_data['resolvedUrl']) ? $refresh_data['resolvedUrl'] : 'nixpkgs'
+        'sources' => $checked_sources
     ]);
     exit;
 }
