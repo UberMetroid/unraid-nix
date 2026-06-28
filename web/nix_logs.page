@@ -118,7 +118,10 @@ function loadLogs(isAutoRefresh) {
         refreshBtn.prop('disabled', true).html('<i class="fa fa-spinner fa-spin"></i> Loading...');
     }
 
-    var checkServices = (!isAutoRefresh || (logPollCounter++ % 6 === 0)) ? '1' : '0';
+    var checkServices = (!isAutoRefresh || (logPollCounter % 6 === 0)) ? '1' : '0';
+    if (isAutoRefresh) {
+        logPollCounter++;
+    }
     $.get('/plugins/nix/api.php?action=nix-sys-logs&type=' + type + '&lines=1000&check_services=' + checkServices, function(resp) {
         if (resp.success) {
             var rawText = resp.content;
@@ -185,7 +188,7 @@ function loadLogs(isAutoRefresh) {
             }
 
             // Dynamically sync service log dropdown options
-            if (resp.service_logs) {
+            if (resp && Array.isArray(resp.service_logs)) {
                 var select = $('#nix-log-select');
                 var servicesGroup = select.find('optgroup[label="Nix Services"]');
                 

@@ -34,7 +34,11 @@ pub fn install_service(args: &crate::cli::args::InstallServiceArgs) {
     if let Some(pos) = name.rfind('/') { name = name[pos + 1..].to_string(); }
     if let Some(pos) = name.rfind(':') { name = name[pos + 1..].to_string(); }
     if let Some(pos) = name.rfind('#') { name = name[pos + 1..].to_string(); }
-    name = name.chars().filter(|c| c.is_alphanumeric() || *c == '_' || *c == '-' || *c == '.').collect();
+    
+    if !crate::store::is_valid_service_name(&name) {
+        eprintln!("Error: Derived service name '{}' is invalid.", name);
+        exit(1);
+    }
 
     setup::verify_port_conflicts(&name, &port);
 

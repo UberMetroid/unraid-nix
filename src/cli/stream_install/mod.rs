@@ -1,6 +1,6 @@
 pub mod tail;
 
-use std::process::{Command, Stdio};
+use std::process::{Command, Stdio, exit};
 use std::thread::sleep;
 use std::time::Duration;
 
@@ -156,7 +156,12 @@ fn parse_service_name(uri: &str) -> String {
     if let Some(last) = svc.split('/').last() { svc = last.to_string(); }
     if let Some(last) = svc.split(':').last() { svc = last.to_string(); }
     if let Some(last) = svc.split('#').last() { svc = last.to_string(); }
-    svc.chars().filter(|c| c.is_alphanumeric() || *c == '_' || *c == '-' || *c == '.').collect()
+    
+    if !crate::store::is_valid_service_name(&svc) {
+        eprintln!("Error: Derived service name '{}' is invalid.", svc);
+        exit(1);
+    }
+    svc
 }
 
 fn print_step_script(step: u32, status: &str, text: &str, badge: &str) {
