@@ -36,7 +36,7 @@ pub fn install_service(args: &crate::cli::args::InstallServiceArgs) {
     if let Some(pos) = name.rfind('#') { name = name[pos + 1..].to_string(); }
 
     if !crate::store::is_valid_service_name(&name) {
-        eprintln!("Error: Derived service name '{name}' is invalid.");
+        crate::store::log_event("ERROR", &format!("Derived service name '{name}' from uri '{uri}' is invalid"));
         exit(1);
     }
 
@@ -72,7 +72,10 @@ pub fn install_service(args: &crate::cli::args::InstallServiceArgs) {
             enable_network_isolation: network_isolation,
         }) {
             Ok(c) => c,
-            Err(e) => { eprintln!("Error building sandbox command: {e}"); exit(1); }
+            Err(e) => {
+                crate::store::log_event("ERROR", &format!("install-service: failed to build bubblewrap sandbox for '{name}' (override): {e}"));
+                exit(1);
+            }
         }
     } else if has_preset {
         match config::get_service_command_preset(
@@ -88,7 +91,10 @@ pub fn install_service(args: &crate::cli::args::InstallServiceArgs) {
             bind_address.clone()
         ) {
             Ok(c) => c,
-            Err(e) => { eprintln!("Error resolving preset: {e}"); exit(1); }
+            Err(e) => {
+                crate::store::log_event("ERROR", &format!("install-service: failed to resolve preset for '{name}': {e}"));
+                exit(1);
+            }
         }
     } else {
         match sandbox::build_bwrap_command(&sandbox::SandboxConfig {
@@ -107,7 +113,10 @@ pub fn install_service(args: &crate::cli::args::InstallServiceArgs) {
             enable_network_isolation: network_isolation,
         }) {
             Ok(c) => c,
-            Err(e) => { eprintln!("Error building sandbox command: {e}"); exit(1); }
+            Err(e) => {
+                crate::store::log_event("ERROR", &format!("install-service: failed to build bubblewrap sandbox for '{name}': {e}"));
+                exit(1);
+            }
         }
     };
 

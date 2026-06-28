@@ -60,3 +60,29 @@ pub fn get_service_ports(name: &str) -> Vec<crate::sandbox::PortMapping> {
 
     ports
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_get_service_ports_invalid_name_returns_empty() {
+        // Invalid service names must short-circuit before any I/O so we
+        // don't try to read a malformed path or panic on validation.
+        assert!(get_service_ports("../bad").is_empty());
+        assert!(get_service_ports("").is_empty());
+        assert!(get_service_ports(".dot").is_empty());
+    }
+
+    #[test]
+    fn test_get_service_ports_falls_back_to_known_defaults() {
+        // For a name that matches one of the well-known defaults and has
+        // no metadata file or preset file in the test environment, we get
+        // back the canonical default mapping.
+        let sonarr = get_service_ports("sonarr");
+        assert_eq!(sonarr, vec![crate::sandbox::PortMapping { host: 8989, container: 8989 }]);
+
+        let radarr = get_service_ports("radarr");
+        assert_eq!(radarr, vec![crate::sandbox::PortMapping { host: 7878, container: 7878 }]);
+    }
+}

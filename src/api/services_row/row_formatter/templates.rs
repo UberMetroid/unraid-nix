@@ -89,3 +89,57 @@ pub fn build_row_html(d: &RowTemplateData) -> String {
         name_html, d.bg, d.border, d.color, icon_html, name_html, name_html, name_html, d.version_badge, d.time_html, d.status_class, name_html, d.status_label, d.resources_html, d.lan_ip_port_html, d.mapped_drives_html, d.ports_html, d.rollback_html, d.start_btn, d.stop_btn, d.edit_btn, d.logs_btn, d.autostart_html, name_js
     )
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    fn make_data() -> RowTemplateData<'static> {
+        RowTemplateData {
+            name: "my-service",
+            bg: "#000", border: "#111", color: "#fff", icon: "fa-server",
+            version_badge: "v1.0", time_html: "",
+            status_class: "status-running", status_label: "RUNNING",
+            resources_html: "", lan_ip_port_html: "",
+            mapped_drives_html: "", ports_html: "",
+            rollback_html: "", start_btn: "", stop_btn: "",
+            edit_btn: "", logs_btn: "", autostart_html: "",
+        }
+    }
+
+    #[test]
+    fn test_build_row_html_contains_name_and_status() {
+        let html = build_row_html(&make_data());
+        assert!(html.contains("my-service"));
+        assert!(html.contains("RUNNING"));
+        assert!(html.contains("status-running"));
+        assert!(html.contains("data-name=\"my-service\""));
+    }
+
+    #[test]
+    fn test_build_row_html_escapes_html_in_name() {
+        let mut data = make_data();
+        data.name = "<script>alert(1)</script>";
+        let html = build_row_html(&data);
+        assert!(!html.contains("<script>alert(1)</script>"),
+            "raw script tag must not appear unescaped");
+        assert!(html.contains("&lt;script&gt;"));
+    }
+
+    #[test]
+    fn test_build_row_html_escapes_js_context_in_remove_handler() {
+        let mut data = make_data();
+        data.name = "svc'; alert(1); //";
+        let html = build_row_html(&data);
+        // The apostrophe must be HTML-escaped so the onclick='...'
+        // string can't be broken out of by closing the quote early.
+        // The escape chain runs js_escape first (replacing `'` with `\'`)
+        // and then html_escape, which turns `'` into `&#x27;`.
+        assert!(
+            html.contains("&#x27;"),
+            "apostrophe must be html-escaped to &#x27; so the onclick handler stays well-formed"
+        );
+        // The injected `alert(1)` is now safely inside the string literal.
+        assert!(html.contains("alert(1)"));
+    }
+}

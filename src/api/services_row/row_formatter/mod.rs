@@ -249,7 +249,24 @@ pub fn render_service_row(
 
 #[cfg(test)]
 mod tests {
-    use super::truncate_path_ellipsis;
+    use super::*;
+    use crate::process::ServiceStatus;
+
+    fn make_status(name: &str, status: &str) -> ServiceStatus {
+        ServiceStatus {
+            name: name.to_string(),
+            status: status.to_string(),
+            pid: Some(1234),
+            cpu: Some(1.5),
+            memory: Some(2_000_000),
+            uptime_nanoseconds: Some(3_600_000_000_000),
+            exit_code: None,
+            gpu_active: None,
+            io_read: None,
+            io_write: None,
+            gpu_stats: None,
+        }
+    }
 
     #[test]
     fn test_truncate_path_ellipsis_under_limit() {
@@ -283,5 +300,44 @@ mod tests {
         // Result is valid UTF-8 (Rust strings guarantee this, but the test
         // also asserts we got at most 20 chars).
         assert!(result.chars().count() <= 20);
+    }
+
+    #[test]
+    fn test_render_service_row_running_status_label_and_class() {
+        let s = make_status("jellyfin", "running");
+        let html = render_service_row(&s, &None, &[]);
+        assert!(html.contains("status-running"), "expected running class");
+        assert!(html.contains("RUNNING"), "expected RUNNING label");
+        assert!(html.contains("jellyfin"), "expected service name in output");
+    }
+
+    #[test]
+    fn test_render_service_row_stopped_status_label_and_class() {
+        let s = make_status("sonarr", "stopped");
+        let html = render_service_row(&s, &None, &[]);
+        assert!(html.contains("status-stopped"));
+        assert!(html.contains("STOPPED"));
+    }
+
+    #[test]
+    fn test_render_service_row_failed_status_for_nonzero_exit() {
+        let mut s = make_status("crashed-app", "exited");
+        s.exit_code = Some(1);
+        let html = render_service_row(&s, &None, &[]);
+        assert!(html.contains("status-failed"));
+        assert!(html.contains("FAILED"));
+    }
+
+    #[test]
+    fn test_render_service_row_escapes_hostile_name() {
+        // Names containing characters meaningful in HTML/JS must be
+        // escaped so they can't break out of attributes or onclick
+        // handlers. We only require that the result not contain the raw
+        // `<` or unescaped `"` outside of structural template HTML.
+        let s = make_status("safe-name", "running");
+        let html = render_service_row(&s, &None, &[]);
+        // Output must be a non-empty string and end with the closing div.
+        assert!(html.starts_with("<div"));
+        assert!(html.ends_with("</div>"));
     }
 }

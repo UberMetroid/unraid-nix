@@ -1,5 +1,6 @@
 pub mod tail;
 
+use crate::util::process::{run_with_timeout, run_with_timeout_status};
 use std::process::{Command, Stdio, exit};
 use std::thread::sleep;
 use std::time::Duration;
@@ -61,12 +62,14 @@ pub fn stream_install(args: &crate::cli::args::StreamInstallArgs) {
         }
     }
 
-    let status = Command::new("/usr/local/emhttp/plugins/nix/nix-helper")
-        .args(&cmd_args)
-        .env("NIX_REMOTE", "daemon")
-        .stdout(Stdio::inherit())
-        .stderr(Stdio::inherit())
-        .status();
+    let status = {
+        let mut cmd = Command::new("/usr/local/emhttp/plugins/nix/nix-helper");
+        cmd.args(&cmd_args)
+            .env("NIX_REMOTE", "daemon")
+            .stdout(Stdio::inherit())
+            .stderr(Stdio::inherit());
+        run_with_timeout_status(&mut cmd, Duration::from_secs(5))
+    };
 
     let mut code = match status {
         Ok(s) => s.code().unwrap_or(-1),
@@ -152,7 +155,7 @@ fn parse_service_name(uri: &str) -> String {
     if let Some(last) = svc.split('#').next_back() { svc = last.to_string(); }
 
     if !crate::store::is_valid_service_name(&svc) {
-        eprintln!("Error: Derived service name '{svc}' is invalid.");
+        crate::store::log_event("ERROR", &format!("Derived service name '{svc}' is invalid (uri='{uri}')"));
         exit(1);
     }
     svc
@@ -169,12 +172,53 @@ fn print_step_script(step: u32, status: &str, text: &str, badge: &str) {
 }
 
 fn get_report_html(svc: &str) -> String {
-    let output = Command::new("/usr/local/emhttp/plugins/nix/nix-helper")
-        .args(["render", "report", svc])
-        .stdin(Stdio::null())
-        .output();
+    let output = {
+        let mut cmd = Command::new("/usr/local/emhttp/plugins/nix/nix-helper");
+        cmd.args(["render", "report", svc]).stdin(Stdio::null());
+        run_with_timeout(&mut cmd, Duration::from_secs(5))
+    };
     match output {
         Ok(out) => String::from_utf8_lossy(&out.stdout).to_string(),
         Err(_) => String::new(),
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::parse_service_name;
+
+    #[test]
+    fn test_parse_service_name_strips_nixpkgs_prefix() {
+        // The most common case: a flake-style URI.
+        assert_eq!(parse_service_name("nixpkgs#jellyfin"), "jellyfin");
+    }
+
+    #[test]
+    fn test_parse_service_name_takes_last_path_segment() {
+        // After splitting on `/`, `:`, and `#`, the last meaningful segment
+        // is the service name. `github:owner/repo/jellyfin` should yield
+        // `jellyfin` (not `repo` or `owner`).
+        assert_eq!(parse_service_name("github:owner/repo/jellyfin"), "jellyfin");
+    }
+
+    #[test]
+    fn test_parse_service_name_lowercases_input() {
+        // Input is normalized to lowercase so the supervisor doesn't end
+        // up with case-sensitive mismatches against the on-disk config.
+        assert_eq!(parse_service_name("nixpkgs#JellyFin"), "jellyfin");
+    }
+
+    #[test]
+    fn test_parse_service_name_handles_hash_at_end() {
+        // A trailing `#` should be stripped along with whatever came
+        // before it.
+        assert_eq!(parse_service_name("nixpkgs#jellyfin#latest"), "latest");
+    }
+
+    #[test]
+    fn test_parse_service_name_handles_colon_separator() {
+        // The function splits on `:` after splitting on `/`, so a
+        // `github:NixOS/nixpkgs` style URI yields `nixpkgs`.
+        assert_eq!(parse_service_name("github:NixOS/nixpkgs"), "nixpkgs");
     }
 }

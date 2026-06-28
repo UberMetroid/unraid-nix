@@ -4,7 +4,7 @@ use std::process::{exit, Command};
 
 pub fn view_logs(service: &str) {
     if !crate::store::is_valid_service_name(service) {
-        eprintln!("Error: Invalid service name.");
+        crate::store::log_event("ERROR", &format!("Invalid service name '{service}' for view-logs"));
         exit(1);
     }
     let log_file = format!("/var/log/nix-services/{}.log", service);
@@ -82,7 +82,7 @@ fn run_tail(file: &str, lines: usize) -> Result<String, String> {
     let output = Command::new("tail")
         .args(["-n", &lines.to_string(), file])
         .output()
-        .map_err(|e| e.to_string())?;
+        .map_err(|e| format!("failed to invoke tail on {file}: {e}"))?;
     if output.status.success() {
         Ok(String::from_utf8_lossy(&output.stdout).to_string())
     } else {

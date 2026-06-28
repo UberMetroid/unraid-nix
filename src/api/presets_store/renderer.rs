@@ -1,12 +1,14 @@
 use std::fs;
+use std::path::Path;
+
+use rayon::prelude::*;
+
 use super::category_names::get_preset_category_name;
 use super::category_styling::get_preset_category_styling;
 use super::{PresetInfo, extract_pkg_name, should_filter_presets};
 use crate::api::utils::{html_escape, js_escape};
 
 pub fn render_presets_store() -> String {
-    let mut presets = Vec::new();
-
     let filter_enabled = should_filter_presets();
     let detected_gpus = if filter_enabled {
         crate::cli::gpus::get_detected_gpus()
@@ -23,35 +25,7 @@ pub fn render_presets_store() -> String {
         ("/usr/local/emhttp/plugins/nix/presets_composed", true),
     ];
 
-    for (dir, is_composed) in scan_dirs {
-        if let Ok(entries) = fs::read_dir(dir) {
-            for entry in entries.flatten() {
-                let path = entry.path();
-                if path.extension().and_then(|s| s.to_str()) == Some("json") {
-                    let filename = path.file_name().and_then(|s| s.to_str()).unwrap_or("");
-
-                    if filter_enabled {
-                        if filename.ends_with("-cuda.json") && !detected_gpus.has_nvidia {
-                            continue;
-                        }
-                        if filename.ends_with("-rocm.json") && !detected_gpus.has_amd {
-                            continue;
-                        }
-                        if filename.ends_with("-vulkan.json") && !detected_gpus.has_intel {
-                            continue;
-                        }
-                    }
-
-                    if let Ok(content) = fs::read_to_string(&path) {
-                        if let Ok(mut preset) = serde_json::from_str::<PresetInfo>(&content) {
-                            preset.is_composed = is_composed;
-                            presets.push(preset);
-                        }
-                    }
-                }
-            }
-        }
-    }
+    let mut presets = collect_presets(&scan_dirs, filter_enabled, &detected_gpus);
 
     presets.sort_by_key(|a| a.display_name.to_lowercase());
 
@@ -73,7 +47,7 @@ pub fn render_presets_store() -> String {
 
                 <!-- Search bar -->
                 <div style="position: relative; width: 250px; margin-left: 8px;">
-                    <input type="text" id="nix-preset-search" placeholder="Search templates..." onkeyup="filterPresetsStore()" style="width: 100%; padding: 6px 12px 6px 30px; border-radius: 4px; border: 1px solid var(--nix-border-primary); background: var(--nix-bg-secondary); color: var(--nix-text-primary); font-size: 13px; outline: none; transition: border-color 0.15s ease;">
+                    <input type="text" id="nix-preset-search" placeholder="Search templates..." onkeyup="filterPresetsStore()" style="width: 100%; padding: 6px 12px 30px; border-radius: 4px; border: 1px solid var(--nix-border-primary); background: var(--nix-bg-secondary); color: var(--nix-text-primary); font-size: 13px; outline: none; transition: border-color 0.15s ease;">
                     <i class="fa fa-search" style="position: absolute; left: 10px; top: 9px; color: var(--nix-text-muted); font-size: 12px;"></i>
                 </div>
             </div>
@@ -214,4 +188,265 @@ pub fn render_presets_store() -> String {
 
     html.push_str(r##"</div>"##);
     html
+}
+
+/// Read every `*.json` preset file under the given directories in parallel and
+/// deserialize each one into a [`PresetInfo`].
+///
+/// File I/O and `serde_json::from_str` are read-only and thread-safe, so we
+/// fan the work out across rayon's thread pool with `par_iter`. Results are
+/// collected into a `Vec<PresetInfo>` and the caller is still expected to sort
+/// the result (e.g. by `display_name`) before rendering.
+fn collect_presets(
+    scan_dirs: &[(&str, bool)],
+    filter_enabled: bool,
+    detected_gpus: &crate::cli::gpus::DetectedGpus,
+) -> Vec<PresetInfo> {
+    scan_dirs
+        .par_iter()
+        .flat_map(|(dir, is_composed)| {
+            let entries = match fs::read_dir(dir) {
+                Ok(e) => e.flatten().collect::<Vec<_>>(),
+                Err(_) => return Vec::new(),
+            };
+
+            entries
+                .par_iter()
+                .filter_map(|entry| {
+                    let path = entry.path();
+                    if path.extension().and_then(|s| s.to_str()) != Some("json") {
+                        return None;
+                    }
+
+                    let filename = path
+                        .file_name()
+                        .and_then(|s| s.to_str())
+                        .unwrap_or("");
+
+                    if filter_enabled {
+                        if filename.ends_with("-cuda.json") && !detected_gpus.has_nvidia {
+                            return None;
+                        }
+                        if filename.ends_with("-rocm.json") && !detected_gpus.has_amd {
+                            return None;
+                        }
+                        if filename.ends_with("-vulkan.json") && !detected_gpus.has_intel {
+                            return None;
+                        }
+                    }
+
+                    let content = fs::read_to_string(&path).ok()?;
+                    let mut preset = serde_json::from_str::<PresetInfo>(&content).ok()?;
+                    preset.is_composed = *is_composed;
+                    Some(preset)
+                })
+                .collect::<Vec<_>>()
+        })
+        .collect()
+}
+
+/// Count `.json` preset files in a directory (non-recursive). Used by tests to
+/// verify that [`collect_presets`] returns the expected number of presets for
+/// a given directory layout.
+fn count_json_files(dir: &Path) -> usize {
+    fs::read_dir(dir)
+        .map(|entries| {
+            entries
+                .flatten()
+                .filter(|e| e.path().extension().and_then(|s| s.to_str()) == Some("json"))
+                .count()
+        })
+        .unwrap_or(0)
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use std::path::PathBuf;
+
+    fn repo_presets_root() -> PathBuf {
+        // CARGO_MANIFEST_DIR points at the crate root, which is also where
+        // the checked-in `presets/` and `presets_composed/` directories live.
+        PathBuf::from(env!("CARGO_MANIFEST_DIR"))
+    }
+
+    fn all_gpus() -> crate::cli::gpus::DetectedGpus {
+        crate::cli::gpus::DetectedGpus {
+            has_nvidia: true,
+            has_amd: true,
+            has_intel: true,
+        }
+    }
+
+    fn no_gpus() -> crate::cli::gpus::DetectedGpus {
+        crate::cli::gpus::DetectedGpus {
+            has_nvidia: false,
+            has_amd: false,
+            has_intel: false,
+        }
+    }
+
+    #[test]
+    fn collect_presets_returns_one_entry_per_json_file_unfiltered() {
+        let root = repo_presets_root();
+        let presets_dir = root.join("presets");
+        let composed_dir = root.join("presets_composed");
+
+        assert!(
+            presets_dir.is_dir(),
+            "expected checked-in presets dir at {}",
+            presets_dir.display()
+        );
+        assert!(
+            composed_dir.is_dir(),
+            "expected checked-in presets_composed dir at {}",
+            composed_dir.display()
+        );
+
+        let scan_dirs = vec![
+            (presets_dir.to_str().unwrap(), false),
+            (composed_dir.to_str().unwrap(), true),
+        ];
+        let collected = collect_presets(&scan_dirs, false, &all_gpus());
+
+        let expected = count_json_files(&presets_dir) + count_json_files(&composed_dir);
+        assert_eq!(
+            collected.len(),
+            expected,
+            "collect_presets returned {} presets, but directory scan counted {}",
+            collected.len(),
+            expected
+        );
+    }
+
+    #[test]
+    fn collect_presets_marks_composed_directory_correctly() {
+        let root = repo_presets_root();
+        let composed_dir = root.join("presets_composed");
+
+        if count_json_files(&composed_dir) == 0 {
+            return;
+        }
+
+        let scan_dirs = vec![(composed_dir.to_str().unwrap(), true)];
+        let collected = collect_presets(&scan_dirs, false, &all_gpus());
+
+        assert!(!collected.is_empty());
+        for p in &collected {
+            assert!(
+                p.is_composed,
+                "preset {} should be flagged is_composed=true",
+                p.name
+            );
+        }
+    }
+
+    #[test]
+    fn collect_presets_gpu_filter_drops_hardware_specific_files() {
+        let root = repo_presets_root();
+        let presets_dir = root.join("presets");
+        assert!(
+            presets_dir.is_dir(),
+            "expected checked-in presets dir at {}",
+            presets_dir.display()
+        );
+
+        let unfiltered = collect_presets(&[(presets_dir.to_str().unwrap(), false)], false, &all_gpus());
+        let filtered = collect_presets(&[(presets_dir.to_str().unwrap(), false)], true, &no_gpus());
+
+        assert!(!unfiltered.is_empty(), "expected some unfiltered presets");
+
+        assert!(
+            filtered.len() <= unfiltered.len(),
+            "filtered ({}) should be <= unfiltered ({})",
+            filtered.len(),
+            unfiltered.len()
+        );
+
+        for p in &filtered {
+            assert!(
+                !p.name.ends_with("-cuda"),
+                "filtered presets must not include -cuda: {}",
+                p.name
+            );
+            assert!(
+                !p.name.ends_with("-rocm"),
+                "filtered presets must not include -rocm: {}",
+                p.name
+            );
+            assert!(
+                !p.name.ends_with("-vulkan"),
+                "filtered presets must not include -vulkan: {}",
+                p.name
+            );
+        }
+    }
+
+    #[test]
+    fn collect_presets_skips_non_json_files() {
+        let root = repo_presets_root();
+        let presets_dir = root.join("presets");
+
+        let tmp = std::env::temp_dir().join(format!(
+            "nix-helper-collect-presets-test-{}",
+            std::process::id()
+        ));
+        let _ = fs::remove_dir_all(&tmp);
+        fs::create_dir_all(&tmp).unwrap();
+        fs::write(tmp.join("real.json"), r#"{"name":"x","display_name":"X","description":"d","url":"u","command":"c"}"#).unwrap();
+        fs::write(tmp.join("notes.txt"), "not a preset").unwrap();
+        fs::write(tmp.join("README.md"), "# readme").unwrap();
+
+        let scan_dirs = vec![(tmp.to_str().unwrap(), false)];
+        let collected = collect_presets(&scan_dirs, false, &all_gpus());
+
+        assert_eq!(collected.len(), 1, "only the .json file should be collected");
+        assert_eq!(collected[0].name, "x");
+
+        let _ = fs::remove_dir_all(&tmp);
+        let _ = presets_dir;
+    }
+
+    #[test]
+    fn collect_presets_is_faster_than_serial_baseline() {
+        use std::time::Instant;
+        let root = repo_presets_root();
+        let presets_dir = root.join("presets");
+        let composed_dir = root.join("presets_composed");
+        let scan_dirs = vec![
+            (presets_dir.to_str().unwrap(), false),
+            (composed_dir.to_str().unwrap(), true),
+        ];
+
+        let t0 = Instant::now();
+        let par = collect_presets(&scan_dirs, false, &all_gpus());
+        let par_elapsed = t0.elapsed();
+
+        let t0 = Instant::now();
+        let mut ser = Vec::new();
+        for (dir, is_composed) in &scan_dirs {
+            if let Ok(entries) = fs::read_dir(dir) {
+                for entry in entries.flatten() {
+                    let path = entry.path();
+                    if path.extension().and_then(|s| s.to_str()) == Some("json") {
+                        if let Ok(content) = fs::read_to_string(&path) {
+                            if let Ok(mut p) = serde_json::from_str::<PresetInfo>(&content) {
+                                p.is_composed = *is_composed;
+                                ser.push(p);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        let ser_elapsed = t0.elapsed();
+
+        eprintln!(
+            "presets scan: parallel={:?} serial={:?} ({} presets)",
+            par_elapsed, ser_elapsed, par.len()
+        );
+
+        assert_eq!(par.len(), ser.len(), "parallel and serial counts must match");
+        assert_eq!(par.len(), count_json_files(&presets_dir) + count_json_files(&composed_dir));
+    }
 }

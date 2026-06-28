@@ -97,3 +97,79 @@ pub fn get_preset_category_name(name: &str) -> &'static str {
         "default"
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_category_ai_for_known_ai_services() {
+        assert_eq!(get_preset_category_name("ollama"), "ai");
+        assert_eq!(get_preset_category_name("open-webui"), "ai");
+        assert_eq!(get_preset_category_name("comfyui"), "ai");
+        assert_eq!(get_preset_category_name("stable-diffusion-webui"), "ai");
+    }
+
+    #[test]
+    fn test_category_media_for_jellyfin_plex_etc() {
+        assert_eq!(get_preset_category_name("jellyfin"), "media");
+        assert_eq!(get_preset_category_name("plex"), "media");
+        assert_eq!(get_preset_category_name("navidrome"), "media");
+        assert_eq!(get_preset_category_name("audiobookshelf"), "media");
+    }
+
+    #[test]
+    fn test_category_arr_for_servarr_family() {
+        assert_eq!(get_preset_category_name("sonarr"), "arr");
+        assert_eq!(get_preset_category_name("radarr"), "arr");
+        assert_eq!(get_preset_category_name("prowlarr"), "arr");
+        assert_eq!(get_preset_category_name("bazarr"), "arr");
+    }
+
+    #[test]
+    fn test_category_dashboard_for_homarr_heimdall_etc() {
+        assert_eq!(get_preset_category_name("homarr"), "dashboard");
+        assert_eq!(get_preset_category_name("homepage"), "dashboard");
+        assert_eq!(get_preset_category_name("organizr"), "dashboard");
+    }
+
+    #[test]
+    fn test_category_database_for_postgres_mysql_etc() {
+        assert_eq!(get_preset_category_name("postgres"), "database");
+        assert_eq!(get_preset_category_name("mariadb"), "database");
+        assert_eq!(get_preset_category_name("redis"), "database");
+        assert_eq!(get_preset_category_name("grafana"), "database");
+    }
+
+    #[test]
+    fn test_category_vpn_for_tailscale_wireguard_etc() {
+        assert_eq!(get_preset_category_name("tailscale"), "vpn");
+        assert_eq!(get_preset_category_name("wireguard"), "vpn");
+        assert_eq!(get_preset_category_name("openvpn"), "vpn");
+    }
+
+    #[test]
+    fn test_category_default_for_unknown_name() {
+        assert_eq!(get_preset_category_name("totally-unknown-app"), "default");
+        assert_eq!(get_preset_category_name(""), "default");
+    }
+
+    #[test]
+    fn test_category_matching_is_case_insensitive() {
+        // The function lowercases internally so mixed-case names must
+        // resolve to the same category.
+        assert_eq!(get_preset_category_name("Jellyfin"), "media");
+        assert_eq!(get_preset_category_name("Sonarr"), "arr");
+        assert_eq!(get_preset_category_name("Postgres"), "database");
+        assert_eq!(get_preset_category_name("Tailscale"), "vpn");
+    }
+
+    #[test]
+    fn test_category_substring_match() {
+        // Substring matches should fire on names that contain the
+        // category keyword as part of a longer name.
+        assert_eq!(get_preset_category_name("my-jellyfin-fork"), "media");
+        assert_eq!(get_preset_category_name("super-radarr-plus"), "arr");
+        assert_eq!(get_preset_category_name("nginx-proxy-manager"), "proxy");
+    }
+}

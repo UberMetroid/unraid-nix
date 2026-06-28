@@ -6,6 +6,7 @@
 use std::env;
 
 mod api;
+mod args;
 mod config;
 mod process;
 mod sandbox;
@@ -13,6 +14,7 @@ mod store;
 mod search;
 mod cli;
 mod unraid;
+mod util;
 
 fn main() {
     let args: Vec<String> = env::args().collect();

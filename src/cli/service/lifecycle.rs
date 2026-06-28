@@ -1,8 +1,6 @@
 use crate::process;
-use crate::search;
-use crate::sandbox;
 use crate::config;
-use crate::unraid::{METADATA_DIR, PROCESS_COMPOSE_CONFIG, SUPERVISOR_PORT};
+use crate::unraid::PROCESS_COMPOSE_CONFIG;
 use std::process::{exit, Command};
 
 const SCRIPT_RELOAD_SUPERVISOR: &str = "/usr/local/emhttp/plugins/nix/scripts/reload-supervisor.sh";
@@ -12,7 +10,7 @@ pub fn service_action(action: &str, name: &str) {
         crate::store::log_event("ERROR", &format!("Invalid service name '{name}' for action '{action}'"));
         exit(1);
     }
-    if let Err(e) = process::send_service_action(SUPERVISOR_PORT, name, action) {
+    if let Err(e) = process::send_service_action(crate::unraid::SUPERVISOR_PORT, name, action) {
         crate::store::log_event("ERROR", &format!("Service action '{action}' failed for '{name}': {e}"));
         exit(1);
     }
@@ -84,82 +82,14 @@ pub fn remove_service(name: &str) {
             exit(1);
         }
 
-        let _ = process::send_service_action(SUPERVISOR_PORT, name, "stop");
+        let _ = process::send_service_action(crate::unraid::SUPERVISOR_PORT, name, "stop");
         let _ = Command::new(SCRIPT_RELOAD_SUPERVISOR).status();
-        let _ = std::fs::remove_file(format!("{METADATA_DIR}/{name}.json"));
+        let _ = std::fs::remove_file(format!("{}/{name}.json", crate::unraid::METADATA_DIR));
         crate::store::log_event("INFO", &format!("Service '{name}' successfully removed."));
         println!("Service {name} successfully removed.");
     } else {
         crate::store::log_event("ERROR", &format!("Service '{name}' not found in process-compose configuration"));
         exit(1);
-    }
-}
-
-pub fn install(package: &str) {
-    if let Err(e) = search::install_package(package) {
-        crate::store::log_event("ERROR", &format!("CLI package installation failed for '{package}': {e}"));
-        exit(1);
-    }
-    crate::store::log_event("INFO", &format!("CLI package '{package}' successfully installed/added."));
-    println!("Successfully installed package: {package}");
-}
-
-pub fn sandbox_cmd(args: &crate::cli::args::SandboxArgs) {
-    let config = sandbox::SandboxConfig {
-        name: args.name.clone(),
-        appdata_path: args.appdata.clone(),
-        media_path: args.media.clone(),
-        puid: args.puid,
-        pgid: args.pgid,
-        enable_gpu: args.gpu,
-        gpus: args.gpus.clone(),
-        inner_command: args.cmd.clone(),
-        extra_binds: args.extra_binds.as_ref()
-            .and_then(|s| sandbox::parse_binds_string(s).ok())
-            .unwrap_or_default(),
-        port: args.port.clone(),
-        bind_address: args.bind_address.clone(),
-        host_init_commands: Vec::new(),
-        enable_network_isolation: args.network_isolation,
-    };
-    match sandbox::build_bwrap_command(&config) {
-        Ok(cmd) => println!("{cmd}"),
-        Err(e) => {
-            crate::store::log_event("ERROR", &format!("Failed to build bubblewrap sandbox command for '{}': {e}", config.name));
-            exit(1);
-        }
-    }
-}
-
-pub fn preset_cmd(
-    name: &str,
-    appdata: &str,
-    media: &str,
-    puid: u32,
-    pgid: u32,
-    gpu_str: &str,
-    extra_binds_str: Option<&str>,
-    port_str: Option<&str>,
-    bind_address_str: Option<&str>,
-) {
-    if !crate::store::is_valid_service_name(name) {
-        crate::store::log_event("ERROR", &format!("Invalid service name '{name}' for preset"));
-        exit(1);
-    }
-    let media_val = if media == "-" { "" } else { media };
-    let gpu = gpu_str == "1" || gpu_str == "true";
-    let extra_binds = extra_binds_str
-        .and_then(|s| if s != "-" && !s.is_empty() { sandbox::parse_binds_string(s).ok() } else { None })
-        .unwrap_or_default();
-    let port = port_str.and_then(|s| if s != "-" && !s.is_empty() { Some(s.to_string()) } else { None });
-    let bind_address = bind_address_str.and_then(|s| if s != "-" && !s.is_empty() { Some(s.to_string()) } else { None });
-
-    match config::get_service_command_preset(name, appdata, media_val, puid, pgid, gpu, None, extra_binds, port, bind_address) {
-        Ok(cmd) => println!("{cmd}"),
-        Err(e) => {
-            crate::store::log_event("ERROR", &format!("Failed to resolve preset command for '{name}': {e}"));
-            exit(1);
-        }
     }
 }
 

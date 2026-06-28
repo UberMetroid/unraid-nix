@@ -33,7 +33,7 @@ pub fn save_settings(args: &crate::cli::args::SaveSettingsArgs) {
     let clean_old_store_path = old_store_path.trim_end_matches('/').to_string();
 
     if let Err(e) = validate_settings(&clean_store_path, &default_appdata_path) {
-        eprintln!("Error: {e}");
+        crate::store::log_event("ERROR", &format!("save-settings validation failed: {e}"));
         std::process::exit(1);
     }
 
@@ -64,8 +64,8 @@ pub fn save_settings(args: &crate::cli::args::SaveSettingsArgs) {
     if !default_appdata_path.is_empty() {
         cfg_content.push_str(&format!("DEFAULT_APPDATA_PATH=\"{default_appdata_path}\"\n"));
     }
-    if std::fs::write(NIX_CFG_PATH, cfg_content).is_err() {
-        eprintln!("Failed to write nix.cfg to flash drive.");
+    if let Err(e) = std::fs::write(NIX_CFG_PATH, cfg_content) {
+        crate::store::log_event("ERROR", &format!("Failed to write nix.cfg to flash drive at {NIX_CFG_PATH}: {e}"));
         exit(1);
     }
 
@@ -105,7 +105,9 @@ pub fn save_settings(args: &crate::cli::args::SaveSettingsArgs) {
 }
 
 pub fn validate_settings(store_path: &str, default_appdata_path: &str) -> Result<(), String> {
-    crate::store::validate_store_path(store_path)?;
+    crate::store::validate_store_path(store_path).map_err(|e| {
+        format!("invalid store path '{store_path}': {e}")
+    })?;
     if !default_appdata_path.is_empty() && default_appdata_path.starts_with("/boot") {
         return Err("Default Appdata Path cannot be located on the boot flash drive (/boot).".to_string());
     }

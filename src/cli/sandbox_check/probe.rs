@@ -1,59 +1,19 @@
-//! Runtime probe of Nix's per-derivation build sandbox.
+//! Probe helpers for the Nix build-sandbox check command.
 //!
-//! Emits a JSON report describing whether the host can run
-//! `nix build <derivation>` with `sandbox = true` set. The probe is
-//! reports-only by default. The `--apply-fallback` flag is the only
-//! way the plugin modifies nix.cfg, and only after a real build probe
-//! has failed.
-//!
-//! Two layers:
-//! 1. Primitive check (fast, ~50ms): user-namespace support, mount
-//!    propagation on /nix, /etc/nix symlink state, NIX_BUILD_SANDBOX
-//!    current value.
-//! 2. Build probe (10s timeout): attempt to build nixpkgs#hello with
-//!    `sandbox = true` in a temporary nix.conf override. The
-//!    `NIX_CONFIG` env var is used to direct nix to the test config
-//!    without writing to the real /nix/etc/nix/nix.conf.
+//! Pure data-acquisition functions. The public `sandbox_check` function
+//! in `cli::sandbox_check` handles printing the report and the
+//! `--apply-fallback` side effect on nix.cfg.
 
 use serde_json::json;
 use std::os::unix::process::CommandExt;
 use std::process::Command;
 use std::time::{Duration, Instant};
+use crate::util::process::{run_with_timeout, run_with_timeout_status};
 
-const NIX_BIN: &str = "/nix/var/nix/profiles/default/bin/nix";
-const PROBE_TIMEOUT_SECS: u64 = 10;
+pub(crate) const NIX_BIN: &str = "/nix/var/nix/profiles/default/bin/nix";
+pub(crate) const PROBE_TIMEOUT_SECS: u64 = 10;
 
-pub fn sandbox_check(apply_fallback: bool) {
-    let report = run_probe();
-
-    // Reports-only by default. Print the JSON to stdout.
-    let pretty = serde_json::to_string_pretty(&report).unwrap_or_else(|_| "{}".to_string());
-    println!("{}", pretty);
-
-    let recommendation = report
-        .get("recommendation")
-        .and_then(|v| v.as_str())
-        .unwrap_or("unknown");
-
-    if recommendation != "ok" {
-        crate::store::log_event(
-            "INFO",
-            &format!(
-                "sandbox-check recommendation: {recommendation} (apply_fallback={apply_fallback})"
-            ),
-        );
-    }
-
-    if apply_fallback && (recommendation == "fall_back_to_false" || recommendation == "kernel_unsupported") {
-        if let Err(e) = write_fallback_to_nix_cfg() {
-            crate::store::log_event("ERROR", &format!("Could not write sandbox = false to nix.cfg: {e}"));
-            std::process::exit(1);
-        }
-        crate::store::log_event("INFO", "Wrote sandbox = false to /boot/config/plugins/nix/nix.cfg (audit trail above).");
-    }
-}
-
-fn run_probe() -> serde_json::Value {
+pub(crate) fn run_probe() -> serde_json::Value {
     let user_ns_ok = check_user_ns();
     let mount_propagation = check_mount_propagation();
     let nix_conf_sandbox = read_existing_nix_conf_sandbox();
@@ -83,18 +43,20 @@ fn run_probe() -> serde_json::Value {
     })
 }
 
+#[allow(unsafe_code)]
 fn check_user_ns() -> bool {
     // Spawn a process that creates a user namespace and immediately
     // exits. If the unshare call fails, the kernel does not support
-    // user namespaces for unprivileged users.
+    // user namespaces for unprivileged users. `.pre_exec` is unsafe by
+    // signature; we allow the lint at function scope.
     let result = unsafe {
-        Command::new("unshare")
-            .arg("--user")
+        let mut cmd = Command::new("unshare");
+        cmd.arg("--user")
             .arg("--map-root-user")
             .arg("--mount-proc")
             .arg("true")
-            .pre_exec(|| Ok(()))
-            .status()
+            .pre_exec(|| Ok(()));
+        run_with_timeout_status(&mut cmd, Duration::from_secs(5))
     };
     match result {
         Ok(s) => s.success(),
@@ -178,64 +140,32 @@ fn probe_build_sandbox() -> Result<(), String> {
         }
     };
 
-    let start = Instant::now();
-    let result = Command::new(NIX_BIN)
-        .arg("build")
-        .arg("--no-link")
-        .arg("--no-update-lock-file")
-        .arg("nixpkgs#hello")
-        .env("NIX_CONFIG", conf_str)
-        .stdout(std::process::Stdio::null())
-        .stderr(std::process::Stdio::piped())
-        .status();
+    let result = {
+        let mut cmd = Command::new(NIX_BIN);
+        cmd.arg("build")
+            .arg("--no-link")
+            .arg("--no-update-lock-file")
+            .arg("nixpkgs#hello")
+            .env("NIX_CONFIG", conf_str)
+            .stdout(std::process::Stdio::null())
+            .stderr(std::process::Stdio::piped());
+        run_with_timeout(&mut cmd, Duration::from_secs(PROBE_TIMEOUT_SECS))
+    };
     let _ = std::fs::remove_file(&tmp_conf);
-    let elapsed = start.elapsed();
-
-    if elapsed > Duration::from_secs(PROBE_TIMEOUT_SECS) {
-        return Err(format!(
-            "build probe exceeded {}s timeout",
-            PROBE_TIMEOUT_SECS
-        ));
-    }
 
     match result {
-        Ok(s) if s.success() => Ok(()),
-        Ok(s) => Err(format!(
+        Ok(out) if out.status.success() => Ok(()),
+        Ok(out) => Err(format!(
             "build probe failed with exit code {}",
-            s.code().map(|c| c.to_string()).unwrap_or_else(|| "?".to_string())
+            out.status
+                .code()
+                .map(|c| c.to_string())
+                .unwrap_or_else(|| "?".to_string())
+        )),
+        Err(e) if e.contains("timeout") => Err(format!(
+            "build probe exceeded {}s timeout",
+            PROBE_TIMEOUT_SECS
         )),
         Err(e) => Err(format!("could not invoke nix: {e}")),
     }
-}
-
-fn write_fallback_to_nix_cfg() -> Result<(), String> {
-    let path = "/boot/config/plugins/nix/nix.cfg";
-    let content = match std::fs::read_to_string(path) {
-        Ok(s) => s,
-        Err(e) => return Err(format!("could not read {path}: {e}")),
-    };
-    let mut new_content = String::new();
-    let mut replaced = false;
-    for line in content.lines() {
-        let trimmed = line.trim_start();
-        if trimmed.starts_with("sandbox") && trimmed.contains('=') {
-            // Preserve any inline comment after the value
-            let comment_start = trimmed.find('#').unwrap_or(trimmed.len());
-            new_content.push_str(&trimmed[..comment_start].trim_end());
-            new_content.push_str(" = false\n");
-            replaced = true;
-        } else {
-            new_content.push_str(line);
-            new_content.push('\n');
-        }
-    }
-    if !replaced {
-        new_content.push_str("\nsandbox = false\n");
-    }
-    std::fs::write(path, new_content).map_err(|e| {
-        let err_msg = format!("could not write {path}: {e}");
-        crate::store::log_event("ERROR", &err_msg);
-        err_msg
-    })?;
-    Ok(())
 }

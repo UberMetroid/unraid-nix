@@ -153,20 +153,24 @@ pub fn setup_nix_conf() -> Result<(), String> {
     // (circular symlink, "Too many levels of symbolic links").
     let legacy_cfg = std::path::Path::new("/etc/nix/nix.conf");
     let persistent_cfg = std::path::Path::new("/nix/etc/nix/nix.conf");
-    if legacy_cfg.is_file()
-        && persistent_cfg.exists()
-        && !std::path::Path::new("/etc/nix").is_symlink()
-    {
-        let backup = std::path::Path::new("/etc/nix/nix.conf.determinate.bak");
-        if !backup.exists() {
-            let _ = std::fs::rename(legacy_cfg, backup);
+    if legacy_cfg.is_file() && persistent_cfg.exists() {
+        if std::path::Path::new("/etc/nix").is_symlink() {
+            log_event(
+                "WARN",
+                "Skipping /etc/nix/nix.conf symlink rewrite: /etc/nix is already a symlink to /nix/etc/nix; legacy and plugin paths resolve to the same file (rewriting would create a circular symlink).",
+            );
         } else {
-            let _ = std::fs::remove_file(legacy_cfg);
-        }
-        if let Err(e) = symlink(persistent_cfg, legacy_cfg) {
-            log_event("WARN", &format!("Could not symlink /etc/nix/nix.conf to plugin config: {e}"));
-        } else {
-            log_event("INFO", "Replaced legacy /etc/nix/nix.conf with symlink to plugin config (backup: /etc/nix/nix.conf.determinate.bak)");
+            let backup = std::path::Path::new("/etc/nix/nix.conf.determinate.bak");
+            if !backup.exists() {
+                let _ = std::fs::rename(legacy_cfg, backup);
+            } else {
+                let _ = std::fs::remove_file(legacy_cfg);
+            }
+            if let Err(e) = symlink(persistent_cfg, legacy_cfg) {
+                log_event("WARN", &format!("Could not symlink /etc/nix/nix.conf to plugin config: {e}"));
+            } else {
+                log_event("INFO", "Replaced legacy /etc/nix/nix.conf with symlink to plugin config (backup: /etc/nix/nix.conf.determinate.bak)");
+            }
         }
     }
 
@@ -185,7 +189,12 @@ pub fn setup_nix_conf() -> Result<(), String> {
         &build_jobs,
         gc_min_free_gb,
         gc_max_free_gb,
-    )?;
+    )
+    .map_err(|e| {
+        let err_msg = format!("Failed to generate nix.conf content: {e}");
+        log_event("ERROR", &err_msg);
+        err_msg
+    })?;
 
     if let Err(e) = fs::write(conf_path, default_conf) {
         let err_msg = format!("Failed to write nix.conf: {e}");

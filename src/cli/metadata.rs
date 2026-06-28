@@ -5,7 +5,7 @@ use std::process::exit;
 
 pub fn get_metadata(name: &str) {
     if !crate::store::is_valid_service_name(name) {
-        eprintln!("Error: Invalid service name.");
+        crate::store::log_event("ERROR", &format!("Invalid service name '{name}' for get-metadata"));
         exit(1);
     }
     println!("{}", get_metadata_json(name));
@@ -13,7 +13,7 @@ pub fn get_metadata(name: &str) {
 
 pub fn get_metadata_json(name: &str) -> String {
     if !crate::store::is_valid_service_name(name) {
-        eprintln!("Error: Invalid service name.");
+        crate::store::log_event("ERROR", &format!("Invalid service name '{name}' for get-metadata"));
         exit(1);
     }
     let meta_file = format!("{METADATA_DIR}/{name}.json");

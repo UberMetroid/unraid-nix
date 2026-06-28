@@ -22,19 +22,22 @@ pub fn run(args_list: Vec<String>) {
     let cli = match args::Cli::try_parse_from(&args_list) {
         Ok(c) => c,
         Err(e) => {
-            eprintln!("{}", e);
+            crate::store::log_event("ERROR", &format!("Invalid CLI args: {e}"));
             std::process::exit(1);
         }
     };
 
     match cli.command {
-        args::Commands::SetupStore { persistent_path } => {
-            store::setup_store(&persistent_path);
+        args::Commands::SetupStore { ref persistent_path } => {
+            crate::store::log_event("INFO", &format!("Dispatch: setup-store (persistent_path={persistent_path})"));
+            store::setup_store(persistent_path);
         }
         args::Commands::TeardownStore => {
+            crate::store::log_event("INFO", "Dispatch: teardown-store");
             store::teardown_store();
         }
         args::Commands::SyncTemplates => {
+            crate::store::log_event("INFO", "Dispatch: sync-templates");
             store::sync_templates();
         }
         args::Commands::SandboxCheck { apply_fallback } => {
@@ -44,15 +47,19 @@ pub fn run(args_list: Vec<String>) {
             render::render(target);
         }
         args::Commands::Service { action, name } => {
+            crate::store::log_event("INFO", &format!("Dispatch: service action='{action}' name='{name}'"));
             service::service_action(&action, &name);
         }
         args::Commands::Autostart { name, toggle } => {
+            crate::store::log_event("INFO", &format!("Dispatch: autostart name='{name}' toggle='{toggle}'"));
             service::autostart(&name, &toggle);
         }
         args::Commands::RemoveService { name } => {
+            crate::store::log_event("INFO", &format!("Dispatch: remove-service name='{name}'"));
             service::remove_service(&name);
         }
         args::Commands::Install { package } => {
+            crate::store::log_event("INFO", &format!("Dispatch: install package='{package}'"));
             service::install(&package);
         }
         args::Commands::Sandbox(sandbox_args) => {
@@ -86,15 +93,32 @@ pub fn run(args_list: Vec<String>) {
             cmd,
             restart_policy,
         } => {
+            crate::store::log_event(
+                "INFO",
+                &format!(
+                    "Dispatch: add-service name='{name}' restart_policy={}",
+                    restart_policy.as_deref().unwrap_or("default")
+                ),
+            );
             service::add_service(&name, &cmd, restart_policy.as_deref());
         }
         args::Commands::InstallService(install_args) => {
+            crate::store::log_event("INFO", &format!("Dispatch: install-service uri='{}'", install_args.uri));
             service_install::install_service(&install_args);
         }
         args::Commands::ViewLogs { name } => {
             logs::view_logs(&name);
         }
         args::Commands::SaveSettings(settings_args) => {
+            let store_path = settings_args.store_path.clone().unwrap_or_default();
+            let autostart = settings_args.autostart.clone().unwrap_or_else(|| "yes".to_string());
+            let enable_sandbox = settings_args.enable_sandbox.clone().unwrap_or_else(|| "yes".to_string());
+            crate::store::log_event(
+                "INFO",
+                &format!(
+                    "Dispatch: save-settings store_path='{store_path}' autostart='{autostart}' sandbox='{enable_sandbox}'"
+                ),
+            );
             settings::save_settings(&settings_args);
         }
         args::Commands::GetMetadata { name } => {
@@ -104,6 +128,7 @@ pub fn run(args_list: Vec<String>) {
             gpus::detect_gpus();
         }
         args::Commands::SetupGpus => {
+            crate::store::log_event("INFO", "Dispatch: setup-gpus (NVIDIA/CUDA symlinks)");
             gpus::setup_gpu_driver_symlinks();
         }
         args::Commands::StreamInstall(stream_args) => {

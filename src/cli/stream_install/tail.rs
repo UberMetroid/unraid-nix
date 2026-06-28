@@ -125,3 +125,28 @@ fn set_service_autostart(svc: &str, enable: bool) {
     let toggle = if enable { "on" } else { "off" };
     crate::cli::service::autostart(svc, toggle);
 }
+
+#[cfg(test)]
+mod tests {
+    use crate::cli::stream_install::tail::LogLine;
+
+    #[test]
+    fn test_log_line_parses_json_with_message() {
+        let parsed: LogLine = serde_json::from_str(r#"{"message":"hello"}"#).unwrap();
+        assert_eq!(parsed.message.as_deref(), Some("hello"));
+    }
+
+    #[test]
+    fn test_log_line_parses_json_without_message() {
+        let parsed: LogLine = serde_json::from_str(r#"{"time":"2026-06-27"}"#).unwrap();
+        assert!(parsed.message.is_none());
+    }
+
+    #[test]
+    fn test_log_line_rejects_malformed_json() {
+        // Non-JSON lines are not parseable; the caller falls back to
+        // printing the raw line. Verify the error path so we know the
+        // contract.
+        assert!(serde_json::from_str::<LogLine>("plain text").is_err());
+    }
+}

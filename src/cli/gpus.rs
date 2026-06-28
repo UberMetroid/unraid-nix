@@ -1,6 +1,8 @@
 use std::process::{Command, Stdio};
 use std::fs;
+use std::time::Duration;
 use serde_json::{json, Value};
+use crate::util::process::run_with_timeout;
 
 pub struct DetectedGpus {
     pub has_nvidia: bool,
@@ -12,10 +14,12 @@ pub struct DetectedGpus {
 pub fn run_live_gpu_detection() -> Vec<Value> {
     let mut gpus = Vec::new();
 
-    if let Ok(output) = Command::new("nvidia-smi")
-        .args(["--query-gpu=index,name,uuid,pci.bus_id", "--format=csv,noheader,nounits"])
-        .stdin(Stdio::null())
-        .output() {
+    if let Ok(output) = {
+        let mut cmd = Command::new("nvidia-smi");
+        cmd.args(["--query-gpu=index,name,uuid,pci.bus_id", "--format=csv,noheader,nounits"])
+            .stdin(Stdio::null());
+        run_with_timeout(&mut cmd, Duration::from_secs(3))
+    } {
         if output.status.success() {
             let stdout = String::from_utf8_lossy(&output.stdout);
             for line in stdout.lines() {
@@ -129,7 +133,7 @@ pub fn detect_gpus() {
 pub fn setup_gpu_driver_symlinks() {
     let target_dir = std::path::Path::new("/var/run/nix-nvidia-driver/lib");
     if let Err(e) = fs::create_dir_all(target_dir) {
-        eprintln!("Failed to create GPU target directory: {e}");
+        crate::store::log_event("ERROR", &format!("Failed to create GPU target directory {target_dir:?}: {e}"));
         return;
     }
 
@@ -151,5 +155,65 @@ pub fn setup_gpu_driver_symlinks() {
                 }
             }
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_detected_gpus_construction_and_field_access() {
+        let g = DetectedGpus {
+            has_nvidia: true,
+            has_amd: false,
+            has_intel: true,
+        };
+        assert!(g.has_nvidia);
+        assert!(!g.has_amd);
+        assert!(g.has_intel);
+    }
+
+    #[test]
+    fn test_detected_gpus_all_false_default() {
+        let g = DetectedGpus {
+            has_nvidia: false,
+            has_amd: false,
+            has_intel: false,
+        };
+        assert!(!g.has_nvidia);
+        assert!(!g.has_amd);
+        assert!(!g.has_intel);
+    }
+
+    #[test]
+    fn test_get_detected_gpus_returns_consistent_flags() {
+        // The function reads the cache or runs live detection; either way
+        // the resulting DetectedGpus must be self-consistent (no flag
+        // refers to an invalid state).
+        let g = get_detected_gpus();
+        // All fields are bool, so the only invariant is that we can
+        // observe them without panicking. Verify each is a valid bool
+        // by reading it.
+        let _ = g.has_nvidia;
+        let _ = g.has_amd;
+        let _ = g.has_intel;
+    }
+
+    #[test]
+    fn test_load_or_detect_gpus_handles_invalid_cache_gracefully() {
+        // We can't reliably write to /var/run in the test environment,
+        // but we CAN verify the function doesn't panic when called
+        // twice (i.e. the cache hit path doesn't blow up).
+        let _ = load_or_detect_gpus();
+        let _ = load_or_detect_gpus();
+    }
+
+    #[test]
+    fn test_detect_gpus_prints_json() {
+        // detect_gpus prints a JSON array. We don't capture stdout, but
+        // we can at least verify the function runs without panic and
+        // doesn't block indefinitely.
+        detect_gpus();
     }
 }

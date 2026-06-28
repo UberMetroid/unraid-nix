@@ -80,7 +80,7 @@ pub fn write_config_and_metadata(
     });
 
     if let Err(e) = config::save_config(&cfg, PROCESS_COMPOSE_CONFIG) {
-        eprintln!("Error saving config: {}", e);
+        crate::store::log_event("ERROR", &format!("install-service: failed to save process-compose config for '{name}': {e}"));
         exit(1);
     }
 
@@ -102,26 +102,22 @@ pub fn write_config_and_metadata(
     });
     if let Err(e) = std::fs::create_dir_all(METADATA_DIR) {
         crate::store::log_event("ERROR", &format!("Failed to create metadata dir '{METADATA_DIR}': {e}"));
-        eprintln!("Error: failed to create metadata dir: {e}");
         exit(1);
     }
     let body = match serde_json::to_string_pretty(&metadata) {
         Ok(s) => s,
         Err(e) => {
             crate::store::log_event("ERROR", &format!("Failed to serialize metadata for '{name}': {e}"));
-            eprintln!("Error: failed to serialize metadata: {e}");
             exit(1);
         }
     };
     if let Err(e) = std::fs::write(format!("{METADATA_DIR}/{name}.json"), body) {
         crate::store::log_event("ERROR", &format!("Failed to write metadata file for '{name}': {e}"));
-        eprintln!("Error: failed to write metadata: {e}");
         exit(1);
     }
 
     if let Err(e) = crate::cli::supervisor::restart_nix_supervisor() {
         crate::store::log_event("ERROR", &format!("Failed to restart supervisor after installing service '{name}': {e}"));
-        eprintln!("Error restarting supervisor: {e}");
         exit(1);
     }
     crate::store::log_event("INFO", &format!("Service '{name}' installed/updated successfully. URI: {uri}"));

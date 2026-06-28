@@ -1,5 +1,7 @@
 use std::process::Command;
+use std::time::Duration;
 use crate::unraid::METADATA_DIR;
+use crate::util::process::run_with_timeout;
 
 pub mod icons;
 pub use icons::get_service_icon_path;
@@ -135,10 +137,12 @@ pub fn extract_package_uri(command: &str) -> Option<String> {
 
 pub fn get_host_ips() -> Vec<HostAddr> {
     let mut ips = Vec::new();
-    let output = Command::new("ip")
-        .args(["-o", "-4", "addr", "show"])
-        .stdin(std::process::Stdio::null())
-        .output();
+    let output = {
+        let mut cmd = Command::new("ip");
+        cmd.args(["-o", "-4", "addr", "show"])
+            .stdin(std::process::Stdio::null());
+        run_with_timeout(&mut cmd, Duration::from_secs(3))
+    };
 
     if let Ok(out) = output {
         if out.status.success() {
@@ -180,4 +184,97 @@ pub fn get_host_ips() -> Vec<HostAddr> {
         });
     }
     ips
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_html_escape_replaces_all_five_chars() {
+        assert_eq!(
+            html_escape("<script>\"a\"&b'c</script>"),
+            "&lt;script&gt;&quot;a&quot;&amp;b&#x27;c&lt;/script&gt;"
+        );
+    }
+
+    #[test]
+    fn test_html_escape_passes_through_safe_text() {
+        assert_eq!(html_escape("plain ascii 123"), "plain ascii 123");
+    }
+
+    #[test]
+    fn test_js_escape_escapes_quotes_and_backslash() {
+        // Backslash, single quote, and double quote must each be escaped.
+        assert_eq!(js_escape("a\\b'c\"d"), "a\\\\b\\'c\\\"d");
+    }
+
+    #[test]
+    fn test_js_escape_passes_through_other_chars() {
+        // `$`, `;`, `|`, etc. are intentionally NOT escaped — the caller
+        // chains html_escape first for HTML contexts.
+        assert_eq!(js_escape("$x;y|z"), "$x;y|z");
+    }
+
+    #[test]
+    fn test_extract_package_uri_nixpkgs_prefix_stops_at_space() {
+        assert_eq!(
+            extract_package_uri("nix run nixpkgs#jellyfin --foo"),
+            Some("nixpkgs#jellyfin".to_string())
+        );
+    }
+
+    #[test]
+    fn test_extract_package_uri_nix_run_strips_run_keyword() {
+        // When there's no `nixpkgs#` prefix but the command starts with
+        // `nix run `, the URI is the next whitespace-delimited token.
+        assert_eq!(
+            extract_package_uri("nix run my-pkg --flag"),
+            Some("my-pkg".to_string())
+        );
+    }
+
+    #[test]
+    fn test_extract_package_uri_returns_none_for_unrelated_command() {
+        assert_eq!(extract_package_uri("regular shell command"), None);
+    }
+
+    #[test]
+    fn test_get_host_ips_filters_loopback_interface_and_loopback_ip() {
+        // We can't predict the host's interfaces, but the contract is:
+        // every returned entry must NOT be a virtual interface and its
+        // IP must not be in 127.0.0.0/8 — except for the explicit
+        // 127.0.0.1 fallback when the system has no other IPs.
+        let ips = get_host_ips();
+        assert!(!ips.is_empty(), "expected at least the loopback fallback");
+        for addr in &ips {
+            assert!(
+                !addr.interface.starts_with("veth"),
+                "veth interface leaked: {}",
+                addr.interface
+            );
+            assert!(
+                !addr.interface.starts_with("docker"),
+                "docker interface leaked: {}",
+                addr.interface
+            );
+            assert!(
+                !addr.interface.starts_with("br-"),
+                "bridge interface leaked: {}",
+                addr.interface
+            );
+            assert!(
+                !addr.interface.starts_with("virbr"),
+                "virbr interface leaked: {}",
+                addr.interface
+            );
+            if addr.ip != "127.0.0.1" {
+                assert!(
+                    !addr.ip.starts_with("127."),
+                    "127/8 IP leaked on non-loopback interface: {}",
+                    addr.ip
+                );
+            }
+        }
+    }
 }

@@ -1,4 +1,7 @@
 use std::collections::HashMap;
+use std::time::Duration;
+
+use crate::util::process::run_with_timeout;
 
 pub const SUPERVISOR_PORT: u16 = 29704;
 pub const PROCESS_COMPOSE_CONFIG: &str = "/boot/config/plugins/nix/process-compose.yml";
@@ -12,24 +15,28 @@ pub fn send_unraid_notification(subject: &str, description: &str, importance: &s
         "warning" => "warning",
         _ => "normal",
     };
-    let _ = std::process::Command::new("/usr/local/emhttp/webGui/scripts/notify")
-        .args([
+    let _ = {
+        let mut cmd = std::process::Command::new("/usr/local/emhttp/webGui/scripts/notify");
+        cmd.args([
             "-e", "Nix Plugin",
             "-s", subject,
             "-d", description,
             "-i", importance_flag,
         ])
-        .stdin(std::process::Stdio::null())
-        .output();
+        .stdin(std::process::Stdio::null());
+        run_with_timeout(&mut cmd, Duration::from_secs(5))
+    };
 }
 
 /// Query active or stopped Docker container ports mapping
 pub fn get_docker_mapped_ports() -> Vec<u16> {
     let mut ports = Vec::new();
-    let output = std::process::Command::new("docker")
-        .args(["ps", "-a", "--format", "{{.Ports}}"])
-        .stdin(std::process::Stdio::null())
-        .output();
+    let output = {
+        let mut cmd = std::process::Command::new("docker");
+        cmd.args(["ps", "-a", "--format", "{{.Ports}}"])
+            .stdin(std::process::Stdio::null());
+        run_with_timeout(&mut cmd, Duration::from_secs(5))
+    };
 
     if let Ok(out) = output {
         let stdout = String::from_utf8_lossy(&out.stdout);
@@ -163,5 +170,80 @@ quoted_empty = \"\"
         assert!(map.get("quoted_empty").is_none(), "quoted empty value should be skipped");
 
         let _ = std::fs::remove_file(file_path);
+    }
+
+    #[test]
+    fn test_parse_ini_file_trims_surrounding_whitespace_around_keys_and_values() {
+        // The parser trims the LHS (key) and the RHS (value, before
+        // stripping surrounding quotes). Verify both directions so a
+        // future refactor doesn't accidentally drop one.
+        let content = "  spaced_key  =  spaced value  \n";
+        let temp_dir = std::env::temp_dir();
+        let file_path = temp_dir.join(format!(
+            "test_ini_ws-{}.cfg",
+            std::process::id()
+        ));
+        std::fs::write(&file_path, content).unwrap();
+
+        let map = parse_ini_file(file_path.to_str().unwrap());
+        assert_eq!(map.get("spaced_key").unwrap(), "spaced value");
+        assert!(map.contains_key("spaced_key"));
+
+        let _ = std::fs::remove_file(&file_path);
+    }
+
+    #[test]
+    fn test_parse_ini_file_preserves_internal_whitespace_in_value() {
+        // The parser must not trim internal whitespace — only the
+        // boundaries around key and value.
+        let content = "phrase = hello   world\n";
+        let temp_dir = std::env::temp_dir();
+        let file_path = temp_dir.join(format!(
+            "test_ini_internal_ws-{}.cfg",
+            std::process::id()
+        ));
+        std::fs::write(&file_path, content).unwrap();
+
+        let map = parse_ini_file(file_path.to_str().unwrap());
+        assert_eq!(map.get("phrase").unwrap(), "hello   world");
+
+        let _ = std::fs::remove_file(&file_path);
+    }
+
+    #[test]
+    fn test_parse_ini_file_handles_line_without_equals() {
+        // A line without an `=` is silently skipped (not an error). This
+        // matches the legacy parser behavior.
+        let content = "just-a-line-no-equals\nreal_key = value\n";
+        let temp_dir = std::env::temp_dir();
+        let file_path = temp_dir.join(format!(
+            "test_ini_no_eq-{}.cfg",
+            std::process::id()
+        ));
+        std::fs::write(&file_path, content).unwrap();
+
+        let map = parse_ini_file(file_path.to_str().unwrap());
+        assert!(!map.contains_key("just-a-line-no-equals"));
+        assert_eq!(map.get("real_key").unwrap(), "value");
+
+        let _ = std::fs::remove_file(&file_path);
+    }
+
+    #[test]
+    fn test_parse_ini_file_handles_value_with_embedded_equals() {
+        // `find('=')` returns the FIRST `=`, so any `=` inside the value
+        // is preserved. Verify this contract.
+        let content = "url = http://example.com/path?a=1&b=2\n";
+        let temp_dir = std::env::temp_dir();
+        let file_path = temp_dir.join(format!(
+            "test_ini_eq_in_val-{}.cfg",
+            std::process::id()
+        ));
+        std::fs::write(&file_path, content).unwrap();
+
+        let map = parse_ini_file(file_path.to_str().unwrap());
+        assert_eq!(map.get("url").unwrap(), "http://example.com/path?a=1&b=2");
+
+        let _ = std::fs::remove_file(&file_path);
     }
 }
