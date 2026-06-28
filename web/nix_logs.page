@@ -9,6 +9,30 @@ echo "<div class=\"nix-plugin-container theme-{$nix_theme}\">";
 <link type="text/css" rel="stylesheet" href="/plugins/nix/styles_layout.css">
 <link type="text/css" rel="stylesheet" href="/plugins/nix/styles_widgets.css">
 <script src="/plugins/nix/nix.js"></script>
+<div class="nix-section" style="margin-bottom: 20px; background: var(--nix-bg-secondary);">
+    <h3>Troubleshooting & Diagnostics</h3>
+    <p class="nix-subtext">Generate a diagnostic package to share for debugging or report issues on GitHub.</p>
+    
+    <div style="display: flex; align-items: center; justify-content: space-between; gap: 20px; flex-wrap: wrap;">
+        <div style="flex: 1; min-width: 300px;">
+            <p style="margin: 0; font-size: 13px; color: var(--nix-text-bright); line-height: 1.5;">
+                Having issues with a service or builder? Click the download button to bundle all Nix configuration parameters, daemon logs, active process logs, and system specifications into a single file.
+            </p>
+            <p style="margin: 8px 0 0 0; font-size: 12px; color: var(--nix-text-secondary); line-height: 1.4;">
+                Upload this bundle when submitting bug reports at <a href="https://github.com/UberMetroid/unraid-nix/issues" target="_blank" style="color: var(--nix-accent); text-decoration: none;">github.com/UberMetroid/unraid-nix/issues</a>.
+            </p>
+        </div>
+        <div style="display: flex; gap: 10px; align-items: center;">
+            <button type="button" class="nix-btn" style="margin: 0; padding: 10px 16px; font-weight: 500;" onclick="downloadDiagnostics()">
+                <i class="fa fa-download" style="margin-right: 6px;"></i> Download Diagnostics
+            </button>
+            <a href="https://github.com/UberMetroid/unraid-nix/issues" target="_blank" class="nix-btn-primary" style="display: inline-flex; align-items: center; gap: 6px; text-decoration: none; font-size: 12px; font-weight: 600; padding: 10px 16px;">
+                <i class="fa fa-github"></i> Open GitHub Issues
+            </a>
+        </div>
+    </div>
+</div>
+
 <div class="nix-section">
     <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 15px;">
         <h3 style="margin: 0;">Logs</h3>
@@ -40,30 +64,6 @@ echo "<div class=\"nix-plugin-container theme-{$nix_theme}\">";
     
     <div style="background: var(--nix-console-bg); border: 1px solid var(--nix-border-primary); border-radius: 4px; padding: 15px; margin-top: 10px;">
         <pre id="nix-log-content" style="margin: 0; color: var(--nix-text-primary); font-family: monospace; font-size: 12px; white-space: pre-wrap; height: 500px; overflow-y: auto;"></pre>
-    </div>
-</div>
-
-<div class="nix-section" style="margin-top: 20px; background: var(--nix-bg-secondary);">
-    <h3>Troubleshooting & Diagnostics</h3>
-    <p class="nix-subtext">Generate a diagnostic package to share for debugging or report issues on GitHub.</p>
-    
-    <div style="display: flex; align-items: center; justify-content: space-between; gap: 20px; flex-wrap: wrap;">
-        <div style="flex: 1; min-width: 300px;">
-            <p style="margin: 0; font-size: 13px; color: var(--nix-text-bright); line-height: 1.5;">
-                Having issues with a service or builder? Click the download button to bundle all Nix configuration parameters, daemon logs, active process logs, and system specifications into a single file.
-            </p>
-            <p style="margin: 8px 0 0 0; font-size: 12px; color: var(--nix-text-secondary); line-height: 1.4;">
-                Upload this bundle when submitting bug reports at <a href="https://github.com/UberMetroid/unraid-nix/issues" target="_blank" style="color: var(--nix-accent); text-decoration: none;">github.com/UberMetroid/unraid-nix/issues</a>.
-            </p>
-        </div>
-        <div style="display: flex; gap: 10px; align-items: center;">
-            <button type="button" class="nix-btn" style="margin: 0; padding: 10px 16px; font-weight: 500;" onclick="downloadDiagnostics()">
-                <i class="fa fa-download" style="margin-right: 6px;"></i> Download Diagnostics
-            </button>
-            <a href="https://github.com/UberMetroid/unraid-nix/issues" target="_blank" class="nix-btn-primary" style="display: inline-flex; align-items: center; gap: 6px; text-decoration: none; font-size: 12px; font-weight: 600; padding: 10px 16px;">
-                <i class="fa fa-github"></i> Open GitHub Issues
-            </a>
-        </div>
     </div>
 </div>
 
