@@ -39,3 +39,14 @@ Below is the structured roadmap of features to be added to the `unraid-nix` plug
   - Add a button in the **Logs** or **Settings** tab to zip and download all nix process logs, system startup logs, and config files.
 - [x] **GitHub Issues Helper**:
   - Provide clear instructions and links to easily post bug reports and upload the diagnostic zip directly to [UberMetroid/unraid-nix/issues](https://github.com/UberMetroid/unraid-nix/issues).
+
+## 7. Tunnels & Network Sandbox Routing
+- [ ] **Unified Network Tunnels Manager**:
+  - Add a dedicated **Tunnels** tab or settings section to configure secure routing tunnels:
+    - **Wireguard / OpenVPN**: Manage client configs (like PIA, Mullvad) in custom network namespaces (`netns`).
+    - **Cloudflare Tunnels**: Manage `cloudflared` tokens, monitor tunnel health, and auto-detect domain mapping setups.
+    - **Tailscale / Tailscale Funnel**: Add Tailscale client connections, tailscale IPs, and reverse funnel links.
+- [ ] **Secure Credentials Vault**:
+  - Create a secure settings location for API keys (e.g., Cloudflare API tokens, Tailscale auth keys) to automatically fetch tunnel mappings and status.
+- [ ] **Per-Flake Routing Selection**:
+  - Add a dropdown to each flake's edit config screen to choose its default network gateway (e.g., Host LAN, specific VPN netns, or Loopback Only).
