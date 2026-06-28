@@ -45,11 +45,18 @@ jobs:
       - name: Build release binary
         run: cargo build --release --target ${{ matrix.target }}
 
+      - name: Generate SHA256 sidecar
+        run: |
+          cd target/${{ matrix.target }}/release
+          sha256sum nix-helper > nix-helper.sha256
+
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
           name: ${{ matrix.asset_name }}
-          path: target/${{ matrix.target }}/release/nix-helper
+          path: |
+            target/${{ matrix.target }}/release/nix-helper
+            target/${{ matrix.target }}/release/nix-helper.sha256
           if-no-files-found: error
 
   attach:
@@ -65,5 +72,7 @@ jobs:
       - name: Attach to GitHub Release
         uses: softprops/action-gh-release@v2
         with:
-          files: nix-helper
+          files: |
+            nix-helper
+            nix-helper.sha256
           fail_on_unmatched_files: true

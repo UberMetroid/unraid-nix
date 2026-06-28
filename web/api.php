@@ -4,10 +4,19 @@
 /// This script intercepts AJAX actions from the Unraid browser interface,
 /// executes subcommands on the compiled Rust helper, and returns JSON or HTML.
 
+session_set_cookie_params([
+    'lifetime' => 0,
+    'path' => '/',
+    'domain' => '',
+    'secure' => isset($_SERVER['HTTPS']),
+    'httponly' => true,
+    'samesite' => 'Strict',
+]);
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 if (empty($_SESSION['csrf_token'])) {
+    session_regenerate_id(true);
     $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
 }
 
@@ -53,6 +62,7 @@ function success() {
 if ($action === 'logs') {
     header('Content-Type: text/html');
     header('X-Content-Type-Options: nosniff');
+    header("Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'self'; base-uri 'self'; form-action 'self'; frame-ancestors 'none';");
     $service = isset($_GET['service']) ? $_GET['service'] : '';
     if (empty($service) || !preg_match(NIX_SERVICE_NAME_REGEX, $service)) {
         echo "Invalid service name.";
@@ -66,6 +76,7 @@ if ($action === 'logs') {
 if ($action === 'search') {
     header('Content-Type: text/html');
     header('X-Content-Type-Options: nosniff');
+    header("Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'self'; base-uri 'self'; form-action 'self'; frame-ancestors 'none';");
     $query = isset($_GET['q']) ? $_GET['q'] : '';
     passthru("/usr/local/emhttp/plugins/nix/nix-helper render search " . escapeshellarg($query));
     exit;
@@ -75,6 +86,7 @@ if ($action === 'search') {
 if ($action === 'render-services') {
     header('Content-Type: text/html');
     header('X-Content-Type-Options: nosniff');
+    header("Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'self'; base-uri 'self'; form-action 'self'; frame-ancestors 'none';");
     passthru("/usr/local/emhttp/plugins/nix/nix-helper render services 2>&1");
     exit;
 }
@@ -83,6 +95,7 @@ if ($action === 'render-services') {
 if ($action === 'render-presets') {
     header('Content-Type: text/html');
     header('X-Content-Type-Options: nosniff');
+    header("Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'self'; base-uri 'self'; form-action 'self'; frame-ancestors 'none';");
     passthru("/usr/local/emhttp/plugins/nix/nix-helper render presets 2>&1");
     exit;
 }
@@ -91,6 +104,7 @@ if ($action === 'render-presets') {
 if ($action === 'get_dashboard') {
     header('Content-Type: text/html');
     header('X-Content-Type-Options: nosniff');
+    header("Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'self'; base-uri 'self'; form-action 'self'; frame-ancestors 'none';");
     passthru("/usr/local/emhttp/plugins/nix/nix-helper render dashboard 2>/dev/null");
     exit;
 }
@@ -137,6 +151,7 @@ if ($action === 'get-icon') {
 
     header('Content-Type: image/svg+xml');
     header('Cache-Control: max-age=86400');
+    header("Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'self'; base-uri 'self'; form-action 'self'; frame-ancestors 'none';");
     echo '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" fill="#00a1ff" width="32" height="32"><path d="M440 256c0 101.6-82.4 184-184 184S72 357.6 72 256s82.4-184 184-184s184 82.4 184 184zm-184-88c-11 0-20 9-20 20v24.8l-17.5-17.5c-7.8-7.8-20.5-7.8-28.3 0s-7.8 20.5 0 28.3l37.8 37.8c3.9 3.9 9 5.9 14.1 5.9s10.2-2 14.1-5.9l37.8-37.8c7.8-7.8 7.8-20.5 0-28.3s-20.5-7.8-28.3 0L280 212.8V188c0-11-9-20-20-20z"/></svg>';
     exit;
 }

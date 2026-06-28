@@ -5,6 +5,8 @@ use crate::config;
 use crate::unraid::{METADATA_DIR, PROCESS_COMPOSE_CONFIG, SUPERVISOR_PORT};
 use std::process::{exit, Command};
 
+const SCRIPT_RELOAD_SUPERVISOR: &str = "/usr/local/emhttp/plugins/nix/scripts/reload-supervisor.sh";
+
 pub fn service_action(action: &str, name: &str) {
     if !crate::store::is_valid_service_name(name) {
         eprintln!("Error: Invalid service name.");
@@ -53,10 +55,7 @@ pub fn autostart(name: &str, toggle: &str) {
             exit(1);
         }
 
-        let _ = Command::new("sh")
-            .args(["-c", &format!(". /nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh && nix run nixpkgs#process-compose -- -p {SUPERVISOR_PORT} project update -f {PROCESS_COMPOSE_CONFIG} 2>&1")])
-            .stdin(std::process::Stdio::null())
-            .output();
+        let _ = Command::new(SCRIPT_RELOAD_SUPERVISOR).status();
         crate::store::log_event("INFO", &format!("Service '{name}' autostart set to '{toggle}'."));
         println!("Autostart updated successfully.");
     } else {
@@ -86,10 +85,7 @@ pub fn remove_service(name: &str) {
         }
 
         let _ = process::send_service_action(SUPERVISOR_PORT, name, "stop");
-        let _ = Command::new("sh")
-            .args(["-c", &format!(". /nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh && nix run nixpkgs#process-compose -- -p {SUPERVISOR_PORT} project update -f {PROCESS_COMPOSE_CONFIG} 2>&1")])
-            .stdin(std::process::Stdio::null())
-            .output();
+        let _ = Command::new(SCRIPT_RELOAD_SUPERVISOR).status();
         let _ = std::fs::remove_file(format!("{METADATA_DIR}/{name}.json"));
         crate::store::log_event("INFO", &format!("Service '{name}' successfully removed."));
         println!("Service {name} successfully removed.");

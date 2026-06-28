@@ -3,10 +3,19 @@
 ///
 /// Handles daemon service operations, garbage collection, updates checks, Settings saves, etc.
 
+session_set_cookie_params([
+    'lifetime' => 0,
+    'path' => '/',
+    'domain' => '',
+    'secure' => isset($_SERVER['HTTPS']),
+    'httponly' => true,
+    'samesite' => 'Strict',
+]);
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 if (empty($_SESSION['csrf_token'])) {
+    session_regenerate_id(true);
     $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
 }
 

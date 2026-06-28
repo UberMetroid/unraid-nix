@@ -1,8 +1,9 @@
 use crate::unraid::{PROCESS_COMPOSE_CONFIG, SUPERVISOR_PORT};
 
+const SCRIPT_START_NIX_DAEMON: &str = "/usr/local/emhttp/plugins/nix/scripts/start-nix-daemon.sh";
+
 pub fn restart_nix_supervisor() -> Result<(), String> {
-    let _ = std::process::Command::new("sh")
-        .args(["-c", &format!(". /nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh && nix run nixpkgs#process-compose -- -p {SUPERVISOR_PORT} down")])
+    let _ = std::process::Command::new(SCRIPT_START_NIX_DAEMON)
         .stdin(std::process::Stdio::null())
         .output();
 
@@ -32,11 +33,7 @@ pub fn restart_nix_supervisor() -> Result<(), String> {
 
     if std::path::Path::new(PROCESS_COMPOSE_CONFIG).exists() {
         let _ = std::fs::create_dir_all("/var/log/nix-services");
-        let cmd = format!(
-            "nohup sh -c \". /nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh && exec nix run nixpkgs#process-compose -- -p {SUPERVISOR_PORT} -f {PROCESS_COMPOSE_CONFIG} --tui=false --keep-project\" > /var/log/nix-process-compose.log 2>&1 < /dev/null & echo $! > /var/run/nix-process-compose.pid"
-        );
-        let status = std::process::Command::new("sh")
-            .args(["-c", &cmd])
+        let status = std::process::Command::new(SCRIPT_START_NIX_DAEMON)
             .stdin(std::process::Stdio::null())
             .status();
         if let Ok(s) = status {

@@ -303,6 +303,14 @@
       # 2. Download and copy compiled Rust helper binary
       echo "--> Downloading compiled Rust helper binary (nix-helper)..."
       curl -sSf -L --create-dirs -o "&plugdir;/nix-helper" "${GITHUB_RAW}/nix-helper"
+      EXPECTED_SHA=$(curl -sSfL "${GITHUB_RAW}/nix-helper.sha256" 2>/dev/null)
+      if [ -n "$EXPECTED_SHA" ]; then
+          ACTUAL_SHA=$(sha256sum "&plugdir;/nix-helper" | awk '{print $1}')
+          if [ "$ACTUAL_SHA" != "$EXPECTED_SHA" ]; then
+              echo "ERROR: nix-helper SHA256 mismatch (expected $EXPECTED_SHA, got $ACTUAL_SHA). Aborting install." >&2
+              exit 1
+          fi
+      fi
       cp "&plugdir;/nix-helper" "&usrdir;/nix-helper"
       chmod +x "&usrdir;/nix-helper"
       ln -sf "&usrdir;/nix-helper" /usr/local/bin/nix-helper
@@ -358,6 +366,14 @@
       for script in rc.nix-daemon nix-profile.sh event_disks_mounted event_stopping_svcs; do
           curl -sSf -L -o "&plugdir;/scripts/$script" "${GITHUB_RAW}/scripts/$script"
           chmod +x "&plugdir;/scripts/$script"
+      done
+
+      # 4b. Download argv-style helper scripts (called by nix-helper without sh -c)
+      echo "--> Downloading argv-style helper scripts..."
+      mkdir -p "&usrdir;/scripts"
+      for script in reload-supervisor.sh start-nix-daemon.sh sync-templates.sh; do
+          curl -sSf -L -o "&usrdir;/scripts/$script" "${GITHUB_RAW}/scripts/$script"
+          chmod +x "&usrdir;/scripts/$script"
       done
 
       # 5. Place configuration scripts in system directories

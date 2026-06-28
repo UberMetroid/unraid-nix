@@ -3,10 +3,19 @@
 ///
 /// Parses POST parameters and constructs helper command-lines.
 
+session_set_cookie_params([
+    'lifetime' => 0,
+    'path' => '/',
+    'domain' => '',
+    'secure' => isset($_SERVER['HTTPS']),
+    'httponly' => true,
+    'samesite' => 'Strict',
+]);
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 if (empty($_SESSION['csrf_token'])) {
+    session_regenerate_id(true);
     $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
 }
 
@@ -26,6 +35,7 @@ while (@ob_end_flush());
 ob_implicit_flush(true);
 header('Content-Type: text/html; charset=utf-8');
 header('X-Accel-Buffering: no');
+header("Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'self'; base-uri 'self'; form-action 'self'; frame-ancestors 'none';");
 
 $action = isset($_POST['action']) ? $_POST['action'] : '';
 $uri = isset($_POST['uri']) ? $_POST['uri'] : (isset($_POST['package']) ? $_POST['package'] : '');

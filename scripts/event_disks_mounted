@@ -21,6 +21,16 @@ log_pipe() {
 
 log_event "INFO" "Nix Event: disks_mounted triggered."
 
+PIDFILE="/var/run/nix-process-compose.pid"
+
+cleanup() {
+    local exit_code=$?
+    rm -f "/var/run/nix-process-compose.pid" 2>/dev/null || true
+    rm -f "/var/run/nix-daemon.pid" 2>/dev/null || true
+    exit $exit_code
+}
+trap cleanup EXIT INT TERM
+
 detect_default_store_path() {
     CFG_SHARE="/boot/config/shares/system.cfg"
     if [ -f "$CFG_SHARE" ]; then
@@ -129,8 +139,10 @@ if [ "$AUTOSTART_FLAKES" = "yes" ] && [ -f "/boot/config/plugins/nix/process-com
         --keep-project \
         > /var/log/nix-process-compose.log 2>&1 &
         
-    echo $! > /var/run/nix-process-compose.pid
-    log_event "INFO" "process-compose daemon started with PID $(cat /var/run/nix-process-compose.pid)"
+    echo $! > "$PIDFILE"
+    chmod 0644 "$PIDFILE" 2>/dev/null || true
+    chown root:root "$PIDFILE" 2>/dev/null || true
+    log_event "INFO" "process-compose daemon started with PID $(cat "$PIDFILE")"
 fi
 
 # 7. Sync latest preset templates in the background

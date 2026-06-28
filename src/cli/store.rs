@@ -27,59 +27,8 @@ pub fn teardown_store() {
 pub fn sync_templates() {
     crate::store::log_event("INFO", "Syncing preset templates from unraid-nix-templates repository...");
 
-    let zip_url = "https://github.com/UberMetroid/unraid-nix-templates/archive/refs/heads/main.zip";
-    let tmp_zip = "/tmp/templates.zip";
-
-    let curl_status = std::process::Command::new("curl")
-        .args(["-sSf", "-L", "-o", tmp_zip, zip_url])
+    let cp_status = std::process::Command::new("/usr/local/emhttp/plugins/nix/scripts/sync-templates.sh")
         .status();
-
-    match curl_status {
-        Ok(status) if status.success() => {},
-        _ => {
-            let err_msg = "Failed to download templates ZIP from GitHub.";
-            crate::store::log_event("ERROR", err_msg);
-            eprintln!("Error: {}", err_msg);
-            std::process::exit(1);
-        }
-    }
-
-    let tmp_dir = "/tmp";
-    let unzip_status = std::process::Command::new("unzip")
-        .args(["-q", "-o", tmp_zip, "-d", tmp_dir])
-        .status();
-
-    match unzip_status {
-        Ok(status) if status.success() => {},
-        _ => {
-            let err_msg = "Failed to extract templates ZIP.";
-            crate::store::log_event("ERROR", err_msg);
-            eprintln!("Error: {}", err_msg);
-            let _ = std::fs::remove_file(tmp_zip);
-            std::process::exit(1);
-        }
-    }
-
-    let extracted_dir = "/tmp/unraid-nix-templates-main";
-    let dest_usr = "/usr/local/emhttp/plugins/nix";
-    let dest_boot = "/boot/config/plugins/nix";
-
-    let cp_status = std::process::Command::new("sh")
-        .arg("-c")
-        .arg(format!(
-            "mkdir -p {usr}/presets {usr}/presets_composed {boot}/presets {boot}/presets_composed \
-             && cp -rf {src}/presets/* {usr}/presets/ 2>/dev/null \
-             && cp -rf {src}/presets_composed/* {usr}/presets_composed/ 2>/dev/null \
-             && cp -rf {src}/presets/* {boot}/presets/ 2>/dev/null \
-             && cp -rf {src}/presets_composed/* {boot}/presets_composed/ 2>/dev/null",
-            usr = dest_usr,
-            boot = dest_boot,
-            src = extracted_dir,
-        ))
-        .status();
-
-    let _ = std::fs::remove_file(tmp_zip);
-    let _ = std::fs::remove_dir_all(extracted_dir);
 
     match cp_status {
         Ok(status) if status.success() => {
@@ -87,7 +36,7 @@ pub fn sync_templates() {
             println!("Templates successfully synced and updated.");
         },
         _ => {
-            let err_msg = "Failed to copy templates to destination plugin directories.";
+            let err_msg = "Failed to sync templates via sync-templates.sh.";
             crate::store::log_event("ERROR", err_msg);
             eprintln!("Error: {}", err_msg);
             std::process::exit(1);

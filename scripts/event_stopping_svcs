@@ -21,6 +21,14 @@ log_pipe() {
 
 log_event "INFO" "Nix Event: stopping_svcs triggered."
 
+cleanup() {
+    local exit_code=$?
+    rm -f "/var/run/nix-process-compose.pid" 2>/dev/null || true
+    rm -f "/var/run/nix-daemon.pid" 2>/dev/null || true
+    exit $exit_code
+}
+trap cleanup EXIT INT TERM
+
 # 1. Gracefully shut down process-compose supervisor and active flakes
 if [ -f "/nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh" ]; then
     source /nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh

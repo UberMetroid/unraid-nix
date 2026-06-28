@@ -20,6 +20,7 @@ if (is_readable($plg_path) && preg_match('/<!ENTITY\s+version\s+"([^"]+)"/', fil
 
 echo "<div class=\"nix-plugin-container theme-{$nix_theme}\">";
 ?>
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'self'; base-uri 'self'; form-action 'self'; frame-ancestors 'none';">
 
 <link type="text/css" rel="stylesheet" href="/plugins/nix/styles_layout.css?v=<?= $cache_bust ?>">
 <link type="text/css" rel="stylesheet" href="/plugins/nix/styles_widgets.css?v=<?= $cache_bust ?>">

@@ -26,6 +26,13 @@ set -euo pipefail
 REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$REPO_ROOT"
 
+cleanup() {
+    local exit_code=$?
+    rm -f /tmp/nix-diagnostics-*.tar.gz 2>/dev/null || true
+    exit $exit_code
+}
+trap cleanup EXIT INT TERM
+
 if [[ -n "$(git status --porcelain)" ]]; then
     echo "ERROR: working tree is dirty. Commit or stash changes first." >&2
     exit 1
