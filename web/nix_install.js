@@ -90,12 +90,12 @@ window.initInstallForm = function() {
 
 function loadAndRenderGpus(selectedGpus) {
     var container = $("#nix-gpus-list");
-    container.html('<div style="font-size: 11px; color: #888; font-style: italic;" id="nix-gpus-loading">Scanning host for GPU devices...</div>');
+    container.html('<div style="font-size: 11px; color: var(--nix-text-secondary); font-style: italic;" id="nix-gpus-loading">Scanning host for GPU devices...</div>');
     
     $.getJSON('/plugins/nix/api.php?action=detect-gpus', function(gpus) {
         container.empty();
         if (!gpus || gpus.length === 0) {
-            container.html('<div style="font-size: 12px; color: #888;">No GPU devices detected on host.</div>');
+            container.html('<div style="font-size: 12px; color: var(--nix-text-secondary);">No GPU devices detected on host.</div>');
             return;
         }
         
@@ -110,7 +110,7 @@ function loadAndRenderGpus(selectedGpus) {
             
             var checkboxHtml = `<label style="display: flex; align-items: center; gap: 8px; font-weight: normal; margin: 0; cursor: pointer;">` +
                 `<input type="checkbox" class="nix-gpu-checkbox" value="${gpu.id}" ${isChecked ? 'checked' : ''}>` +
-                `<span style="color: #eee;">${gpu.name}</span>` +
+                `<span style="color: var(--nix-text-primary);">${gpu.name}</span>` +
                 `</label>`;
             container.append(checkboxHtml);
         });
@@ -221,7 +221,7 @@ function addBindRow(hostVal, sandboxVal) {
     var html = `<div class="nix-form-row nix-bind-row" id="bind-row-${idx}" style="margin-bottom: 8px; display: flex; gap: 8px; align-items: center;">` +
         `<div style="flex: 2; position: relative;">` +
         `<input type="text" class="nix-bind-host" id="bind-host-${idx}" value="${hostVal}" placeholder="Host Path (e.g. /mnt/user/downloads)" autocomplete="off" spellcheck="false" data-pickcloseonfile="true" data-pickfilter="HIDE_FILES_FILTER" data-pickroot="/mnt" data-pickfolders="true" style="padding-right: 30px;">` +
-        `<i class="fa fa-folder-open nix-folder-picker-btn" style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); color: #aaa; cursor: pointer;"></i>` +
+        `<i class="fa fa-folder-open nix-folder-picker-btn" style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); color: var(--nix-text-muted); cursor: pointer;"></i>` +
         `</div><div style="flex: 1;"><input type="text" class="nix-bind-sandbox" placeholder="Sandbox Path (e.g. /downloads)" value="${sandboxVal}"></div>` +
         `<div><button type="button" class="nix-btn" style="color: #e74c3c; border-color: #e74c3c; margin: 0; padding: 8px 12px;" onclick="removeBindRow(${idx})"><i class="fa fa-times"></i></button></div></div>`;
     $("#nix-extra-binds-container").append(html);
@@ -230,19 +230,19 @@ function addBindRow(hostVal, sandboxVal) {
 function removeBindRow(idx) { $(`#bind-row-${idx}`).remove(); }
 
 var portRowIndex = 0;
-fnPortText = (v) => v ? `<span style="font-size: 11px; color: #888; margin-left: 5px;">(${v})</span>` : '';
+fnPortText = (v) => v ? `<span style="font-size: 11px; color: var(--nix-text-secondary); margin-left: 5px;">(${v})</span>` : '';
 function addPortRow(hostVal, containerVal, labelVal, isPresetPort) {
     hostVal = hostVal || '';
     containerVal = containerVal || '';
     labelVal = labelVal || '';
     isPresetPort = isPresetPort || false;
     var idx = portRowIndex++;
-    var readonlyContainer = isPresetPort ? 'readonly style="background: rgba(255,255,255,0.05); color: #888;"' : '';
+    var readonlyContainer = isPresetPort ? 'readonly style="background: var(--nix-bg-tertiary); color: var(--nix-text-secondary);"' : '';
     var deleteBtn = `<button type="button" class="nix-btn" style="color: #e74c3c; border-color: #e74c3c; margin: 0; padding: 8px 12px;" onclick="removePortRow(${idx})"><i class="fa fa-times"></i></button>`;
     var html = `<div class="nix-form-row nix-port-row" id="port-row-${idx}" style="margin-bottom: 8px; display: flex; gap: 8px; align-items: center;">` +
         `<div style="flex: 1;"><label style="font-size: 11px; margin-bottom: 4px; display: block;">Host Port</label>` +
         `<input type="number" class="nix-port-host" id="port-host-${idx}" value="${hostVal}" placeholder="e.g. 8096" min="1" max="65535" required></div>` +
-        `<div style="display: flex; align-items: center; justify-content: center; padding-top: 15px;"><i class="fa fa-arrow-right" style="color: #888;"></i></div>` +
+        `<div style="display: flex; align-items: center; justify-content: center; padding-top: 15px;"><i class="fa fa-arrow-right" style="color: var(--nix-text-secondary);"></i></div>` +
         `<div style="flex: 1;"><label style="font-size: 11px; margin-bottom: 4px; display: block;">Container Port ${fnPortText(labelVal)}</label>` +
         `<input type="number" class="nix-port-container" id="port-container-${idx}" value="${containerVal}" placeholder="e.g. 8096" min="1" max="65535" ${readonlyContainer} required></div>` +
         `<div style="padding-top: 15px;">${deleteBtn}</div></div>`;
@@ -978,7 +978,7 @@ function updatePresetInfo() {
     var matched = presets[name];
     if (matched) {
         var iconClass = (typeof icons !== 'undefined' && icons[name]) ? icons[name] : "fa-info-circle";
-        infoBox.html(`<div style="background: rgba(0, 161, 255, 0.05); border: 1px solid #00a1ff; border-radius: 4px; padding: 12px; font-size: 12px; color: #eee; margin-bottom: 15px;">` +
+        infoBox.html(`<div style="background: var(--nix-bg-secondary); border: 1px solid var(--nix-accent); border-radius: 4px; padding: 12px; font-size: 12px; color: var(--nix-text-primary); margin-bottom: 15px;">` +
             `<div style="font-weight: 600; color: #00a1ff; margin-bottom: 8px; display: flex; align-items: center; gap: 8px;">` +
             `<div style="width: 22px; height: 22px; border-radius: 3px; background: rgba(0, 161, 255, 0.08); border: 1px solid rgba(0, 161, 255, 0.2); display: inline-flex; align-items: center; justify-content: center; color: #00a1ff; flex-shrink: 0;"><i class="fa ${iconClass}" style="font-size: 11px;"></i></div>` +
             `Service Preset Detected: ${matched}</div>` +
@@ -1003,9 +1003,9 @@ function addEnvVarRow(key, value) {
     key = key || '';
     value = value || '';
     var row = $('<div class="nix-env-row" style="display: flex; gap: 10px; align-items: center; margin-bottom: 6px;">' +
-        '<input type="text" class="nix-env-key" placeholder="VARIABLE_NAME" value="' + key + '" style="flex: 1; background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.08); border-radius: 4px; padding: 6px; color: #fff;" autocomplete="off" spellcheck="false">' +
-        '<span style="color: #666;">=</span>' +
-        '<input type="text" class="nix-env-val" placeholder="Value" value="' + value + '" style="flex: 1.5; background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.08); border-radius: 4px; padding: 6px; color: #fff;" autocomplete="off" spellcheck="false">' +
+        '<input type="text" class="nix-env-key" placeholder="VARIABLE_NAME" value="' + key + '" style="flex: 1; background: var(--nix-bg-secondary); border: 1px solid var(--nix-border-primary); border-radius: 4px; padding: 6px; color: var(--nix-text-primary);" autocomplete="off" spellcheck="false">' +
+        '<span style="color: var(--nix-text-muted);">=</span>' +
+        '<input type="text" class="nix-env-val" placeholder="Value" value="' + value + '" style="flex: 1.5; background: var(--nix-bg-secondary); border: 1px solid var(--nix-border-primary); border-radius: 4px; padding: 6px; color: var(--nix-text-primary);" autocomplete="off" spellcheck="false">' +
         '<button type="button" class="nix-btn" style="margin: 0; padding: 6px 10px; color: #e74c3c; border-color: #e74c3c; background: transparent; cursor: pointer;" onclick="$(this).parent().remove()"><i class="fa fa-trash"></i></button>' +
         '</div>');
     $("#nix-env-vars-container").append(row);

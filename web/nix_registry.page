@@ -32,9 +32,9 @@ function executeSearch() {
     if (!query.trim()) return;
     $("#nix-search-results").html(
         '<div class="nix-spinner" style="padding: 30px; text-align: center;">' +
-        '<i class="fa fa-spinner fa-spin" style="font-size: 24px; color: #00a1ff; margin-bottom: 12px;"></i>' +
-        '<div style="font-weight: 600; color: #eee; margin-bottom: 4px;">Searching Nix registry...</div>' +
-        '<div style="font-size: 11px; color: #a0a0a5;">Note: The first search may take up to 20 seconds while the Nix channel is evaluated.</div>' +
+        '<i class="fa fa-spinner fa-spin" style="font-size: 24px; color: var(--nix-accent); margin-bottom: 12px;"></i>' +
+        '<div style="font-weight: 600; color: var(--nix-text-bright); margin-bottom: 4px;">Searching Nix registry...</div>' +
+        '<div style="font-size: 11px; color: var(--nix-text-secondary);">Note: The first search may take up to 20 seconds while the Nix channel is evaluated.</div>' +
         '</div>'
     );
     $.get('/plugins/nix/api.php?action=search&q=' + encodeURIComponent(query), function(html) {

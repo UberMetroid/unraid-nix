@@ -90,13 +90,13 @@ $is_nix_running = ($status_code === 0);
         </div>
         <div id="nix-daemon-controls" style="display: flex; gap: 8px;">
             <?php if ($is_nix_running): ?>
-                <button type="button" class="nix-btn-install" style="background: #232326; border: 1px solid #3a3a3d; color: #525256; cursor: not-allowed; font-weight: normal; margin: 0; padding: 6px 12px; display: inline-flex; align-items: center; gap: 6px;" disabled><i class="fa fa-play"></i> Start</button>
+                <button type="button" class="nix-btn-install" style="background: var(--nix-bg-tertiary); border: 1px solid var(--nix-border-primary); color: var(--nix-text-muted); cursor: not-allowed; font-weight: normal; margin: 0; padding: 6px 12px; display: inline-flex; align-items: center; gap: 6px;" disabled><i class="fa fa-play"></i> Start</button>
                 <button type="button" class="nix-btn" style="margin: 0; padding: 6px 12px;" onclick="toggleNixDaemon('stop')"><i class="fa fa-stop"></i> Stop</button>
                 <button type="button" class="nix-btn" style="margin: 0; padding: 6px 12px;" onclick="toggleNixDaemon('restart')"><i class="fa fa-refresh"></i> Restart</button>
             <?php else: ?>
                 <button type="button" class="nix-btn-install" style="margin: 0; padding: 6px 12px; display: inline-flex; align-items: center; gap: 6px;" onclick="toggleNixDaemon('start')"><i class="fa fa-play"></i> Start</button>
-                <button type="button" class="nix-btn" style="margin: 0; padding: 6px 12px; color: #525256; border-color: #2d2d30; cursor: not-allowed;" disabled><i class="fa fa-stop"></i> Stop</button>
-                <button type="button" class="nix-btn" style="margin: 0; padding: 6px 12px; color: #525256; border-color: #2d2d30; cursor: not-allowed;" disabled><i class="fa fa-refresh"></i> Restart</button>
+                <button type="button" class="nix-btn" style="margin: 0; padding: 6px 12px; color: var(--nix-text-muted); border-color: var(--nix-border-primary); cursor: not-allowed;" disabled><i class="fa fa-stop"></i> Stop</button>
+                <button type="button" class="nix-btn" style="margin: 0; padding: 6px 12px; color: var(--nix-text-muted); border-color: var(--nix-border-primary); cursor: not-allowed;" disabled><i class="fa fa-refresh"></i> Restart</button>
             <?php endif; ?>
         </div>
     </div>
@@ -112,7 +112,7 @@ $is_nix_running = ($status_code === 0);
         <div class="nix-field-help" style="margin-top: 0; margin-bottom: 6px;">Target directory for package persistence. Do NOT use your USB boot drive (/boot). (Default: /mnt/cache/system/nix)</div>
         <div style="position: relative;">
             <input type="text" id="settings-store-path" autocomplete="off" spellcheck="false" value="<?php echo htmlspecialchars($store_path); ?>" placeholder="/mnt/cache/system/nix" data-pickcloseonfile="true" data-pickfilter="HIDE_FILES_FILTER" data-pickroot="/mnt" data-pickfolders="true" required style="padding-right: 30px;">
-            <i class="fa fa-folder-open nix-folder-picker-btn" style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); color: #aaa; pointer-events: none;"></i>
+            <i class="fa fa-folder-open nix-folder-picker-btn" style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); color: var(--nix-text-muted); pointer-events: none;"></i>
         </div>
     </div>
 
@@ -166,13 +166,13 @@ $is_nix_running = ($status_code === 0);
     <div class="nix-form-group">
         <label for="settings-build-cores">Max Build Cores:</label>
         <div class="nix-field-help" style="margin-top: 0; margin-bottom: 6px;">Maximum CPU threads Nix can consume per build job. Set to 0 to use all available cores. (Default: 0)</div>
-        <input type="number" id="settings-build-cores" min="0" value="<?php echo htmlspecialchars($build_cores); ?>" style="width: 100px; padding: 6px; border-radius: 4px; border: 1px solid rgba(255,255,255,0.1); background: rgba(0,0,0,0.2); color: #fff; text-align: center;">
+        <input type="number" id="settings-build-cores" min="0" value="<?php echo htmlspecialchars($build_cores); ?>" style="width: 100px; padding: 6px; border-radius: 4px; border: 1px solid var(--nix-border-primary); background: var(--nix-bg-secondary); color: var(--nix-text-primary); text-align: center;">
     </div>
 
     <div class="nix-form-group">
         <label for="settings-build-jobs">Max Build Jobs:</label>
         <div class="nix-field-help" style="margin-top: 0; margin-bottom: 6px;">Maximum concurrent compilation jobs Nix can execute in parallel. Set to 0 to auto-assign. (Default: 0)</div>
-        <input type="number" id="settings-build-jobs" min="0" value="<?php echo htmlspecialchars($build_jobs); ?>" style="width: 100px; padding: 6px; border-radius: 4px; border: 1px solid rgba(255,255,255,0.1); background: rgba(0,0,0,0.2); color: #fff; text-align: center;">
+        <input type="number" id="settings-build-jobs" min="0" value="<?php echo htmlspecialchars($build_jobs); ?>" style="width: 100px; padding: 6px; border-radius: 4px; border: 1px solid var(--nix-border-primary); background: var(--nix-bg-secondary); color: var(--nix-text-primary); text-align: center;">
     </div>
 
     <div class="nix-form-group">
@@ -270,8 +270,8 @@ $is_nix_running = ($status_code === 0);
         <label for="settings-store-quota">Storage Quota (GB):</label>
         <div class="nix-field-help" style="margin-top: 0; margin-bottom: 6px;">Target size threshold. Background cleanup tasks run GC automatically if exceeded. (Default: 30)</div>
         <div style="display: flex; align-items: center; gap: 10px;">
-            <input type="number" id="settings-store-quota" min="10" value="<?php echo htmlspecialchars($store_quota); ?>" style="width: 100px; padding: 6px; border-radius: 4px; border: 1px solid rgba(255,255,255,0.1); background: rgba(0,0,0,0.2); color: #fff; text-align: center;">
-            <span style="font-size: 12px; color: #888;">
+            <input type="number" id="settings-store-quota" min="10" value="<?php echo htmlspecialchars($store_quota); ?>" style="width: 100px; padding: 6px; border-radius: 4px; border: 1px solid var(--nix-border-primary); background: var(--nix-bg-secondary); color: var(--nix-text-primary); text-align: center;">
+            <span style="font-size: 12px; color: var(--nix-text-secondary);">
                 Suggested: <strong><?php echo $suggested_quota; ?> GB</strong> (based on <?php echo $num_flakes; ?> configured flakes)
             </span>
         </div>
@@ -280,13 +280,13 @@ $is_nix_running = ($status_code === 0);
     <div class="nix-form-group" style="margin-top: 15px; border-top: 1px solid rgba(255,255,255,0.05); padding-top: 15px;">
         <label for="settings-gc-min-free">Min Free Disk Space (GB):</label>
         <div class="nix-field-help" style="margin-top: 0; margin-bottom: 6px;">Automatically trigger GC if your Unraid storage pool free space falls below this limit. (Default: 5)</div>
-        <input type="number" id="settings-gc-min-free" min="1" value="<?php echo htmlspecialchars($gc_min_free); ?>" style="width: 100px; padding: 6px; border-radius: 4px; border: 1px solid rgba(255,255,255,0.1); background: rgba(0,0,0,0.2); color: #fff; text-align: center;">
+        <input type="number" id="settings-gc-min-free" min="1" value="<?php echo htmlspecialchars($gc_min_free); ?>" style="width: 100px; padding: 6px; border-radius: 4px; border: 1px solid var(--nix-border-primary); background: var(--nix-bg-secondary); color: var(--nix-text-primary); text-align: center;">
     </div>
 
     <div class="nix-form-group" style="margin-top: 15px;">
         <label for="settings-gc-max-free">GC Cleanup Amount (GB):</label>
         <div class="nix-field-help" style="margin-top: 0; margin-bottom: 6px;">Amount of storage space Nix should clear out when disk-space-triggered GC fires. (Default: 10)</div>
-        <input type="number" id="settings-gc-max-free" min="1" value="<?php echo htmlspecialchars($gc_max_free); ?>" style="width: 100px; padding: 6px; border-radius: 4px; border: 1px solid rgba(255,255,255,0.1); background: rgba(0,0,0,0.2); color: #fff; text-align: center;">
+        <input type="number" id="settings-gc-max-free" min="1" value="<?php echo htmlspecialchars($gc_max_free); ?>" style="width: 100px; padding: 6px; border-radius: 4px; border: 1px solid var(--nix-border-primary); background: var(--nix-bg-secondary); color: var(--nix-text-primary); text-align: center;">
     </div>
 
     <div style="margin-top: 15px; display: flex; justify-content: flex-end; border-top: 1px solid rgba(255,255,255,0.05); padding-top: 15px;">

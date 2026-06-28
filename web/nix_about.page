@@ -11,9 +11,9 @@ echo "<div class=\"nix-plugin-container theme-{$nix_theme}\">";
 <link type="text/css" rel="stylesheet" href="/plugins/nix/styles_widgets.css?v=<?php echo time(); ?>">
 <script src="/plugins/nix/nix.js"></script>
 <div class="nix-section" style="margin-top: 10px; max-width: 1000px; line-height: 1.6;">
-    <div style="display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid rgba(255,255,255,0.08); padding-bottom: 15px; margin-bottom: 20px;">
+    <div style="display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--nix-border-primary); padding-bottom: 15px; margin-bottom: 20px;">
         <div>
-            <h2 style="margin: 0; font-size: 20px; color: #fff;">Nix on Unraid</h2>
+            <h2 style="margin: 0; font-size: 20px; color: var(--nix-text-bright);">Nix on Unraid</h2>
             <p class="nix-subtext" style="margin: 5px 0 0 0;">Declarative, sandboxed package management and supervisor engine.</p>
         </div>
         <div style="display: flex; gap: 8px;">
@@ -29,34 +29,34 @@ echo "<div class=\"nix-plugin-container theme-{$nix_theme}\">";
     <!-- Why Nix on Unraid specifically -->
     <div style="margin-bottom: 25px;">
         <h3 style="color: #ff9f43; margin-bottom: 10px;"><i class="fa fa-server"></i> Why Nix on Unraid?</h3>
-        <p style="color: #eee; margin-bottom: 12px;">
+        <p style="color: var(--nix-text-primary); margin-bottom: 12px;">
             While Docker and VMs are the standard way to run applications on Unraid, Nix provides a powerful third alternative—<strong>Native Bare-Metal Services</strong>. Here is why Nix is uniquely beneficial on Unraid:
         </p>
         <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(450px, 1fr)); gap: 16px;">
-            <div style="background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.05); border-radius: 4px; padding: 14px;">
-                <strong style="color: #fff; font-size: 13px; display: block; margin-bottom: 6px;"><i class="fa fa-flash" style="color: #ff9f43;"></i> 1. Zero-Overhead Bare-Metal Performance</strong>
-                <span style="font-size: 11.5px; color: #a0a0a5; line-height: 1.5; display: block;">
+            <div style="background: var(--nix-bg-secondary); border: 1px solid var(--nix-border-primary); border-radius: 4px; padding: 14px;">
+                <strong style="color: var(--nix-text-bright); font-size: 13px; display: block; margin-bottom: 6px;"><i class="fa fa-flash" style="color: #ff9f43;"></i> 1. Zero-Overhead Bare-Metal Performance</strong>
+                <span style="font-size: 11.5px; color: var(--nix-text-secondary); line-height: 1.5; display: block;">
                     Unlike Docker containers or virtual machines, Nix services run natively as standard processes directly on Unraid's host CPU. There are no virtualized network bridges, overlay filesystems, or container namespace layers, resulting in lower RAM usage, absolute bare-metal CPU throughput, and instantaneous startup times.
                 </span>
             </div>
             
-            <div style="background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.05); border-radius: 4px; padding: 14px;">
-                <strong style="color: #fff; font-size: 13px; display: block; margin-bottom: 6px;"><i class="fa fa-repeat" style="color: #ff9f43;"></i> 2. Persistence on a RAM-based OS</strong>
-                <span style="font-size: 11.5px; color: #a0a0a5; line-height: 1.5; display: block;">
+            <div style="background: var(--nix-bg-secondary); border: 1px solid var(--nix-border-primary); border-radius: 4px; padding: 14px;">
+                <strong style="color: var(--nix-text-bright); font-size: 13px; display: block; margin-bottom: 6px;"><i class="fa fa-repeat" style="color: #ff9f43;"></i> 2. Persistence on a RAM-based OS</strong>
+                <span style="font-size: 11.5px; color: var(--nix-text-secondary); line-height: 1.5; display: block;">
                     Unraid runs entirely from a RAM disk loaded from your USB flash drive during boot. Any manually installed packages or modified libraries in directories like <code>/usr/bin</code> or <code>/lib</code> are lost on reboot. Nix installs everything in <code>/nix/store</code> on a persistent array/cache pool, ensuring all packages, tools, and configurations survive reboots without modifying your Slackware system files.
                 </span>
             </div>
 
-            <div style="background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.05); border-radius: 4px; padding: 14px;">
-                <strong style="color: #fff; font-size: 13px; display: block; margin-bottom: 6px;"><i class="fa fa-tachometer" style="color: #ff9f43;"></i> 3. Direct Hardware Access</strong>
-                <span style="font-size: 11.5px; color: #a0a0a5; line-height: 1.5; display: block;">
+            <div style="background: var(--nix-bg-secondary); border: 1px solid var(--nix-border-primary); border-radius: 4px; padding: 14px;">
+                <strong style="color: var(--nix-text-bright); font-size: 13px; display: block; margin-bottom: 6px;"><i class="fa fa-tachometer" style="color: #ff9f43;"></i> 3. Direct Hardware Access</strong>
+                <span style="font-size: 11.5px; color: var(--nix-text-secondary); line-height: 1.5; display: block;">
                     Because Nix processes run natively, they have direct access to host hardware—including Nvidia, Intel, and AMD GPU nodes (<code>/dev/dri</code>)—without requiring complex Docker passthrough configurations, runtime flags, or special container drivers.
                 </span>
             </div>
 
-            <div style="background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.05); border-radius: 4px; padding: 14px;">
-                <strong style="color: #fff; font-size: 13px; display: block; margin-bottom: 6px;"><i class="fa fa-puzzle-piece" style="color: #ff9f43;"></i> 4. Over 80,000 Packages</strong>
-                <span style="font-size: 11.5px; color: #a0a0a5; line-height: 1.5; display: block;">
+            <div style="background: var(--nix-bg-secondary); border: 1px solid var(--nix-border-primary); border-radius: 4px; padding: 14px;">
+                <strong style="color: var(--nix-text-bright); font-size: 13px; display: block; margin-bottom: 6px;"><i class="fa fa-puzzle-piece" style="color: #ff9f43;"></i> 4. Over 80,000 Packages</strong>
+                <span style="font-size: 11.5px; color: var(--nix-text-secondary); line-height: 1.5; display: block;">
                     Nixpkgs is the largest package repository in the world. Instead of waiting for community developers to build and package specialized command-line tools or developer runtimes as Docker containers, you can search and run any of them instantly on Unraid.
                 </span>
             </div>
@@ -66,10 +66,10 @@ echo "<div class=\"nix-plugin-container theme-{$nix_theme}\">";
     <!-- Contributing Preset Templates -->
     <div style="margin-bottom: 25px;">
         <h3 style="color: #2ecc71; margin-bottom: 10px;"><i class="fa fa-code-fork"></i> Preset Templates & Syncing</h3>
-        <p style="color: #eee;">
+        <p style="color: var(--nix-text-primary);">
             All templates in the Template Library are synced dynamically from our dedicated community repository: <strong><a href="https://github.com/UberMetroid/unraid-nix-templates" target="_blank" style="color: #00a1ff; text-decoration: underline;">unraid-nix-templates</a></strong>.
         </p>
-        <ul style="color: #a0a0a5; padding-left: 20px; margin-top: 8px; line-height: 1.6;">
+        <ul style="color: var(--nix-text-secondary); padding-left: 20px; margin-top: 8px; line-height: 1.6;">
             <li style="margin-bottom: 8px;">
                 <strong>Automatic Background Sync:</strong> The plugin automatically downloads and updates the latest presets from the templates repository whenever your Unraid storage array is mounted.
             </li>
@@ -85,10 +85,10 @@ echo "<div class=\"nix-plugin-container theme-{$nix_theme}\">";
     <!-- How it works -->
     <div style="margin-bottom: 25px;">
         <h3 style="color: #00a1ff; margin-bottom: 10px;"><i class="fa fa-info-circle"></i> How Nix Works</h3>
-        <p style="color: #eee;">
+        <p style="color: var(--nix-text-primary);">
             Nix is a unique package manager that treats package installations as mathematical functions. Unlike traditional package managers (like <code>apt</code> or <code>pacman</code>) which overwrite shared directories like <code>/usr/bin</code> or <code>/lib</code>, Nix stores all packages in isolation inside the <strong>Nix Store</strong> (<code>/nix/store</code>).
         </p>
-        <ul style="color: #a0a0a5; padding-left: 20px; margin-top: 8px;">
+        <ul style="color: var(--nix-text-secondary); padding-left: 20px; margin-top: 8px;">
             <li style="margin-bottom: 8px;"><strong>Immutable Packages:</strong> Every package directory in the Nix store is prefixed with a cryptographic hash of all its inputs (source code, dependencies, compiler options). This prevents conflicts and guarantees reproducibility.</li>
             <li style="margin-bottom: 8px;"><strong>Jailed Sandboxing:</strong> Background services run inside isolated filesystem namespaces (chroot jails), limiting access to your raw host shares unless directories are explicitly mapped in the service configuration.</li>
             <li style="margin-bottom: 8px;"><strong>Process Supervision:</strong> Services are managed in user-space by <code>process-compose</code>, a lightweight, non-systemd supervisor that handles startup ordering, process recovery, and resource tracking.</li>
@@ -96,28 +96,28 @@ echo "<div class=\"nix-plugin-container theme-{$nix_theme}\">";
     </div>
 
     <!-- Performance Tuning -->
-    <div style="margin-bottom: 25px; background: rgba(0, 161, 255, 0.02); border: 1px solid rgba(0, 161, 255, 0.15); border-radius: 6px; padding: 18px;">
+    <div style="margin-bottom: 25px; background: var(--nix-bg-secondary); border: 1px solid var(--nix-accent); border-radius: 6px; padding: 18px;">
         <h3 style="color: #00a1ff; margin-top: 0; margin-bottom: 12px;"><i class="fa fa-bolt"></i> Performance & Health Guidelines</h3>
-        <p style="color: #eee; margin-bottom: 15px;">To ensure maximum storage health, high speeds, and optimal CPU load on your Unraid server, follow these best practices:</p>
+        <p style="color: var(--nix-text-primary); margin-bottom: 15px;">To ensure maximum storage health, high speeds, and optimal CPU load on your Unraid server, follow these best practices:</p>
         
         <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px;">
-            <div style="background: rgba(0,0,0,0.15); border: 1px solid rgba(255,255,255,0.03); border-radius: 4px; padding: 12px;">
-                <h4 style="margin: 0 0 6px 0; color: #fff; font-size: 13px;"><i class="fa fa-hdd-o" style="color: #e67e22;"></i> 1. Store Location (Crucial)</h4>
-                <p style="margin: 0; font-size: 11.5px; color: #a0a0a5; line-height: 1.5;">
+            <div style="background: var(--nix-bg-tertiary); border: 1px solid var(--nix-border-primary); border-radius: 4px; padding: 12px;">
+                <h4 style="margin: 0 0 6px 0; color: var(--nix-text-bright); font-size: 13px;"><i class="fa fa-hdd-o" style="color: #e67e22;"></i> 1. Store Location (Crucial)</h4>
+                <p style="margin: 0; font-size: 11.5px; color: var(--nix-text-secondary); line-height: 1.5;">
                     Always configure your Nix Store on a fast <strong>SSD pool share</strong> (such as cache, nvme, or system shares). Do <strong>NOT</strong> store the Nix directories on your USB flash drive (<code>/boot</code>) as the high write frequency of package evaluations will wear out the flash storage and cause array lockups.
                 </p>
             </div>
             
-            <div style="background: rgba(0,0,0,0.15); border: 1px solid rgba(255,255,255,0.03); border-radius: 4px; padding: 12px;">
-                <h4 style="margin: 0 0 6px 0; color: #fff; font-size: 13px;"><i class="fa fa-cloud-download" style="color: #2ecc71;"></i> 2. Prefer Cache Builds</h4>
-                <p style="margin: 0; font-size: 11.5px; color: #a0a0a5; line-height: 1.5;">
+            <div style="background: var(--nix-bg-tertiary); border: 1px solid var(--nix-border-primary); border-radius: 4px; padding: 12px;">
+                <h4 style="margin: 0 0 6px 0; color: var(--nix-text-bright); font-size: 13px;"><i class="fa fa-cloud-download" style="color: #2ecc71;"></i> 2. Prefer Cache Builds</h4>
+                <p style="margin: 0; font-size: 11.5px; color: var(--nix-text-secondary); line-height: 1.5;">
                     Keep <strong>Allow Package Compilation</strong> set to <strong>No</strong> under System Settings. This forces Nix to strictly use pre-built binary caches (caches.nixos.org). This avoids compiling packages locally from source code, saving enormous CPU cycles and preventing long build wait times.
                 </p>
             </div>
 
-            <div style="background: rgba(0,0,0,0.15); border: 1px solid rgba(255,255,255,0.03); border-radius: 4px; padding: 12px;">
-                <h4 style="margin: 0 0 6px 0; color: #fff; font-size: 13px;"><i class="fa fa-shield" style="color: #d946ef;"></i> 3. Sandbox Isolation</h4>
-                <p style="margin: 0; font-size: 11.5px; color: #a0a0a5; line-height: 1.5;">
+            <div style="background: var(--nix-bg-tertiary); border: 1px solid var(--nix-border-primary); border-radius: 4px; padding: 12px;">
+                <h4 style="margin: 0 0 6px 0; color: var(--nix-text-bright); font-size: 13px;"><i class="fa fa-shield" style="color: #d946ef;"></i> 3. Sandbox Isolation</h4>
+                <p style="margin: 0; font-size: 11.5px; color: var(--nix-text-secondary); line-height: 1.5;">
                     Keep <strong>Enable Storage Sandboxing</strong> active. When active, Nix background processes are strictly locked out of your disks except for your configured `appdata` directories or mapped paths, protecting user shares from accidental writes.
                 </p>
             </div>

@@ -134,7 +134,7 @@ $host_ips = get_host_ips_php();
                 <label for="custom-appdata">Configuration Location:</label>
                 <div style="position: relative;">
                     <input type="text" id="custom-appdata" autocomplete="off" spellcheck="false" placeholder="<?php echo !empty($appdata_root) ? htmlspecialchars($appdata_root) . '/service-name' : '/path/to/appdata/service-name'; ?>" data-pickcloseonfile="true" data-pickfilter="HIDE_FILES_FILTER" data-pickroot="/mnt" data-pickfolders="true" style="padding-right: 30px;">
-                    <i class="fa fa-folder-open nix-folder-picker-btn" style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); color: #aaa; cursor: pointer;"></i>
+                    <i class="fa fa-folder-open nix-folder-picker-btn" style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); color: var(--nix-text-muted); cursor: pointer;"></i>
                 </div>
                 <div class="nix-field-help" style="color: #e74c3c;"><i class="fa fa-warning"></i> Do NOT use your USB boot drive (/boot) as it will wear out the flash storage.</div>
             </div>
@@ -177,17 +177,17 @@ $host_ips = get_host_ips_php();
             <div class="nix-form-group">
                 <label style="font-weight: 600; margin-bottom: 8px; display: block;">Per-Flake Isolation Settings:</label>
                 <div style="background: rgba(255, 255, 255, 0.02); border: 1px solid rgba(255,255,255,0.08); border-radius: 4px; padding: 12px; display: flex; flex-direction: column; gap: 10px;">
-                    <label style="color: #eee; font-size: 13px; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; user-select: none;">
+                    <label style="color: var(--nix-text-bright); font-size: 13px; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; user-select: none;">
                         <input type="checkbox" id="custom-network-isolation" style="margin: 0; vertical-align: middle;"> Enable Network Isolation (Block LAN/WAN Internet access)
                     </label>
-                    <div class="nix-field-help" style="margin: 0 0 0 20px; color: #888; font-size: 11px;">Restricts the service's access to loopback (127.0.0.1) only, isolating it completely from LAN and the Internet.</div>
+                    <div class="nix-field-help" style="margin: 0 0 0 20px; color: var(--nix-text-secondary); font-size: 11px;">Restricts the service's access to loopback (127.0.0.1) only, isolating it completely from LAN and the Internet.</div>
                 </div>
             </div>
 
             <div class="nix-form-group">
                 <label style="font-weight: 600; margin-bottom: 8px; display: block;">GPU Device Access:</label>
                 <div id="nix-gpus-list" style="background: rgba(255, 255, 255, 0.02); border: 1px solid rgba(255,255,255,0.08); border-radius: 4px; padding: 12px; display: flex; flex-direction: column; gap: 10px;">
-                    <div style="font-size: 11px; color: #888; font-style: italic;" id="nix-gpus-loading">Scanning host for GPU devices...</div>
+                    <div style="font-size: 11px; color: var(--nix-text-secondary); font-style: italic;" id="nix-gpus-loading">Scanning host for GPU devices...</div>
                 </div>
             </div>
 
@@ -195,8 +195,8 @@ $host_ips = get_host_ips_php();
 
             <div class="nix-form-group">
                 <label>Launch Command Override:</label>
-                <textarea id="custom-command-override" placeholder="e.g. exec nix run nixpkgs#my-app -- --port 80" style="width: 100%; height: 50px; background: rgba(255, 255, 255, 0.02); border: 1px solid rgba(255,255,255,0.08); border-radius: 4px; padding: 8px; color: #fff; font-family: monospace; font-size: 11px; resize: vertical;" autocomplete="off" spellcheck="false"></textarea>
-                <div style="font-size: 11px; color: #888; margin-top: 4px; line-height: 1.4;">
+                <textarea id="custom-command-override" placeholder="e.g. exec nix run nixpkgs#my-app -- --port 80" style="width: 100%; height: 50px; background: var(--nix-bg-secondary); border: 1px solid var(--nix-border-primary); border-radius: 4px; padding: 8px; color: var(--nix-text-primary); font-family: monospace; font-size: 11px; resize: vertical;" autocomplete="off" spellcheck="false"></textarea>
+                <div style="font-size: 11px; color: var(--nix-text-secondary); margin-top: 4px; line-height: 1.4;">
                     Leave blank to use default preset commands or default flake executions. If specified, this exact command will execute inside the sandboxed jail.
                 </div>
             </div>
