@@ -58,7 +58,11 @@ pub fn build_bwrap_command(config: &SandboxConfig) -> Result<String, String> {
 
     let cuda_devices = if nvidia_indexes.is_empty() {
         if let Some(ref g) = config.gpus {
-            if g.trim().is_empty() { Some(String::new()) } else { None }
+            if g.trim().is_empty() {
+                Some(String::new())
+            } else {
+                None
+            }
         } else if config.enable_gpu {
             None
         } else {
@@ -73,13 +77,27 @@ pub fn build_bwrap_command(config: &SandboxConfig) -> Result<String, String> {
         .unwrap_or_else(|_| config.appdata_path.clone());
 
     if is_storage_sandbox_enabled() {
-        build_chroot_command(config, &appdata_canon, has_nvidia, has_render, &cuda_devices)
+        build_chroot_command(
+            config,
+            &appdata_canon,
+            has_nvidia,
+            has_render,
+            &cuda_devices,
+        )
     } else {
         let appdata_path_buf = std::path::PathBuf::from(&appdata_canon);
-        let appdata_parent = appdata_path_buf.parent()
+        let appdata_parent = appdata_path_buf
+            .parent()
             .map(|p| p.to_string_lossy().to_string())
             .unwrap_or_else(|| DEFAULT_APPDATA_PARENT.to_string());
-        build_setpriv_command(config, &appdata_canon, &appdata_parent, has_nvidia, has_render, &cuda_devices)
+        build_setpriv_command(
+            config,
+            &appdata_canon,
+            &appdata_parent,
+            has_nvidia,
+            has_render,
+            &cuda_devices,
+        )
     }
 }
 

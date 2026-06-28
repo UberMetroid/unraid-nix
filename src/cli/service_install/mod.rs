@@ -2,8 +2,8 @@ use crate::config;
 use crate::sandbox;
 use std::process::exit;
 
-pub mod setup;
 pub mod config_writer;
+pub mod setup;
 
 #[derive(serde::Deserialize, serde::Serialize, Debug, Clone)]
 pub struct ExtraBind {
@@ -31,12 +31,21 @@ pub fn install_service(args: &crate::cli::args::InstallServiceArgs) {
     setup::setup_appdata_dir(appdata, puid, pgid);
 
     let mut name = uri.replace("nixpkgs#", "");
-    if let Some(pos) = name.rfind('/') { name = name[pos + 1..].to_string(); }
-    if let Some(pos) = name.rfind(':') { name = name[pos + 1..].to_string(); }
-    if let Some(pos) = name.rfind('#') { name = name[pos + 1..].to_string(); }
+    if let Some(pos) = name.rfind('/') {
+        name = name[pos + 1..].to_string();
+    }
+    if let Some(pos) = name.rfind(':') {
+        name = name[pos + 1..].to_string();
+    }
+    if let Some(pos) = name.rfind('#') {
+        name = name[pos + 1..].to_string();
+    }
 
     if !crate::store::is_valid_service_name(&name) {
-        crate::store::log_event("ERROR", &format!("Derived service name '{name}' from uri '{uri}' is invalid"));
+        crate::store::log_event(
+            "ERROR",
+            &format!("Derived service name '{name}' from uri '{uri}' is invalid"),
+        );
         exit(1);
     }
 
@@ -53,7 +62,8 @@ pub fn install_service(args: &crate::cli::args::InstallServiceArgs) {
 
     let name_lower = name.to_lowercase();
     let preset_path = crate::config::get_preset_path(&name_lower);
-    let has_preset = std::path::Path::new(&preset_path).exists() || ["radarr", "sonarr", "jellyfin", "syncthing"].contains(&name_lower.as_str());
+    let has_preset = std::path::Path::new(&preset_path).exists()
+        || ["radarr", "sonarr", "jellyfin", "syncthing"].contains(&name_lower.as_str());
 
     let cmd = if !command_override.trim().is_empty() {
         match sandbox::build_bwrap_command(&sandbox::SandboxConfig {
@@ -88,11 +98,14 @@ pub fn install_service(args: &crate::cli::args::InstallServiceArgs) {
             gpus.clone(),
             binds_vec.clone(),
             port.clone(),
-            bind_address.clone()
+            bind_address.clone(),
         ) {
             Ok(c) => c,
             Err(e) => {
-                crate::store::log_event("ERROR", &format!("install-service: failed to resolve preset for '{name}': {e}"));
+                crate::store::log_event(
+                    "ERROR",
+                    &format!("install-service: failed to resolve preset for '{name}': {e}"),
+                );
                 exit(1);
             }
         }
@@ -114,7 +127,12 @@ pub fn install_service(args: &crate::cli::args::InstallServiceArgs) {
         }) {
             Ok(c) => c,
             Err(e) => {
-                crate::store::log_event("ERROR", &format!("install-service: failed to build bubblewrap sandbox for '{name}': {e}"));
+                crate::store::log_event(
+                    "ERROR",
+                    &format!(
+                        "install-service: failed to build bubblewrap sandbox for '{name}': {e}"
+                    ),
+                );
                 exit(1);
             }
         }

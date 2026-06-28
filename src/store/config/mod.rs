@@ -1,6 +1,6 @@
+use crate::unraid::NIX_CFG_PATH;
 use chrono::Local;
 use std::io::Write;
-use crate::unraid::NIX_CFG_PATH;
 
 const BYTES_PER_GB: u64 = 1 << 30;
 
@@ -9,7 +9,6 @@ pub fn log_event(level: &str, msg: &str) {
 }
 
 fn log_event_to_path(log_path: &str, level: &str, msg: &str, max_size: u64) {
-
     struct LockGuard {
         path: String,
         active: bool,
@@ -23,7 +22,10 @@ fn log_event_to_path(log_path: &str, level: &str, msg: &str, max_size: u64) {
     }
 
     let lock_path = format!("{log_path}.lock");
-    let mut guard = LockGuard { path: lock_path.clone(), active: false };
+    let mut guard = LockGuard {
+        path: lock_path.clone(),
+        active: false,
+    };
 
     let mut delay = std::time::Duration::from_millis(5);
     for _ in 0..5 {
@@ -70,9 +72,10 @@ fn log_event_to_path(log_path: &str, level: &str, msg: &str, max_size: u64) {
     if let Ok(mut file) = std::fs::OpenOptions::new()
         .create(true)
         .append(true)
-        .open(log_path) {
-            let _ = file.write_all(line.as_bytes());
-        }
+        .open(log_path)
+    {
+        let _ = file.write_all(line.as_bytes());
+    }
 
     if log_path == "/var/log/nix-plugin.log" {
         let _ = std::process::Command::new("logger")
@@ -83,7 +86,8 @@ fn log_event_to_path(log_path: &str, level: &str, msg: &str, max_size: u64) {
 
     #[cfg(not(test))]
     {
-        if safe_level == "ERROR" || safe_level == "WARN" || std::env::var_os("NIX_DEBUG").is_some() {
+        if safe_level == "ERROR" || safe_level == "WARN" || std::env::var_os("NIX_DEBUG").is_some()
+        {
             eprintln!("[{safe_level}] {safe_msg}");
         }
     }
@@ -103,7 +107,9 @@ pub fn validate_store_path(path: &str) -> Result<(), String> {
         return Err("Nix store path cannot be empty.".to_string());
     }
     if path.starts_with("/boot") {
-        return Err("Nix store path cannot be located on the boot flash drive (/boot).".to_string());
+        return Err(
+            "Nix store path cannot be located on the boot flash drive (/boot).".to_string(),
+        );
     }
     Ok(())
 }
@@ -139,9 +145,11 @@ pub fn generate_nix_conf_content(
         ("0".to_string(), "0".to_string())
     };
 
-    let min_free_bytes = gc_min_free_gb.checked_mul(BYTES_PER_GB)
+    let min_free_bytes = gc_min_free_gb
+        .checked_mul(BYTES_PER_GB)
         .ok_or_else(|| "min_free_gb overflow".to_string())?;
-    let max_free_bytes = gc_max_free_gb.checked_mul(BYTES_PER_GB)
+    let max_free_bytes = gc_max_free_gb
+        .checked_mul(BYTES_PER_GB)
         .ok_or_else(|| "max_free_gb overflow".to_string())?;
 
     // `NIX_BUILD_SANDBOX` opt-out. Default: enabled (true). Admin can set
@@ -165,9 +173,14 @@ pub fn generate_nix_conf_content(
 }
 
 pub fn is_valid_service_name(name: &str) -> bool {
-    if name.is_empty() { return false; }
-    if name.starts_with('.') || name.ends_with('.') || name.contains("..") { return false; }
-    name.chars().all(|c| c.is_alphanumeric() || c == '_' || c == '-' || c == '.')
+    if name.is_empty() {
+        return false;
+    }
+    if name.starts_with('.') || name.ends_with('.') || name.contains("..") {
+        return false;
+    }
+    name.chars()
+        .all(|c| c.is_alphanumeric() || c == '_' || c == '-' || c == '.')
 }
 
 #[cfg(test)]

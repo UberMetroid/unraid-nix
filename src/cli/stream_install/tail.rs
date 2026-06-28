@@ -1,10 +1,10 @@
 use crate::unraid::SUPERVISOR_PORT;
+use serde::Deserialize;
 use std::fs::File;
 use std::io::{BufRead, BufReader, Seek, SeekFrom};
 use std::os::unix::fs::MetadataExt;
-use std::time::{Duration, Instant};
 use std::thread::sleep;
-use serde::Deserialize;
+use std::time::{Duration, Instant};
 
 #[derive(Deserialize)]
 struct LogLine {

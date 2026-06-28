@@ -1,6 +1,6 @@
-use crate::process::{get_services_status, is_supervisor_running, ServiceStatus};
-use crate::api::utils::{get_service_web_port, get_host_ips};
+use crate::api::utils::{get_host_ips, get_service_web_port};
 use crate::api::utils::{html_escape, js_escape};
+use crate::process::{get_services_status, is_supervisor_running, ServiceStatus};
 
 pub(super) fn get_sorted_statuses(api_port: u16) -> Result<Vec<ServiceStatus>, String> {
     let mut statuses = get_services_status(api_port)?;
@@ -13,12 +13,19 @@ pub(super) fn get_sorted_statuses(api_port: u16) -> Result<Vec<ServiceStatus>, S
 /// render) and `dashboard_diff` (incremental patch).
 pub(super) fn render_single_row(s: &ServiceStatus) -> String {
     let host_ips = get_host_ips();
-    let ip_str = host_ips.first().map(|h| h.ip.as_str()).unwrap_or("127.0.0.1");
+    let ip_str = host_ips
+        .first()
+        .map(|h| h.ip.as_str())
+        .unwrap_or("127.0.0.1");
 
     let is_running = s.status.to_lowercase() == "running";
     let status_text = if is_running { "Running" } else { "Stopped" };
     let status_color = if is_running { "#2ecc71" } else { "#e74c3c" };
-    let shadow = if is_running { "0 0 5px #2ecc71" } else { "none" };
+    let shadow = if is_running {
+        "0 0 5px #2ecc71"
+    } else {
+        "none"
+    };
 
     let port = get_service_web_port(&s.name);
     let name_link_html = if let Some(p) = port {
@@ -28,7 +35,9 @@ pub(super) fn render_single_row(s: &ServiceStatus) -> String {
                 <span style="vertical-align: middle; font-weight: 500;">{}</span>
                 <i class="fa fa-external-link" style="font-size: 8px; color: #00a1ff; opacity: 0.7; vertical-align: middle;"></i>
             </a>"#,
-            html_escape(ip_str), html_escape(&s.name), html_escape(&s.name)
+            html_escape(ip_str),
+            html_escape(&s.name),
+            html_escape(&s.name)
         )
     } else {
         format!(
@@ -36,13 +45,18 @@ pub(super) fn render_single_row(s: &ServiceStatus) -> String {
                 <img src="/plugins/nix/api.php?action=get-icon&service={}" style="width: 16px; height: 16px; border-radius: 2px; vertical-align: middle;" />
                 <span style="vertical-align: middle; font-weight: 500;">{}</span>
             </span>"#,
-            html_escape(&s.name), html_escape(&s.name)
+            html_escape(&s.name),
+            html_escape(&s.name)
         )
     };
 
     let btn_icon = if is_running { "fa-stop" } else { "fa-play" };
     let btn_action = if is_running { "stop" } else { "start" };
-    let btn_title = if is_running { "Stop Service" } else { "Start Service" };
+    let btn_title = if is_running {
+        "Stop Service"
+    } else {
+        "Start Service"
+    };
 
     let gpu_indicator = if s.gpu_active.unwrap_or(false) {
         r#"<i class="fa fa-microchip nix-dash-gpu-active" style="font-size: 11px; color: #00a1ff; vertical-align: middle;" title="GPU Active"></i>"#
@@ -68,7 +82,16 @@ pub(super) fn render_single_row(s: &ServiceStatus) -> String {
                 </button>
             </td>
         </tr>"#,
-        html_escape(&s.name), name_link_html, status_color, shadow, status_text, gpu_indicator, html_escape(&js_escape(&s.name)), btn_action, btn_title, btn_icon
+        html_escape(&s.name),
+        name_link_html,
+        status_color,
+        shadow,
+        status_text,
+        gpu_indicator,
+        html_escape(&js_escape(&s.name)),
+        btn_action,
+        btn_title,
+        btn_icon
     )
 }
 
@@ -121,12 +144,24 @@ mod tests {
     fn test_render_single_row_running_status_has_green_dot_and_stop_action() {
         let s = make_status("radarr", "Running", Some(2.5));
         let html = render_single_row(&s);
-        assert!(html.contains("data-service=\"radarr\""), "row must carry data-service attr");
-        assert!(html.contains("status-dot"), "row must include status-dot span");
+        assert!(
+            html.contains("data-service=\"radarr\""),
+            "row must carry data-service attr"
+        );
+        assert!(
+            html.contains("status-dot"),
+            "row must include status-dot span"
+        );
         assert!(html.contains("#2ecc71"), "running row must use green color");
         assert!(html.contains("'stop'"), "running row must wire stop action");
-        assert!(html.contains("fa-stop"), "running row must use fa-stop icon");
-        assert!(html.contains(">Running<"), "running row must show Running text");
+        assert!(
+            html.contains("fa-stop"),
+            "running row must use fa-stop icon"
+        );
+        assert!(
+            html.contains(">Running<"),
+            "running row must show Running text"
+        );
     }
 
     #[test]
@@ -134,8 +169,17 @@ mod tests {
         let s = make_status("sonarr", "Stopped", None);
         let html = render_single_row(&s);
         assert!(html.contains("#e74c3c"), "stopped row must use red color");
-        assert!(html.contains("'start'"), "stopped row must wire start action");
-        assert!(html.contains("fa-play"), "stopped row must use fa-play icon");
-        assert!(html.contains(">Stopped<"), "stopped row must show Stopped text");
+        assert!(
+            html.contains("'start'"),
+            "stopped row must wire start action"
+        );
+        assert!(
+            html.contains("fa-play"),
+            "stopped row must use fa-play icon"
+        );
+        assert!(
+            html.contains(">Stopped<"),
+            "stopped row must show Stopped text"
+        );
     }
 }

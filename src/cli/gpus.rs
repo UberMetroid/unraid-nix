@@ -1,8 +1,8 @@
-use std::process::{Command, Stdio};
-use std::fs;
-use std::time::Duration;
-use serde_json::{json, Value};
 use crate::util::process::run_with_timeout;
+use serde_json::{json, Value};
+use std::fs;
+use std::process::{Command, Stdio};
+use std::time::Duration;
 
 pub struct DetectedGpus {
     pub has_nvidia: bool,
@@ -16,8 +16,11 @@ pub fn run_live_gpu_detection() -> Vec<Value> {
 
     if let Ok(output) = {
         let mut cmd = Command::new("nvidia-smi");
-        cmd.args(["--query-gpu=index,name,uuid,pci.bus_id", "--format=csv,noheader,nounits"])
-            .stdin(Stdio::null());
+        cmd.args([
+            "--query-gpu=index,name,uuid,pci.bus_id",
+            "--format=csv,noheader,nounits",
+        ])
+        .stdin(Stdio::null());
         run_with_timeout(&mut cmd, Duration::from_secs(3))
     } {
         if output.status.success() {
@@ -125,7 +128,10 @@ pub fn get_detected_gpus() -> DetectedGpus {
 
 pub fn detect_gpus() {
     let gpus = load_or_detect_gpus();
-    println!("{}", serde_json::to_string(&gpus).unwrap_or_else(|_| "[]".to_string()));
+    println!(
+        "{}",
+        serde_json::to_string(&gpus).unwrap_or_else(|_| "[]".to_string())
+    );
 }
 
 /// Prepares the target symlink directory for NVIDIA / CUDA drivers on the host.
@@ -133,7 +139,10 @@ pub fn detect_gpus() {
 pub fn setup_gpu_driver_symlinks() {
     let target_dir = std::path::Path::new("/var/run/nix-nvidia-driver/lib");
     if let Err(e) = fs::create_dir_all(target_dir) {
-        crate::store::log_event("ERROR", &format!("Failed to create GPU target directory {target_dir:?}: {e}"));
+        crate::store::log_event(
+            "ERROR",
+            &format!("Failed to create GPU target directory {target_dir:?}: {e}"),
+        );
         return;
     }
 
@@ -149,7 +158,9 @@ pub fn setup_gpu_driver_symlinks() {
             for entry in entries.flatten() {
                 let name_os = entry.file_name();
                 let name = name_os.to_string_lossy();
-                if name.starts_with("libcuda.so") || (name.starts_with("libnvidia-") && name.contains(".so")) {
+                if name.starts_with("libcuda.so")
+                    || (name.starts_with("libnvidia-") && name.contains(".so"))
+                {
                     let dest = target_dir.join(&*name);
                     let _ = std::os::unix::fs::symlink(entry.path(), dest);
                 }

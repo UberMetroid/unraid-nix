@@ -5,7 +5,10 @@ use std::process::exit;
 
 pub fn get_metadata(name: &str) {
     if !crate::store::is_valid_service_name(name) {
-        crate::store::log_event("ERROR", &format!("Invalid service name '{name}' for get-metadata"));
+        crate::store::log_event(
+            "ERROR",
+            &format!("Invalid service name '{name}' for get-metadata"),
+        );
         exit(1);
     }
     println!("{}", get_metadata_json(name));
@@ -13,7 +16,10 @@ pub fn get_metadata(name: &str) {
 
 pub fn get_metadata_json(name: &str) -> String {
     if !crate::store::is_valid_service_name(name) {
-        crate::store::log_event("ERROR", &format!("Invalid service name '{name}' for get-metadata"));
+        crate::store::log_event(
+            "ERROR",
+            &format!("Invalid service name '{name}' for get-metadata"),
+        );
         exit(1);
     }
     let meta_file = format!("{METADATA_DIR}/{name}.json");
@@ -41,7 +47,11 @@ pub fn get_metadata_json(name: &str) -> String {
     if detected_root.is_empty() {
         detected_root = crate::unraid::detect_appdata_root();
     }
-    let fallback_appdata_root = if !detected_root.is_empty() { detected_root } else { "/mnt/user/appdata".to_string() };
+    let fallback_appdata_root = if !detected_root.is_empty() {
+        detected_root
+    } else {
+        "/mnt/user/appdata".to_string()
+    };
 
     let mut puid = "99".to_string();
     let mut pgid = "100".to_string();

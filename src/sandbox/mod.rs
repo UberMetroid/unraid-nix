@@ -57,11 +57,17 @@ pub fn parse_ports(s: &str) -> Vec<PortMapping> {
         let subparts: Vec<&str> = part.split(':').collect();
         if subparts.len() == 2 {
             if let (Ok(h), Ok(c)) = (subparts[0].parse::<u16>(), subparts[1].parse::<u16>()) {
-                mappings.push(PortMapping { host: h, container: c });
+                mappings.push(PortMapping {
+                    host: h,
+                    container: c,
+                });
             }
         } else if subparts.len() == 1 {
             if let Ok(p) = subparts[0].parse::<u16>() {
-                mappings.push(PortMapping { host: p, container: p });
+                mappings.push(PortMapping {
+                    host: p,
+                    container: p,
+                });
             }
         }
     }

@@ -44,12 +44,20 @@ pub fn sandbox_check(apply_fallback: bool) {
         );
     }
 
-    if apply_fallback && (recommendation == "fall_back_to_false" || recommendation == "kernel_unsupported") {
+    if apply_fallback
+        && (recommendation == "fall_back_to_false" || recommendation == "kernel_unsupported")
+    {
         if let Err(e) = write_fallback_to_nix_cfg() {
-            crate::store::log_event("ERROR", &format!("Could not write sandbox = false to nix.cfg: {e}"));
+            crate::store::log_event(
+                "ERROR",
+                &format!("Could not write sandbox = false to nix.cfg: {e}"),
+            );
             std::process::exit(1);
         }
-        crate::store::log_event("INFO", "Wrote sandbox = false to /boot/config/plugins/nix/nix.cfg (audit trail above).");
+        crate::store::log_event(
+            "INFO",
+            "Wrote sandbox = false to /boot/config/plugins/nix/nix.cfg (audit trail above).",
+        );
     }
 }
 
@@ -202,7 +210,9 @@ fn probe_build_sandbox() -> Result<(), String> {
         Ok(s) if s.success() => Ok(()),
         Ok(s) => Err(format!(
             "build probe failed with exit code {}",
-            s.code().map(|c| c.to_string()).unwrap_or_else(|| "?".to_string())
+            s.code()
+                .map(|c| c.to_string())
+                .unwrap_or_else(|| "?".to_string())
         )),
         Err(e) => Err(format!("could not invoke nix: {e}")),
     }

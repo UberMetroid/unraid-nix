@@ -40,9 +40,7 @@ fn parse_license(val: &serde_json::Value) -> Option<String> {
             }
         }
         if let Some(arr) = lic.as_array() {
-            let names: Vec<String> = arr.iter()
-                .filter_map(parse_license)
-                .collect();
+            let names: Vec<String> = arr.iter().filter_map(parse_license).collect();
             if !names.is_empty() {
                 return Some(names.join(", "));
             }
@@ -56,7 +54,9 @@ pub fn get_github_source_link(pos: &str) -> Option<String> {
     if let Some(idx) = pos.find("/pkgs/") {
         let rel_path = &pos[idx + 1..];
         let cleaned = rel_path.replace(':', "#L");
-        return Some(format!("https://github.com/NixOS/nixpkgs/blob/master/{cleaned}"));
+        return Some(format!(
+            "https://github.com/NixOS/nixpkgs/blob/master/{cleaned}"
+        ));
     }
     None
 }
@@ -71,11 +71,15 @@ fn fetch_bulk_metadata(keys: &[String]) -> Result<HashMap<String, serde_json::Va
     for key in keys {
         let rel_key = key.trim_start_matches("legacyPackages.x86_64-linux.");
         let path_segments: Vec<&str> = rel_key.split('.').collect();
-        let path_expr = path_segments.iter()
+        let path_expr = path_segments
+            .iter()
             .map(|s| format!("\"{}\"", s))
             .collect::<Vec<_>>()
             .join(" ");
-        expr_parts.push(format!("\"{}\" = (attrByPath [{}] {{}} lp).meta or {{}};", key, path_expr));
+        expr_parts.push(format!(
+            "\"{}\" = (attrByPath [{}] {{}} lp).meta or {{}};",
+            key, path_expr
+        ));
     }
 
     let nix_expr = format!(
@@ -122,9 +126,15 @@ pub fn parse_search_json(json_content: &str) -> Result<Vec<SearchResult>, String
         let mut position = None;
 
         if let Some(meta) = meta_map.get(&key) {
-            homepage = meta.get("homepage").and_then(|v| v.as_str()).map(String::from);
+            homepage = meta
+                .get("homepage")
+                .and_then(|v| v.as_str())
+                .map(String::from);
             license = parse_license(meta);
-            position = meta.get("position").and_then(|v| v.as_str()).and_then(get_github_source_link);
+            position = meta
+                .get("position")
+                .and_then(|v| v.as_str())
+                .and_then(get_github_source_link);
         }
 
         results.push(SearchResult {

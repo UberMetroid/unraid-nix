@@ -45,9 +45,7 @@ pub(super) fn parse_rotation(y: &Yaml) -> Result<Rotation, String> {
     Ok(r)
 }
 
-pub(super) fn parse_processes_map(
-    y: &Yaml,
-) -> Result<HashMap<String, ProcessDefinition>, String> {
+pub(super) fn parse_processes_map(y: &Yaml) -> Result<HashMap<String, ProcessDefinition>, String> {
     let entries = expect_map(y.clone(), "processes")?;
     let mut out = HashMap::new();
     for (name, v) in entries {

@@ -1,6 +1,6 @@
 use crate::api::utils::HostAddr;
-use crate::process::GpuStat;
 use crate::api::utils::{html_escape, js_escape};
+use crate::process::GpuStat;
 
 pub fn render_lan_ip_port_cell(
     port_num: Option<u16>,
@@ -26,16 +26,19 @@ pub fn render_lan_ip_port_cell(
                 }
             }
 
-            
             let link = if is_running {
                 format!(
                     r##"<div style="margin-bottom: 4px;"><a href="#" onclick="window.open('http://{}:{}/', '_blank'); return false;" style="color: var(--nix-accent); text-decoration: none; font-weight: 500;">{}:{} <i class="fa fa-external-link" style="font-size: 9px; margin-left: 1px;"></i></a></div>"##,
-                    html_escape(&js_escape(&addr.ip)), port, html_escape(&addr.ip), port
+                    html_escape(&js_escape(&addr.ip)),
+                    port,
+                    html_escape(&addr.ip),
+                    port
                 )
             } else {
                 format!(
                     r##"<div style="margin-bottom: 4px;"><span style="color: var(--nix-text-secondary);">{}:{}</span></div>"##,
-                    html_escape(&addr.ip), port
+                    html_escape(&addr.ip),
+                    port
                 )
             };
             ip_links.push(link);
@@ -46,12 +49,16 @@ pub fn render_lan_ip_port_cell(
                 let link = if is_running {
                     format!(
                         r##"<div style="margin-bottom: 4px;"><a href="#" onclick="window.open('http://{}:{}/', '_blank'); return false;" style="color: var(--nix-accent); text-decoration: none; font-weight: 500;">{}:{} <i class="fa fa-external-link" style="font-size: 9px; margin-left: 1px;"></i></a></div>"##,
-                        html_escape(&js_escape(target)), port, html_escape(target), port
+                        html_escape(&js_escape(target)),
+                        port,
+                        html_escape(target),
+                        port
                     )
                 } else {
                     format!(
                         r##"<div style="margin-bottom: 4px;"><span style="color: var(--nix-text-secondary);">{}:{}</span></div>"##,
-                        html_escape(target), port
+                        html_escape(target),
+                        port
                     )
                 };
                 ip_links.push(link);
@@ -68,7 +75,6 @@ pub fn render_lan_ip_port_cell(
     }
 }
 
-
 pub fn render_resources_cell(
     name: &str,
     is_running: bool,
@@ -83,12 +89,18 @@ pub fn render_resources_cell(
         let cpu_val = cpu.unwrap_or(0.0);
         let mem_val = memory.unwrap_or(0);
         let mb = mem_val as f64 / 1_048_576.0;
-        
+
         let cpu_str = format!("{:.1}%", cpu_val);
         let mem_str = format!("{:.1} MB", mb);
 
-        let has_gpu = gpus_override.as_ref().map(|g| !g.trim().is_empty()).unwrap_or(false)
-            || legacy_gpu.as_ref().map(|l| l == "1" || l == "true").unwrap_or(false);
+        let has_gpu = gpus_override
+            .as_ref()
+            .map(|g| !g.trim().is_empty())
+            .unwrap_or(false)
+            || legacy_gpu
+                .as_ref()
+                .map(|l| l == "1" || l == "true")
+                .unwrap_or(false);
 
         let gpu_html = if has_gpu {
             let mut gpu_sm = 0;
@@ -108,12 +120,15 @@ pub fn render_resources_cell(
                     <span style="color: var(--nix-text-secondary); font-size: 10px;">VRAM</span>
                     <span class="nix-stat-val" style="color: #a855f7; font-family: monospace; font-weight: 500;">{}%</span>
                 </div>"#,
-                html_escape(name), gpu_sm, html_escape(name), gpu_mem
+                html_escape(name),
+                gpu_sm,
+                html_escape(name),
+                gpu_mem
             )
         } else {
             "".to_string()
         };
-        
+
         res.push_str(&format!(
             r#"<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 4px 16px; font-size: 11px; width: 100%; box-sizing: border-box;">
                 <!-- Row 1 -->

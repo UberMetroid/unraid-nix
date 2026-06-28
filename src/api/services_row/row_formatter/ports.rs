@@ -13,7 +13,10 @@ pub fn get_service_ports(name: &str) -> Vec<crate::sandbox::PortMapping> {
                     if let Some(num) = port_val.as_u64() {
                         if num > 0 {
                             if let Ok(p) = u16::try_from(num) {
-                                ports.push(crate::sandbox::PortMapping { host: p, container: p });
+                                ports.push(crate::sandbox::PortMapping {
+                                    host: p,
+                                    container: p,
+                                });
                             }
                         }
                     }
@@ -35,8 +38,12 @@ pub fn get_service_ports(name: &str) -> Vec<crate::sandbox::PortMapping> {
             if let Ok(json) = serde_json::from_str::<serde_json::Value>(&content) {
                 if let Some(ports_arr) = json.get("default_ports").and_then(|p| p.as_array()) {
                     for port_item in ports_arr {
-                        if let (Some(h), Some(c)) = (port_item.get("host").and_then(|v| v.as_u64()), port_item.get("container").and_then(|v| v.as_u64())) {
-                            if let (Ok(host), Ok(container)) = (u16::try_from(h), u16::try_from(c)) {
+                        if let (Some(h), Some(c)) = (
+                            port_item.get("host").and_then(|v| v.as_u64()),
+                            port_item.get("container").and_then(|v| v.as_u64()),
+                        ) {
+                            if let (Ok(host), Ok(container)) = (u16::try_from(h), u16::try_from(c))
+                            {
                                 ports.push(crate::sandbox::PortMapping { host, container });
                             }
                         }
@@ -48,13 +55,25 @@ pub fn get_service_ports(name: &str) -> Vec<crate::sandbox::PortMapping> {
 
     if ports.is_empty() {
         if name_lower.contains("sonarr") {
-            ports.push(crate::sandbox::PortMapping { host: 8989, container: 8989 });
+            ports.push(crate::sandbox::PortMapping {
+                host: 8989,
+                container: 8989,
+            });
         } else if name_lower.contains("radarr") {
-            ports.push(crate::sandbox::PortMapping { host: 7878, container: 7878 });
+            ports.push(crate::sandbox::PortMapping {
+                host: 7878,
+                container: 7878,
+            });
         } else if name_lower.contains("jellyfin") {
-            ports.push(crate::sandbox::PortMapping { host: 8096, container: 8096 });
+            ports.push(crate::sandbox::PortMapping {
+                host: 8096,
+                container: 8096,
+            });
         } else if name_lower.contains("syncthing") {
-            ports.push(crate::sandbox::PortMapping { host: 8384, container: 8384 });
+            ports.push(crate::sandbox::PortMapping {
+                host: 8384,
+                container: 8384,
+            });
         }
     }
 
@@ -80,9 +99,21 @@ mod tests {
         // no metadata file or preset file in the test environment, we get
         // back the canonical default mapping.
         let sonarr = get_service_ports("sonarr");
-        assert_eq!(sonarr, vec![crate::sandbox::PortMapping { host: 8989, container: 8989 }]);
+        assert_eq!(
+            sonarr,
+            vec![crate::sandbox::PortMapping {
+                host: 8989,
+                container: 8989
+            }]
+        );
 
         let radarr = get_service_ports("radarr");
-        assert_eq!(radarr, vec![crate::sandbox::PortMapping { host: 7878, container: 7878 }]);
+        assert_eq!(
+            radarr,
+            vec![crate::sandbox::PortMapping {
+                host: 7878,
+                container: 7878
+            }]
+        );
     }
 }

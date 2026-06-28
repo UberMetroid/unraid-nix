@@ -85,7 +85,11 @@ processes:
     assert_eq!(lc.add_timestamp, Some(true));
     assert_eq!(
         lc.fields_order,
-        Some(vec!["time".to_string(), "level".to_string(), "message".to_string()])
+        Some(vec![
+            "time".to_string(),
+            "level".to_string(),
+            "message".to_string()
+        ])
     );
     let rot = lc.rotation.as_ref().expect("rotation");
     assert_eq!(rot.max_size_mb, Some(10));
@@ -104,8 +108,7 @@ processes:
 #[test]
 fn parse_config_rejects_bad_input() {
     assert!(parse_config("just: text").is_err()); // missing processes
-    assert!(parse_config(
-        "processes:\n  svc:\n    availability:\n      restart: always\n"
-    )
-    .is_err()); // missing command
+    assert!(
+        parse_config("processes:\n  svc:\n    availability:\n      restart: always\n").is_err()
+    ); // missing command
 }

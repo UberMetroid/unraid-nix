@@ -10,7 +10,7 @@ pub struct CategoryStyling {
 
 pub fn get_preset_category_styling(name: &str, default_icon: &str) -> CategoryStyling {
     let name_lower = name.to_lowercase();
-    
+
     if let Some(styling) = part1::match_styling(&name_lower, default_icon) {
         return styling;
     }

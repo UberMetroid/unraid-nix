@@ -1,5 +1,5 @@
-use crate::sandbox::{parse_ports, sh_quote, SandboxConfig};
 use super::find_nix_bash;
+use crate::sandbox::{parse_ports, sh_quote, SandboxConfig};
 
 pub fn build_chroot_command(
     config: &SandboxConfig,
@@ -34,20 +34,34 @@ pub fn build_chroot_command(
     mounts_cmd.push(format!(
         "touch {chroot_dir}/etc/resolv.conf {chroot_dir}/etc/passwd {chroot_dir}/etc/group {chroot_dir}/etc/hosts"
     ));
-    mounts_cmd.push(format!("mount --bind -o ro /etc/resolv.conf {chroot_dir}/etc/resolv.conf"));
+    mounts_cmd.push(format!(
+        "mount --bind -o ro /etc/resolv.conf {chroot_dir}/etc/resolv.conf"
+    ));
     mounts_cmd.push(format!("mount --bind -o ro /etc/ssl {chroot_dir}/etc/ssl"));
-    mounts_cmd.push(format!("mount --bind -o ro /etc/passwd {chroot_dir}/etc/passwd"));
-    mounts_cmd.push(format!("mount --bind -o ro /etc/group {chroot_dir}/etc/group"));
-    mounts_cmd.push(format!("mount --bind -o ro /etc/hosts {chroot_dir}/etc/hosts"));
+    mounts_cmd.push(format!(
+        "mount --bind -o ro /etc/passwd {chroot_dir}/etc/passwd"
+    ));
+    mounts_cmd.push(format!(
+        "mount --bind -o ro /etc/group {chroot_dir}/etc/group"
+    ));
+    mounts_cmd.push(format!(
+        "mount --bind -o ro /etc/hosts {chroot_dir}/etc/hosts"
+    ));
     mounts_cmd.push(format!(
         "if [ -d /etc/nix ]; then mkdir -p {chroot_dir}/etc/nix && mount --bind -o ro /etc/nix {chroot_dir}/etc/nix; fi"
     ));
 
-    mounts_cmd.push(format!("mount --bind {} {chroot_dir}/config", sh_quote(appdata_canon)));
+    mounts_cmd.push(format!(
+        "mount --bind {} {chroot_dir}/config",
+        sh_quote(appdata_canon)
+    ));
 
     if let Some(ref media) = config.media_path {
         if !media.trim().is_empty() {
-            mounts_cmd.push(format!("mkdir -p {chroot_dir}/media && mount --bind {} {chroot_dir}/media", sh_quote(media)));
+            mounts_cmd.push(format!(
+                "mkdir -p {chroot_dir}/media && mount --bind {} {chroot_dir}/media",
+                sh_quote(media)
+            ));
         }
     }
 
@@ -55,7 +69,9 @@ pub fn build_chroot_command(
         if !host.trim().is_empty() && !sandbox.trim().is_empty() {
             mounts_cmd.push(format!(
                 "mkdir -p {chroot_dir}{} && mount --bind {} {chroot_dir}{}",
-                sh_quote(sandbox), sh_quote(host), sh_quote(sandbox)
+                sh_quote(sandbox),
+                sh_quote(host),
+                sh_quote(sandbox)
             ));
         }
     }
@@ -84,7 +100,10 @@ pub fn build_chroot_command(
         ld_paths.push("/run/opengl-driver/lib".to_string());
     }
     if has_render {
-        ld_paths.push("$(nix build --no-link --print-out-paths nixpkgs#vpl-gpu-rt 2>/dev/null || true)/lib".to_string());
+        ld_paths.push(
+            "$(nix build --no-link --print-out-paths nixpkgs#vpl-gpu-rt 2>/dev/null || true)/lib"
+                .to_string(),
+        );
     }
     if !ld_paths.is_empty() {
         env_vars.push(format!("export LD_LIBRARY_PATH={}", ld_paths.join(":")));

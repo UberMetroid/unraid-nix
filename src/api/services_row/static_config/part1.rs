@@ -2,10 +2,20 @@ use super::StaticConfig;
 
 pub fn match_static_config(name_lower: &str) -> Option<StaticConfig> {
     // AI & LLMs (Indigo/Cyberpunk Purple-Blue)
-    if name_lower.contains("ollama") || name_lower.contains("open-webui") || name_lower.contains("localai") ||
-       name_lower.contains("anythingllm") || name_lower.contains("librechat") || name_lower.contains("flowise") ||
-       name_lower.contains("stable-diffusion") || name_lower.contains("comfyui") || name_lower.contains("text-generation-webui") ||
-       name_lower.contains("invokeai") || name_lower.contains("fooocus") || name_lower.contains("dify") || name_lower.contains("lobe-chat") {
+    if name_lower.contains("ollama")
+        || name_lower.contains("open-webui")
+        || name_lower.contains("localai")
+        || name_lower.contains("anythingllm")
+        || name_lower.contains("librechat")
+        || name_lower.contains("flowise")
+        || name_lower.contains("stable-diffusion")
+        || name_lower.contains("comfyui")
+        || name_lower.contains("text-generation-webui")
+        || name_lower.contains("invokeai")
+        || name_lower.contains("fooocus")
+        || name_lower.contains("dify")
+        || name_lower.contains("lobe-chat")
+    {
         return Some(StaticConfig {
             icon: "fa-magic",
             color: "#a29bfe",
@@ -15,8 +25,13 @@ pub fn match_static_config(name_lower: &str) -> Option<StaticConfig> {
     }
 
     // Dashboards (Amber/Gold)
-    if name_lower.contains("homepage") || name_lower.contains("homarr") || name_lower.contains("heimdall") ||
-       name_lower.contains("dashy") || name_lower.contains("flame") || name_lower.contains("organizr") {
+    if name_lower.contains("homepage")
+        || name_lower.contains("homarr")
+        || name_lower.contains("heimdall")
+        || name_lower.contains("dashy")
+        || name_lower.contains("flame")
+        || name_lower.contains("organizr")
+    {
         return Some(StaticConfig {
             icon: "fa-tachometer",
             color: "#fdcb6e",
@@ -26,9 +41,14 @@ pub fn match_static_config(name_lower: &str) -> Option<StaticConfig> {
     }
 
     // Gaming (Coral/Red)
-    if name_lower.contains("emulatorjs") || name_lower.contains("romm") || name_lower.contains("pterodactyl") ||
-       name_lower.contains("pufferpanel") || name_lower.contains("lancache") || name_lower.contains("minecraft-server") ||
-       name_lower.contains("steamcmd") {
+    if name_lower.contains("emulatorjs")
+        || name_lower.contains("romm")
+        || name_lower.contains("pterodactyl")
+        || name_lower.contains("pufferpanel")
+        || name_lower.contains("lancache")
+        || name_lower.contains("minecraft-server")
+        || name_lower.contains("steamcmd")
+    {
         return Some(StaticConfig {
             icon: "fa-gamepad",
             color: "#ff7675",
@@ -38,12 +58,23 @@ pub fn match_static_config(name_lower: &str) -> Option<StaticConfig> {
     }
 
     // Productivity (Emerald Green)
-    if name_lower.contains("paperless-ngx") || name_lower.contains("stirling-pdf") || name_lower.contains("joplin-server") ||
-       name_lower.contains("trilium-notes") || name_lower.contains("bookstack") || name_lower.contains("wiki-js") ||
-       name_lower.contains("dokuwiki") || name_lower.contains("mediawiki") || name_lower.contains("wekan") ||
-       name_lower.contains("focalboard") || name_lower.contains("leantime") || name_lower.contains("kanboard") ||
-       name_lower.contains("etherpad") || name_lower.contains("hedgedoc") || name_lower.contains("outline") ||
-       name_lower.contains("excalidraw") {
+    if name_lower.contains("paperless-ngx")
+        || name_lower.contains("stirling-pdf")
+        || name_lower.contains("joplin-server")
+        || name_lower.contains("trilium-notes")
+        || name_lower.contains("bookstack")
+        || name_lower.contains("wiki-js")
+        || name_lower.contains("dokuwiki")
+        || name_lower.contains("mediawiki")
+        || name_lower.contains("wekan")
+        || name_lower.contains("focalboard")
+        || name_lower.contains("leantime")
+        || name_lower.contains("kanboard")
+        || name_lower.contains("etherpad")
+        || name_lower.contains("hedgedoc")
+        || name_lower.contains("outline")
+        || name_lower.contains("excalidraw")
+    {
         return Some(StaticConfig {
             icon: "fa-file-text-o",
             color: "#2ecc71",
@@ -53,15 +84,32 @@ pub fn match_static_config(name_lower: &str) -> Option<StaticConfig> {
     }
 
     // Media Players (Cyan/Blue)
-    if name_lower.contains("jellyfin") || name_lower.contains("plex") || name_lower.contains("emby") ||
-       name_lower.contains("navidrome") || name_lower.contains("airsonic") || name_lower.contains("subsonic") || 
-       name_lower.contains("lidarr") || name_lower.contains("audiobookshelf") || name_lower.contains("kavita") || 
-       name_lower.contains("calibre") {
-        let icon = if name_lower.contains("jellyfin") || name_lower.contains("plex") || name_lower.contains("emby") {
+    if name_lower.contains("jellyfin")
+        || name_lower.contains("plex")
+        || name_lower.contains("emby")
+        || name_lower.contains("navidrome")
+        || name_lower.contains("airsonic")
+        || name_lower.contains("subsonic")
+        || name_lower.contains("lidarr")
+        || name_lower.contains("audiobookshelf")
+        || name_lower.contains("kavita")
+        || name_lower.contains("calibre")
+    {
+        let icon = if name_lower.contains("jellyfin")
+            || name_lower.contains("plex")
+            || name_lower.contains("emby")
+        {
             "fa-play-circle"
-        } else if name_lower.contains("navidrome") || name_lower.contains("airsonic") || name_lower.contains("subsonic") || name_lower.contains("lidarr") {
+        } else if name_lower.contains("navidrome")
+            || name_lower.contains("airsonic")
+            || name_lower.contains("subsonic")
+            || name_lower.contains("lidarr")
+        {
             "fa-music"
-        } else if name_lower.contains("calibre") || name_lower.contains("audiobookshelf") || name_lower.contains("kavita") {
+        } else if name_lower.contains("calibre")
+            || name_lower.contains("audiobookshelf")
+            || name_lower.contains("kavita")
+        {
             "fa-book"
         } else {
             "fa-music"
@@ -73,12 +121,22 @@ pub fn match_static_config(name_lower: &str) -> Option<StaticConfig> {
             border: "rgba(0, 161, 255, 0.2)",
         });
     }
-    
+
     // Servarr (Orange)
-    if name_lower.contains("sonarr") || name_lower.contains("sickrage") || name_lower.contains("sickchill") ||
-       name_lower.contains("radarr") || name_lower.contains("couchpotato") || name_lower.contains("readarr") ||
-       name_lower.contains("bazarr") || name_lower.contains("prowlarr") || name_lower.contains("jackett") {
-        let icon = if name_lower.contains("sonarr") || name_lower.contains("sickrage") || name_lower.contains("sickchill") {
+    if name_lower.contains("sonarr")
+        || name_lower.contains("sickrage")
+        || name_lower.contains("sickchill")
+        || name_lower.contains("radarr")
+        || name_lower.contains("couchpotato")
+        || name_lower.contains("readarr")
+        || name_lower.contains("bazarr")
+        || name_lower.contains("prowlarr")
+        || name_lower.contains("jackett")
+    {
+        let icon = if name_lower.contains("sonarr")
+            || name_lower.contains("sickrage")
+            || name_lower.contains("sickchill")
+        {
             "fa-television"
         } else if name_lower.contains("radarr") || name_lower.contains("couchpotato") {
             "fa-film"
@@ -100,9 +158,16 @@ pub fn match_static_config(name_lower: &str) -> Option<StaticConfig> {
     }
 
     // General Automation & Workflows (Pink/Magenta)
-    if name_lower.contains("n8n") || name_lower.contains("node-red") || name_lower.contains("nodered") ||
-       name_lower.contains("changedetection") || name_lower.contains("apprise") || name_lower.contains("gotify") ||
-       name_lower.contains("ntfy") || name_lower.contains("huginn") || name_lower.contains("activepieces") {
+    if name_lower.contains("n8n")
+        || name_lower.contains("node-red")
+        || name_lower.contains("nodered")
+        || name_lower.contains("changedetection")
+        || name_lower.contains("apprise")
+        || name_lower.contains("gotify")
+        || name_lower.contains("ntfy")
+        || name_lower.contains("huginn")
+        || name_lower.contains("activepieces")
+    {
         return Some(StaticConfig {
             icon: "fa-code-fork",
             color: "#e84393",
@@ -112,8 +177,14 @@ pub fn match_static_config(name_lower: &str) -> Option<StaticConfig> {
     }
 
     // Download Clients (Green)
-    if name_lower.contains("transmission") || name_lower.contains("sabnzbd") || name_lower.contains("nzbget") || 
-       name_lower.contains("qbittorrent") || name_lower.contains("deluge") || name_lower.contains("rtorrent") || name_lower.contains("aria2") {
+    if name_lower.contains("transmission")
+        || name_lower.contains("sabnzbd")
+        || name_lower.contains("nzbget")
+        || name_lower.contains("qbittorrent")
+        || name_lower.contains("deluge")
+        || name_lower.contains("rtorrent")
+        || name_lower.contains("aria2")
+    {
         return Some(StaticConfig {
             icon: "fa-download",
             color: "#2ecc71",
@@ -123,11 +194,24 @@ pub fn match_static_config(name_lower: &str) -> Option<StaticConfig> {
     }
 
     // Network (Purple)
-    if name_lower.contains("pihole") || name_lower.contains("pi-hole") || name_lower.contains("adguard") ||
-       name_lower.contains("nginx") || name_lower.contains("traefik") || name_lower.contains("caddy") || name_lower.contains("npm") ||
-       name_lower.contains("unifi") || name_lower.contains("cloudflared") || name_lower.contains("cloudflare-ddns") ||
-       name_lower.contains("ddclient") || name_lower.contains("duckdns") || name_lower.contains("swag") {
-        let icon = if name_lower.contains("pihole") || name_lower.contains("pi-hole") || name_lower.contains("adguard") {
+    if name_lower.contains("pihole")
+        || name_lower.contains("pi-hole")
+        || name_lower.contains("adguard")
+        || name_lower.contains("nginx")
+        || name_lower.contains("traefik")
+        || name_lower.contains("caddy")
+        || name_lower.contains("npm")
+        || name_lower.contains("unifi")
+        || name_lower.contains("cloudflared")
+        || name_lower.contains("cloudflare-ddns")
+        || name_lower.contains("ddclient")
+        || name_lower.contains("duckdns")
+        || name_lower.contains("swag")
+    {
+        let icon = if name_lower.contains("pihole")
+            || name_lower.contains("pi-hole")
+            || name_lower.contains("adguard")
+        {
             "fa-shield"
         } else {
             "fa-exchange"
@@ -141,9 +225,14 @@ pub fn match_static_config(name_lower: &str) -> Option<StaticConfig> {
     }
 
     // VPN (Cool Emerald)
-    if name_lower.contains("tailscale") || name_lower.contains("wireguard") || name_lower.contains("vpn") ||
-       name_lower.contains("headscale") || name_lower.contains("netbird") || name_lower.contains("openvpn") ||
-       name_lower.contains("pritunl") {
+    if name_lower.contains("tailscale")
+        || name_lower.contains("wireguard")
+        || name_lower.contains("vpn")
+        || name_lower.contains("headscale")
+        || name_lower.contains("netbird")
+        || name_lower.contains("openvpn")
+        || name_lower.contains("pritunl")
+    {
         return Some(StaticConfig {
             icon: "fa-key",
             color: "#10ac84",
@@ -153,14 +242,29 @@ pub fn match_static_config(name_lower: &str) -> Option<StaticConfig> {
     }
 
     // Smart Home & IoT (Yellow)
-    if name_lower.contains("home-assistant") || name_lower.contains("homeassistant") || name_lower.contains("hass") ||
-       name_lower.contains("zigbee") || name_lower.contains("mqtt") || name_lower.contains("esphome") ||
-       name_lower.contains("homebridge") || name_lower.contains("openhab") || name_lower.contains("jeedom") ||
-       name_lower.contains("deconz") || name_lower.contains("wled") || name_lower.contains("scrypted") ||
-       name_lower.contains("gladys") {
-        let icon = if name_lower.contains("home-assistant") || name_lower.contains("homeassistant") || name_lower.contains("hass") {
+    if name_lower.contains("home-assistant")
+        || name_lower.contains("homeassistant")
+        || name_lower.contains("hass")
+        || name_lower.contains("zigbee")
+        || name_lower.contains("mqtt")
+        || name_lower.contains("esphome")
+        || name_lower.contains("homebridge")
+        || name_lower.contains("openhab")
+        || name_lower.contains("jeedom")
+        || name_lower.contains("deconz")
+        || name_lower.contains("wled")
+        || name_lower.contains("scrypted")
+        || name_lower.contains("gladys")
+    {
+        let icon = if name_lower.contains("home-assistant")
+            || name_lower.contains("homeassistant")
+            || name_lower.contains("hass")
+        {
             "fa-home"
-        } else if name_lower.contains("homebridge") || name_lower.contains("openhab") || name_lower.contains("jeedom") {
+        } else if name_lower.contains("homebridge")
+            || name_lower.contains("openhab")
+            || name_lower.contains("jeedom")
+        {
             "fa-server"
         } else if name_lower.contains("wled") {
             "fa-lightbulb-o"
@@ -176,9 +280,15 @@ pub fn match_static_config(name_lower: &str) -> Option<StaticConfig> {
     }
 
     // Security (Red)
-    if name_lower.contains("vaultwarden") || name_lower.contains("bitwarden") || name_lower.contains("keepass") ||
-       name_lower.contains("fail2ban") || name_lower.contains("crowdsec") || name_lower.contains("authentik") ||
-       name_lower.contains("authelia") || name_lower.contains("keycloak") {
+    if name_lower.contains("vaultwarden")
+        || name_lower.contains("bitwarden")
+        || name_lower.contains("keepass")
+        || name_lower.contains("fail2ban")
+        || name_lower.contains("crowdsec")
+        || name_lower.contains("authentik")
+        || name_lower.contains("authelia")
+        || name_lower.contains("keycloak")
+    {
         return Some(StaticConfig {
             icon: "fa-lock",
             color: "#e74c3c",

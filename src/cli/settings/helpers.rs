@@ -56,7 +56,9 @@ mod tests {
     fn test_has_files_nonexistent_dir_returns_false() {
         // Missing directory must return false (not panic) so the caller can
         // treat "missing" the same as "empty".
-        assert!(!has_files("/this/path/definitely/does/not/exist/nix-helper"));
+        assert!(!has_files(
+            "/this/path/definitely/does/not/exist/nix-helper"
+        ));
     }
 
     #[test]

@@ -5,7 +5,9 @@ use std::process::Command;
 pub mod accounts;
 pub mod config;
 
-pub use config::{generate_nix_conf_content, is_valid_service_name, log_event, validate_store_path};
+pub use config::{
+    generate_nix_conf_content, is_valid_service_name, log_event, validate_store_path,
+};
 
 /// Creates the static nixbld builder users and groups on the host.
 pub fn create_builder_accounts() -> Result<(), String> {
@@ -14,9 +16,15 @@ pub fn create_builder_accounts() -> Result<(), String> {
 
 /// Binds the configured host persistent path directly to the root /nix directory.
 pub fn mount_nix_store(persistent_path: &str) -> Result<(), String> {
-    log_event("INFO", &format!("Attempting to mount Nix store. Persistent path: {persistent_path}"));
+    log_event(
+        "INFO",
+        &format!("Attempting to mount Nix store. Persistent path: {persistent_path}"),
+    );
     if let Err(e) = validate_store_path(persistent_path) {
-        log_event("ERROR", &format!("Validation failed for persistent path '{persistent_path}': {e}"));
+        log_event(
+            "ERROR",
+            &format!("Validation failed for persistent path '{persistent_path}': {e}"),
+        );
         return Err(e);
     }
 
@@ -40,7 +48,10 @@ pub fn mount_nix_store(persistent_path: &str) -> Result<(), String> {
         .unwrap_or(false);
 
     if !is_mounted {
-        log_event("INFO", &format!("Mounting {persistent_path} to /nix via bind-mount..."));
+        log_event(
+            "INFO",
+            &format!("Mounting {persistent_path} to /nix via bind-mount..."),
+        );
         let path_meta = std::fs::symlink_metadata(persistent_path);
         match path_meta {
             Ok(m) if m.file_type().is_symlink() => {
@@ -51,9 +62,7 @@ pub fn mount_nix_store(persistent_path: &str) -> Result<(), String> {
                 return Err(err_msg);
             }
             Err(e) => {
-                let err_msg = format!(
-                    "Failed to stat persistent path '{persistent_path}': {e}"
-                );
+                let err_msg = format!("Failed to stat persistent path '{persistent_path}': {e}");
                 log_event("ERROR", &err_msg);
                 return Err(err_msg);
             }
@@ -167,7 +176,10 @@ pub fn setup_nix_conf() -> Result<(), String> {
                 let _ = std::fs::remove_file(legacy_cfg);
             }
             if let Err(e) = symlink(persistent_cfg, legacy_cfg) {
-                log_event("WARN", &format!("Could not symlink /etc/nix/nix.conf to plugin config: {e}"));
+                log_event(
+                    "WARN",
+                    &format!("Could not symlink /etc/nix/nix.conf to plugin config: {e}"),
+                );
             } else {
                 log_event("INFO", "Replaced legacy /etc/nix/nix.conf with symlink to plugin config (backup: /etc/nix/nix.conf.determinate.bak)");
             }
@@ -175,13 +187,20 @@ pub fn setup_nix_conf() -> Result<(), String> {
     }
 
     let conf_path = "/nix/etc/nix/nix.conf";
-    log_event("INFO", "Writing nix.conf to apply resource and builder settings...");
+    log_event(
+        "INFO",
+        "Writing nix.conf to apply resource and builder settings...",
+    );
 
     let allow_source = config::read_allow_source_builds();
     let build_cores = config::read_cfg_val("BUILD_CORES", "0");
     let build_jobs = config::read_cfg_val("BUILD_JOBS", "0");
-    let gc_min_free_gb: u64 = config::read_cfg_val("GC_MIN_FREE", "5").parse().unwrap_or(5);
-    let gc_max_free_gb: u64 = config::read_cfg_val("GC_MAX_FREE", "10").parse().unwrap_or(10);
+    let gc_min_free_gb: u64 = config::read_cfg_val("GC_MIN_FREE", "5")
+        .parse()
+        .unwrap_or(5);
+    let gc_max_free_gb: u64 = config::read_cfg_val("GC_MAX_FREE", "10")
+        .parse()
+        .unwrap_or(10);
 
     let default_conf = generate_nix_conf_content(
         allow_source,
@@ -247,21 +266,33 @@ fn send_sighup_to_supervisor() {
         return;
     };
     let Ok(pid) = content.trim().parse::<i32>() else {
-        log_event("WARN", &format!("process-compose pidfile contents are not a valid i32: {content:?}"));
+        log_event(
+            "WARN",
+            &format!("process-compose pidfile contents are not a valid i32: {content:?}"),
+        );
         return;
     };
     if pid <= 1 {
-        log_event("WARN", &format!("process-compose pid {pid} is invalid; skipping SIGHUP"));
+        log_event(
+            "WARN",
+            &format!("process-compose pid {pid} is invalid; skipping SIGHUP"),
+        );
         return;
     }
     // SAFETY: libc::kill with a positive validated pid, signal SIGHUP
     // (1 on Linux), is a safe syscall that asks the supervisor to reload.
     let r = unsafe { libc::kill(pid, libc::SIGHUP) };
     if r == 0 {
-        log_event("INFO", &format!("Sent SIGHUP to process-compose (pid={pid})"));
+        log_event(
+            "INFO",
+            &format!("Sent SIGHUP to process-compose (pid={pid})"),
+        );
     } else {
         let e = std::io::Error::last_os_error();
-        log_event("WARN", &format!("Failed to SIGHUP process-compose (pid={pid}): {e}"));
+        log_event(
+            "WARN",
+            &format!("Failed to SIGHUP process-compose (pid={pid}): {e}"),
+        );
     }
 }
 

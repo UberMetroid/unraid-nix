@@ -6,7 +6,10 @@ pub fn parse_binds_string(s: &str) -> Result<Vec<(String, String)>, String> {
     for part in s.split(',') {
         let subparts: Vec<&str> = part.split(':').collect();
         if subparts.len() != 2 {
-            return Err(format!("Invalid extra bind format: '{}'. Expected 'host:sandbox'.", part));
+            return Err(format!(
+                "Invalid extra bind format: '{}'. Expected 'host:sandbox'.",
+                part
+            ));
         }
         let host = subparts[0];
         let sandbox = subparts[1];
@@ -114,7 +117,9 @@ mod tests {
         // doesn't panic on this input; the assertion is on the round-trip
         // being well-formed.
         let result = parse_binds_string("/mnt/foo\\..\\bar:/data");
-        assert!(result.is_ok() || result.is_err(),
-            "parse_binds_string must not panic on backslash input");
+        assert!(
+            result.is_ok() || result.is_err(),
+            "parse_binds_string must not panic on backslash input"
+        );
     }
 }

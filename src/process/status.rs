@@ -1,8 +1,8 @@
+use super::sys;
+use crate::unraid::SUPERVISOR_PORT;
 use serde::{Deserialize, Serialize};
 use std::fs;
 use std::process::Command;
-use super::sys;
-use crate::unraid::SUPERVISOR_PORT;
 
 const PROCESSES_PATH: &str = "/processes";
 const HTTP_OK: u16 = 200;
@@ -118,7 +118,9 @@ pub fn get_services_status(api_port: u16) -> Result<Vec<ServiceStatus>, String> 
             for desc_pid in descendants {
                 if let Some(gpu_list) = pmon_stats.get(&desc_pid) {
                     for &(gpu, ref stat) in gpu_list {
-                        let entry = service_gpu_map.entry(gpu).or_insert(GpuStat { sm: 0, mem: 0 });
+                        let entry = service_gpu_map
+                            .entry(gpu)
+                            .or_insert(GpuStat { sm: 0, mem: 0 });
                         entry.sm = std::cmp::min(100, entry.sm + stat.sm);
                         entry.mem = std::cmp::min(100, entry.mem + stat.mem);
                     }

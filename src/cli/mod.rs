@@ -1,15 +1,15 @@
 pub mod args;
-pub mod store;
-pub mod service;
-pub mod settings;
-pub mod render;
-pub mod logs;
-pub mod service_install;
-pub mod sandbox_check;
-pub mod supervisor;
-pub mod metadata;
 pub mod gpus;
+pub mod logs;
+pub mod metadata;
+pub mod render;
+pub mod sandbox_check;
+pub mod service;
+pub mod service_install;
+pub mod settings;
+pub mod store;
 pub mod stream_install;
+pub mod supervisor;
 
 use clap::Parser;
 
@@ -28,8 +28,13 @@ pub fn run(args_list: Vec<String>) {
     };
 
     match cli.command {
-        args::Commands::SetupStore { ref persistent_path } => {
-            crate::store::log_event("INFO", &format!("Dispatch: setup-store (persistent_path={persistent_path})"));
+        args::Commands::SetupStore {
+            ref persistent_path,
+        } => {
+            crate::store::log_event(
+                "INFO",
+                &format!("Dispatch: setup-store (persistent_path={persistent_path})"),
+            );
             store::setup_store(persistent_path);
         }
         args::Commands::TeardownStore => {
@@ -47,11 +52,17 @@ pub fn run(args_list: Vec<String>) {
             render::render(target);
         }
         args::Commands::Service { action, name } => {
-            crate::store::log_event("INFO", &format!("Dispatch: service action='{action}' name='{name}'"));
+            crate::store::log_event(
+                "INFO",
+                &format!("Dispatch: service action='{action}' name='{name}'"),
+            );
             service::service_action(&action, &name);
         }
         args::Commands::Autostart { name, toggle } => {
-            crate::store::log_event("INFO", &format!("Dispatch: autostart name='{name}' toggle='{toggle}'"));
+            crate::store::log_event(
+                "INFO",
+                &format!("Dispatch: autostart name='{name}' toggle='{toggle}'"),
+            );
             service::autostart(&name, &toggle);
         }
         args::Commands::RemoveService { name } => {
@@ -103,7 +114,10 @@ pub fn run(args_list: Vec<String>) {
             service::add_service(&name, &cmd, restart_policy.as_deref());
         }
         args::Commands::InstallService(install_args) => {
-            crate::store::log_event("INFO", &format!("Dispatch: install-service uri='{}'", install_args.uri));
+            crate::store::log_event(
+                "INFO",
+                &format!("Dispatch: install-service uri='{}'", install_args.uri),
+            );
             service_install::install_service(&install_args);
         }
         args::Commands::ViewLogs { name } => {
@@ -111,8 +125,14 @@ pub fn run(args_list: Vec<String>) {
         }
         args::Commands::SaveSettings(settings_args) => {
             let store_path = settings_args.store_path.clone().unwrap_or_default();
-            let autostart = settings_args.autostart.clone().unwrap_or_else(|| "yes".to_string());
-            let enable_sandbox = settings_args.enable_sandbox.clone().unwrap_or_else(|| "yes".to_string());
+            let autostart = settings_args
+                .autostart
+                .clone()
+                .unwrap_or_else(|| "yes".to_string());
+            let enable_sandbox = settings_args
+                .enable_sandbox
+                .clone()
+                .unwrap_or_else(|| "yes".to_string());
             crate::store::log_event(
                 "INFO",
                 &format!(
@@ -134,12 +154,10 @@ pub fn run(args_list: Vec<String>) {
         args::Commands::StreamInstall(stream_args) => {
             stream_install::stream_install(&stream_args);
         }
-        args::Commands::GetIcon { name } => {
-            match crate::api::utils::get_service_icon_path(&name) {
-                Some(path) => println!("{path}"),
-                None => println!(),
-            }
-        }
+        args::Commands::GetIcon { name } => match crate::api::utils::get_service_icon_path(&name) {
+            Some(path) => println!("{path}"),
+            None => println!(),
+        },
         args::Commands::DaemonStatus => {
             let status = std::process::Command::new("/etc/rc.d/rc.nix-daemon")
                 .arg("status")

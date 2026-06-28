@@ -21,7 +21,9 @@ use std::time::Duration;
 /// `Stdio::piped()` themselves. Use [`run_with_timeout_status`] for
 /// commands that should stream their output to the parent (inherit).
 pub fn run_with_timeout(cmd: &mut Command, timeout: Duration) -> Result<Output, String> {
-    cmd.stdin(Stdio::null()).stdout(Stdio::piped()).stderr(Stdio::piped());
+    cmd.stdin(Stdio::null())
+        .stdout(Stdio::piped())
+        .stderr(Stdio::piped());
     let child = cmd.spawn().map_err(|e| format!("spawn: {e}"))?;
     let pid = child.id();
     let (tx, rx) = mpsc::channel();
@@ -47,10 +49,7 @@ pub fn run_with_timeout(cmd: &mut Command, timeout: Duration) -> Result<Output, 
 /// Like [`run_with_timeout`] but waits only for the exit status. Use this
 /// when the command has its stdio set to `Stdio::inherit()` (live
 /// streaming) or when the caller does not need to read stdout/stderr.
-pub fn run_with_timeout_status(
-    cmd: &mut Command,
-    timeout: Duration,
-) -> Result<ExitStatus, String> {
+pub fn run_with_timeout_status(cmd: &mut Command, timeout: Duration) -> Result<ExitStatus, String> {
     let mut child = cmd.spawn().map_err(|e| format!("spawn: {e}"))?;
     let pid = child.id();
     let (tx, rx) = mpsc::channel();
@@ -126,7 +125,9 @@ mod tests {
     #[test]
     fn run_with_timeout_handles_missing_program() {
         let mut cmd = Command::new("definitely-not-a-real-binary-xyz");
-        cmd.stdin(Stdio::null()).stdout(Stdio::null()).stderr(Stdio::null());
+        cmd.stdin(Stdio::null())
+            .stdout(Stdio::null())
+            .stderr(Stdio::null());
         let result = run_with_timeout(&mut cmd, Duration::from_secs(2));
         assert!(result.is_err(), "missing program should error");
         assert!(result.unwrap_err().contains("spawn"));
@@ -144,8 +145,8 @@ mod tests {
 
         let mut follow_up = Command::new("sh");
         follow_up.arg("-c").arg("echo ok");
-        let out = run_with_timeout(&mut follow_up, Duration::from_secs(2))
-            .expect("follow-up cmd ok");
+        let out =
+            run_with_timeout(&mut follow_up, Duration::from_secs(2)).expect("follow-up cmd ok");
         assert_eq!(String::from_utf8_lossy(&out.stdout).trim(), "ok");
     }
 }

@@ -52,8 +52,9 @@ fn is_valid_uri(uri: &str) -> bool {
                 .chars()
                 .all(|c| c.is_ascii_alphanumeric() || matches!(c, '/' | '_' | '.' | '-'));
     }
-    uri.chars()
-        .all(|c| c.is_ascii_alphanumeric() || matches!(c, '_' | '.' | '#' | ':' | '+' | '@' | '/' | '-'))
+    uri.chars().all(|c| {
+        c.is_ascii_alphanumeric() || matches!(c, '_' | '.' | '#' | ':' | '+' | '@' | '/' | '-')
+    })
 }
 
 pub fn resolve_package_version(uri: &str) -> String {

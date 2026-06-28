@@ -67,7 +67,10 @@ fn serialize_config_multiple_processes_sorted() {
     let yaml = serialize_config(&cfg);
     let alpha_idx = yaml.find("alpha").expect("alpha present");
     let zeta_idx = yaml.find("zeta").expect("zeta present");
-    assert!(alpha_idx < zeta_idx, "processes should be sorted alphabetically");
+    assert!(
+        alpha_idx < zeta_idx,
+        "processes should be sorted alphabetically"
+    );
 }
 
 #[test]
@@ -92,5 +95,8 @@ fn roundtrip_complex() {
 
     // Serialize again and confirm byte-for-byte stability.
     let yaml2 = serialize_config(&decoded);
-    assert_eq!(yaml, yaml2, "serialize -> parse -> serialize must be stable");
+    assert_eq!(
+        yaml, yaml2,
+        "serialize -> parse -> serialize must be stable"
+    );
 }

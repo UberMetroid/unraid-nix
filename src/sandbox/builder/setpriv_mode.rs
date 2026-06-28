@@ -20,10 +20,16 @@ pub fn build_setpriv_command(
     mounts_cmd.push("mount -t tmpfs tmpfs /root".to_string());
     mounts_cmd.push("if [ -d /home ]; then mount -t tmpfs tmpfs /home; fi".to_string());
     mounts_cmd.push("mkdir -p /tmp/sandbox-appdata".to_string());
-    mounts_cmd.push(format!("mount --bind {} /tmp/sandbox-appdata", sh_quote(appdata_canon)));
+    mounts_cmd.push(format!(
+        "mount --bind {} /tmp/sandbox-appdata",
+        sh_quote(appdata_canon)
+    ));
     mounts_cmd.push(format!("mount -t tmpfs tmpfs {}", sh_quote(appdata_parent)));
     mounts_cmd.push(format!("mkdir -p {}", sh_quote(appdata_canon)));
-    mounts_cmd.push(format!("mount --move /tmp/sandbox-appdata {}", sh_quote(appdata_canon)));
+    mounts_cmd.push(format!(
+        "mount --move /tmp/sandbox-appdata {}",
+        sh_quote(appdata_canon)
+    ));
     mounts_cmd.push("rmdir /tmp/sandbox-appdata".to_string());
 
     mounts_cmd.push("mkdir -p /config".to_string());
@@ -39,14 +45,19 @@ pub fn build_setpriv_command(
     for (host, sandbox) in &config.extra_binds {
         if !host.trim().is_empty() && !sandbox.trim().is_empty() {
             mounts_cmd.push(format!("mkdir -p {}", sh_quote(sandbox)));
-            mounts_cmd.push(format!("mount --bind {} {}", sh_quote(host), sh_quote(sandbox)));
+            mounts_cmd.push(format!(
+                "mount --bind {} {}",
+                sh_quote(host),
+                sh_quote(sandbox)
+            ));
         }
     }
 
     if has_nvidia {
         mounts_cmd.push("/usr/local/emhttp/plugins/nix/nix-helper setup-gpus".to_string());
         mounts_cmd.push("mkdir -p /run/opengl-driver/lib".to_string());
-        mounts_cmd.push("mount --bind /var/run/nix-nvidia-driver/lib /run/opengl-driver/lib".to_string());
+        mounts_cmd
+            .push("mount --bind /var/run/nix-nvidia-driver/lib /run/opengl-driver/lib".to_string());
     }
 
     let mounts_str = mounts_cmd.join(" && ");
@@ -57,7 +68,10 @@ pub fn build_setpriv_command(
         ld_paths.push("/run/opengl-driver/lib".to_string());
     }
     if has_render {
-        ld_paths.push("$(nix build --no-link --print-out-paths nixpkgs#vpl-gpu-rt 2>/dev/null || true)/lib".to_string());
+        ld_paths.push(
+            "$(nix build --no-link --print-out-paths nixpkgs#vpl-gpu-rt 2>/dev/null || true)/lib"
+                .to_string(),
+        );
     }
     if !ld_paths.is_empty() {
         env_vars.push(format!("export LD_LIBRARY_PATH={}", ld_paths.join(":")));

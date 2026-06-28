@@ -1,5 +1,5 @@
-use std::process::Command;
 use super::helpers::has_files;
+use std::process::Command;
 
 pub fn migrate_nix_store(clean_old_store_path: &str, clean_store_path: &str) -> bool {
     if std::path::Path::new(clean_old_store_path).exists() && has_files(clean_old_store_path) {
@@ -8,7 +8,11 @@ pub fn migrate_nix_store(clean_old_store_path: &str, clean_store_path: &str) -> 
         let _ = std::fs::create_dir_all(clean_store_path);
 
         let _ = Command::new("rsync")
-            .args(["-aHAX", &format!("{clean_old_store_path}/"), &format!("{clean_store_path}/")])
+            .args([
+                "-aHAX",
+                &format!("{clean_old_store_path}/"),
+                &format!("{clean_store_path}/"),
+            ])
             .output();
         true
     } else {

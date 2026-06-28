@@ -4,30 +4,35 @@ use std::process::{exit, Command};
 
 pub fn view_logs(service: &str) {
     if !crate::store::is_valid_service_name(service) {
-        crate::store::log_event("ERROR", &format!("Invalid service name '{service}' for view-logs"));
+        crate::store::log_event(
+            "ERROR",
+            &format!("Invalid service name '{service}' for view-logs"),
+        );
         exit(1);
     }
     let log_file = format!("/var/log/nix-services/{}.log", service);
     let mut rendered = false;
     let mut output = String::new();
 
-    output.push_str(&format!("<h3>Active console output for: {}</h3>", html_escape(service)));
+    output.push_str(&format!(
+        "<h3>Active console output for: {}</h3>",
+        html_escape(service)
+    ));
 
     if std::path::Path::new(&log_file).exists() {
         if let Ok(content) = run_tail(&log_file, 200) {
             output.push_str("<pre style='white-space: pre-wrap; word-wrap: break-word;'>");
             for line in content.lines() {
                 let line_trimmed = line.trim();
-                if line_trimmed.is_empty() { continue; }
+                if line_trimmed.is_empty() {
+                    continue;
+                }
                 if let Ok(v) = serde_json::from_str::<Value>(line_trimmed) {
                     let time = v.get("time").and_then(|t| t.as_str()).unwrap_or("");
                     let message = v.get("message").and_then(|m| m.as_str()).unwrap_or("");
                     if !time.is_empty() {
-                        let time_display: String = time
-                            .chars()
-                            .take(19)
-                            .collect::<String>()
-                            .replace('T', " ");
+                        let time_display: String =
+                            time.chars().take(19).collect::<String>().replace('T', " ");
                         output.push_str(&format!(
                             "<span style='color:#888;'>[{}]</span> {}\n",
                             html_escape(&time_display),
@@ -77,10 +82,10 @@ pub fn view_logs(service: &str) {
 
 fn html_escape(s: &str) -> String {
     s.replace('&', "&amp;")
-     .replace('<', "&lt;")
-     .replace('>', "&gt;")
-     .replace('"', "&quot;")
-     .replace('\'', "&#x27;")
+        .replace('<', "&lt;")
+        .replace('>', "&gt;")
+        .replace('"', "&quot;")
+        .replace('\'', "&#x27;")
 }
 
 fn run_tail(file: &str, lines: usize) -> Result<String, String> {
@@ -103,10 +108,7 @@ mod tests {
         if time.is_empty() {
             return String::new();
         }
-        time.chars()
-            .take(19)
-            .collect::<String>()
-            .replace('T', " ")
+        time.chars().take(19).collect::<String>().replace('T', " ")
     }
 
     #[test]

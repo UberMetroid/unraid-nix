@@ -1,4 +1,4 @@
-use clap::{Parser, Subcommand, Args};
+use clap::{Args, Parser, Subcommand};
 
 #[derive(Parser, Debug)]
 #[command(name = "nix-helper")]
@@ -12,9 +12,7 @@ pub struct Cli {
 pub enum Commands {
     /// Initializes and bind-mounts /nix
     #[command(name = "setup-store")]
-    SetupStore {
-        persistent_path: String,
-    },
+    SetupStore { persistent_path: String },
     /// Stops services and cleanly unmounts /nix
     #[command(name = "teardown-store")]
     TeardownStore,
@@ -40,24 +38,14 @@ pub enum Commands {
         target: RenderTargets,
     },
     /// Lifecycle actions (start/stop/restart) for process-compose targets
-    Service {
-        action: String,
-        name: String,
-    },
+    Service { action: String, name: String },
     /// Toggles the autostart setting for a service
-    Autostart {
-        name: String,
-        toggle: String,
-    },
+    Autostart { name: String, toggle: String },
     /// Deletes a service definition from the config
     #[command(name = "remove-service")]
-    RemoveService {
-        name: String,
-    },
+    RemoveService { name: String },
     /// Installs a package to CLI profile
-    Install {
-        package: String,
-    },
+    Install { package: String },
     /// Helper command to print bubblewrap script
     Sandbox(SandboxArgs),
     /// Helper command to print preset bubblewrap script
@@ -84,17 +72,13 @@ pub enum Commands {
     InstallService(InstallServiceArgs),
     /// Outputs formatted service console logs
     #[command(name = "view-logs")]
-    ViewLogs {
-        name: String,
-    },
+    ViewLogs { name: String },
     /// Saves Nix plugin settings and manages migration
     #[command(name = "save-settings")]
     SaveSettings(SaveSettingsArgs),
     /// Outputs JSON service metadata
     #[command(name = "get-metadata")]
-    GetMetadata {
-        name: String,
-    },
+    GetMetadata { name: String },
     /// Outputs JSON list of detected host GPUs
     #[command(name = "detect-gpus")]
     DetectGpus,
@@ -106,9 +90,7 @@ pub enum Commands {
     StreamInstall(StreamInstallArgs),
     /// Outputs the absolute path of a service logo in the Nix store
     #[command(name = "get-icon")]
-    GetIcon {
-        name: String,
-    },
+    GetIcon { name: String },
     /// Checks the status of the Nix daemon
     #[command(name = "daemon-status")]
     DaemonStatus,
@@ -117,7 +99,9 @@ pub enum Commands {
 #[derive(Subcommand, Debug, Clone)]
 pub enum RenderTargets {
     Services,
-    Search { query: String },
+    Search {
+        query: String,
+    },
     Presets,
     Dashboard,
     #[command(name = "dashboard-rows")]
@@ -134,7 +118,9 @@ pub enum RenderTargets {
         #[arg(long)]
         since: u64,
     },
-    Report { name: String },
+    Report {
+        name: String,
+    },
 }
 
 #[derive(Args, Debug, Clone)]

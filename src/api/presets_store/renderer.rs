@@ -4,7 +4,7 @@ use rayon::prelude::*;
 
 use super::category_names::get_preset_category_name;
 use super::category_styling::get_preset_category_styling;
-use super::{PresetInfo, extract_pkg_name, should_filter_presets};
+use super::{extract_pkg_name, should_filter_presets, PresetInfo};
 use crate::api::utils::{html_escape, js_escape};
 
 pub fn render_presets_store() -> String {
@@ -98,9 +98,15 @@ pub fn render_presets_store() -> String {
                 let tags: Vec<String> = parts.iter().map(|part| {
                     format!(r#"<span style="font-size: 9px; padding: 1px 4px; border-radius: 3px; background: rgba(224, 86, 253, 0.12); border: 1px solid rgba(224, 86, 253, 0.25); color: #e056fd; font-family: monospace;">{}</span>"#, html_escape(part))
                 }).collect();
-                format!(r#"<div style="display: flex; flex-wrap: wrap; gap: 4px; margin-top: 2px;">{}</div>"#, tags.join(""))
+                format!(
+                    r#"<div style="display: flex; flex-wrap: wrap; gap: 4px; margin-top: 2px;">{}</div>"#,
+                    tags.join("")
+                )
             } else {
-                format!(r#"<span style="font-size: 10px; color: var(--nix-text-secondary); font-family: monospace;">nixpkgs#{}</span>"#, html_escape(&p.name))
+                format!(
+                    r#"<span style="font-size: 10px; color: var(--nix-text-secondary); font-family: monospace;">nixpkgs#{}</span>"#,
+                    html_escape(&p.name)
+                )
             };
 
             let mut meta_html = String::new();
@@ -124,7 +130,9 @@ pub fn render_presets_store() -> String {
                 }
                 if let Some(ref plats) = m.platforms {
                     if !plats.is_empty() {
-                        let plat_label = if plats.contains(&"aarch64-linux".to_string()) && plats.contains(&"x86_64-linux".to_string()) {
+                        let plat_label = if plats.contains(&"aarch64-linux".to_string())
+                            && plats.contains(&"x86_64-linux".to_string())
+                        {
                             "multi-arch"
                         } else if plats.contains(&"x86_64-linux".to_string()) {
                             "x86_64"
@@ -151,7 +159,7 @@ pub fn render_presets_store() -> String {
 
             let pkg_search_name = extract_pkg_name(&p.command, &p.name);
 
-             html.push_str(&format!(
+            html.push_str(&format!(
                 r#"<div class="nix-preset-card" data-name="{}" data-desc="{}" data-category="{}" data-is-composed="{}" style="background: var(--nix-bg-secondary); border: 1px solid var(--nix-border-primary); border-radius: 6px; padding: 16px; display: flex; flex-direction: column; justify-content: space-between; transition: transform 0.2s ease, border-color 0.2s ease, background 0.2s ease, box-shadow 0.2s ease; height: 210px;">
                     <div>
                         <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 12px;">
@@ -217,10 +225,7 @@ fn collect_presets(
                         return None;
                     }
 
-                    let filename = path
-                        .file_name()
-                        .and_then(|s| s.to_str())
-                        .unwrap_or("");
+                    let filename = path.file_name().and_then(|s| s.to_str()).unwrap_or("");
 
                     if filter_enabled {
                         if filename.ends_with("-cuda.json") && !detected_gpus.has_nvidia {
@@ -350,7 +355,11 @@ mod tests {
             presets_dir.display()
         );
 
-        let unfiltered = collect_presets(&[(presets_dir.to_str().unwrap(), false)], false, &all_gpus());
+        let unfiltered = collect_presets(
+            &[(presets_dir.to_str().unwrap(), false)],
+            false,
+            &all_gpus(),
+        );
         let filtered = collect_presets(&[(presets_dir.to_str().unwrap(), false)], true, &no_gpus());
 
         assert!(!unfiltered.is_empty(), "expected some unfiltered presets");
@@ -392,14 +401,22 @@ mod tests {
         ));
         let _ = fs::remove_dir_all(&tmp);
         fs::create_dir_all(&tmp).unwrap();
-        fs::write(tmp.join("real.json"), r#"{"name":"x","display_name":"X","description":"d","url":"u","command":"c"}"#).unwrap();
+        fs::write(
+            tmp.join("real.json"),
+            r#"{"name":"x","display_name":"X","description":"d","url":"u","command":"c"}"#,
+        )
+        .unwrap();
         fs::write(tmp.join("notes.txt"), "not a preset").unwrap();
         fs::write(tmp.join("README.md"), "# readme").unwrap();
 
         let scan_dirs = vec![(tmp.to_str().unwrap(), false)];
         let collected = collect_presets(&scan_dirs, false, &all_gpus());
 
-        assert_eq!(collected.len(), 1, "only the .json file should be collected");
+        assert_eq!(
+            collected.len(),
+            1,
+            "only the .json file should be collected"
+        );
         assert_eq!(collected[0].name, "x");
 
         let _ = fs::remove_dir_all(&tmp);
@@ -442,10 +459,19 @@ mod tests {
 
         eprintln!(
             "presets scan: parallel={:?} serial={:?} ({} presets)",
-            par_elapsed, ser_elapsed, par.len()
+            par_elapsed,
+            ser_elapsed,
+            par.len()
         );
 
-        assert_eq!(par.len(), ser.len(), "parallel and serial counts must match");
-        assert_eq!(par.len(), count_json_files(&presets_dir) + count_json_files(&composed_dir));
+        assert_eq!(
+            par.len(),
+            ser.len(),
+            "parallel and serial counts must match"
+        );
+        assert_eq!(
+            par.len(),
+            count_json_files(&presets_dir) + count_json_files(&composed_dir)
+        );
     }
 }

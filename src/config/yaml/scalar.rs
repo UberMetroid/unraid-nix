@@ -25,8 +25,8 @@ pub(super) fn find_unquoted_colon(s: &str) -> Option<usize> {
 
 pub(super) fn split_map_entry(text: &str) -> Result<(String, &str), String> {
     let trimmed = text.trim_start();
-    let colon_rel = find_unquoted_colon(trimmed)
-        .ok_or_else(|| format!("expected 'key:' in '{}'", trimmed))?;
+    let colon_rel =
+        find_unquoted_colon(trimmed).ok_or_else(|| format!("expected 'key:' in '{}'", trimmed))?;
     let key = trimmed[..colon_rel].trim().to_string();
     let after = trimmed[colon_rel + 1..].trim_start();
     Ok((key, after))

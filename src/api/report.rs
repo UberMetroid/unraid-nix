@@ -1,7 +1,7 @@
-use std::fs;
-use serde_json::Value;
 use crate::api::utils::html_escape;
 use crate::unraid::METADATA_DIR;
+use serde_json::Value;
+use std::fs;
 
 pub fn render_verification_report(service: &str) -> String {
     if !crate::store::is_valid_service_name(service) {
@@ -21,7 +21,8 @@ pub fn render_verification_report(service: &str) -> String {
     let name = meta.get("name").and_then(|v| v.as_str()).unwrap_or(service);
     let uri = meta.get("uri").and_then(|v| v.as_str()).unwrap_or("");
 
-    let puid = meta.get("puid")
+    let puid = meta
+        .get("puid")
         .and_then(|v| v.as_u64())
         .map(|v| v.to_string())
         .unwrap_or_else(|| {
@@ -31,7 +32,8 @@ pub fn render_verification_report(service: &str) -> String {
                 .to_string()
         });
 
-    let pgid = meta.get("pgid")
+    let pgid = meta
+        .get("pgid")
         .and_then(|v| v.as_u64())
         .map(|v| v.to_string())
         .unwrap_or_else(|| {
@@ -46,8 +48,16 @@ pub fn render_verification_report(service: &str) -> String {
     let is_gpu = gpu == "1" || gpu == "true";
     let gpus = meta.get("gpus").and_then(|v| v.as_str()).unwrap_or("");
 
-    let puid_label = if puid == "99" { "nobody (99)".to_string() } else { html_escape(&puid) };
-    let pgid_label = if pgid == "100" { "users (100)".to_string() } else { html_escape(&pgid) };
+    let puid_label = if puid == "99" {
+        "nobody (99)".to_string()
+    } else {
+        html_escape(&puid)
+    };
+    let pgid_label = if pgid == "100" {
+        "users (100)".to_string()
+    } else {
+        html_escape(&pgid)
+    };
 
     let gpu_label = if !gpus.trim().is_empty() {
         format!("Enabled (Exposing GPU: {})", html_escape(gpus))
@@ -56,7 +66,11 @@ pub fn render_verification_report(service: &str) -> String {
     } else {
         "Disabled".to_string()
     };
-    let gpu_icon = if !gpus.trim().is_empty() || is_gpu { "fa-check success" } else { "fa-minus-circle warning" };
+    let gpu_icon = if !gpus.trim().is_empty() || is_gpu {
+        "fa-check success"
+    } else {
+        "fa-minus-circle warning"
+    };
 
     let mut extra_binds_html = String::new();
     if let Some(extra_binds_val) = meta.get("extra_binds") {
@@ -69,7 +83,10 @@ pub fn render_verification_report(service: &str) -> String {
 
         if let Some(Value::Array(arr)) = binds_list {
             for item in arr {
-                if let (Some(host), Some(sandbox)) = (item.get("host").and_then(|v| v.as_str()), item.get("sandbox").and_then(|v| v.as_str())) {
+                if let (Some(host), Some(sandbox)) = (
+                    item.get("host").and_then(|v| v.as_str()),
+                    item.get("sandbox").and_then(|v| v.as_str()),
+                ) {
                     extra_binds_html.push_str(&format!(
                         "<div style='margin-bottom:4px;'><i class='fa fa-check success'></i> {} &rarr; {}</div>",
                         html_escape(host), html_escape(sandbox)
@@ -79,7 +96,8 @@ pub fn render_verification_report(service: &str) -> String {
         }
     }
     if extra_binds_html.is_empty() {
-        extra_binds_html = "<div><i class='fa fa-check success'></i> None configured</div>".to_string();
+        extra_binds_html =
+            "<div><i class='fa fa-check success'></i> None configured</div>".to_string();
     }
 
     let mut ports_html = String::new();
@@ -110,7 +128,11 @@ pub fn render_verification_report(service: &str) -> String {
 
         if let Some(Value::Object(map)) = envs_list {
             for (k, v) in map {
-                let v_str = if let Some(s) = v.as_str() { s.to_string() } else { v.to_string() };
+                let v_str = if let Some(s) = v.as_str() {
+                    s.to_string()
+                } else {
+                    v.to_string()
+                };
                 env_vars_html.push_str(&format!(
                     "<div style='margin-bottom:4px;'><i class='fa fa-check success'></i> <code>{}</code> = <code>{}</code></div>",
                     html_escape(&k), html_escape(&v_str)
@@ -119,7 +141,8 @@ pub fn render_verification_report(service: &str) -> String {
         }
     }
     if env_vars_html.is_empty() {
-        env_vars_html = "<div><i class='fa fa-check success'></i> None configured</div>".to_string();
+        env_vars_html =
+            "<div><i class='fa fa-check success'></i> None configured</div>".to_string();
     }
 
     let sandbox_desc = if crate::sandbox::is_storage_sandbox_enabled() {
@@ -151,6 +174,16 @@ pub fn render_verification_report(service: &str) -> String {
                 <div><strong>Shared Storage Paths:</strong></div><div>{}</div>
             </div>
         </div>"#,
-        html_escape(name), html_escape(uri), puid_label, pgid_label, gpu_icon, gpu_label, sandbox_desc, html_escape(appdata), ports_html, env_vars_html, extra_binds_html
+        html_escape(name),
+        html_escape(uri),
+        puid_label,
+        pgid_label,
+        gpu_icon,
+        gpu_label,
+        sandbox_desc,
+        html_escape(appdata),
+        ports_html,
+        env_vars_html,
+        extra_binds_html
     )
 }

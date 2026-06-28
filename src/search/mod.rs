@@ -5,7 +5,7 @@
 
 pub mod parser;
 
-pub use parser::{SearchResult, parse_search_json};
+pub use parser::{parse_search_json, SearchResult};
 
 use std::process::{Command, Stdio};
 
@@ -84,6 +84,9 @@ mod tests {
     fn test_get_github_source_link() {
         let pos = "/nix/store/fj80w9qkzrk70bbs29l2b0107hlanj8p-source/pkgs/by-name/je/jellyfin/package.nix:59";
         let link = parser::get_github_source_link(pos).unwrap();
-        assert_eq!(link, "https://github.com/NixOS/nixpkgs/blob/master/pkgs/by-name/je/jellyfin/package.nix#L59");
+        assert_eq!(
+            link,
+            "https://github.com/NixOS/nixpkgs/blob/master/pkgs/by-name/je/jellyfin/package.nix#L59"
+        );
     }
 }

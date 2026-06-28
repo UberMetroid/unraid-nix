@@ -3,7 +3,10 @@ use crate::process::ports::is_port_in_use;
 use crate::unraid::METADATA_DIR;
 
 fn run_preflight_checks(name: &str) {
-    crate::store::log_event("INFO", &format!("Running pre-flight checks for service '{name}'..."));
+    crate::store::log_event(
+        "INFO",
+        &format!("Running pre-flight checks for service '{name}'..."),
+    );
 
     let default_port = match name.to_lowercase().as_str() {
         "jellyfin" => Some(8096),
@@ -28,19 +31,23 @@ fn run_preflight_checks(name: &str) {
         } else {
             crate::store::log_event(
                 "INFO",
-                &format!(
-                    "Port check passed: Port {port} (default for preset '{name}') is free."
-                ),
+                &format!("Port check passed: Port {port} (default for preset '{name}') is free."),
             );
         }
     }
 
     let metadata_path = format!("{METADATA_DIR}/{name}.json");
     if !crate::store::is_valid_service_name(name) {
-        crate::store::log_event("WARN", &format!("Skipping preflight metadata check for invalid service name '{name}'"));
+        crate::store::log_event(
+            "WARN",
+            &format!("Skipping preflight metadata check for invalid service name '{name}'"),
+        );
         return;
     }
-    crate::store::log_event("DEBUG", &format!("Checking metadata configuration at path: {metadata_path}"));
+    crate::store::log_event(
+        "DEBUG",
+        &format!("Checking metadata configuration at path: {metadata_path}"),
+    );
     if std::path::Path::new(&metadata_path).exists() {
         match std::fs::read_to_string(&metadata_path) {
             Ok(content) => {
@@ -55,7 +62,12 @@ fn run_preflight_checks(name: &str) {
                         if let Some(ref appdata_path) = meta.appdata {
                             if !appdata_path.trim().is_empty() {
                                 let path = std::path::Path::new(appdata_path);
-                                crate::store::log_event("DEBUG", &format!("Checking permissions for AppData path: {appdata_path}"));
+                                crate::store::log_event(
+                                    "DEBUG",
+                                    &format!(
+                                        "Checking permissions for AppData path: {appdata_path}"
+                                    ),
+                                );
                                 if path.exists() {
                                     use std::os::unix::fs::MetadataExt;
                                     match std::fs::metadata(path) {
@@ -117,9 +129,7 @@ fn run_preflight_checks(name: &str) {
                     Err(e) => {
                         crate::store::log_event(
                             "WARN",
-                            &format!(
-                                "Failed to parse metadata JSON for service '{name}': {e}"
-                            ),
+                            &format!("Failed to parse metadata JSON for service '{name}': {e}"),
                         );
                     }
                 }
@@ -127,9 +137,7 @@ fn run_preflight_checks(name: &str) {
             Err(e) => {
                 crate::store::log_event(
                     "WARN",
-                    &format!(
-                        "Failed to read metadata file for service '{name}': {e}"
-                    ),
+                    &format!("Failed to read metadata file for service '{name}': {e}"),
                 );
             }
         }
@@ -163,7 +171,10 @@ pub fn send_service_action(api_port: u16, name: &str, action: &str) -> Result<()
     };
 
     let url = format!("http://127.0.0.1:{api_port}/{endpoint}");
-    crate::store::log_event("DEBUG", &format!("Sending HTTP request to process-compose: method='{method}', url='{url}'"));
+    crate::store::log_event(
+        "DEBUG",
+        &format!("Sending HTTP request to process-compose: method='{method}', url='{url}'"),
+    );
     let resp = match method {
         "POST" => ureq::post(&url).send_empty(),
         "PATCH" => ureq::patch(&url).send_empty(),
@@ -175,6 +186,9 @@ pub fn send_service_action(api_port: u16, name: &str, action: &str) -> Result<()
         return Err(format!("Server returned HTTP status {}", resp.status()));
     }
 
-    crate::store::log_event("DEBUG", &format!("HTTP request completed: status='{}'", resp.status()));
+    crate::store::log_event(
+        "DEBUG",
+        &format!("HTTP request completed: status='{}'", resp.status()),
+    );
     Ok(())
 }

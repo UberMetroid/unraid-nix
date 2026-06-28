@@ -36,14 +36,18 @@ pub fn dashboard_diff(api_port: u16, since: u64) -> String {
     let statuses = match get_sorted_statuses(api_port) {
         Ok(s) => s,
         Err(_) => {
-            return serde_json::json!({"version": old_state.version, "changed": [], "removed": []}).to_string();
+            return serde_json::json!({"version": old_state.version, "changed": [], "removed": []})
+                .to_string();
         }
     };
 
     let result = compute_diff(&old_state, &statuses, since);
     write_state(&DashboardState {
         version: result.version,
-        fingerprints: statuses.iter().map(|s| (s.name.clone(), fingerprint(s))).collect(),
+        fingerprints: statuses
+            .iter()
+            .map(|s| (s.name.clone(), fingerprint(s)))
+            .collect(),
         names: statuses.iter().map(|s| s.name.clone()).collect(),
     });
     render_diff_payload(&result)
@@ -72,8 +76,17 @@ fn compute_diff(old: &DashboardState, current: &[ServiceStatus], since: u64) -> 
     }
 
     let current_set: HashSet<&str> = current.iter().map(|s| s.name.as_str()).collect();
-    let removed: Vec<String> = old.names.iter().filter(|n| !current_set.contains(n.as_str())).cloned().collect();
-    DiffResult { version: new_version, changed, removed }
+    let removed: Vec<String> = old
+        .names
+        .iter()
+        .filter(|n| !current_set.contains(n.as_str()))
+        .cloned()
+        .collect();
+    DiffResult {
+        version: new_version,
+        changed,
+        removed,
+    }
 }
 
 fn render_diff_payload(result: &DiffResult) -> String {
@@ -151,9 +164,21 @@ mod tests {
 
         let fp = fingerprint(&base);
         assert_eq!(fp, fingerprint(&same), "identical inputs must hash equal");
-        assert_ne!(fp, fingerprint(&stopped), "status flip must change fingerprint");
-        assert_ne!(fp, fingerprint(&cpu_diff), "cpu change must change fingerprint");
-        assert_ne!(fp, fingerprint(&mem_diff), "memory change must change fingerprint");
+        assert_ne!(
+            fp,
+            fingerprint(&stopped),
+            "status flip must change fingerprint"
+        );
+        assert_ne!(
+            fp,
+            fingerprint(&cpu_diff),
+            "cpu change must change fingerprint"
+        );
+        assert_ne!(
+            fp,
+            fingerprint(&mem_diff),
+            "memory change must change fingerprint"
+        );
     }
 
     #[test]
@@ -166,10 +191,14 @@ mod tests {
     fn test_compute_diff_empty_old_state_with_since_zero_returns_all_rows() {
         // First-ever call: every current row must be emitted so the
         // client can populate its cache from scratch.
-        let result = compute_diff(&DashboardState::default(), &[
-            status("radarr", "Running", Some(1.0), Some(100)),
-            status("sonarr", "Stopped", None, None),
-        ], 0);
+        let result = compute_diff(
+            &DashboardState::default(),
+            &[
+                status("radarr", "Running", Some(1.0), Some(100)),
+                status("sonarr", "Stopped", None, None),
+            ],
+            0,
+        );
         assert_eq!(result.version, 1);
         assert_eq!(result.changed.len(), 2);
         assert!(result.removed.is_empty());
@@ -180,8 +209,16 @@ mod tests {
         // Same statuses twice: empty `changed` (no DOM patches) but
         // version still advances so the client can detect freshness.
         let fp = fingerprint(&status("radarr", "Running", Some(1.0), Some(100)));
-        let old = DashboardState { version: 1, fingerprints: [("radarr".to_string(), fp)].into_iter().collect(), names: vec!["radarr".to_string()] };
-        let result = compute_diff(&old, &[status("radarr", "Running", Some(1.0), Some(100))], 1);
+        let old = DashboardState {
+            version: 1,
+            fingerprints: [("radarr".to_string(), fp)].into_iter().collect(),
+            names: vec!["radarr".to_string()],
+        };
+        let result = compute_diff(
+            &old,
+            &[status("radarr", "Running", Some(1.0), Some(100))],
+            1,
+        );
         assert_eq!(result.version, 2);
         assert!(result.changed.is_empty());
         assert!(result.removed.is_empty());
@@ -190,8 +227,16 @@ mod tests {
     #[test]
     fn test_compute_diff_status_transition_emits_only_changed_row() {
         let fp = fingerprint(&status("radarr", "Running", Some(1.0), Some(100)));
-        let old = DashboardState { version: 1, fingerprints: [("radarr".to_string(), fp)].into_iter().collect(), names: vec!["radarr".to_string()] };
-        let result = compute_diff(&old, &[status("radarr", "Stopped", Some(1.0), Some(100))], 1);
+        let old = DashboardState {
+            version: 1,
+            fingerprints: [("radarr".to_string(), fp)].into_iter().collect(),
+            names: vec!["radarr".to_string()],
+        };
+        let result = compute_diff(
+            &old,
+            &[status("radarr", "Stopped", Some(1.0), Some(100))],
+            1,
+        );
         assert_eq!(result.changed.len(), 1);
         assert_eq!(result.changed[0].0, "radarr");
         assert!(result.changed[0].1.contains(">Stopped<"));
@@ -206,10 +251,16 @@ mod tests {
             fingerprints: [
                 ("radarr".to_string(), "fp1".to_string()),
                 ("sonarr".to_string(), "fp2".to_string()),
-            ].into_iter().collect(),
+            ]
+            .into_iter()
+            .collect(),
             names: vec!["radarr".to_string(), "sonarr".to_string()],
         };
-        let result = compute_diff(&old, &[status("radarr", "Running", Some(1.0), Some(100))], 5);
+        let result = compute_diff(
+            &old,
+            &[status("radarr", "Running", Some(1.0), Some(100))],
+            5,
+        );
         assert_eq!(result.removed, vec!["sonarr".to_string()]);
         assert_eq!(result.changed.len(), 1);
     }
@@ -219,11 +270,19 @@ mod tests {
         // Client lost several polls (or server restarted and lost
         // state): we can't diff against an unknown snapshot, so emit
         // every current row as a full refresh.
-        let old = DashboardState { version: 10, fingerprints: HashMap::new(), names: vec![] };
-        let result = compute_diff(&old, &[
-            status("radarr", "Running", Some(1.0), Some(100)),
-            status("sonarr", "Running", Some(1.0), Some(100)),
-        ], 3);
+        let old = DashboardState {
+            version: 10,
+            fingerprints: HashMap::new(),
+            names: vec![],
+        };
+        let result = compute_diff(
+            &old,
+            &[
+                status("radarr", "Running", Some(1.0), Some(100)),
+                status("sonarr", "Running", Some(1.0), Some(100)),
+            ],
+            3,
+        );
         assert_eq!(result.changed.len(), 2);
         assert!(result.removed.is_empty());
     }

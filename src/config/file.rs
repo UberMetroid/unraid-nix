@@ -20,8 +20,8 @@ pub fn load_config(file_path: &str) -> Result<ProcessComposeConfig, String> {
         });
     }
 
-    let content = fs::read_to_string(file_path)
-        .map_err(|e| format!("Failed to read config file: {}", e))?;
+    let content =
+        fs::read_to_string(file_path).map_err(|e| format!("Failed to read config file: {}", e))?;
 
     crate::config::yaml::parse_config(&content).map_err(|e| format!("Failed to parse YAML: {}", e))
 }

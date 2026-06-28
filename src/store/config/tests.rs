@@ -15,11 +15,18 @@ fn test_is_valid_service_name() {
 #[test]
 fn test_is_valid_service_name_equivalence() {
     let regex_equiv = |name: &str| -> bool {
-        if name.is_empty() { return false; }
+        if name.is_empty() {
+            return false;
+        }
         let parts: Vec<&str> = name.split('.').collect();
         for part in parts {
-            if part.is_empty() { return false; }
-            if !part.chars().all(|c| c.is_alphanumeric() || c == '_' || c == '-') {
+            if part.is_empty() {
+                return false;
+            }
+            if !part
+                .chars()
+                .all(|c| c.is_alphanumeric() || c == '_' || c == '-')
+            {
                 return false;
             }
         }
@@ -28,10 +35,23 @@ fn test_is_valid_service_name_equivalence() {
 
     // Assert 100+ ASCII strings match
     let test_cases = vec![
-        "homepage", "seafile-client", "my.service", "", ".service", "service.", "my..service",
-        "a", "1", "_", "-", "a-b", "a_b", "a.b.c", "a-b.c-d.e_f",
+        "homepage",
+        "seafile-client",
+        "my.service",
+        "",
+        ".service",
+        "service.",
+        "my..service",
+        "a",
+        "1",
+        "_",
+        "-",
+        "a-b",
+        "a_b",
+        "a.b.c",
+        "a-b.c-d.e_f",
     ];
-    
+
     let mut leakage = Vec::new();
     for c in 32u8..=126 {
         let ch = c as char;
@@ -101,28 +121,28 @@ fn test_log_event_sanitization_and_rotation() {
     assert!(content.contains("(WORLD)"));
     assert!(!content.contains("[WORLD]"));
     assert!(!content.contains("hello\n"));
-    
+
     // 2. Test rotation and backup cascading
     // Write 101 bytes of dummy data to the log file to trigger rotation (threshold: 100 bytes)
     let dummy_data = vec![b'a'; 101];
     std::fs::write(&log_file, dummy_data).unwrap();
-    
+
     // Next log write should trigger rotation: .log -> .log.1
     log_event_to_path(log_file_str, "INFO", "trigger rotation 1", 100);
-    
+
     let expected_backup1 = format!("{}.1", log_file_str);
     assert!(std::path::Path::new(&expected_backup1).exists());
     assert_eq!(std::fs::metadata(&expected_backup1).unwrap().len(), 101);
-    
+
     // Write 101 bytes again to trigger rotation again: .log.1 -> .log.2, .log -> .log.1
     std::fs::write(&log_file, vec![b'b'; 101]).unwrap();
     log_event_to_path(log_file_str, "INFO", "trigger rotation 2", 100);
-    
+
     let expected_backup2 = format!("{}.2", log_file_str);
     assert!(std::path::Path::new(&expected_backup2).exists());
     assert_eq!(std::fs::metadata(&expected_backup2).unwrap().len(), 101);
     assert!(std::path::Path::new(&expected_backup1).exists());
-    
+
     // Cleanup
     let _ = std::fs::remove_file(&log_file);
     let _ = std::fs::remove_file(&expected_backup1);

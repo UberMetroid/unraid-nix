@@ -38,9 +38,11 @@ pub fn verify_port_conflicts(name: &str, port: &Option<String>) {
     } else {
         let name_lower = name.to_lowercase();
         let preset_path = crate::config::get_preset_path(&name_lower);
-        std::path::Path::new(&preset_path).exists()
+        std::path::Path::new(&preset_path)
+            .exists()
             .then(|| {
-                std::fs::read_to_string(&preset_path).ok()
+                std::fs::read_to_string(&preset_path)
+                    .ok()
                     .and_then(|content| serde_json::from_str::<serde_json::Value>(&content).ok())
                     .and_then(|json| json.get("default_ports")?.as_array().cloned())
                     .and_then(|ports_arr| ports_arr.first().cloned())

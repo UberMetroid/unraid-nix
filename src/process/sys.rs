@@ -1,6 +1,6 @@
-use std::process::Command;
-use std::fs;
 use super::status::GpuStat;
+use std::fs;
+use std::process::Command;
 
 pub fn get_gpu_active_services() -> std::collections::HashSet<String> {
     let mut active_services = std::collections::HashSet::new();
@@ -49,9 +49,15 @@ pub fn get_proc_io(pid: i32) -> Option<(u64, u64)> {
         let mut wchar = None;
         for line in content.lines() {
             if line.starts_with("rchar:") {
-                rchar = line.split_whitespace().nth(1).and_then(|s| s.parse::<u64>().ok());
+                rchar = line
+                    .split_whitespace()
+                    .nth(1)
+                    .and_then(|s| s.parse::<u64>().ok());
             } else if line.starts_with("wchar:") {
-                wchar = line.split_whitespace().nth(1).and_then(|s| s.parse::<u64>().ok());
+                wchar = line
+                    .split_whitespace()
+                    .nth(1)
+                    .and_then(|s| s.parse::<u64>().ok());
             }
         }
         if let (Some(rc), Some(wc)) = (rchar, wchar) {
@@ -71,7 +77,7 @@ pub fn get_descendant_pids(parent_pid: i32) -> Vec<i32> {
                 let child_pid: i32 = name.parse().ok()?;
                 let stat = std::fs::read_to_string(format!("/proc/{child_pid}/stat")).ok()?;
                 let pos = stat.rfind(')')?;
-                let fields_after_name = &stat[pos+1..];
+                let fields_after_name = &stat[pos + 1..];
                 let mut parts = fields_after_name.split_whitespace();
                 parts.next();
                 let ppid_str = parts.next()?;
@@ -126,7 +132,10 @@ pub fn get_nvidia_pmon_stats() -> std::collections::HashMap<i32, Vec<(i32, GpuSt
                     if let (Ok(gpu), Ok(pid)) = (gpu_str.parse::<i32>(), pid_str.parse::<i32>()) {
                         let sm = sm_str.parse::<i32>().unwrap_or(0);
                         let mem = mem_str.parse::<i32>().unwrap_or(0);
-                        stats.entry(pid).or_insert_with(Vec::new).push((gpu, GpuStat { sm, mem }));
+                        stats
+                            .entry(pid)
+                            .or_insert_with(Vec::new)
+                            .push((gpu, GpuStat { sm, mem }));
                     }
                 }
             }

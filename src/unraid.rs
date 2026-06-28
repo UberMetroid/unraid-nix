@@ -18,10 +18,14 @@ pub fn send_unraid_notification(subject: &str, description: &str, importance: &s
     let _ = {
         let mut cmd = std::process::Command::new("/usr/local/emhttp/webGui/scripts/notify");
         cmd.args([
-            "-e", "Nix Plugin",
-            "-s", subject,
-            "-d", description,
-            "-i", importance_flag,
+            "-e",
+            "Nix Plugin",
+            "-s",
+            subject,
+            "-d",
+            description,
+            "-i",
+            importance_flag,
         ])
         .stdin(std::process::Stdio::null());
         run_with_timeout(&mut cmd, Duration::from_secs(5))
@@ -81,7 +85,10 @@ pub fn parse_ini_file(path: &str) -> HashMap<String, String> {
 /// Auto-detect Unraid's system storage pool config path
 pub fn detect_default_store_path() -> String {
     let system_cfg = parse_ini_file("/boot/config/shares/system.cfg");
-    let mut pool = system_cfg.get("shareCachePool").cloned().unwrap_or_default();
+    let mut pool = system_cfg
+        .get("shareCachePool")
+        .cloned()
+        .unwrap_or_default();
     if pool.is_empty() {
         if let Some(use_cache) = system_cfg.get("shareUseCache") {
             if use_cache == "yes" || use_cache == "prefer" || use_cache == "only" {
@@ -104,7 +111,10 @@ pub fn detect_default_store_path() -> String {
 /// Auto-detect Unraid's AppData pool root path
 pub fn detect_appdata_root() -> String {
     let appdata_cfg = parse_ini_file("/boot/config/shares/appdata.cfg");
-    let mut pool = appdata_cfg.get("shareCachePool").cloned().unwrap_or_default();
+    let mut pool = appdata_cfg
+        .get("shareCachePool")
+        .cloned()
+        .unwrap_or_default();
     if pool.is_empty() {
         if let Some(use_cache) = appdata_cfg.get("shareUseCache") {
             if use_cache == "yes" || use_cache == "prefer" || use_cache == "only" {
@@ -158,16 +168,16 @@ empty =
 quoted_empty = \"\"
 ";
         let temp_dir = std::env::temp_dir();
-        let file_path = temp_dir.join(format!(
-            "test_ini_empty-{}.cfg",
-            std::process::id()
-        ));
+        let file_path = temp_dir.join(format!("test_ini_empty-{}.cfg", std::process::id()));
         std::fs::write(&file_path, content).unwrap();
 
         let map = parse_ini_file(file_path.to_str().unwrap());
         assert_eq!(map.get("present").unwrap(), "hello");
         assert!(!map.contains_key("empty"), "empty value should be skipped");
-        assert!(!map.contains_key("quoted_empty"), "quoted empty value should be skipped");
+        assert!(
+            !map.contains_key("quoted_empty"),
+            "quoted empty value should be skipped"
+        );
 
         let _ = std::fs::remove_file(file_path);
     }
@@ -179,10 +189,7 @@ quoted_empty = \"\"
         // future refactor doesn't accidentally drop one.
         let content = "  spaced_key  =  spaced value  \n";
         let temp_dir = std::env::temp_dir();
-        let file_path = temp_dir.join(format!(
-            "test_ini_ws-{}.cfg",
-            std::process::id()
-        ));
+        let file_path = temp_dir.join(format!("test_ini_ws-{}.cfg", std::process::id()));
         std::fs::write(&file_path, content).unwrap();
 
         let map = parse_ini_file(file_path.to_str().unwrap());
@@ -198,10 +205,7 @@ quoted_empty = \"\"
         // boundaries around key and value.
         let content = "phrase = hello   world\n";
         let temp_dir = std::env::temp_dir();
-        let file_path = temp_dir.join(format!(
-            "test_ini_internal_ws-{}.cfg",
-            std::process::id()
-        ));
+        let file_path = temp_dir.join(format!("test_ini_internal_ws-{}.cfg", std::process::id()));
         std::fs::write(&file_path, content).unwrap();
 
         let map = parse_ini_file(file_path.to_str().unwrap());
@@ -216,10 +220,7 @@ quoted_empty = \"\"
         // matches the legacy parser behavior.
         let content = "just-a-line-no-equals\nreal_key = value\n";
         let temp_dir = std::env::temp_dir();
-        let file_path = temp_dir.join(format!(
-            "test_ini_no_eq-{}.cfg",
-            std::process::id()
-        ));
+        let file_path = temp_dir.join(format!("test_ini_no_eq-{}.cfg", std::process::id()));
         std::fs::write(&file_path, content).unwrap();
 
         let map = parse_ini_file(file_path.to_str().unwrap());
@@ -235,10 +236,7 @@ quoted_empty = \"\"
         // is preserved. Verify this contract.
         let content = "url = http://example.com/path?a=1&b=2\n";
         let temp_dir = std::env::temp_dir();
-        let file_path = temp_dir.join(format!(
-            "test_ini_eq_in_val-{}.cfg",
-            std::process::id()
-        ));
+        let file_path = temp_dir.join(format!("test_ini_eq_in_val-{}.cfg", std::process::id()));
         std::fs::write(&file_path, content).unwrap();
 
         let map = parse_ini_file(file_path.to_str().unwrap());

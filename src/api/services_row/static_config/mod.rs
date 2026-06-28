@@ -48,9 +48,7 @@ pub fn get_service_fa_config(name: &str) -> FaIconConfig {
     let mut custom_icon = None;
     if let Ok(content) = std::fs::read_to_string(&meta_file) {
         if let Ok(val) = serde_json::from_str::<serde_json::Value>(&content) {
-            custom_icon = val.get("icon")
-                .and_then(|v| v.as_str())
-                .map(String::from);
+            custom_icon = val.get("icon").and_then(|v| v.as_str()).map(String::from);
         }
     }
 

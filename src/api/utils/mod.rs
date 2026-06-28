@@ -1,7 +1,7 @@
-use std::process::Command;
-use std::time::Duration;
 use crate::unraid::METADATA_DIR;
 use crate::util::process::run_with_timeout;
+use std::process::Command;
+use std::time::Duration;
 
 pub mod icons;
 pub use icons::get_service_icon_path;
@@ -60,7 +60,8 @@ pub fn get_service_web_port(name: &str) -> Option<u16> {
             if let Ok(json) = serde_json::from_str::<serde_json::Value>(&content) {
                 if let Some(ports_arr) = json.get("default_ports").and_then(|p| p.as_array()) {
                     if !ports_arr.is_empty() {
-                        if let Some(host_port) = ports_arr[0].get("host").and_then(|hp| hp.as_u64()) {
+                        if let Some(host_port) = ports_arr[0].get("host").and_then(|hp| hp.as_u64())
+                        {
                             if let Ok(p) = u16::try_from(host_port) {
                                 return Some(p);
                             }
@@ -84,7 +85,6 @@ pub fn get_service_web_port(name: &str) -> Option<u16> {
     }
 }
 
-
 /// HTML-escape a string for safe interpolation into HTML text content or
 /// attribute values. Replaces `&`, `<`, `>`, `"`, and `'` with their
 /// HTML entity equivalents. Use this for ALL user-controlled data before
@@ -107,12 +107,10 @@ pub fn js_escape(s: &str) -> String {
         .replace('"', "\\\"")
 }
 
-
 pub fn extract_package_uri(command: &str) -> Option<String> {
     if let Some(pos) = command.find("nixpkgs#") {
         let sub = &command[pos..];
-        let end = sub.find([' ', '"', '\'', ';'])
-            .unwrap_or(sub.len());
+        let end = sub.find([' ', '"', '\'', ';']).unwrap_or(sub.len());
         let mut uri = sub[..end].to_string();
         while uri.ends_with('\\') || uri.ends_with('"') || uri.ends_with('\'') {
             uri.pop();
@@ -122,8 +120,7 @@ pub fn extract_package_uri(command: &str) -> Option<String> {
 
     if let Some(pos) = command.find("nix run ") {
         let sub = &command[pos + "nix run ".len()..];
-        let end = sub.find([' ', '"', '\'', ';'])
-            .unwrap_or(sub.len());
+        let end = sub.find([' ', '"', '\'', ';']).unwrap_or(sub.len());
         let mut uri = sub[..end].trim().to_string();
         while uri.ends_with('\\') || uri.ends_with('"') || uri.ends_with('\'') {
             uri.pop();
@@ -154,12 +151,13 @@ pub fn get_host_ips() -> Vec<HostAddr> {
                     let ip_net = parts[3];
 
                     let iface_lower = iface.to_lowercase();
-                    if iface_lower == "lo" ||
-                       iface_lower.starts_with("veth") ||
-                       iface_lower.starts_with("docker") ||
-                       iface_lower.starts_with("br-") ||
-                       iface_lower.starts_with("virbr") ||
-                       iface_lower.starts_with("shim") {
+                    if iface_lower == "lo"
+                        || iface_lower.starts_with("veth")
+                        || iface_lower.starts_with("docker")
+                        || iface_lower.starts_with("br-")
+                        || iface_lower.starts_with("virbr")
+                        || iface_lower.starts_with("shim")
+                    {
                         continue;
                     }
 

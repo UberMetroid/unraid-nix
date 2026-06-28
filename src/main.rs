@@ -7,12 +7,12 @@ use std::env;
 
 mod api;
 mod args;
+mod cli;
 mod config;
 mod process;
 mod sandbox;
-mod store;
 mod search;
-mod cli;
+mod store;
 mod unraid;
 mod util;
 

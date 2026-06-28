@@ -1,7 +1,7 @@
 pub mod tail;
 
 use crate::util::process::{run_with_timeout, run_with_timeout_status};
-use std::process::{Command, Stdio, exit};
+use std::process::{exit, Command, Stdio};
 use std::thread::sleep;
 use std::time::Duration;
 
@@ -39,18 +39,30 @@ pub fn stream_install(args: &crate::cli::args::StreamInstallArgs) {
         } else if install_type == "service" {
             is_service = true;
             cmd_args.push("install-service".to_string());
-            cmd_args.push("--uri".to_string()); cmd_args.push(uri.to_string());
-            cmd_args.push("--appdata".to_string()); cmd_args.push(appdata.to_string());
-            cmd_args.push("--media".to_string()); cmd_args.push(media.to_string());
-            cmd_args.push("--puid".to_string()); cmd_args.push(puid.to_string());
-            cmd_args.push("--pgid".to_string()); cmd_args.push(pgid.to_string());
-            cmd_args.push("--gpu".to_string()); cmd_args.push(gpu.to_string());
-            cmd_args.push("--gpus".to_string()); cmd_args.push(gpus.to_string());
-            cmd_args.push("--extra-binds".to_string()); cmd_args.push(extra_binds.to_string());
-            cmd_args.push("--port".to_string()); cmd_args.push(port.to_string());
-            cmd_args.push("--bind-address".to_string()); cmd_args.push(bind_address.to_string());
-            cmd_args.push("--env-vars".to_string()); cmd_args.push(env_vars.to_string());
-            cmd_args.push("--network-isolation".to_string()); cmd_args.push(network_isolation.to_string());
+            cmd_args.push("--uri".to_string());
+            cmd_args.push(uri.to_string());
+            cmd_args.push("--appdata".to_string());
+            cmd_args.push(appdata.to_string());
+            cmd_args.push("--media".to_string());
+            cmd_args.push(media.to_string());
+            cmd_args.push("--puid".to_string());
+            cmd_args.push(puid.to_string());
+            cmd_args.push("--pgid".to_string());
+            cmd_args.push(pgid.to_string());
+            cmd_args.push("--gpu".to_string());
+            cmd_args.push(gpu.to_string());
+            cmd_args.push("--gpus".to_string());
+            cmd_args.push(gpus.to_string());
+            cmd_args.push("--extra-binds".to_string());
+            cmd_args.push(extra_binds.to_string());
+            cmd_args.push("--port".to_string());
+            cmd_args.push(port.to_string());
+            cmd_args.push("--bind-address".to_string());
+            cmd_args.push(bind_address.to_string());
+            cmd_args.push("--env-vars".to_string());
+            cmd_args.push(env_vars.to_string());
+            cmd_args.push("--network-isolation".to_string());
+            cmd_args.push(network_isolation.to_string());
             if !command_override.is_empty() {
                 cmd_args.push("--command-override".to_string());
                 cmd_args.push(command_override.to_string());
@@ -80,27 +92,79 @@ pub fn stream_install(args: &crate::cli::args::StreamInstallArgs) {
 
     if code == 0 {
         if is_service {
-            print_step_script(1, "done", "1. Resolving Flake package & dependencies...", "Complete");
-            print_step_script(2, "running", "2. Running pre-flight checks (ports & permissions)...", "Running");
+            print_step_script(
+                1,
+                "done",
+                "1. Resolving Flake package & dependencies...",
+                "Complete",
+            );
+            print_step_script(
+                2,
+                "running",
+                "2. Running pre-flight checks (ports & permissions)...",
+                "Running",
+            );
             sleep(Duration::from_millis(400));
-            print_step_script(2, "done", "2. Running pre-flight checks (ports & permissions)...", "Complete");
-            print_step_script(3, "running", "3. Constructing sandbox jail & mounting paths...", "Running");
+            print_step_script(
+                2,
+                "done",
+                "2. Running pre-flight checks (ports & permissions)...",
+                "Complete",
+            );
+            print_step_script(
+                3,
+                "running",
+                "3. Constructing sandbox jail & mounting paths...",
+                "Running",
+            );
             sleep(Duration::from_millis(400));
-            print_step_script(3, "done", "3. Constructing sandbox jail & mounting paths...", "Complete");
-            print_step_script(4, "running", "4. Injecting env variables & log rotation limits...", "Running");
+            print_step_script(
+                3,
+                "done",
+                "3. Constructing sandbox jail & mounting paths...",
+                "Complete",
+            );
+            print_step_script(
+                4,
+                "running",
+                "4. Injecting env variables & log rotation limits...",
+                "Running",
+            );
             sleep(Duration::from_millis(400));
-            print_step_script(4, "done", "4. Injecting env variables & log rotation limits...", "Complete");
-            print_step_script(5, "running", "5. Starting process supervisor & verifying liveness...", "Running");
+            print_step_script(
+                4,
+                "done",
+                "4. Injecting env variables & log rotation limits...",
+                "Complete",
+            );
+            print_step_script(
+                5,
+                "running",
+                "5. Starting process supervisor & verifying liveness...",
+                "Running",
+            );
 
             match tail::tail_service_logs(&svc, timeout_limit) {
-                Ok(true) => {},
-                Ok(false) | Err(_) => { code = -1; },
+                Ok(true) => {}
+                Ok(false) | Err(_) => {
+                    code = -1;
+                }
             }
         } else {
-            print_step_script(1, "done", "1. Resolving Flake package & dependencies...", "Complete");
+            print_step_script(
+                1,
+                "done",
+                "1. Resolving Flake package & dependencies...",
+                "Complete",
+            );
         }
     } else {
-        print_step_script(1, "failed", "1. Resolving Flake package & dependencies...", "Failed");
+        print_step_script(
+            1,
+            "failed",
+            "1. Resolving Flake package & dependencies...",
+            "Failed",
+        );
         println!("<script>if (document.getElementById('overall-status')) {{ document.getElementById('overall-status').innerHTML = '<i class=\"fa fa-times-circle error\"></i> Failed'; }}</script>");
     }
 
@@ -150,12 +214,21 @@ pub fn stream_install(args: &crate::cli::args::StreamInstallArgs) {
 
 fn parse_service_name(uri: &str) -> String {
     let mut svc = uri.to_lowercase().replace("nixpkgs#", "");
-    if let Some(last) = svc.split('/').next_back() { svc = last.to_string(); }
-    if let Some(last) = svc.split(':').next_back() { svc = last.to_string(); }
-    if let Some(last) = svc.split('#').next_back() { svc = last.to_string(); }
+    if let Some(last) = svc.split('/').next_back() {
+        svc = last.to_string();
+    }
+    if let Some(last) = svc.split(':').next_back() {
+        svc = last.to_string();
+    }
+    if let Some(last) = svc.split('#').next_back() {
+        svc = last.to_string();
+    }
 
     if !crate::store::is_valid_service_name(&svc) {
-        crate::store::log_event("ERROR", &format!("Derived service name '{svc}' is invalid (uri='{uri}')"));
+        crate::store::log_event(
+            "ERROR",
+            &format!("Derived service name '{svc}' is invalid (uri='{uri}')"),
+        );
         exit(1);
     }
     svc

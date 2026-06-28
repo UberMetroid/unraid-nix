@@ -1,11 +1,16 @@
-use crate::search::search_packages;
 use crate::api::utils::{html_escape, js_escape};
+use crate::search::search_packages;
 
 /// Renders search results from the Nixpkgs registry into an HTML table.
 pub fn render_search_results(query: &str) -> String {
     let results = match search_packages(query) {
         Ok(r) => r,
-        Err(e) => return format!(r#"<div class="alert alert-danger"><i class="fa fa-times"></i> Search failed: {}</div>"#, html_escape(&e)),
+        Err(e) => {
+            return format!(
+                r#"<div class="alert alert-danger"><i class="fa fa-times"></i> Search failed: {}</div>"#,
+                html_escape(&e)
+            )
+        }
     };
 
     let mut html = r#"<table class="nix-table">
@@ -17,7 +22,8 @@ pub fn render_search_results(query: &str) -> String {
                     <th style="width: 130px; text-align: center;">Action</th>
                 </tr>
             </thead>
-            <tbody>"#.to_string();
+            <tbody>"#
+        .to_string();
 
     if results.is_empty() {
         html.push_str(r#"<tr><td colspan="4" class="text-center">No packages found matching your query.</td></tr>"#);
@@ -54,14 +60,16 @@ pub fn render_search_results(query: &str) -> String {
                 )
             };
 
-            let description_cell = format!("<div>{}</div>{}", html_escape(&r.description), meta_html);
+            let description_cell =
+                format!("<div>{}</div>{}", html_escape(&r.description), meta_html);
 
             let short_name = r.package_name.replace("nixpkgs#", "");
             let link_url = crate::api::package::get_package_link_url(&r.package_name)
                 .unwrap_or_else(|| format!("https://search.nixos.org/packages?channel=unstable&show={short_name}&query={short_name}"));
             let package_link = format!(
                 r#"<a href="{}" target="_blank" style="color: #00a1ff; text-decoration: none;"><code>{}</code> <i class="fa fa-external-link" style="font-size: 10px; margin-left: 2px;"></i></a>"#,
-                html_escape(&link_url), html_escape(&short_name)
+                html_escape(&link_url),
+                html_escape(&short_name)
             );
 
             html.push_str(&format!(
@@ -71,7 +79,10 @@ pub fn render_search_results(query: &str) -> String {
                     <td>{}</td>
                     <td>{}</td>
                 </tr>"#,
-                package_link, html_escape(&r.version), description_cell, action_buttons
+                package_link,
+                html_escape(&r.version),
+                description_cell,
+                action_buttons
             ));
         }
     }
