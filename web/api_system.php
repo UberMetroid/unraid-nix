@@ -55,7 +55,7 @@ if ($action === 'nix-sys-logs') {
     if (file_exists($file)) {
         echo json_encode([
             'success' => true, 
-            'content' => htmlspecialchars(shell_exec("tail -n 250 " . escapeshellarg($file)))
+            'content' => (string)shell_exec("tail -n 250 " . escapeshellarg($file))
         ]);
     } else {
         echo json_encode([
