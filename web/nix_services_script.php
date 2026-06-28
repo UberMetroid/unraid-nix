@@ -4,7 +4,7 @@ function serviceAction(name, action) {
         if (response.success) {
             $("#nix-services-list").load('/plugins/nix/api.php?action=render-services');
         } else {
-            alert("Action failed: " + response.error);
+            showNotice("Action failed: " + response.error, "error");
         }
     }, 'json');
 }
@@ -18,7 +18,7 @@ function editService(name) {
             }
             $('#tab4').trigger('click');
         } else {
-            alert("Failed to retrieve service configuration: " + response.error);
+            showNotice("Failed to retrieve service configuration: " + response.error, "error");
         }
     });
 }
@@ -33,7 +33,7 @@ function openLogs(name) {
 function toggleAutostart(name, checked) {
     $.post('/plugins/nix/api.php', { action: 'toggle-autostart', service: name, enabled: checked }, function(response) {
         if (!response.success) {
-            alert("Failed to toggle autostart: " + response.error);
+            showNotice("Failed to toggle autostart: " + response.error, "error");
         }
         $("#nix-services-list").load('/plugins/nix/api.php?action=render-services');
     }, 'json');
@@ -45,7 +45,7 @@ function removeService(name) {
         if (response.success) {
             $("#nix-services-list").load('/plugins/nix/api.php?action=render-services');
         } else {
-            alert("Failed to remove service: " + response.error);
+            showNotice("Failed to remove service: " + response.error, "error");
         }
     }, 'json');
 }
@@ -72,14 +72,14 @@ function triggerGlobalRebuild(link) {
     
     $.post('/plugins/nix/api.php', { action: 'global-rebuild' }, function(resp) {
         if (resp.success) {
-            alert("Global rebuild completed successfully! All services have been upgraded.");
+            showNotice("Global rebuild completed successfully! All services have been upgraded.", "success");
             location.reload();
         } else {
-            alert("Global rebuild failed: " + resp.error);
+            showNotice("Global rebuild failed: " + resp.error, "error");
             $status.html('<span style="color: #e74c3c;"><i class="fa fa-exclamation-circle"></i> Rebuild failed</span>');
         }
     }, 'json').fail(function() {
-        alert("Request timed out or failed.");
+        showNotice("Request timed out or failed.", "error");
         $status.html('<span style="color: #e74c3c;"><i class="fa fa-exclamation-circle"></i> Rebuild failed</span>');
     });
 }

@@ -1,8 +1,19 @@
 use chrono::Local;
 
 pub fn log_event(level: &str, msg: &str) {
-    let log_path = "/var/log/nix-plugin.log";
+    log_event_to_path("/var/log/nix-plugin.log", level, msg);
+}
+
+pub fn log_event_to_path(log_path: &str, level: &str, msg: &str) {
     let now = Local::now().format("%Y-%m-%d %H:%M:%S");
+    
+    // Rotate log file if it exceeds 10 MB
+    if let Ok(metadata) = std::fs::metadata(log_path) {
+        if metadata.len() > 10 * 1024 * 1024 {
+            let backup_path = format!("{}.1", log_path);
+            let _ = std::fs::rename(log_path, backup_path);
+        }
+    }
     
     // Sanitize carriage returns, newlines and brackets to prevent forged lines
     let safe_level = level.replace('\n', " ").replace('\r', " ").replace('[', "(").replace(']', ")");
@@ -19,10 +30,12 @@ pub fn log_event(level: &str, msg: &str) {
         }
 
     // Forward to native Unraid syslog safely
-    let _ = std::process::Command::new("logger")
-        .args(["-t", "nix-plugin", &format!("[{}] {}", safe_level, safe_msg)])
-        .stdin(std::process::Stdio::null())
-        .output();
+    if log_path == "/var/log/nix-plugin.log" {
+        let _ = std::process::Command::new("logger")
+            .args(["-t", "nix-plugin", &format!("[{}] {}", safe_level, safe_msg)])
+            .stdin(std::process::Stdio::null())
+            .output();
+    }
     
     eprintln!("[{}] {}", safe_level, safe_msg);
 }
@@ -141,5 +154,38 @@ mod tests {
         assert!(conf_source.contains("cores = 8"));
         assert!(conf_source.contains("min-free = 10737418240"));
         assert!(conf_source.contains("max-free = 21474836480"));
+    }
+
+    #[test]
+    fn test_log_event_sanitization_and_rotation() {
+        let log_file = std::env::temp_dir().join(format!("nix-plugin-test-{}.log", chrono::Utc::now().timestamp_micros()));
+        let log_file_str = log_file.to_str().unwrap();
+
+        // 1. Test sanitization of newlines and brackets
+        log_event_to_path(log_file_str, "INFO", "hello\n[WORLD]\r");
+        let content = std::fs::read_to_string(&log_file).unwrap();
+        assert!(content.contains("(WORLD)"));
+        assert!(!content.contains("[WORLD]"));
+        assert!(!content.contains("hello\n"));
+        
+        // 2. Test rotation
+        // Write 11 MB of dummy data to the log file to trigger rotation on next write
+        let dummy_data = vec![b'a'; 11 * 1024 * 1024];
+        std::fs::write(&log_file, dummy_data).unwrap();
+        
+        // Next log write should trigger rotation
+        log_event_to_path(log_file_str, "INFO", "trigger rotation");
+        
+        // Note: backup_file path will end with .1
+        let expected_backup = format!("{}.1", log_file_str);
+        assert!(std::path::Path::new(&expected_backup).exists());
+        assert_eq!(std::fs::metadata(&expected_backup).unwrap().len(), 11 * 1024 * 1024);
+        
+        let new_content = std::fs::read_to_string(&log_file).unwrap();
+        assert!(new_content.contains("trigger rotation"));
+        
+        // Cleanup
+        let _ = std::fs::remove_file(&log_file);
+        let _ = std::fs::remove_file(&expected_backup);
     }
 }

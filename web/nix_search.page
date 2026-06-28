@@ -108,14 +108,14 @@ function syncTemplates(btn) {
     
     $.post('/plugins/nix/api.php', { action: 'sync-templates' }, function(response) {
         if (response.success) {
-            alert("Templates successfully updated!");
+            showNotice("Templates successfully updated!", "success");
             location.reload();
         } else {
-            alert("Failed to sync templates: " + response.error);
+            showNotice("Failed to sync templates: " + response.error, "error");
             $btn.prop('disabled', false).html(originalHtml);
         }
     }, 'json').fail(function() {
-        alert("Server returned an error while syncing.");
+        showNotice("Server returned an error while syncing.", "error");
         $btn.prop('disabled', false).html(originalHtml);
     });
 }

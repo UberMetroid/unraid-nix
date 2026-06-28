@@ -138,7 +138,7 @@ function installCustomFlake(e) {
     var uri = $("#custom-uri").val();
     var type = $("#custom-type").val();
     if (type === 'service' && !$("#custom-appdata").val()) {
-        alert("Configuration Location is required for services.");
+        showNotice("Configuration Location is required for services.", "warning");
         return;
     }
     
@@ -150,7 +150,7 @@ function installCustomFlake(e) {
     var popup = window.open('', popupName, `scrollbars=yes,resizable=yes,status=no,location=no,toolbar=no,menubar=no,width=${width},height=${height},left=${left},top=${top}`);
     
     if (!popup) {
-        alert("Popup blocker prevented opening the installation console. Please allow popups for this site.");
+        showNotice("Popup blocker prevented opening the installation console. Please allow popups for this site.", "warning");
         return;
     }
     

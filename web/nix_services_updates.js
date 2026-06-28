@@ -67,14 +67,14 @@ function triggerGlobalRebuild(btn) {
     
     $.post('/plugins/nix/api.php', { action: 'global-rebuild' }, function(response) {
         if (response.success) {
-            alert('Global update and rebuild completed successfully! All active flakes are running latest packages.');
+            showNotice('Global update and rebuild completed successfully! All active flakes are running latest packages.', 'success');
             location.reload();
         } else {
-            alert('Failed to rebuild: ' + response.error);
+            showNotice('Failed to rebuild: ' + response.error, 'error');
             checkForUpdates();
         }
     }, 'json').fail(function() {
-        alert('Server returned an error while rebuilding.');
+        showNotice('Server returned an error while rebuilding.', 'error');
         checkForUpdates();
     });
 }

@@ -41,7 +41,7 @@ function success() {
 if ($action === 'logs') {
     header('Content-Type: text/html');
     $service = isset($_GET['service']) ? $_GET['service'] : '';
-    if (empty($service) || preg_match('/[^a-zA-Z0-9_-]/', $service)) {
+    if (empty($service) || preg_match('/[^a-zA-Z0-9_.-]/', $service)) {
         echo "Invalid service name.";
         exit;
     }

@@ -82,6 +82,9 @@ ksort($service_logs);
                 <label style="color: var(--nix-text-secondary); font-size: 13px; cursor: pointer; display: inline-flex; align-items: center; gap: 4px; user-select: none;">
                     <input type="checkbox" id="nix-log-filter-debug" checked onchange="loadLogs()" style="margin: 0; vertical-align: middle;"> Debug
                 </label>
+                <label style="color: #94a3b8; font-size: 13px; cursor: pointer; display: inline-flex; align-items: center; gap: 4px; user-select: none;">
+                    <input type="checkbox" id="nix-log-filter-untagged" checked onchange="loadLogs()" style="margin: 0; vertical-align: middle;"> Untagged
+                </label>
             </div>
             <div style="display: inline-flex; gap: 8px;">
                 <button id="nix-log-refresh-btn" class="nix-btn" onclick="loadLogs()" style="padding: 6px 12px; display: inline-block; min-width: 90px;"><i class="fa fa-refresh"></i> Refresh</button>
@@ -121,6 +124,7 @@ function loadLogs(isAutoRefresh) {
             var showWarn = document.getElementById('nix-log-filter-warn').checked;
             var showError = document.getElementById('nix-log-filter-error').checked;
             var showDebug = document.getElementById('nix-log-filter-debug').checked;
+            var showUntagged = document.getElementById('nix-log-filter-untagged').checked;
             
             var lines = rawText.split('\n');
             var filteredLines = [];
@@ -141,8 +145,8 @@ function loadLogs(isAutoRefresh) {
                 if (isError && !showError) continue;
                 if (isDebug && !showDebug) continue;
                 
-                // If it doesn't match any level explicitly, treat it as general info log line
-                if (!matchesAny && !showInfo) continue;
+                // If it doesn't match any level explicitly, check the Untagged filter
+                if (!matchesAny && !showUntagged) continue;
                 
                 filteredLines.push(line);
             }
@@ -176,6 +180,41 @@ function loadLogs(isAutoRefresh) {
             // Re-scroll only if user was at bottom
             if (isAtBottom) {
                 container.scrollTop = container.scrollHeight;
+            }
+
+            // Dynamically sync service log dropdown options
+            if (resp.service_logs) {
+                var select = $('#nix-log-select');
+                var servicesGroup = select.find('optgroup[label="Nix Services"]');
+                if (servicesGroup.length === 0 && resp.service_logs.length > 0) {
+                    servicesGroup = $('<optgroup label="Nix Services"></optgroup>');
+                    select.append(servicesGroup);
+                }
+                
+                var existingServices = {};
+                servicesGroup.find('option').each(function() {
+                    var val = $(this).val().substring(8); // strip 'service:'
+                    existingServices[val] = this;
+                });
+                
+                resp.service_logs.forEach(function(name) {
+                    if (!existingServices[name]) {
+                        servicesGroup.append($('<option>', {
+                            value: 'service:' + name,
+                            text: name
+                        }));
+                    } else {
+                        delete existingServices[name];
+                    }
+                });
+                
+                for (var name in existingServices) {
+                    $(existingServices[name]).remove();
+                }
+                
+                if (servicesGroup.find('option').length === 0) {
+                    servicesGroup.remove();
+                }
             }
         } else {
             container.innerHTML = "<span style='color: #ef4444;'>Error loading logs: " + $('<div>').text(resp.error).html() + "</span>";

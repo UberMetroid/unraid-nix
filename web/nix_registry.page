@@ -53,7 +53,7 @@ function installPackage(btn, pkg) {
     var popup = window.open('', popupName, `scrollbars=yes,resizable=yes,status=no,location=no,toolbar=no,menubar=no,width=${width},height=${height},left=${left},top=${top}`);
     
     if (!popup) {
-        alert("Popup blocker prevented opening the installation console. Please allow popups for this site.");
+        showNotice("Popup blocker prevented opening the installation console. Please allow popups for this site.", "warning");
         return;
     }
     
