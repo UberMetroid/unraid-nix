@@ -131,3 +131,36 @@ pub fn detect_gpus(_args: &[String]) {
 
     println!("{}", serde_json::to_string(&gpus).unwrap_or_else(|_| "[]".to_string()));
 }
+
+/// Prepares the target symlink directory for NVIDIA / CUDA drivers on the host.
+/// Replaces the legacy `nix-gpu-setup.sh` script.
+pub fn setup_gpu_driver_symlinks(_args: &[String]) {
+    let target_dir = std::path::Path::new("/var/run/nix-nvidia-driver/lib");
+    if let Err(e) = fs::create_dir_all(target_dir) {
+        eprintln!("Failed to create GPU target directory: {}", e);
+        return;
+    }
+    
+    // Clean up existing entries
+    if let Ok(entries) = fs::read_dir(target_dir) {
+        for entry in entries.flatten() {
+            let _ = fs::remove_file(entry.path());
+        }
+    }
+    
+    // Scan /usr/lib64 for libraries
+    let lib64_dir = std::path::Path::new("/usr/lib64");
+    if lib64_dir.exists() && lib64_dir.is_dir() {
+        if let Ok(entries) = fs::read_dir(lib64_dir) {
+            for entry in entries.flatten() {
+                let name_os = entry.file_name();
+                let name = name_os.to_string_lossy();
+                if name.starts_with("libcuda.so") || (name.starts_with("libnvidia-") && name.contains(".so")) {
+                    let dest = target_dir.join(&*name);
+                    let _ = std::os::unix::fs::symlink(entry.path(), dest);
+                }
+            }
+        }
+    }
+}
+

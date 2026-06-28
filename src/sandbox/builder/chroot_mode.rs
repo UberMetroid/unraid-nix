@@ -65,7 +65,7 @@ pub fn build_chroot_command(
 
     if has_nvidia || has_render {
         if has_nvidia {
-            mounts_cmd.push("/bin/bash /usr/local/emhttp/plugins/nix/nix-gpu-setup.sh".to_string());
+            mounts_cmd.push("/usr/local/emhttp/plugins/nix/nix-helper setup-gpus".to_string());
             mounts_cmd.push(format!("mkdir -p {}/run/opengl-driver/lib", chroot_dir));
             mounts_cmd.push(format!("mount --bind /var/run/nix-nvidia-driver/lib {}/run/opengl-driver/lib", chroot_dir));
         }

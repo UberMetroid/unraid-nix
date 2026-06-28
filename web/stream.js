@@ -93,7 +93,11 @@ function finishInstallation(code, action, type, svc, reportHtml) {
             
             if (action === 'install-custom' && type === 'service' && svc) {
                 var logsBtn = document.getElementById("logs-btn");
-                if (logsBtn) { logsBtn.style.display = "inline-block"; logsBtn.className = "logs-btn enabled"; }
+                if (logsBtn) {
+                    logsBtn.style.display = "inline-block";
+                    logsBtn.className = "logs-btn enabled";
+                    logsBtn.onclick = function() { openServiceLogs(svc); };
+                }
                 
                 var dashboard = document.getElementById("status-dashboard");
                 if (dashboard) {

@@ -7,6 +7,8 @@ pub mod service_install;
 pub mod supervisor;
 pub mod metadata;
 pub mod gpus;
+pub mod stream_install;
+
 
 pub fn print_usage() {
     println!("Usage: nix-helper <subcommand> [args]");
@@ -30,6 +32,8 @@ pub fn print_usage() {
     println!("  save-settings <options>                Saves Nix plugin settings and manages migration");
     println!("  get-metadata <name>                    Outputs JSON service metadata");
     println!("  detect-gpus                            Outputs JSON list of detected host GPUs");
+    println!("  setup-gpus                             Configures NVIDIA/CUDA symlinks on host");
+    println!("  stream-install <options>               Streams real-time installation output and tails logs");
     println!("  get-icon <name>                        Outputs the absolute path of a service logo in the Nix store");
     println!("  sync-templates                         Syncs preset templates from the templates repository");
 }
@@ -53,6 +57,8 @@ pub fn run(args: Vec<String>) {
         "save-settings" => settings::save_settings(&args),
         "get-metadata" => metadata::get_metadata(&args),
         "detect-gpus" => gpus::detect_gpus(&args),
+        "setup-gpus" => gpus::setup_gpu_driver_symlinks(&args),
+        "stream-install" => stream_install::stream_install(&args),
         "get-icon" => {
             let name = if args.len() >= 3 { &args[2] } else { "" };
             if let Some(path) = crate::api::utils::get_service_icon_path(name) {

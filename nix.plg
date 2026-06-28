@@ -309,7 +309,7 @@
 
       # 3. Download and install WebGUI pages
       echo "--> Downloading Dynamix WebGUI pages and assets..."
-      for file in Nix.page nix_services.page nix_search.page nix_install.page nix_logs.page nix_settings.page api.php api_service.php nix.js nix_install.js stream.js stream.php nix-gpu-setup.sh styles_layout.css styles_widgets.css; do
+      for file in Nix.page nix_services.page nix_search.page nix_install.page nix_logs.page nix_settings.page nix_about.page nix_registry.page api.php api_service.php api_system.php api_diagnostics.php theme_helper.php nix.js nix_install.js nix_install_ports.js nix_install_presets.js stream_init.php stream.js stream.php nix_services_script.php nix_services_stats.js nix_services_updates.js nix_settings_form.php nix_settings_script.php styles_layout.css styles_themes.css styles_tables.css styles_widgets.css styles_cards.css styles_console.css; do
           curl -sSf -L -o "&usrdir;/$file" "${GITHUB_RAW}/web/$file"
       done
       mkdir -p "&usrdir;/images"

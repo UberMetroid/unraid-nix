@@ -44,7 +44,7 @@ pub fn build_setpriv_command(
     }
 
     if has_nvidia {
-        mounts_cmd.push("/bin/bash /usr/local/emhttp/plugins/nix/nix-gpu-setup.sh".to_string());
+        mounts_cmd.push("/usr/local/emhttp/plugins/nix/nix-helper setup-gpus".to_string());
         mounts_cmd.push("mkdir -p /run/opengl-driver/lib".to_string());
         mounts_cmd.push("mount --bind /var/run/nix-nvidia-driver/lib /run/opengl-driver/lib".to_string());
     }
