@@ -87,13 +87,9 @@ if (!function_exists('get_host_ips_php')) {
 }
 
 $cfg_file = "/boot/config/plugins/nix/nix.cfg";
-$enable_cli = 'no';
 $appdata_root = '';
 if (file_exists($cfg_file)) {
     $nix_cfg = parse_ini_file($cfg_file);
-    if (isset($nix_cfg['ENABLE_CLI_INSTALL'])) {
-        $enable_cli = $nix_cfg['ENABLE_CLI_INSTALL'];
-    }
     if (isset($nix_cfg['DEFAULT_APPDATA_PATH'])) {
         $appdata_root = $nix_cfg['DEFAULT_APPDATA_PATH'];
     }
@@ -116,19 +112,9 @@ $host_ips = get_host_ips_php();
             <input type="text" id="custom-uri" placeholder="e.g. nixpkgs#radarr or github:user/repo#service-bin" required oninput="updatePresetInfo()">
         </div>
         
-        <?php if ($enable_cli === 'yes'): ?>
-            <div class="nix-form-group">
-                <label for="custom-type">Installation Type:</label>
-                <select id="custom-type" onchange="toggleServiceOptions()">
-                    <option value="service" selected>Background Service (process-compose)</option>
-                    <option value="cli">CLI Tool (Global Profile)</option>
-                </select>
-            </div>
-        <?php else: ?>
-            <input type="hidden" id="custom-type" value="service">
-        <?php endif; ?>
+        <input type="hidden" id="custom-type" value="service">
         
-        <div id="nix-service-only-options" style="display: <?php echo $enable_cli === 'yes' ? 'none' : 'block'; ?>; border-left: 3px solid #00a1ff; padding-left: 15px; margin-bottom: 15px;">
+        <div id="nix-service-only-options" style="display: block; border-left: 3px solid #00a1ff; padding-left: 15px; margin-bottom: 15px;">
             <div class="nix-form-row" style="margin-bottom: 15px;">
                 <div class="nix-form-group" style="flex: 1; margin-right: 10px;">
                     <label for="custom-puid">PUID:</label>

@@ -180,8 +180,6 @@ pub struct SaveSettingsArgs {
     #[arg(long)]
     pub enable_sandbox: Option<String>,
     #[arg(long)]
-    pub enable_cli: Option<String>,
-    #[arg(long)]
     pub show_in_nav: Option<String>,
     #[arg(long)]
     pub allow_source_builds: Option<String>,

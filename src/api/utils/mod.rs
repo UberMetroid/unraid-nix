@@ -150,15 +150,3 @@ pub fn get_host_ips() -> Vec<HostAddr> {
     }
     ips
 }
-
-pub fn is_cli_enabled() -> bool {
-    if let Ok(content) = std::fs::read_to_string("/boot/config/plugins/nix/nix.cfg") {
-        for line in content.lines() {
-            if line.starts_with("ENABLE_CLI_INSTALL=") {
-                let val = line.trim_start_matches("ENABLE_CLI_INSTALL=").trim_matches('"');
-                return val == "yes";
-            }
-        }
-    }
-    false
-}

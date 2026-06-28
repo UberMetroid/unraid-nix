@@ -9,7 +9,6 @@ pub fn save_settings(args: &crate::cli::args::SaveSettingsArgs) {
     let store_path = args.store_path.clone().unwrap_or_default();
     let autostart = args.autostart.clone().unwrap_or_else(|| "yes".to_string());
     let enable_sandbox = args.enable_sandbox.clone().unwrap_or_else(|| "yes".to_string());
-    let enable_cli = args.enable_cli.clone().unwrap_or_else(|| "no".to_string());
     let show_in_nav = args.show_in_nav.clone().unwrap_or_else(|| "yes".to_string());
     let allow_source_builds = args.allow_source_builds.clone().unwrap_or_else(|| "no".to_string());
     let filter_presets_by_hardware = args.filter_presets_by_hardware.clone().unwrap_or_else(|| "yes".to_string());
@@ -48,8 +47,8 @@ pub fn save_settings(args: &crate::cli::args::SaveSettingsArgs) {
     // Write settings to ini config
     let _ = std::fs::create_dir_all("/boot/config/plugins/nix");
     let cfg_content = format!(
-        "NIX_STORE_PATH=\"{}\"\nAUTOSTART_FLAKES=\"{}\"\nENABLE_STORAGE_SANDBOX=\"{}\"\nENABLE_CLI_INSTALL=\"{}\"\nSHOW_IN_NAVIGATION=\"{}\"\nALLOW_SOURCE_BUILDS=\"{}\"\nFILTER_PRESETS_BY_HARDWARE=\"{}\"\nENABLE_PID_ISOLATION=\"{}\"\nENABLE_UTS_ISOLATION=\"{}\"\nENABLE_IPC_ISOLATION=\"{}\"\nAUTO_GC=\"{}\"\nNIX_STORE_QUOTA=\"{}\"\nBUILD_CORES=\"{}\"\nBUILD_JOBS=\"{}\"\nGC_MIN_FREE=\"{}\"\nGC_MAX_FREE=\"{}\"\nNIX_CHANNEL=\"{}\"\nSETTINGS_CONFIRMED=\"yes\"\nDEFAULT_APPDATA_PATH=\"{}\"\n",
-        clean_store_path, autostart, enable_sandbox, enable_cli, show_in_nav, allow_source_builds, filter_presets_by_hardware, enable_pid_isolation, enable_uts_isolation, enable_ipc_isolation, auto_gc, store_quota, build_cores, build_jobs, gc_min_free, gc_max_free, nix_channel, default_appdata_path
+        "NIX_STORE_PATH=\"{}\"\nAUTOSTART_FLAKES=\"{}\"\nENABLE_STORAGE_SANDBOX=\"{}\"\nENABLE_CLI_INSTALL=\"no\"\nSHOW_IN_NAVIGATION=\"{}\"\nALLOW_SOURCE_BUILDS=\"{}\"\nFILTER_PRESETS_BY_HARDWARE=\"{}\"\nENABLE_PID_ISOLATION=\"{}\"\nENABLE_UTS_ISOLATION=\"{}\"\nENABLE_IPC_ISOLATION=\"{}\"\nAUTO_GC=\"{}\"\nNIX_STORE_QUOTA=\"{}\"\nBUILD_CORES=\"{}\"\nBUILD_JOBS=\"{}\"\nGC_MIN_FREE=\"{}\"\nGC_MAX_FREE=\"{}\"\nNIX_CHANNEL=\"{}\"\nSETTINGS_CONFIRMED=\"yes\"\nDEFAULT_APPDATA_PATH=\"{}\"\n",
+        clean_store_path, autostart, enable_sandbox, show_in_nav, allow_source_builds, filter_presets_by_hardware, enable_pid_isolation, enable_uts_isolation, enable_ipc_isolation, auto_gc, store_quota, build_cores, build_jobs, gc_min_free, gc_max_free, nix_channel, default_appdata_path
     );
     if std::fs::write(cfg_file, cfg_content).is_err() {
         eprintln!("Failed to write nix.cfg to flash drive.");

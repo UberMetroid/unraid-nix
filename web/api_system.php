@@ -80,7 +80,6 @@ if ($action === 'save-settings') {
     $store_path = isset($_POST['store_path']) ? $_POST['store_path'] : '';
     $autostart = isset($_POST['autostart']) ? $_POST['autostart'] : 'yes';
     $enable_sandbox = isset($_POST['enable_sandbox']) ? $_POST['enable_sandbox'] : 'no';
-    $enable_cli = isset($_POST['enable_cli']) ? $_POST['enable_cli'] : 'no';
     $show_in_nav = isset($_POST['show_in_nav']) ? $_POST['show_in_nav'] : 'yes';
     $allow_source_builds = isset($_POST['allow_source_builds']) ? $_POST['allow_source_builds'] : 'no';
     $filter_presets_by_hardware = isset($_POST['filter_presets_by_hardware']) ? $_POST['filter_presets_by_hardware'] : 'yes';
@@ -102,7 +101,6 @@ if ($action === 'save-settings') {
            "--store-path " . escapeshellarg($store_path) . " " .
            "--autostart " . escapeshellarg($autostart) . " " .
            "--enable-sandbox " . escapeshellarg($enable_sandbox) . " " .
-           "--enable-cli " . escapeshellarg($enable_cli) . " " .
            "--show-in-nav " . escapeshellarg($show_in_nav) . " " .
            "--allow-source-builds " . escapeshellarg($allow_source_builds) . " " .
            "--filter-presets-by-hardware " . escapeshellarg($filter_presets_by_hardware) . " " .

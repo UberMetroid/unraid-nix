@@ -1,5 +1,4 @@
 use crate::search::search_packages;
-use crate::api::utils::is_cli_enabled;
 
 /// Renders search results from the Nixpkgs registry into an HTML table.
 pub fn render_search_results(query: &str) -> String {
@@ -8,14 +7,13 @@ pub fn render_search_results(query: &str) -> String {
         Err(e) => return format!(r#"<div class="alert alert-danger"><i class="fa fa-times"></i> Search failed: {}</div>"#, e),
     };
 
-    let mut html = r#"<div style="overflow-x: auto; width: 100%;">
-        <table class="nix-search-table">
+    let mut html = r#"<table class="nix-table">
             <thead>
                 <tr>
-                    <th>Package Name</th>
-                    <th>Version</th>
+                    <th style="width: 250px;">Package Name</th>
                     <th>Description</th>
-                    <th>Action</th>
+                    <th style="width: 220px;">Details</th>
+                    <th style="width: 130px; text-align: center;">Action</th>
                 </tr>
             </thead>
             <tbody>"#.to_string();
@@ -23,22 +21,11 @@ pub fn render_search_results(query: &str) -> String {
     if results.is_empty() {
         html.push_str(r#"<tr><td colspan="4" class="text-center">No packages found matching your query.</td></tr>"#);
     } else {
-        let cli_enabled = is_cli_enabled();
         for r in results {
-            let action_buttons = if cli_enabled {
-                format!(
-                    r#"<div style="display: flex; flex-direction: column; gap: 5px; align-items: center; justify-content: center;">
-                        <button type="button" class="nix-btn" style="width: 100px; margin: 0; padding: 4px 8px; font-size: 11px;" onclick="installPackage(this, '{}')">Install CLI</button>
-                        <button type="button" class="nix-btn-install" style="width: 100px; margin: 0; padding: 4px 8px; font-size: 11px;" onclick="showServiceModal('{}')">Add Service</button>
-                       </div>"#,
-                    r.package_name, r.package_name
-                )
-            } else {
-                format!(
-                    r#"<button type="button" class="nix-btn-install" style="width: 100px; margin: 0; padding: 4px 8px; font-size: 11px;" onclick="showServiceModal('{}')">Add Service</button>"#,
-                    r.package_name
-                )
-            };
+            let action_buttons = format!(
+                r#"<button type="button" class="nix-btn-install" style="width: 100px; margin: 0; padding: 4px 8px; font-size: 11px;" onclick="showServiceModal('{}')">Add Service</button>"#,
+                r.package_name
+            );
 
             let mut meta_links = Vec::new();
             if let Some(ref lic) = r.license {
