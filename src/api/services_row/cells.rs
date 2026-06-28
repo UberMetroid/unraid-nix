@@ -92,8 +92,8 @@ pub fn render_resources_cell(
     is_running: bool,
     cpu: Option<f32>,
     memory: Option<u64>,
-    gpus_override: &Option<String>,
-    legacy_gpu: &Option<String>,
+    _gpus_override: &Option<String>,
+    _legacy_gpu: &Option<String>,
     _gpu_stats: &Option<std::collections::HashMap<i32, GpuStat>>,
 ) -> String {
     let mut res = String::new();
@@ -127,38 +127,6 @@ pub fn render_resources_cell(
             name, cpu_str, name, mem_str, name, name
         ));
 
-        match gpus_override {
-            Some(ref g) if !g.trim().is_empty() => {
-                let mut badges = Vec::new();
-                for part in g.split(',') {
-                    let p = part.trim();
-                    if !p.is_empty() {
-                        let display_part = if p.starts_with("nvidia-") {
-                            p.replace("nvidia-", "GPU-")
-                        } else {
-                            p.to_string()
-                        };
-                        badges.push(format!(
-                            r#"<span style="background: var(--nix-bg-tertiary); border: 1px solid var(--nix-border-primary); border-radius: 3px; padding: 2px 6px; font-size: 10px; color: var(--nix-text-secondary); font-family: monospace; display: inline-block;">{}</span>"#,
-                            display_part
-                        ));
-                    }
-                }
-                if !badges.is_empty() {
-                    res.push_str(&format!(
-                        r#"<div style="display: flex; flex-wrap: wrap; gap: 4px; margin-top: 4px;">{}</div>"#,
-                        badges.join("")
-                    ));
-                }
-            }
-            _ => {
-                if let Some(ref lg) = legacy_gpu {
-                    if lg == "1" || lg == "true" {
-                        res.push_str(r#"<div style="display: flex; flex-wrap: wrap; gap: 4px; margin-top: 4px;"><span style="background: var(--nix-bg-tertiary); border: 1px solid var(--nix-border-primary); border-radius: 3px; padding: 2px 6px; font-size: 10px; color: var(--nix-text-secondary); font-family: monospace; display: inline-block;">All GPUs</span></div>"#);
-                    }
-                }
-            }
-        }
     } else {
         res.push_str(r#"<span style="color: var(--nix-text-muted);">-</span>"#);
     }
