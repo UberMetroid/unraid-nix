@@ -188,16 +188,16 @@ pub fn render_service_row(
                 <!-- Info list -->
                 <div style="display: flex; flex-direction: column; gap: 8px; font-size: 11px; border-top: 1px solid var(--nix-border-primary); padding-top: 10px;">
                     <div style="display: flex; flex-direction: column; gap: 3px; line-height: 1.3;">
-                        <span style="color: var(--nix-text-secondary); font-size: 10px; font-weight: 600;">WEB INTERFACE</span>
+                        <span style="color: var(--nix-text-secondary); font-size: 10px; font-weight: 600;">ACTIVITY</span>
                         <div style="padding-left: 6px;">{}</div>
                     </div>
                     <div style="display: flex; flex-direction: column; gap: 3px; line-height: 1.3;">
-                        <span style="color: var(--nix-text-secondary); font-size: 10px; font-weight: 600;">MAPPED DRIVES</span>
+                        <span style="color: var(--nix-text-secondary); font-size: 10px; font-weight: 600;">CONNECTION</span>
+                        <div style="padding-left: 6px;">{}</div>
+                    </div>
+                    <div style="display: flex; flex-direction: column; gap: 3px; line-height: 1.3;">
+                        <span style="color: var(--nix-text-secondary); font-size: 10px; font-weight: 600;">MOUNTS</span>
                         <div style="display: flex; flex-direction: column; gap: 3px; padding-left: 6px;">{}</div>
-                    </div>
-                    <div style="display: flex; flex-direction: column; gap: 3px; line-height: 1.3;">
-                        <span style="color: var(--nix-text-secondary); font-size: 10px; font-weight: 600;">RESOURCES</span>
-                        <div style="padding-left: 6px;">{}</div>
                     </div>
                 </div>
             </div>
@@ -214,6 +214,6 @@ pub fn render_service_row(
                 <button type="button" class="nix-btn nix-btn-sm" style="color: #e74c3c; border-color: var(--nix-border-primary); margin: 0; display: inline-flex; align-items: center; justify-content: center; height: 32px; width: 32px;" onclick="removeService('{}')" title="Remove"><i class="fa fa-trash-o" style="color: #e74c3c;"></i></button>
             </div>
         </div>"#,
-        s.name, cfg.bg, cfg.border, cfg.color, cfg.icon, s.name, s.name, s.name, version_badge, status_class, s.name, status_label, lan_ip_port_html, mapped_drives_html, resources_html, start_btn, stop_btn, edit_btn, logs_btn, autostart_html, s.name
+        s.name, cfg.bg, cfg.border, cfg.color, cfg.icon, s.name, s.name, s.name, version_badge, status_class, s.name, status_label, resources_html, lan_ip_port_html, mapped_drives_html, start_btn, stop_btn, edit_btn, logs_btn, autostart_html, s.name
     )
 }
