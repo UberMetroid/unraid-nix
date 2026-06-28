@@ -20,6 +20,28 @@ $is_nix_running = ($status_code === 0);
     <h3>Flakes</h3>
     <p class="nix-subtext">Natively running background processes managed by the nix process supervisor.</p>
     
+    <div id="nix-update-banner" style="display: none; margin-bottom: 20px; padding: 15px; border-radius: 6px; background: var(--nix-bg-secondary); border: 1px solid var(--nix-border-primary);">
+        <div style="display: flex; align-items: center; justify-content: space-between; gap: 15px; flex-wrap: wrap;">
+            <div style="display: flex; align-items: center; gap: 12px;">
+                <div style="width: 36px; height: 36px; border-radius: 50%; background: rgba(0, 161, 255, 0.1); border: 1px solid rgba(0, 161, 255, 0.2); display: flex; align-items: center; justify-content: center; color: var(--nix-accent); flex-shrink: 0;">
+                    <i class="fa fa-gift" style="font-size: 16px;"></i>
+                </div>
+                <div>
+                    <h4 style="margin: 0; font-size: 14px; color: var(--nix-text-bright);" id="nix-update-title">Nix Channel Update Available</h4>
+                    <p style="margin: 3px 0 0 0; font-size: 12px; color: var(--nix-text-secondary);" id="nix-update-desc">A newer revision is available on the channel repository.</p>
+                </div>
+            </div>
+            <div style="display: flex; gap: 10px; align-items: center;">
+                <button type="button" class="nix-btn" style="margin: 0; padding: 6px 12px; font-size: 12px;" onclick="checkForUpdates(this)">
+                    <i class="fa fa-refresh"></i> Check Again
+                </button>
+                <button type="button" class="nix-btn-primary" style="margin: 0; padding: 6px 14px; font-size: 12px; font-weight: 600;" onclick="triggerGlobalRebuild(this)">
+                    <i class="fa fa-arrow-circle-up"></i> Update & Rebuild
+                </button>
+            </div>
+        </div>
+    </div>
+    
     <div id="nix-services-list">
         <?php
         if ($is_nix_running) {
@@ -244,7 +266,63 @@ $(function() {
     if (window.nixServicesInterval) clearInterval(window.nixServicesInterval);
     pollStats();
     window.nixServicesInterval = setInterval(pollStats, 2000);
+    
+    // Check for Nix channel updates asynchronously on load
+    checkForUpdates();
 });
+
+function checkForUpdates(btn) {
+    var $btn = btn ? $(btn) : null;
+    var originalHtml = $btn ? $btn.html() : '';
+    if ($btn) {
+        $btn.prop('disabled', true).html('<i class="fa fa-refresh fa-spin"></i> Checking...');
+    }
+    
+    $.getJSON('/plugins/nix/api.php?action=check-updates', function(data) {
+        if ($btn) {
+            $btn.prop('disabled', false).html(originalHtml);
+        }
+        
+        if (data.success) {
+            var banner = $('#nix-update-banner');
+            if (data.update_available) {
+                $('#nix-update-title').text('Nix Channel Update Available (' + data.latest_rev + ')');
+                $('#nix-update-desc').html('A newer revision of your Nix channel is available. Current: <code>' + data.cached_rev + '</code> &rarr; Latest: <code>' + data.latest_rev + '</code>. Click Update & Rebuild to sync channel mappings and rebuild all running flakes.');
+                banner.css('border-color', 'var(--nix-accent)').slideDown();
+            } else {
+                if ($btn) {
+                    alert('Nix channel is already up-to-date! Current revision: ' + data.cached_rev);
+                }
+                banner.slideUp();
+            }
+        }
+    }).fail(function() {
+        if ($btn) {
+            $btn.prop('disabled', false).html(originalHtml);
+        }
+    });
+}
+
+function triggerGlobalRebuild(btn) {
+    if (!confirm('Are you sure you want to perform a global update and rebuild?\nThis will refresh the Nix channel commits, re-compile packages, and restart all running flakes to apply updates.')) return;
+    
+    var $btn = $(btn);
+    var originalHtml = $btn.html();
+    $btn.prop('disabled', true).html('<i class="fa fa-spinner fa-spin"></i> Rebuilding...');
+    
+    $.post('/plugins/nix/api.php', { action: 'global-rebuild' }, function(response) {
+        if (response.success) {
+            alert('Global update and rebuild completed successfully! All active flakes are running latest packages.');
+            location.reload();
+        } else {
+            alert('Failed to rebuild: ' + response.error);
+            $btn.prop('disabled', false).html(originalHtml);
+        }
+    }, 'json').fail(function() {
+        alert('Server returned an error while rebuilding.');
+        $btn.prop('disabled', false).html(originalHtml);
+    });
+}
 </script>
 
 

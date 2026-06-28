@@ -376,4 +376,69 @@ if ($action === 'collect-garbage') {
     success();
 }
 
+// 11. Check Nix Channel Updates
+if ($action === 'check-updates') {
+    $output_cached = [];
+    $code_cached = 0;
+    exec(". /nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh && nix flake metadata nixpkgs --json 2>/dev/null", $output_cached, $code_cached);
+    
+    $output_refresh = [];
+    $code_refresh = 0;
+    exec(". /nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh && nix flake metadata nixpkgs --refresh --json 2>/dev/null", $output_refresh, $code_refresh);
+    
+    if ($code_cached !== 0 || $code_refresh !== 0) {
+        error("Failed to query Nix flake metadata.");
+    }
+    
+    $cached_data = json_decode(implode("\n", $output_cached), true);
+    $refresh_data = json_decode(implode("\n", $output_refresh), true);
+    
+    if (!$cached_data || !$refresh_data) {
+        error("Failed to decode flake metadata JSON.");
+    }
+    
+    $cached_rev = isset($cached_data['locked']['rev']) ? $cached_data['locked']['rev'] : '';
+    $latest_rev = isset($refresh_data['locked']['rev']) ? $refresh_data['locked']['rev'] : '';
+    
+    $update_available = ($cached_rev !== $latest_rev && !empty($cached_rev) && !empty($latest_rev));
+    
+    echo json_encode([
+        'success' => true,
+        'update_available' => $update_available,
+        'cached_rev' => substr($cached_rev, 0, 7),
+        'latest_rev' => substr($latest_rev, 0, 7),
+        'channel_url' => isset($refresh_data['resolvedUrl']) ? $refresh_data['resolvedUrl'] : 'nixpkgs'
+    ]);
+    exit;
+}
+
+// 12. Global Update & Rebuild
+if ($action === 'global-rebuild') {
+    log_debug("Global update and rebuild requested. Refreshing Nix channel inputs...");
+    
+    $output = [];
+    $code = 0;
+    exec(". /nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh && nix flake metadata nixpkgs --refresh 2>&1", $output, $code);
+    if ($code !== 0) {
+        error("Failed to refresh nixpkgs channel cache: " . implode("\n", $output));
+    }
+    
+    log_debug("Nix channel refreshed successfully. Restarting process supervisor to compile/rebuild all active services...");
+    
+    $output_stop = [];
+    $code_stop = 0;
+    exec("/usr/local/emhttp/plugins/nix/event/stopping_svcs 2>&1", $output_stop, $code_stop);
+    
+    $output_start = [];
+    $code_start = 0;
+    exec("/usr/local/emhttp/plugins/nix/event/disks_mounted 2>&1", $output_start, $code_start);
+    
+    if ($code_stop !== 0 || $code_start !== 0) {
+        error("Channel cache updated, but failed to restart Nix supervisor daemon: " . implode("\n", array_merge($output_stop, $output_start)));
+    }
+    
+    log_debug("Global update and rebuild completed successfully.");
+    success();
+}
+
 error("Unknown API action.");

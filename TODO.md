@@ -5,10 +5,10 @@ Below is the structured roadmap of features to be added to the `unraid-nix` plug
 ---
 
 ## 1. Upgrade & Maintenance Controls
-- [ ] **Global Flake Update Scanner**:
+- [x] **Global Flake Update Scanner**:
   - Implement a check in the backend to determine if installed flakes have updates available from the Nix registry/channel.
   - Display a visual indicator/count of packages requiring updates.
-- [ ] **Global Rebuild**:
+- [x] **Global Rebuild**:
   - Add a "Rebuild All Services" button that triggers a batch update and recompilation of all configured flakes.
 
 ## 2. Subsystem Resource Dashboard
