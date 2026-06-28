@@ -25,10 +25,10 @@ pub fn build_chroot_command(
         chroot_dir, chroot_dir, chroot_dir, chroot_dir, chroot_dir, chroot_dir, chroot_dir
     ));
     
-    mounts_cmd.push(format!("mount --bind /nix {}/nix", chroot_dir));
+    mounts_cmd.push(format!("mount --bind -o ro /nix {}/nix", chroot_dir));
     mounts_cmd.push(format!("mount --rbind /dev {}/dev", chroot_dir));
-    mounts_cmd.push(format!("mount --rbind /proc {}/proc", chroot_dir));
-    mounts_cmd.push(format!("mount --rbind /sys {}/sys", chroot_dir));
+    mounts_cmd.push(format!("mount -t proc proc {}/proc", chroot_dir));
+    mounts_cmd.push(format!("mount --rbind -o ro /sys {}/sys", chroot_dir));
     mounts_cmd.push(format!("mount -t tmpfs tmpfs {}/tmp", chroot_dir));
     
     mounts_cmd.push(format!("mkdir -p {}/etc/ssl", chroot_dir));
@@ -36,13 +36,13 @@ pub fn build_chroot_command(
         "touch {}/etc/resolv.conf {}/etc/passwd {}/etc/group {}/etc/hosts",
         chroot_dir, chroot_dir, chroot_dir, chroot_dir
     ));
-    mounts_cmd.push(format!("mount --bind /etc/resolv.conf {}/etc/resolv.conf", chroot_dir));
-    mounts_cmd.push(format!("mount --bind /etc/ssl {}/etc/ssl", chroot_dir));
-    mounts_cmd.push(format!("mount --bind /etc/passwd {}/etc/passwd", chroot_dir));
-    mounts_cmd.push(format!("mount --bind /etc/group {}/etc/group", chroot_dir));
-    mounts_cmd.push(format!("mount --bind /etc/hosts {}/etc/hosts", chroot_dir));
+    mounts_cmd.push(format!("mount --bind -o ro /etc/resolv.conf {}/etc/resolv.conf", chroot_dir));
+    mounts_cmd.push(format!("mount --bind -o ro /etc/ssl {}/etc/ssl", chroot_dir));
+    mounts_cmd.push(format!("mount --bind -o ro /etc/passwd {}/etc/passwd", chroot_dir));
+    mounts_cmd.push(format!("mount --bind -o ro /etc/group {}/etc/group", chroot_dir));
+    mounts_cmd.push(format!("mount --bind -o ro /etc/hosts {}/etc/hosts", chroot_dir));
     mounts_cmd.push(format!(
-        "if [ -d /etc/nix ]; then mkdir -p {}/etc/nix && mount --bind /etc/nix {}/etc/nix; fi",
+        "if [ -d /etc/nix ]; then mkdir -p {}/etc/nix && mount --bind -o ro /etc/nix {}/etc/nix; fi",
         chroot_dir, chroot_dir
     ));
     
@@ -67,7 +67,7 @@ pub fn build_chroot_command(
         if has_nvidia {
             mounts_cmd.push("/usr/local/emhttp/plugins/nix/nix-helper setup-gpus".to_string());
             mounts_cmd.push(format!("mkdir -p {}/run/opengl-driver/lib", chroot_dir));
-            mounts_cmd.push(format!("mount --bind /var/run/nix-nvidia-driver/lib {}/run/opengl-driver/lib", chroot_dir));
+            mounts_cmd.push(format!("mount --bind -o ro /var/run/nix-nvidia-driver/lib {}/run/opengl-driver/lib", chroot_dir));
         }
         mounts_cmd.push(format!("if [ -d /usr/lib64 ]; then mkdir -p {}/usr/lib64 && mount --bind -o ro /usr/lib64 {}/usr/lib64; fi", chroot_dir, chroot_dir));
         mounts_cmd.push(format!("if [ -d /lib64 ]; then mkdir -p {}/lib64 && mount --bind -o ro /lib64 {}/lib64; fi", chroot_dir, chroot_dir));
