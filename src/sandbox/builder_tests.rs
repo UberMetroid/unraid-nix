@@ -52,7 +52,7 @@ fn test_build_bwrap_command_missing_appdata() {
 
 #[test]
 fn test_build_bwrap_command_storage_sandboxed() {
-    std::env::set_var("NIX_FORCE_STORAGE_SANDBOX", "1");
+    crate::sandbox::TEST_FORCE_STORAGE_SANDBOX.with(|v| v.set(Some(true)));
     
     let config = SandboxConfig {
         name: "test-app".to_string(),
@@ -71,7 +71,7 @@ fn test_build_bwrap_command_storage_sandboxed() {
     };
 
     let cmd = build_bwrap_command(&config).unwrap();
-    std::env::remove_var("NIX_FORCE_STORAGE_SANDBOX");
+    crate::sandbox::TEST_FORCE_STORAGE_SANDBOX.with(|v| v.set(None));
 
     assert!(cmd.contains("exec unshare "));
     assert!(cmd.contains("mount -t tmpfs tmpfs /var/run/nix-chroot-test-app"));
@@ -110,7 +110,7 @@ fn test_build_bwrap_command_gpu() {
 
 #[test]
 fn test_build_bwrap_command_gpu_sandboxed() {
-    std::env::set_var("NIX_FORCE_STORAGE_SANDBOX", "1");
+    crate::sandbox::TEST_FORCE_STORAGE_SANDBOX.with(|v| v.set(Some(true)));
     
     let config = SandboxConfig {
         name: "test-gpu-app".to_string(),
@@ -129,7 +129,7 @@ fn test_build_bwrap_command_gpu_sandboxed() {
     };
 
     let cmd = build_bwrap_command(&config).unwrap();
-    std::env::remove_var("NIX_FORCE_STORAGE_SANDBOX");
+    crate::sandbox::TEST_FORCE_STORAGE_SANDBOX.with(|v| v.set(None));
 
     assert!(cmd.contains("/usr/local/emhttp/plugins/nix/nix-helper setup-gpus"));
     assert!(cmd.contains("mount --bind /var/run/nix-nvidia-driver/lib /var/run/nix-chroot-test-gpu-app/run/opengl-driver/lib"));

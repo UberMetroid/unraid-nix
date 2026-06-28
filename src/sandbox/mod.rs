@@ -53,7 +53,17 @@ pub struct SandboxConfig {
     pub enable_network_isolation: bool,
 }
 
+thread_local! {
+    pub static TEST_FORCE_STORAGE_SANDBOX: std::cell::Cell<Option<bool>> = std::cell::Cell::new(None);
+}
+
 pub fn is_storage_sandbox_enabled() -> bool {
+    #[cfg(test)]
+    {
+        if let Some(val) = TEST_FORCE_STORAGE_SANDBOX.with(|v| v.get()) {
+            return val;
+        }
+    }
     if std::env::var("NIX_FORCE_STORAGE_SANDBOX").unwrap_or_default() == "1" {
         return true;
     }

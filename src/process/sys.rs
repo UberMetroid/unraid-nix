@@ -5,6 +5,10 @@ use super::status::GpuStat;
 pub fn get_gpu_active_services() -> std::collections::HashSet<String> {
     let mut active_services = std::collections::HashSet::new();
 
+    if !crate::cli::gpus::get_detected_gpus().has_nvidia {
+        return active_services;
+    }
+
     let output = Command::new("nvidia-smi")
         .args(["--query-compute-apps=pid", "--format=csv,noheader,nounits"])
         .stdin(std::process::Stdio::null())
@@ -101,6 +105,11 @@ pub fn get_descendant_pids(parent_pid: i32) -> Vec<i32> {
 
 pub fn get_nvidia_pmon_stats() -> std::collections::HashMap<i32, Vec<(i32, GpuStat)>> {
     let mut stats = std::collections::HashMap::new();
+
+    if !crate::cli::gpus::get_detected_gpus().has_nvidia {
+        return stats;
+    }
+
     let output = Command::new("nvidia-smi")
         .args(["pmon", "-c", "1"])
         .stdin(std::process::Stdio::null())
