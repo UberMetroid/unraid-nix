@@ -240,7 +240,21 @@ $(function() {
                     }
                 }
 
+                var gpuRow = $('.nix-stat-row[data-service="' + name + '"][data-type="gpu"]');
+                if (gpuRow.length && svc.gpu_stats) {
+                    var stats = Object.values(svc.gpu_stats);
+                    if (stats.length > 0) {
+                        gpuRow.find('.nix-stat-val').text(stats[0].sm + '%');
+                    }
+                }
 
+                var gpuMemRow = $('.nix-stat-row[data-service="' + name + '"][data-type="gpu-mem"]');
+                if (gpuMemRow.length && svc.gpu_stats) {
+                    var stats = Object.values(svc.gpu_stats);
+                    if (stats.length > 0) {
+                        gpuMemRow.find('.nix-stat-val').text(stats[0].mem + '%');
+                    }
+                }
             });
         });
     }

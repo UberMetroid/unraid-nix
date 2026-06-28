@@ -92,8 +92,8 @@ pub fn render_resources_cell(
     is_running: bool,
     cpu: Option<f32>,
     memory: Option<u64>,
-    _gpus_override: &Option<String>,
-    _legacy_gpu: &Option<String>,
+    gpus_override: &Option<String>,
+    legacy_gpu: &Option<String>,
     _gpu_stats: &Option<std::collections::HashMap<i32, GpuStat>>,
 ) -> String {
     let mut res = String::new();
@@ -104,36 +104,59 @@ pub fn render_resources_cell(
         
         let cpu_str = format!("{:.1}%", cpu_val);
         let mem_str = format!("{:.1} MB", mb);
+
+        let has_gpu = gpus_override.as_ref().map(|g| !g.trim().is_empty()).unwrap_or(false)
+            || legacy_gpu.as_ref().map(|l| l == "1" || l == "true").unwrap_or(false);
+
+        let gpu_html = if has_gpu {
+            let mut gpu_sm = 0;
+            let mut gpu_mem = 0;
+            if let Some(ref stats) = _gpu_stats {
+                if let Some(stat) = stats.values().next() {
+                    gpu_sm = stat.sm;
+                    gpu_mem = stat.mem;
+                }
+            }
+            format!(
+                r#"<div class="nix-stat-row" data-service="{}" data-type="gpu" style="display: flex; justify-content: space-between; align-items: center;">
+                    <span style="color: var(--nix-text-secondary); font-size: 10px;">GPU</span>
+                    <span class="nix-stat-val" style="color: #10b981; font-family: monospace; font-weight: 500;">{}%</span>
+                </div>
+                <div class="nix-stat-row" data-service="{}" data-type="gpu-mem" style="display: flex; justify-content: space-between; align-items: center;">
+                    <span style="color: var(--nix-text-secondary); font-size: 10px;">VRAM</span>
+                    <span class="nix-stat-val" style="color: #a855f7; font-family: monospace; font-weight: 500;">{}%</span>
+                </div>"#,
+                name, gpu_sm, name, gpu_mem
+            )
+        } else {
+            "".to_string()
+        };
         
         res.push_str(&format!(
-            r#"<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; font-size: 11px; width: 100%; box-sizing: border-box;">
-                <!-- Column 1: CPU & RAM -->
-                <div style="display: flex; flex-direction: column; gap: 4px;">
-                    <div class="nix-stat-row" data-service="{}" data-type="cpu" style="display: flex; justify-content: space-between; align-items: center;">
-                        <span style="color: var(--nix-text-secondary); font-size: 10px;">CPU</span>
-                        <span class="nix-stat-val" style="color: #00d5ff; font-family: monospace; font-weight: 500;">{}</span>
-                    </div>
-                    <div class="nix-stat-row" data-service="{}" data-type="ram" style="display: flex; justify-content: space-between; align-items: center;">
-                        <span style="color: var(--nix-text-secondary); font-size: 10px;">RAM</span>
-                        <span class="nix-stat-val" style="color: #d946ef; font-family: monospace; font-weight: 500;">{}</span>
-                    </div>
+            r#"<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 4px 16px; font-size: 11px; width: 100%; box-sizing: border-box;">
+                <!-- Row 1 -->
+                <div class="nix-stat-row" data-service="{}" data-type="cpu" style="display: flex; justify-content: space-between; align-items: center;">
+                    <span style="color: var(--nix-text-secondary); font-size: 10px;">CPU</span>
+                    <span class="nix-stat-val" style="color: #00d5ff; font-family: monospace; font-weight: 500;">{}</span>
                 </div>
-                
-                <!-- Column 2: Data (Net I/O) -->
-                <div style="display: flex; flex-direction: column; gap: 4px;">
-                    <div class="nix-stat-row" data-service="{}" data-type="io-in" style="display: flex; justify-content: space-between; align-items: center;">
-                        <span style="color: var(--nix-text-secondary); font-size: 10px; display: inline-flex; align-items: center; gap: 2px;"><i class="fa fa-arrow-down" style="color: #2ecc71; font-size: 8px;"></i> IN</span>
-                        <span class="nix-stat-val" style="color: #2ecc71; font-family: monospace; font-weight: 500;">0.0 B/s</span>
-                    </div>
-                    <div class="nix-stat-row" data-service="{}" data-type="io-out" style="display: flex; justify-content: space-between; align-items: center;">
-                        <span style="color: var(--nix-text-secondary); font-size: 10px; display: inline-flex; align-items: center; gap: 2px;"><i class="fa fa-arrow-up" style="color: #e67e22; font-size: 8px;"></i> OUT</span>
-                        <span class="nix-stat-val" style="color: #e67e22; font-family: monospace; font-weight: 500;">0.0 B/s</span>
-                    </div>
+                <div class="nix-stat-row" data-service="{}" data-type="io-in" style="display: flex; justify-content: space-between; align-items: center;">
+                    <span style="color: var(--nix-text-secondary); font-size: 10px; display: inline-flex; align-items: center; gap: 2px;"><i class="fa fa-arrow-down" style="color: #2ecc71; font-size: 8px;"></i> IN</span>
+                    <span class="nix-stat-val" style="color: #2ecc71; font-family: monospace; font-weight: 500;">0.0 B/s</span>
                 </div>
+                <!-- Row 2 -->
+                <div class="nix-stat-row" data-service="{}" data-type="ram" style="display: flex; justify-content: space-between; align-items: center;">
+                    <span style="color: var(--nix-text-secondary); font-size: 10px;">RAM</span>
+                    <span class="nix-stat-val" style="color: #d946ef; font-family: monospace; font-weight: 500;">{}</span>
+                </div>
+                <div class="nix-stat-row" data-service="{}" data-type="io-out" style="display: flex; justify-content: space-between; align-items: center;">
+                    <span style="color: var(--nix-text-secondary); font-size: 10px; display: inline-flex; align-items: center; gap: 2px;"><i class="fa fa-arrow-up" style="color: #e67e22; font-size: 8px;"></i> OUT</span>
+                    <span class="nix-stat-val" style="color: #e67e22; font-family: monospace; font-weight: 500;">0.0 B/s</span>
+                </div>
+                <!-- Row 3 -->
+                {}
             </div>"#,
-            name, cpu_str, name, mem_str, name, name
+            name, cpu_str, name, name, mem_str, name, gpu_html
         ));
-
     } else {
         res.push_str(r#"<span style="color: var(--nix-text-muted);">-</span>"#);
     }

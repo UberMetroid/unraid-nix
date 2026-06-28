@@ -183,7 +183,7 @@ pub fn render_service_row(
 
     let time_html = if is_running {
         format!(
-            r#"<span style="color: var(--nix-text-secondary); margin-left: 2px;">• {}</span>"#,
+            r#"<span style="font-size: 10px; color: var(--nix-text-secondary); font-family: monospace; line-height: 1;">{}</span>"#,
             s.uptime()
         )
     } else {
@@ -198,7 +198,7 @@ pub fn render_service_row(
     format!(
         r#"<div class="nix-preset-card nix-service-card" data-name="{}" style="background: var(--nix-bg-secondary); border: 1px solid var(--nix-border-primary); border-radius: 6px; padding: 16px; display: flex; flex-direction: column; justify-content: space-between; transition: transform 0.2s ease, border-color 0.2s ease, background 0.2s ease, box-shadow 0.2s ease; min-height: 350px; height: auto; position: relative;">
             <div>
-                <!-- Top Row: Icon, Name + Path/Version/Uptime on Left, Status Dot on Right -->
+                <!-- Top Row: Icon, Name + Path/Version on Left, Uptime & Status Dot on Right -->
                 <div style="display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; margin-bottom: 10px;">
                     <div style="display: flex; align-items: flex-start; gap: 10px; min-width: 0; flex: 1;">
                         <div style="width: 32px; height: 32px; border-radius: 4px; background: {}; border: 1px solid {}; display: flex; align-items: center; justify-content: center; color: {}; flex-shrink: 0; margin-top: 2px;">
@@ -209,11 +209,13 @@ pub fn render_service_row(
                             <span style="font-family: monospace; color: var(--nix-text-secondary); font-size: 10px; margin-top: 2px; display: inline-flex; align-items: center; gap: 6px; flex-wrap: wrap;">
                                 <span>nixpkgs#{}</span>
                                 {}
-                                {}
                             </span>
                         </div>
                     </div>
-                    <span class="status-dot {}" data-service="{}" title="{}" style="margin-top: 6px;"></span>
+                    <div style="display: flex; align-items: center; gap: 6px; flex-shrink: 0; margin-top: 6px;">
+                        {}
+                        <span class="status-dot {}" data-service="{}" title="{}" style="margin-top: 0;"></span>
+                    </div>
                 </div>
 
                 <!-- Info list -->
