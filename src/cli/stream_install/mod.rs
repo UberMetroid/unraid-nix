@@ -106,13 +106,13 @@ pub fn stream_install(args: &crate::cli::args::StreamInstallArgs) {
 
     if is_service {
         if code == 0 {
-            crate::process::send_unraid_notification(
+            crate::unraid::send_unraid_notification(
                 &format!("Nix: Service '{}' Installed", svc),
                 &format!("The service '{}' has been successfully installed and launched inside the Nix sandbox.", svc),
                 "normal",
             );
         } else {
-            crate::process::send_unraid_notification(
+            crate::unraid::send_unraid_notification(
                 &format!("Nix: Service '{}' Install Failed", svc),
                 &format!("The installation or startup of service '{}' failed. Check the install log for details.", svc),
                 "alert",
@@ -120,13 +120,13 @@ pub fn stream_install(args: &crate::cli::args::StreamInstallArgs) {
         }
     } else {
         if code == 0 {
-            crate::process::send_unraid_notification(
+            crate::unraid::send_unraid_notification(
                 "Nix: Package Installed",
                 "The package/operation was completed successfully.",
                 "normal",
             );
         } else {
-            crate::process::send_unraid_notification(
+            crate::unraid::send_unraid_notification(
                 "Nix: Package Install Failed",
                 "The package installation or shell execution failed.",
                 "alert",

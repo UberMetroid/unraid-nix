@@ -20,7 +20,7 @@ fn run_preflight_checks(name: &str) {
                     port, name
                 ),
             );
-            crate::process::send_unraid_notification(
+            crate::unraid::send_unraid_notification(
                 &format!("Nix: Port Conflict Warning for '{}'", name),
                 &format!("Port {} is already in use on the host. Service '{}' may fail to start.", port, name),
                 "warning",
@@ -78,7 +78,7 @@ fn run_preflight_checks(name: &str) {
                                                         name, appdata_path, owner_uid, expected_puid
                                                      ),
                                                 );
-                                                crate::process::send_unraid_notification(
+                                                crate::unraid::send_unraid_notification(
                                                     &format!("Nix: Permissions Warning for '{}'", name),
                                                     &format!("AppData directory '{}' is owned by UID {}, but service runs as PUID {}.", appdata_path, owner_uid, expected_puid),
                                                     "warning",

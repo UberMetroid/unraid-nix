@@ -3,7 +3,7 @@ use std::process::exit;
 pub mod helpers;
 pub mod migration;
 
-pub use helpers::{parse_ini_file, detect_default_store_path, detect_appdata_root};
+pub use crate::unraid::{parse_ini_file, detect_default_store_path, detect_appdata_root};
 
 pub fn save_settings(args: &crate::cli::args::SaveSettingsArgs) {
     let store_path = args.store_path.clone().unwrap_or_default();

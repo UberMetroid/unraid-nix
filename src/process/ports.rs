@@ -9,7 +9,7 @@ pub fn is_port_in_use(port: u16) -> bool {
     }
     
     // 2. Check Docker mappings (active or stopped)
-    if super::unraid::get_docker_mapped_ports().contains(&port) {
+    if crate::unraid::get_docker_mapped_ports().contains(&port) {
         return true;
     }
     
