@@ -41,7 +41,7 @@ if (empty($session_csrf) || !hash_equals($session_csrf, $csrf_token)) {
 }
 
 if ($action === 'start' || $action === 'stop' || $action === 'restart') {
-    $service = isset($_POST['service']) ? $_POST['service'] : '';
+    $service = nix_input_cap($_POST['service'] ?? '', 64, 'service');
     if (empty($service) || preg_match('/[^a-zA-Z0-9_-]/', $service)) {
         error("Invalid or missing service name.");
     }
@@ -56,7 +56,7 @@ if ($action === 'start' || $action === 'stop' || $action === 'restart') {
 }
 
 if ($action === 'toggle-autostart') {
-    $service = isset($_POST['service']) ? $_POST['service'] : '';
+    $service = nix_input_cap($_POST['service'] ?? '', 64, 'service');
     if (empty($service) || preg_match('/[^a-zA-Z0-9_-]/', $service)) {
         error("Invalid or missing service name.");
     }
@@ -77,7 +77,7 @@ if ($action === 'toggle-autostart') {
 }
 
 if ($action === 'remove') {
-    $service = isset($_POST['service']) ? $_POST['service'] : '';
+    $service = nix_input_cap($_POST['service'] ?? '', 64, 'service');
     if (empty($service) || preg_match('/[^a-zA-Z0-9_-]/', $service)) {
         error("Invalid or missing service name.");
     }
@@ -92,7 +92,7 @@ if ($action === 'remove') {
 }
 
 if ($action === 'install-cli') {
-    $package = isset($_POST['package']) ? $_POST['package'] : '';
+    $package = nix_input_cap($_POST['package'] ?? '', 256, 'package');
     if (empty($package) || preg_match('/[^a-zA-Z0-9._\-+:]/', $package)) {
         error("Invalid or missing package name.");
     }
@@ -107,7 +107,7 @@ if ($action === 'install-cli') {
 }
 
 if ($action === 'install-custom') {
-    $uri = isset($_POST['uri']) ? $_POST['uri'] : '';
+    $uri = nix_input_cap($_POST['uri'] ?? '', 1024, 'uri');
     if (empty($uri)) {
         error("Missing uri.");
     }
@@ -129,11 +129,11 @@ if ($action === 'install-custom') {
         }
         success();
     } elseif ($type === 'service') {
-        $appdata = isset($_POST['appdata']) ? $_POST['appdata'] : '';
+        $appdata = nix_input_cap($_POST['appdata'] ?? '', 4096, 'appdata');
         if ($appdata !== '' && preg_match('/(\.\.|\\/\\/)/', $appdata)) {
             error("Invalid appdata path.");
         }
-        $media = isset($_POST['media']) ? $_POST['media'] : '';
+        $media = nix_input_cap($_POST['media'] ?? '', 4096, 'media');
         if ($media !== '' && preg_match('/(\.\.|\\/\\/)/', $media)) {
             error("Invalid media path.");
         }
@@ -157,7 +157,7 @@ if ($action === 'install-custom') {
             error("Invalid gpus value.");
         }
 
-        $extra_binds = isset($_POST['extra_binds']) ? $_POST['extra_binds'] : '';
+        $extra_binds = nix_input_cap($_POST['extra_binds'] ?? '', 8192, 'extra_binds');
         if ($extra_binds !== '') {
             $decoded = json_decode($extra_binds, true);
             if (json_last_error() !== JSON_ERROR_NONE || !is_array($decoded)) {
@@ -186,7 +186,7 @@ if ($action === 'install-custom') {
             $port = (string)$port_int;
         }
 
-        $bind_address = isset($_POST['bind_address']) ? $_POST['bind_address'] : '';
+        $bind_address = nix_input_cap($_POST['bind_address'] ?? '', 64, 'bind_address');
         if ($bind_address !== '' && filter_var($bind_address, FILTER_VALIDATE_IP) === false) {
             error("Invalid bind_address.");
         }

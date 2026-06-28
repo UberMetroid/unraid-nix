@@ -138,6 +138,30 @@ pub fn setup_nix_conf() -> Result<(), String> {
         }
     }
 
+    // Bulletproof: the Determinate installer writes /etc/nix/nix.conf
+    // (with `sandbox = false` by default), and per Nix docs that legacy
+    // path takes precedence over /nix/etc/nix/nix.conf. We replace any
+    // legacy file at /etc/nix/nix.conf with a symlink to the plugin's
+    // generated config so the plugin's `sandbox = true` setting actually
+    // wins. The original is backed up to .determinate.bak for forensic
+    // purposes (e.g. if the admin needs to recover the installer's
+    // settings).
+    let legacy_cfg = std::path::Path::new("/etc/nix/nix.conf");
+    let persistent_cfg = std::path::Path::new("/nix/etc/nix/nix.conf");
+    if legacy_cfg.is_file() && persistent_cfg.exists() {
+        let backup = std::path::Path::new("/etc/nix/nix.conf.determinate.bak");
+        if !backup.exists() {
+            let _ = std::fs::rename(legacy_cfg, backup);
+        } else {
+            let _ = std::fs::remove_file(legacy_cfg);
+        }
+        if let Err(e) = symlink(persistent_cfg, legacy_cfg) {
+            log_event("WARN", &format!("Could not symlink /etc/nix/nix.conf to plugin config: {e}"));
+        } else {
+            log_event("INFO", "Replaced legacy /etc/nix/nix.conf with symlink to plugin config (backup: /etc/nix/nix.conf.determinate.bak)");
+        }
+    }
+
     let conf_path = "/nix/etc/nix/nix.conf";
     log_event("INFO", "Writing nix.conf to apply resource and builder settings...");
 

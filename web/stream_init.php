@@ -37,9 +37,9 @@ header('Content-Type: text/html; charset=utf-8');
 header('X-Accel-Buffering: no');
 header("Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'self'; base-uri 'self'; form-action 'self'; frame-ancestors 'none';");
 
-$action = isset($_POST['action']) ? $_POST['action'] : '';
-$uri = isset($_POST['uri']) ? $_POST['uri'] : (isset($_POST['package']) ? $_POST['package'] : '');
-$type = isset($_POST['type']) ? $_POST['type'] : '';
+$action = nix_input_cap($_POST['action'] ?? '', 32, 'action');
+$uri = nix_input_cap($_POST['uri'] ?? (isset($_POST['package']) ? $_POST['package'] : ''), 1024, 'uri');
+$type = nix_input_cap($_POST['type'] ?? '', 16, 'type');
 
 $args = [];
 $args[] = "--action " . escapeshellarg($action);
@@ -62,7 +62,7 @@ foreach ($forward_keys as $key) {
 }
 
 if (isset($_POST['env_vars']) && $_POST['env_vars'] !== '') {
-    $env_raw = $_POST['env_vars'];
+    $env_raw = nix_input_cap($_POST['env_vars'], 8192, 'env_vars');
     $env_decoded = json_decode($env_raw, true);
     if (json_last_error() !== JSON_ERROR_NONE || !is_array($env_decoded)) {
         http_response_code(400);

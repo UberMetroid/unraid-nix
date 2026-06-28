@@ -5,6 +5,7 @@ pub mod settings;
 pub mod render;
 pub mod logs;
 pub mod service_install;
+pub mod sandbox_check;
 pub mod supervisor;
 pub mod metadata;
 pub mod gpus;
@@ -35,6 +36,9 @@ pub fn run(args_list: Vec<String>) {
         }
         args::Commands::SyncTemplates => {
             store::sync_templates();
+        }
+        args::Commands::SandboxCheck { apply_fallback } => {
+            sandbox_check::sandbox_check(apply_fallback);
         }
         args::Commands::Render { target } => {
             render::render(target);

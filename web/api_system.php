@@ -78,7 +78,7 @@ if ($action === 'nix-daemon-restart') {
 }
 
 if ($action === 'nix-sys-logs') {
-    $log_type = isset($_GET['type']) ? $_GET['type'] : 'plugin';
+    $log_type = nix_input_cap($_GET['type'] ?? '', 16, 'type');
     $file = '';
     if ($log_type === 'plugin') {
         $file = '/var/log/nix-plugin.log';
@@ -169,11 +169,11 @@ if ($action === 'sync-templates') {
 }
 
 if ($action === 'save-settings') {
-    $store_path = isset($_POST['store_path']) ? $_POST['store_path'] : '';
+    $store_path = nix_input_cap($_POST['store_path'] ?? '', 4096, 'store_path');
     if ($store_path !== '' && (preg_match('/(\.\.|\\/\\/)/', $store_path) || $store_path[0] !== '/')) {
         error("Invalid store_path.");
     }
-    $default_appdata_path = isset($_POST['default_appdata_path']) ? $_POST['default_appdata_path'] : '';
+    $default_appdata_path = nix_input_cap($_POST['default_appdata_path'] ?? '', 4096, 'default_appdata_path');
     if ($default_appdata_path !== '' && (preg_match('/(\.\.|\\/\\/)/', $default_appdata_path) || $default_appdata_path[0] !== '/')) {
         error("Invalid default_appdata_path.");
     }

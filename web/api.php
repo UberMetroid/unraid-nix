@@ -4,6 +4,19 @@
 /// This script intercepts AJAX actions from the Unraid browser interface,
 /// executes subcommands on the compiled Rust helper, and returns JSON or HTML.
 
+/**
+ * Strict input length cap. Rejects (calls error()) if the input exceeds
+ * the cap. Centralized so all PHP entry points enforce consistent limits
+ * without depending on character-class whitelists alone.
+ */
+function nix_input_cap(?string $value, int $max, string $field): string {
+    $v = (string)($value ?? '');
+    if (mb_strlen($v) > $max) {
+        error("Input '$field' exceeds maximum length ($max chars).");
+    }
+    return $v;
+}
+
 session_set_cookie_params([
     'lifetime' => 0,
     'path' => '/',
@@ -63,7 +76,7 @@ if ($action === 'logs') {
     header('Content-Type: text/html');
     header('X-Content-Type-Options: nosniff');
     header("Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'self'; base-uri 'self'; form-action 'self'; frame-ancestors 'none';");
-    $service = isset($_GET['service']) ? $_GET['service'] : '';
+    $service = nix_input_cap($_GET['service'] ?? '', 64, 'service');
     if (empty($service) || !preg_match(NIX_SERVICE_NAME_REGEX, $service)) {
         echo "Invalid service name.";
         exit;
@@ -77,7 +90,7 @@ if ($action === 'search') {
     header('Content-Type: text/html');
     header('X-Content-Type-Options: nosniff');
     header("Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'self'; base-uri 'self'; form-action 'self'; frame-ancestors 'none';");
-    $query = isset($_GET['q']) ? $_GET['q'] : '';
+    $query = nix_input_cap($_GET['q'] ?? '', 256, 'q');
     passthru("/usr/local/emhttp/plugins/nix/nix-helper render search " . escapeshellarg($query));
     exit;
 }
@@ -119,7 +132,7 @@ if ($action === 'get_dashboard_json') {
 
 // 2f. Get service icon (streams image directly)
 if ($action === 'get-icon') {
-    $service = isset($_GET['service']) ? $_GET['service'] : '';
+    $service = nix_input_cap($_GET['service'] ?? '', 64, 'service');
     if (empty($service) || preg_match('/[^a-zA-Z0-9_-]/', $service)) {
         header('HTTP/1.1 400 Bad Request');
         exit;
@@ -164,7 +177,7 @@ if ($action === 'detect-gpus') {
 
 // 2c. Get service metadata (JSON response)
 if ($action === 'get-metadata') {
-    $service = isset($_GET['service']) ? $_GET['service'] : '';
+    $service = nix_input_cap($_GET['service'] ?? '', 64, 'service');
     if (empty($service) || preg_match('/[^a-zA-Z0-9_-]/', $service)) {
         error("Invalid or missing service name.");
     }

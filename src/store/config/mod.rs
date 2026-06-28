@@ -144,8 +144,23 @@ pub fn generate_nix_conf_content(
     let max_free_bytes = gc_max_free_gb.checked_mul(BYTES_PER_GB)
         .ok_or_else(|| "max_free_gb overflow".to_string())?;
 
+    // `NIX_BUILD_SANDBOX` opt-out. Default: enabled (true). Admin can set
+    // this to "no" in nix.cfg to disable Nix's per-derivation build
+    // sandbox. The runtime `nix-helper sandbox-check` subcommand reports
+    // whether the sandbox actually works in this environment.
+    let sandbox_enabled = crate::unraid::parse_ini_file(crate::unraid::NIX_CFG_PATH)
+        .get("NIX_BUILD_SANDBOX")
+        .map(|v| !matches!(v.to_lowercase().as_str(), "no" | "false" | "0" | "off"))
+        .unwrap_or(true);
+    let sandbox_setting = if sandbox_enabled { "true" } else { "false" };
+
     Ok(format!(
-        "experimental-features = nix-command flakes\nmax-jobs = {jobs_val}\ncores = {cores_val}\nmin-free = {min_free_bytes}\nmax-free = {max_free_bytes}\n"
+        "sandbox = {sandbox_setting}\nexperimental-features = nix-command flakes\nmax-jobs = {jobs_val}\ncores = {cores_val}\nmin-free = {min_free_bytes}\nmax-free = {max_free_bytes}\n",
+        sandbox_setting = sandbox_setting,
+        jobs_val = jobs_val,
+        cores_val = cores_val,
+        min_free_bytes = min_free_bytes,
+        max_free_bytes = max_free_bytes,
     ))
 }
 

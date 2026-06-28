@@ -115,7 +115,7 @@ fi
 if [ ! -d "/nix/store" ] || [ ! -x "/nix/var/nix/profiles/default/bin/nix-daemon" ]; then
     log_event "INFO" "Nix store not initialized. Bootstrapping Nix..."
     curl --proto '=https' --tlsv1.2 -sSf -L https://install.determinate.systems/nix | \
-        sh -s -- install linux --init none --no-confirm --extra-conf "sandbox = false" 2>&1 | log_pipe "INFO"
+        sh -s -- install linux --init none --no-confirm 2>&1 | log_pipe "INFO"
 fi
 
 # 4. Expose environment paths globally
@@ -140,7 +140,7 @@ if [ "$AUTOSTART_FLAKES" = "yes" ] && [ -f "/boot/config/plugins/nix/process-com
         > /var/log/nix-process-compose.log 2>&1 &
         
     echo $! > "$PIDFILE"
-    chmod 0644 "$PIDFILE" 2>/dev/null || true
+    chmod 0600 "$PIDFILE" 2>/dev/null || true
     chown root:root "$PIDFILE" 2>/dev/null || true
     log_event "INFO" "process-compose daemon started with PID $(cat "$PIDFILE")"
 fi

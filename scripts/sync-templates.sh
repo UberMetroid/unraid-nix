@@ -6,6 +6,9 @@ DEST_USR="/usr/local/emhttp/plugins/nix"
 DEST_BOOT="/boot/config/plugins/nix"
 EXTRACTED="/tmp/unraid-nix-templates-main"
 
+# Best-effort cleanup if the script is interrupted or exits early.
+trap 'rm -f "$TMPZIP" "$EXTRACTED" 2>/dev/null || true' EXIT INT TERM
+
 curl -sSf -L -o "$TMPZIP" "https://github.com/UberMetroid/unraid-nix-templates/archive/refs/heads/main.zip"
 unzip -q -o "$TMPZIP" -d /tmp
 mkdir -p "$DEST_USR/presets" "$DEST_USR/presets_composed" "$DEST_BOOT/presets" "$DEST_BOOT/presets_composed"

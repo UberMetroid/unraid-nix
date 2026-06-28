@@ -21,6 +21,19 @@ pub enum Commands {
     /// Syncs preset templates from the templates repository
     #[command(name = "sync-templates")]
     SyncTemplates,
+    /// Probes whether Nix's per-derivation build sandbox is functional in
+    /// this environment. Reports a JSON object with primitive checks
+    /// (user-namespace support, mount-propagation on /nix) and a
+    /// 10-second build probe. Use --apply-fallback to write
+    /// `sandbox = false` to nix.cfg if the build probe fails.
+    #[command(name = "sandbox-check")]
+    SandboxCheck {
+        /// If set, writes `sandbox = false` to nix.cfg when the build
+        /// probe fails. Off by default; the subcommand is reports-only
+        /// unless this flag is passed.
+        #[arg(long, default_value_t = false)]
+        apply_fallback: bool,
+    },
     /// Renders HTML page templates
     Render {
         #[command(subcommand)]

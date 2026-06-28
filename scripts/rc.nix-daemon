@@ -23,7 +23,7 @@ start() {
     # Execute the daemon in the background
     $DAEMON >/var/log/nix-daemon.log 2>&1 &
     echo $! > "$PIDFILE"
-    chmod 0644 "$PIDFILE" 2>/dev/null || true
+    chmod 0600 "$PIDFILE" 2>/dev/null || true
     chown root:root "$PIDFILE" 2>/dev/null || true
     echo "nix-daemon started."
 }
