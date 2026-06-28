@@ -33,6 +33,16 @@ pub fn get_static_config(name_lower: &str) -> StaticConfig {
 }
 
 pub fn get_service_fa_config(name: &str) -> FaIconConfig {
+    // Validate service name to prevent path traversal before file I/O.
+    if !crate::store::is_valid_service_name(name) {
+        let sc = get_static_config(&name.to_lowercase());
+        return FaIconConfig {
+            icon: sc.icon.to_string(),
+            color: sc.color,
+            bg: sc.bg,
+            border: sc.border,
+        };
+    }
     let name_lower = name.to_lowercase();
     let meta_file = format!("/boot/config/plugins/nix/metadata/{}.json", name);
     let mut custom_icon = None;

@@ -100,8 +100,24 @@ pub fn write_config_and_metadata(
         "network_isolation": if network_isolation { "1" } else { "0" },
     });
     let meta_dir = "/boot/config/plugins/nix/metadata";
-    let _ = std::fs::create_dir_all(meta_dir);
-    let _ = std::fs::write(format!("{}/{}.json", meta_dir, name), serde_json::to_string_pretty(&metadata).unwrap());
+    if let Err(e) = std::fs::create_dir_all(meta_dir) {
+        crate::store::log_event("ERROR", &format!("Failed to create metadata dir '{}': {}", meta_dir, e));
+        eprintln!("Error: failed to create metadata dir: {}", e);
+        exit(1);
+    }
+    let body = match serde_json::to_string_pretty(&metadata) {
+        Ok(s) => s,
+        Err(e) => {
+            crate::store::log_event("ERROR", &format!("Failed to serialize metadata for '{}': {}", name, e));
+            eprintln!("Error: failed to serialize metadata: {}", e);
+            exit(1);
+        }
+    };
+    if let Err(e) = std::fs::write(format!("{}/{}.json", meta_dir, name), body) {
+        crate::store::log_event("ERROR", &format!("Failed to write metadata file for '{}': {}", name, e));
+        eprintln!("Error: failed to write metadata: {}", e);
+        exit(1);
+    }
 
     if let Err(e) = crate::cli::supervisor::restart_nix_supervisor() {
         crate::store::log_event("ERROR", &format!("Failed to restart supervisor after installing service '{}': {}", name, e));

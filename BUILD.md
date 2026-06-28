@@ -32,7 +32,7 @@ The binary is placed at the repo root as `./nix-helper` (matching what
 ## Running the tests
 
 ```bash
-cargo test --workspace
+cargo test
 ```
 
 ---

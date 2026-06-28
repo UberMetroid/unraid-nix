@@ -11,6 +11,10 @@ pub struct HostAddr {
 }
 
 pub fn get_service_web_port(name: &str) -> Option<u16> {
+    // Validate service name to prevent path traversal before file I/O.
+    if !crate::store::is_valid_service_name(name) {
+        return None;
+    }
     let metadata_path = format!("/boot/config/plugins/nix/metadata/{}.json", name);
     if std::path::Path::new(&metadata_path).exists() {
         if let Ok(content) = std::fs::read_to_string(&metadata_path) {

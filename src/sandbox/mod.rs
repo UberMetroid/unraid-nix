@@ -10,6 +10,36 @@ pub mod cli;
 pub use builder::build_bwrap_command;
 pub use cli::parse_binds_string;
 
+/// Single-quote-escape a string for safe interpolation into a POSIX shell
+/// `sh -c` command. The output is wrapped in single quotes; any single quote
+/// inside is encoded as the standard `'\''` close-escape-reopen sequence.
+///
+/// Unlike a naive `replace("\"", "\\\"")` (which only handles the double-quote
+/// case and leaves `$()`, backticks, `;`, `|`, `&`, `\\`, and newlines live),
+/// this prevents the full set of shell metacharacters from being interpreted
+/// when the caller later passes the escaped string to `sh -c`.
+///
+/// # Example
+/// ```
+/// use crate::sandbox::sh_quote;
+/// assert_eq!(sh_quote(""), "''");
+/// assert_eq!(sh_quote("hello"), "'hello'");
+/// assert_eq!(sh_quote("o'clock"), "'o'\\''clock'");
+/// assert_eq!(sh_quote("$HOME"), "'$HOME'");
+/// ```
+pub fn sh_quote(s: &str) -> String {
+    let mut out = String::with_capacity(s.len() + 2);
+    out.push('\'');
+    for ch in s.chars() {
+        match ch {
+            '\'' => out.push_str("'\\''"),
+            _ => out.push(ch),
+        }
+    }
+    out.push('\'');
+    out
+}
+
 #[derive(Debug, Clone, PartialEq)]
 pub struct PortMapping {
     pub host: u16,
@@ -117,4 +147,62 @@ pub fn is_ipc_isolation_enabled() -> bool {
         return true;
     }
     true
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_sh_quote_empty() {
+        assert_eq!(sh_quote(""), "''");
+    }
+
+    #[test]
+    fn test_sh_quote_plain() {
+        assert_eq!(sh_quote("hello"), "'hello'");
+    }
+
+    #[test]
+    fn test_sh_quote_single_quote_in_string() {
+        // The classic `o'clock` case: a single quote inside the value
+        // must be encoded as `'\''` (close-escape-reopen).
+        assert_eq!(sh_quote("o'clock"), "'o'\\''clock'");
+    }
+
+    #[test]
+    fn test_sh_quote_blocks_command_substitution() {
+        // `$(curl evil)` must be neutralised — the `$` is inside single
+        // quotes so bash will not evaluate the subshell.
+        assert_eq!(sh_quote("$(curl evil)"), "'$(curl evil)'");
+    }
+
+    #[test]
+    fn test_sh_quote_blocks_backticks() {
+        // Backticks are a separate command-substitution form in POSIX sh
+        // and must also be inside single quotes to be neutralised.
+        assert_eq!(sh_quote("`id`"), "'`id`'");
+    }
+
+    #[test]
+    fn test_sh_quote_blocks_chained_commands() {
+        // `; rm -rf /` becomes a single literal token inside the quoted
+        // form, so the `;` is not interpreted as a command separator.
+        assert_eq!(sh_quote("; rm -rf /"), "'; rm -rf /'");
+    }
+
+    #[test]
+    fn test_sh_quote_blocks_pipe() {
+        assert_eq!(sh_quote("a | b"), "'a | b'");
+    }
+
+    #[test]
+    fn test_sh_quote_multibyte_utf8_safe() {
+        // Multi-byte chars must not panic on byte-level slicing. Iterating
+        // by char keeps us on UTF-8 boundaries.
+        let s = "é";
+        let q = sh_quote(s);
+        assert_eq!(q, "'é'");
+        assert_eq!(q.chars().count(), 3);
+    }
 }

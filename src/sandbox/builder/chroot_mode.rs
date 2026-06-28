@@ -1,4 +1,4 @@
-use crate::sandbox::{parse_ports, SandboxConfig};
+use crate::sandbox::{parse_ports, sh_quote, SandboxConfig};
 use super::find_nix_bash;
 
 pub fn build_chroot_command(
@@ -79,7 +79,10 @@ pub fn build_chroot_command(
         mounts_cmd.push(format!("hostname nix-sandbox-{}", config.name));
     }
     
-    let mounts_str = mounts_cmd.join(" && ").replace("\"", "\\\"");
+    // Single-quote each mount command fragment so user-supplied appdata/media/
+    // extra_binds values cannot inject shell metacharacters (`$()`, backticks,
+    // `;`, `|`, `&`, `\\`, newlines) into the sh -c sink.
+    let mounts_str = mounts_cmd.join(" && ");
     
     let mut env_vars = vec!["export HOME=/config".to_string()];
     let mut ld_paths = Vec::new();
@@ -140,7 +143,7 @@ pub fn build_chroot_command(
         chroot_dir,
         bash_path,
         env_str,
-        config.inner_command.replace("\"", "\\\"")
+        sh_quote(&config.inner_command)
     );
     
     Ok(runuser_cmd)

@@ -32,19 +32,17 @@ pub struct PresetInfo {
 
 pub fn extract_pkg_name(command: &str, preset_name: &str) -> String {
     if let Some(pos) = command.find("nixpkgs#") {
-        let start = pos + 8;
-        let mut end = start;
-        let chars: Vec<char> = command.chars().collect();
-        while end < chars.len() {
-            let c = chars[end];
-            if c.is_alphanumeric() || c == '-' || c == '_' || c == '.' {
-                end += 1;
-            } else {
-                break;
-            }
-        }
-        if end > start {
-            return command[start..end].to_string();
+        let start_byte = pos + "nixpkgs#".len();
+        // Walk `command` char-by-char starting at `start_byte`, collecting
+        // chars into a new String. Avoids `command[start..end]` byte slicing
+        // which would panic if the substring contains multi-byte UTF-8 chars.
+        let after = &command[start_byte..];
+        let pkg: String = after
+            .chars()
+            .take_while(|c| c.is_alphanumeric() || *c == '-' || *c == '_' || *c == '.')
+            .collect();
+        if !pkg.is_empty() {
+            return pkg;
         }
     }
     preset_name.to_string()
@@ -60,4 +58,44 @@ pub fn should_filter_presets() -> bool {
         }
     }
     true // Defaults to true
+}
+
+#[cfg(test)]
+mod tests {
+    use super::extract_pkg_name;
+
+    #[test]
+    fn test_extract_pkg_name_simple() {
+        assert_eq!(extract_pkg_name("nixpkgs#radarr", "radarr"), "radarr");
+    }
+
+    #[test]
+    fn test_extract_pkg_name_with_version_in_command() {
+        // After the pkg name, anything non-identifier terminates the package.
+        assert_eq!(extract_pkg_name("nixpkgs#hello --foo bar", "hello"), "hello");
+    }
+
+    #[test]
+    fn test_extract_pkg_name_with_dots_and_dashes() {
+        assert_eq!(extract_pkg_name("nixpkgs#my.app-name_v2", "x"), "my.app-name_v2");
+    }
+
+    #[test]
+    fn test_extract_pkg_name_falls_back_when_no_nixpkgs_prefix() {
+        assert_eq!(extract_pkg_name("github:owner/repo", "fallback"), "fallback");
+    }
+
+    #[test]
+    fn test_extract_pkg_name_multibyte_utf8_does_not_panic() {
+        // Old code did `command[start..end]` where `start` was a byte offset
+        // and `end` was a char-count. With multi-byte UTF-8 the slice would
+        // panic on a non-char-boundary. New code walks chars via take_while.
+        let pkg = extract_pkg_name("nixpkgs#中文包名", "fallback");
+        assert_eq!(pkg, "中文包名");
+    }
+
+    #[test]
+    fn test_extract_pkg_name_stops_at_first_non_identifier_char() {
+        assert_eq!(extract_pkg_name("nixpkgs#jellyfin-web/jellyfin", "j"), "jellyfin-web");
+    }
 }

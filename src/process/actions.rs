@@ -37,6 +37,13 @@ fn run_preflight_checks(name: &str) {
     }
 
     let metadata_path = format!("/boot/config/plugins/nix/metadata/{}.json", name);
+    // actions.rs:run_preflight_checks is invoked with an unvalidated service
+    // name. Reject any name that could escape the metadata directory via `..`,
+    // `/`, or other path characters before forming the read path.
+    if !crate::store::is_valid_service_name(name) {
+        crate::store::log_event("WARN", &format!("Skipping preflight metadata check for invalid service name '{}'", name));
+        return;
+    }
     crate::store::log_event("DEBUG", &format!("Checking metadata configuration at path: {}", metadata_path));
     if std::path::Path::new(&metadata_path).exists() {
         match std::fs::read_to_string(&metadata_path) {

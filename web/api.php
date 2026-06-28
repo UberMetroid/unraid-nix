@@ -99,8 +99,13 @@ if ($action === 'get-icon') {
 
     $path = trim(shell_exec("/usr/local/emhttp/plugins/nix/nix-helper get-icon " . escapeshellarg($service)));
     if (!empty($path) && file_exists($path) && is_file($path)) {
-        if (strpos($path, '/nix/store/') === 0) {
-            $ext = strtolower(pathinfo($path, PATHINFO_EXTENSION));
+        // Resolve symlinks and verify the canonical path is still inside
+        // /nix/store. Without this, a helper-returned path like
+        // "/nix/store/../../etc/passwd" passes the prefix check and would
+        // be served to the browser.
+        $real = realpath($path);
+        if ($real !== false && strpos($real, '/nix/store/') === 0) {
+            $ext = strtolower(pathinfo($real, PATHINFO_EXTENSION));
             if ($ext === 'svg') {
                 header('Content-Type: image/svg+xml');
             } elseif ($ext === 'png') {
@@ -111,7 +116,7 @@ if ($action === 'get-icon') {
                 header('Content-Type: image/png');
             }
             header('Cache-Control: max-age=86400');
-            readfile($path);
+            readfile($real);
             exit;
         }
     }

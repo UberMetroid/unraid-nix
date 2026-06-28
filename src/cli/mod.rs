@@ -97,12 +97,10 @@ pub fn run(args_list: Vec<String>) {
             metadata::get_metadata(&name);
         }
         args::Commands::DetectGpus => {
-            let dummy_args = Vec::new();
-            gpus::detect_gpus(&dummy_args);
+            gpus::detect_gpus();
         }
         args::Commands::SetupGpus => {
-            let dummy_args = Vec::new();
-            gpus::setup_gpu_driver_symlinks(&dummy_args);
+            gpus::setup_gpu_driver_symlinks();
         }
         args::Commands::StreamInstall(stream_args) => {
             stream_install::stream_install(&stream_args);

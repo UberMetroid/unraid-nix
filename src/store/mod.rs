@@ -43,6 +43,31 @@ pub fn mount_nix_store(persistent_path: &str) -> Result<(), String> {
 
     if !is_mounted {
         log_event("INFO", &format!("Mounting {} to /nix via bind-mount...", persistent_path));
+        // Defence-in-depth: if `persistent_path` is a symlink, refuse the
+        // bind-mount. Symlinks here would let an attacker redirect /nix at
+        // the host to a path of their choosing. `validate_store_path`
+        // already rejects empty and /boot-prefixed paths; this adds a
+        // symlink check on top of the prefix-based validation.
+        let path_meta = std::fs::symlink_metadata(persistent_path);
+        match path_meta {
+            Ok(m) if m.file_type().is_symlink() => {
+                let err_msg = format!(
+                    "Refusing to bind-mount: persistent path '{}' is a symlink",
+                    persistent_path
+                );
+                log_event("ERROR", &err_msg);
+                return Err(err_msg);
+            }
+            Err(e) => {
+                let err_msg = format!(
+                    "Failed to stat persistent path '{}': {}",
+                    persistent_path, e
+                );
+                log_event("ERROR", &err_msg);
+                return Err(err_msg);
+            }
+            _ => {}
+        }
         let status = Command::new("mount")
             .arg("--bind")
             .arg(persistent_path)
@@ -147,13 +172,29 @@ pub fn setup_nix_conf() -> Result<(), String> {
         return Err(err_msg);
     }
 
-    // Configure system-wide flake registry overrides to pin nixpkgs channel
+    // Configure system-wide flake registry overrides to pin nixpkgs channel.
+    // Build the JSON via serde_json::Value rather than format!() so a
+    // channel_ref containing `"`, `\`, or other JSON-significant characters
+    // cannot break or forge registry entries. The default value comes from
+    // nix.cfg which is admin-controlled, but defense-in-depth is cheap.
     let registry_path = "/nix/etc/nix/registry.json";
     let channel_ref = config::read_cfg_val("NIX_CHANNEL", "nixos-unstable");
-    let registry_content = format!(
-        r#"{{"flakes": [{{"from": {{"id": "nixpkgs", "type": "indirect"}}, "to": {{"owner": "NixOS", "repo": "nixpkgs", "ref": "{}", "type": "github"}}}}], "version": 2}}"#,
-        channel_ref
-    );
+    let registry_value = serde_json::json!({
+        "flakes": [{
+            "from": { "id": "nixpkgs", "type": "indirect" },
+            "to":   { "owner": "NixOS", "repo": "nixpkgs",
+                       "ref": channel_ref, "type": "github" }
+        }],
+        "version": 2
+    });
+    let registry_content = match serde_json::to_string_pretty(&registry_value) {
+        Ok(s) => s,
+        Err(e) => {
+            let err_msg = format!("Failed to serialize registry.json: {}", e);
+            log_event("ERROR", &err_msg);
+            return Err(err_msg);
+        }
+    };
     if let Err(e) = fs::write(registry_path, registry_content) {
         log_event("WARNING", &format!("Failed to write registry.json: {}", e));
     }

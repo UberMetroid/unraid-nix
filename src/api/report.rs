@@ -2,6 +2,12 @@ use std::fs;
 use serde_json::Value;
 
 pub fn render_verification_report(service: &str) -> String {
+    // Reject path traversal in `service` before constructing the read path.
+    // The caller (web/nix_*.page) passes a service name from process-compose,
+    // which we treat as untrusted.
+    if !crate::store::is_valid_service_name(service) {
+        return "".to_string();
+    }
     let metadata_file = format!("/boot/config/plugins/nix/metadata/{}.json", service);
     let content = match fs::read_to_string(&metadata_file) {
         Ok(c) => c,

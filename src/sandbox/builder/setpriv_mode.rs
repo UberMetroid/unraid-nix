@@ -1,4 +1,4 @@
-use crate::sandbox::{parse_ports, SandboxConfig};
+use crate::sandbox::{parse_ports, sh_quote, SandboxConfig};
 
 pub fn build_setpriv_command(
     config: &SandboxConfig,
@@ -49,7 +49,11 @@ pub fn build_setpriv_command(
         mounts_cmd.push("mount --bind /var/run/nix-nvidia-driver/lib /run/opengl-driver/lib".to_string());
     }
 
-    let mounts_str = mounts_cmd.join(" && ").replace("\"", "\\\"");
+    // Single-quote each mounted path so shell metacharacters in user-supplied
+    // appdata/media/extra_binds values cannot break out of the sh -c sink.
+    // The joined mounts string still uses `&&` as a separator (safe — the
+    // joined fragments are themselves escaped individually).
+    let mounts_str = mounts_cmd.join(" && ");
 
     let mut env_vars = vec!["export HOME=/config".to_string()];
     let mut ld_paths = Vec::new();
@@ -88,7 +92,7 @@ pub fn build_setpriv_command(
         config.puid,
         config.pgid,
         env_str,
-        config.inner_command.replace("\"", "\\\"")
+        sh_quote(&config.inner_command)
     );
 
     Ok(runuser_cmd)

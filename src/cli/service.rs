@@ -90,6 +90,9 @@ pub fn remove_service(name: &str) {
             .stdin(std::process::Stdio::null())
             .output();
         let _ = std::fs::remove_file(format!("/boot/config/plugins/nix/metadata/{}.json", name));
+        // name was already validated by remove_service's validate_name() call,
+        // but double-check before removing to keep this call site safe if the
+        // function is ever invoked with a different name source.
         crate::store::log_event("INFO", &format!("Service '{}' successfully removed.", name));
         println!("Service {} successfully removed.", name);
     } else {

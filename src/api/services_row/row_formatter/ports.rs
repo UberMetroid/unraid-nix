@@ -1,5 +1,9 @@
 pub fn get_service_ports(name: &str) -> Vec<crate::sandbox::PortMapping> {
     let mut ports = Vec::new();
+    // Validate service name to prevent path traversal before file I/O.
+    if !crate::store::is_valid_service_name(name) {
+        return ports;
+    }
     let metadata_path = format!("/boot/config/plugins/nix/metadata/{}.json", name);
     if std::path::Path::new(&metadata_path).exists() {
         if let Ok(content) = std::fs::read_to_string(&metadata_path) {

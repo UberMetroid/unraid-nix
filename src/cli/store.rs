@@ -63,10 +63,22 @@ pub fn sync_templates() {
     let extracted_dir = "/tmp/unraid-nix-templates-main";
     let dest_usr = "/usr/local/emhttp/plugins/nix";
     let dest_boot = "/boot/config/plugins/nix";
-    
+
+    // Sync presets to both the runtime plugin dir and the persistent flash
+    // mirror. Prior versions of this command duplicated each `cp -rf` and
+    // never actually copied into `dest_boot` — fix is to do four real copies.
     let cp_status = std::process::Command::new("sh")
         .arg("-c")
-        .arg(format!("mkdir -p {}/presets {}/presets_composed {}/presets {}/presets_composed && cp -rf {}/presets/* {}/presets/ 2>/dev/null; cp -rf {}/presets/* {}/presets/ 2>/dev/null; cp -rf {}/presets_composed/* {}/presets_composed/ 2>/dev/null; cp -rf {}/presets_composed/* {}/presets_composed/ 2>/dev/null", dest_usr, dest_usr, dest_boot, dest_boot, extracted_dir, dest_usr, extracted_dir, dest_boot, extracted_dir, dest_usr, extracted_dir, dest_boot))
+        .arg(format!(
+            "mkdir -p {usr}/presets {usr}/presets_composed {boot}/presets {boot}/presets_composed \
+             && cp -rf {src}/presets/* {usr}/presets/ 2>/dev/null \
+             && cp -rf {src}/presets_composed/* {usr}/presets_composed/ 2>/dev/null \
+             && cp -rf {src}/presets/* {boot}/presets/ 2>/dev/null \
+             && cp -rf {src}/presets_composed/* {boot}/presets_composed/ 2>/dev/null",
+            usr = dest_usr,
+            boot = dest_boot,
+            src = extracted_dir,
+        ))
         .status();
         
     let _ = std::fs::remove_file(tmp_zip);

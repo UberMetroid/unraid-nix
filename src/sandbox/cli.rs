@@ -8,7 +8,80 @@ pub fn parse_binds_string(s: &str) -> Result<Vec<(String, String)>, String> {
         if subparts.len() != 2 {
             return Err(format!("Invalid extra bind format: '{}'. Expected 'host:sandbox'.", part));
         }
-        binds.push((subparts[0].to_string(), subparts[1].to_string()));
+        let host = subparts[0];
+        let sandbox = subparts[1];
+        // Reject `..` traversal segments. We use std::path::Path so the
+        // check handles absolute paths (leading `/`) and empty components
+        // (`/mnt//data`) without false positives.
+        if has_traversal(host) || has_traversal(sandbox) {
+            return Err(format!(
+                "Invalid extra bind '{}': path traversal segments (`..`) or empty components are not allowed",
+                part
+            ));
+        }
+        binds.push((host.to_string(), sandbox.to_string()));
     }
     Ok(binds)
+}
+
+/// Returns true if `path` contains a `..` component or an internal
+/// `//` (which produces an empty component). Used to reject path-
+/// traversal attempts in extra-bind entries. A leading or trailing slash
+/// is allowed; only `..` segments and `//` are flagged.
+fn has_traversal(path: &str) -> bool {
+    use std::path::Path;
+    if Path::new(path)
+        .components()
+        .any(|c| matches!(c, std::path::Component::ParentDir))
+    {
+        return true;
+    }
+    path.contains("//")
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_parse_binds_empty() {
+        assert!(parse_binds_string("").unwrap().is_empty());
+        assert!(parse_binds_string("  ").unwrap().is_empty());
+    }
+
+    #[test]
+    fn test_parse_binds_valid() {
+        let v = parse_binds_string("/mnt/user/data:/data").unwrap();
+        assert_eq!(v, vec![("/mnt/user/data".to_string(), "/data".to_string())]);
+    }
+
+    #[test]
+    fn test_parse_binds_multiple() {
+        let v = parse_binds_string("/mnt/a:/a,/mnt/b:/b").unwrap();
+        assert_eq!(v.len(), 2);
+    }
+
+    #[test]
+    fn test_parse_binds_rejects_traversal_in_host() {
+        assert!(parse_binds_string("/mnt/../etc:/data").is_err());
+        assert!(parse_binds_string("../etc:/data").is_err());
+    }
+
+    #[test]
+    fn test_parse_binds_rejects_traversal_in_sandbox() {
+        assert!(parse_binds_string("/mnt/data:..").is_err());
+        assert!(parse_binds_string("/mnt/data:/sandbox/../escape").is_err());
+    }
+
+    #[test]
+    fn test_parse_binds_rejects_empty_segment() {
+        assert!(parse_binds_string("/mnt//foo:/data").is_err());
+        assert!(parse_binds_string("/mnt/foo:/data//bar").is_err());
+    }
+
+    #[test]
+    fn test_parse_binds_rejects_wrong_format() {
+        assert!(parse_binds_string("/mnt/no-colon").is_err());
+        assert!(parse_binds_string("a:b:c").is_err());
+    }
 }

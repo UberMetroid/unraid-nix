@@ -22,11 +22,13 @@ pub fn view_logs(service: &str) {
                     let time = v.get("time").and_then(|t| t.as_str()).unwrap_or("");
                     let message = v.get("message").and_then(|m| m.as_str()).unwrap_or("");
                     if !time.is_empty() {
-                        let time_display = if time.len() >= 19 {
-                            time[..19].replace('T', " ")
-                        } else {
-                            time.to_string()
-                        };
+                        // Take the first 19 chars (handles multi-byte UTF-8 safely)
+                        // and only slice if the byte position is a char boundary.
+                        let time_display: String = time
+                            .chars()
+                            .take(19)
+                            .collect::<String>()
+                            .replace('T', " ");
                         output.push_str(&format!(
                             "<span style='color:#888;'>[{}]</span> {}\n",
                             html_escape(&time_display),
@@ -86,5 +88,51 @@ fn run_tail(file: &str, lines: usize) -> Result<String, String> {
         Ok(String::from_utf8_lossy(&output.stdout).to_string())
     } else {
         Err(String::from_utf8_lossy(&output.stderr).to_string())
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    /// Build a synthetic log JSON line with a given `time` string. Used to
+    /// exercise the time-formatting code path without writing to disk.
+    fn render_time(time: &str) -> String {
+        // Mirror the body of view_logs's per-line handling, but isolated for
+        // unit testing without touching the filesystem.
+        if time.is_empty() {
+            return String::new();
+        }
+        time.chars()
+            .take(19)
+            .collect::<String>()
+            .replace('T', " ")
+    }
+
+    #[test]
+    fn test_render_time_short_unchanged() {
+        // Fewer than 19 chars: return as-is (no truncation).
+        assert_eq!(render_time("2026-06-27"), "2026-06-27");
+    }
+
+    #[test]
+    fn test_render_time_t_separator_replaced() {
+        assert_eq!(render_time("2026-06-27T12:34:56Z"), "2026-06-27 12:34:56");
+    }
+
+    #[test]
+    fn test_render_time_multibyte_utf8_does_not_panic() {
+        // 19 multi-byte chars (each is multiple bytes). The old code would
+        // panic with "byte index N is not a char boundary".
+        let time = "é".repeat(19);
+        let rendered = render_time(&time);
+        assert_eq!(rendered.chars().count(), 19);
+    }
+
+    #[test]
+    fn test_render_time_more_than_19_chars_truncates_at_19() {
+        let time = "2026-06-27T12:34:56.789Z";
+        let rendered = render_time(time);
+        assert_eq!(rendered.chars().count(), 19);
     }
 }

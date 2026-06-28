@@ -83,7 +83,14 @@ pub fn render_service_row(
     };
 
     let port_num = get_service_web_port(&s.name);
-    let metadata_file = format!("/boot/config/plugins/nix/metadata/{}.json", s.name);
+    // Validate service name to prevent path traversal before file I/O.
+    let metadata_file = if crate::store::is_valid_service_name(&s.name) {
+        format!("/boot/config/plugins/nix/metadata/{}.json", s.name)
+    } else {
+        // Skip metadata read for invalid names. get_service_web_port already
+        // guards the same case internally.
+        String::new()
+    };
     let mut bind_address_override = None;
     let mut appdata_path = None;
     let mut extra_binds_vec = Vec::new();

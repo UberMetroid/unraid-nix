@@ -121,14 +121,14 @@ pub fn get_detected_gpus() -> DetectedGpus {
     }
 }
 
-pub fn detect_gpus(_args: &[String]) {
+pub fn detect_gpus() {
     let gpus = load_or_detect_gpus();
     println!("{}", serde_json::to_string(&gpus).unwrap_or_else(|_| "[]".to_string()));
 }
 
 /// Prepares the target symlink directory for NVIDIA / CUDA drivers on the host.
 /// Replaces the legacy `nix-gpu-setup.sh` script.
-pub fn setup_gpu_driver_symlinks(_args: &[String]) {
+pub fn setup_gpu_driver_symlinks() {
     let target_dir = std::path::Path::new("/var/run/nix-nvidia-driver/lib");
     if let Err(e) = fs::create_dir_all(target_dir) {
         eprintln!("Failed to create GPU target directory: {}", e);

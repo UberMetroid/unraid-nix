@@ -11,6 +11,11 @@ pub fn get_metadata(name: &str) {
 }
 
 pub fn get_metadata_json(name: &str) -> String {
+    // Reject path-traversal in the service name before constructing the path.
+    if !crate::store::is_valid_service_name(name) {
+        eprintln!("Error: Invalid service name.");
+        exit(1);
+    }
     let meta_file = format!("/boot/config/plugins/nix/metadata/{}.json", name);
     if let Ok(content) = std::fs::read_to_string(&meta_file) {
         if let Ok(v) = serde_json::from_str::<Value>(&content) {
