@@ -46,7 +46,7 @@ pub fn save_settings(args: &crate::cli::args::SaveSettingsArgs) {
     // Write settings to ini config
     let _ = std::fs::create_dir_all("/boot/config/plugins/nix");
     let mut cfg_content = format!(
-        "NIX_STORE_PATH=\"{}\"\nAUTOSTART_FLAKES=\"{}\"\nENABLE_STORAGE_SANDBOX=\"{}\"\nENABLE_CLI_INSTALL=\"no\"\nSHOW_IN_NAVIGATION=\"{}\"\nALLOW_SOURCE_BUILDS=\"{}\"\nFILTER_PRESETS_BY_HARDWARE=\"{}\"\nENABLE_PID_ISOLATION=\"{}\"\nENABLE_UTS_ISOLATION=\"{}\"\nENABLE_IPC_ISOLATION=\"{}\"\nAUTO_GC=\"{}\"\nNIX_STORE_QUOTA=\"30\"\nBUILD_CORES=\"{}\"\nBUILD_JOBS=\"{}\"\nGC_MIN_FREE=\"{}\"\nGC_MAX_FREE=\"{}\"\nNIX_CHANNEL=\"{}\"\nSETTINGS_CONFIRMED=\"yes\"\n",
+        "NIX_STORE_PATH=\"{}\"\nAUTOSTART_FLAKES=\"{}\"\nENABLE_STORAGE_SANDBOX=\"{}\"\nSHOW_IN_NAVIGATION=\"{}\"\nALLOW_SOURCE_BUILDS=\"{}\"\nFILTER_PRESETS_BY_HARDWARE=\"{}\"\nENABLE_PID_ISOLATION=\"{}\"\nENABLE_UTS_ISOLATION=\"{}\"\nENABLE_IPC_ISOLATION=\"{}\"\nAUTO_GC=\"{}\"\nBUILD_CORES=\"{}\"\nBUILD_JOBS=\"{}\"\nGC_MIN_FREE=\"{}\"\nGC_MAX_FREE=\"{}\"\nNIX_CHANNEL=\"{}\"\nSETTINGS_CONFIRMED=\"yes\"\n",
         clean_store_path, autostart, enable_sandbox, show_in_nav, allow_source_builds, filter_presets_by_hardware, enable_pid_isolation, enable_uts_isolation, enable_ipc_isolation, auto_gc, build_cores, build_jobs, gc_min_free, gc_max_free, nix_channel
     );
     if !default_appdata_path.is_empty() {
