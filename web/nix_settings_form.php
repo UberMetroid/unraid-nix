@@ -238,20 +238,21 @@
     <div style="display: flex; gap: 15px; flex-wrap: wrap;">
         <div style="flex: 1; min-width: 240px; padding: 12px; background: var(--nix-bg-secondary); border-radius: 6px; border: 1px solid var(--nix-border-primary);">
             <div style="font-size: 10px; font-weight: bold; text-transform: uppercase; color: var(--nix-text-muted); margin-bottom: 6px; letter-spacing: 0.5px;">CPU Virtualization (KVM)</div>
-            <div style="display: flex; align-items: center; gap: 8px;">
-                <?php if ($kvm_status === 'active'): ?>
-                    <i class="fa fa-check-circle" style="color: #2ecc71; font-size: 16px;"></i>
-                    <span style="font-size: 13px; font-weight: bold; color: var(--nix-text-primary);"><?php echo htmlspecialchars($kvm_details); ?></span>
-                <?php elseif ($kvm_status === 'disabled'): ?>
-                    <i class="fa fa-warning" style="color: #e67e22; font-size: 16px;"></i>
-                    <span style="font-size: 13px; font-weight: bold; color: #e67e22;"><?php echo htmlspecialchars($kvm_details); ?></span>
-                <?php else: ?>
-                    <i class="fa fa-times-circle" style="color: var(--nix-text-muted); font-size: 16px;"></i>
-                    <span style="font-size: 13px; font-weight: bold; color: var(--nix-text-muted);"><?php echo htmlspecialchars($kvm_details); ?></span>
-                <?php endif; ?>
-            </div>
-            <?php if ($kvm_status === 'active' && !empty($kvm_features)): ?>
-                <table style="width: 100% !important; border-collapse: collapse !important; border: none !important; margin-top: 10px !important; font-size: 11px !important; line-height: 1.4 !important; box-shadow: none !important; background: transparent !important;">
+            <table style="width: 100% !important; border-collapse: collapse !important; border: none !important; font-size: 11px !important; line-height: 1.4 !important; box-shadow: none !important; background: transparent !important;">
+                <tr style="background: transparent !important; border: none !important; box-shadow: none !important;">
+                    <td style="color: var(--nix-text-muted) !important; padding: 4px 0 !important; border: none !important; background: transparent !important; text-align: left !important; font-size: 11px !important;">Virtualization Engine:</td>
+                    <td style="text-align: right !important; font-weight: bold !important; color: <?php echo ($kvm_status === 'active') ? 'var(--nix-text-primary)' : (($kvm_status === 'disabled') ? '#e67e22' : 'var(--nix-text-muted)'); ?> !important; padding: 4px 0 !important; border: none !important; background: transparent !important; font-size: 11px !important; display: inline-flex !important; align-items: center !important; gap: 6px !important; width: 100% !important; justify-content: flex-end !important;">
+                        <?php if ($kvm_status === 'active'): ?>
+                            <i class="fa fa-check-circle" style="color: #2ecc71; font-size: 13px;"></i>
+                        <?php elseif ($kvm_status === 'disabled'): ?>
+                            <i class="fa fa-warning" style="color: #e67e22; font-size: 13px;"></i>
+                        <?php else: ?>
+                            <i class="fa fa-times-circle" style="color: var(--nix-text-muted); font-size: 13px;"></i>
+                        <?php endif; ?>
+                        <?php echo htmlspecialchars($kvm_details); ?>
+                    </td>
+                </tr>
+                <?php if ($kvm_status === 'active' && !empty($kvm_features)): ?>
                     <tr style="background: transparent !important; border: none !important; box-shadow: none !important;">
                         <td style="color: var(--nix-text-muted) !important; padding: 4px 0 !important; border: none !important; background: transparent !important; text-align: left !important; font-size: 11px !important;">Nested Virtualization:</td>
                         <td style="text-align: right !important; font-weight: bold !important; color: <?php echo $kvm_features['nested'] === 'Enabled' ? '#2ecc71' : 'var(--nix-text-muted)'; ?> !important; padding: 4px 0 !important; border: none !important; background: transparent !important; font-size: 11px !important;"><?php echo $kvm_features['nested']; ?></td>
@@ -264,8 +265,8 @@
                         <td style="color: var(--nix-text-muted) !important; padding: 4px 0 !important; border: none !important; background: transparent !important; text-align: left !important; font-size: 11px !important;">SLAT (EPT/RVI):</td>
                         <td style="text-align: right !important; font-weight: bold !important; color: var(--nix-text-primary) !important; padding: 4px 0 !important; border: none !important; background: transparent !important; font-size: 11px !important;"><?php echo $kvm_features['slat']; ?></td>
                     </tr>
-                </table>
-            <?php endif; ?>
+                <?php endif; ?>
+            </table>
         </div>
         <div style="flex: 1; min-width: 280px; padding: 12px; background: var(--nix-bg-secondary); border-radius: 6px; border: 1px solid var(--nix-border-primary);">
             <div style="font-size: 10px; font-weight: bold; text-transform: uppercase; color: var(--nix-text-muted); margin-bottom: 6px; letter-spacing: 0.5px;">GPU Transcoding & Passthrough</div>
