@@ -9,6 +9,7 @@ echo "<div class=\"nix-plugin-container theme-{$nix_theme}\">";
 
 <link type="text/css" rel="stylesheet" href="/plugins/nix/styles_layout.css?v=<?php echo time(); ?>">
 <link type="text/css" rel="stylesheet" href="/plugins/nix/styles_widgets.css?v=<?php echo time(); ?>">
+<link type="text/css" rel="stylesheet" href="/plugins/nix/styles_cards.css?v=<?php echo time(); ?>">
 <script src="/plugins/nix/nix.js"></script>
 
 <!-- 1. Presets Store Section -->
@@ -19,6 +20,77 @@ echo "<div class=\"nix-plugin-container theme-{$nix_theme}\">";
 </div>
 
 <script>
+var activeScopes = [];
+var activeCategories = [];
+
+function filterPresetScope(scope, btn) {
+    var idx = activeScopes.indexOf(scope);
+    if (idx > -1) {
+        activeScopes.splice(idx, 1);
+        btn.classList.remove('active');
+    } else {
+        activeScopes.push(scope);
+        btn.classList.add('active');
+    }
+    applyPresetFilters();
+}
+
+function filterPresetCategory(cat, btn) {
+    var idx = activeCategories.indexOf(cat);
+    if (idx > -1) {
+        activeCategories.splice(idx, 1);
+        btn.classList.remove('active');
+    } else {
+        activeCategories.push(cat);
+        btn.classList.add('active');
+    }
+    applyPresetFilters();
+}
+
+function filterPresetsStore() {
+    applyPresetFilters();
+}
+
+function applyPresetFilters() {
+    var q = $("#nix-preset-search").val().toLowerCase().trim();
+    var cards = document.querySelectorAll('.nix-preset-card');
+    cards.forEach(function(card) {
+        var name = card.getAttribute('data-name');
+        var desc = card.getAttribute('data-desc');
+        var category = card.getAttribute('data-category');
+        var isComposed = card.getAttribute('data-is-composed') === 'true';
+        
+        var matchesQuery = (name.indexOf(q) !== -1 || desc.indexOf(q) !== -1);
+        
+        var matchesScope = false;
+        if (activeScopes.length === 0 || activeScopes.length === 2) {
+            matchesScope = true;
+        } else {
+            var selectedScope = activeScopes[0];
+            if (selectedScope === 'composed') {
+                matchesScope = isComposed;
+            } else if (selectedScope === 'standard') {
+                matchesScope = !isComposed;
+            }
+        }
+        
+        var matchesCategory = false;
+        if (activeCategories.length === 0) {
+            matchesCategory = true;
+        } else {
+            matchesCategory = activeCategories.indexOf(category) > -1;
+        }
+        
+        if (matchesQuery && matchesScope && matchesCategory) {
+            card.style.display = 'flex';
+        } else {
+            card.style.display = 'none';
+        }
+    });
+}
+
+setTimeout(applyPresetFilters, 50);
+
 function showServiceModal(pkg) {
     sessionStorage.setItem('nix_install_uri', pkg);
     if (window.initInstallForm) {

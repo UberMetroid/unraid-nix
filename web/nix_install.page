@@ -209,6 +209,8 @@ $host_ips = get_host_ips_php();
 <script>
 window.NIX_APPDATA_ROOT = <?php echo json_encode($appdata_root); ?>;
 </script>
+<script src="/plugins/nix/nix_install_ports.js?v=<?php echo time(); ?>"></script>
+<script src="/plugins/nix/nix_install_presets.js?v=<?php echo time(); ?>"></script>
 <script src="/plugins/nix/nix_install.js?v=<?php echo time(); ?>"></script>
 
 

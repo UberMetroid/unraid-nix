@@ -1,0 +1,91 @@
+.nix-services-table, .nix-search-table {
+    width: 100%;
+    table-layout: auto;
+    border-collapse: collapse;
+    margin-top: 10px;
+    background: var(--nix-bg-primary) !important;
+    position: relative !important;
+}
+
+.nix-services-table {
+    min-width: 800px;
+}
+
+.nix-search-table {
+    min-width: 700px;
+}
+
+.nix-services-table thead, .nix-search-table thead {
+    display: table-header-group !important;
+    position: static !important;
+    background: var(--nix-bg-secondary) !important;
+}
+
+.nix-services-table tbody, .nix-search-table tbody {
+    display: table-row-group !important;
+}
+
+.nix-services-table td code, .nix-search-table td code {
+    white-space: pre-wrap !important;
+    word-break: break-all !important;
+}
+
+.nix-services-table td a, .nix-search-table td a {
+    word-break: break-all !important;
+}
+
+.nix-services-table tbody tr, .nix-search-table tbody tr {
+    background: var(--nix-bg-primary) !important;
+    display: table-row !important;
+    position: static !important;
+}
+
+.nix-services-table tbody tr:nth-child(even), .nix-search-table tbody tr:nth-child(even) {
+    background: var(--nix-bg-secondary) !important;
+}
+
+.nix-services-table thead tr, .nix-search-table thead tr {
+    background: var(--nix-bg-secondary) !important;
+    display: table-row !important;
+    position: static !important;
+}
+
+.nix-search-table th:nth-child(1), .nix-search-table td:nth-child(1) { width: 25%; word-break: break-all; white-space: normal !important; }
+.nix-search-table td:nth-child(1) a, .nix-search-table td:nth-child(1) code { white-space: normal !important; word-break: break-all !important; overflow-wrap: break-word !important; }
+.nix-search-table th:nth-child(2), .nix-search-table td:nth-child(2) { width: 15%; word-break: break-all; }
+.nix-search-table th:nth-child(3), .nix-search-table td:nth-child(3) { width: 40%; white-space: normal; overflow-wrap: break-word; word-break: normal; }
+.nix-search-table th:nth-child(4), .nix-search-table td:nth-child(4) { width: 20%; text-align: center; }
+
+.nix-services-table th:nth-child(1), .nix-services-table td:nth-child(1) { width: 10%; }
+.nix-services-table th:nth-child(2), .nix-services-table td:nth-child(2) { width: 10%; }
+.nix-services-table th:nth-child(3), .nix-services-table td:nth-child(3) { width: 25%; word-break: break-all; }
+.nix-services-table th:nth-child(4), .nix-services-table td:nth-child(4) { width: 35%; word-break: break-all; }
+.nix-services-table th:nth-child(5), .nix-services-table td:nth-child(5) { width: 10%; }
+.nix-services-table th:nth-child(6), .nix-services-table td:nth-child(6) { width: 10%; text-align: center; }
+
+.nix-services-table th, .nix-search-table th {
+    text-align: left;
+    padding: 12px;
+    background: var(--nix-bg-secondary) !important;
+    color: var(--nix-text-secondary);
+    font-size: 12px;
+    text-transform: uppercase;
+    font-weight: 600;
+    border-bottom: 2px solid var(--nix-border-primary);
+    position: static !important;
+    top: auto !important;
+    z-index: auto !important;
+    transform: none !important;
+    display: table-cell !important;
+}
+
+.nix-services-table td, .nix-search-table td {
+    padding: 12px;
+    border-bottom: 1px solid var(--nix-border-primary);
+    color: var(--nix-text-bright) !important;
+    font-size: 13px;
+    vertical-align: middle;
+    background: var(--nix-bg-primary) !important;
+    display: table-cell !important;
+    position: static !important;
+}

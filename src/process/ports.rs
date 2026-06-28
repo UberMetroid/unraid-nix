@@ -10,3 +10,19 @@ pub fn is_port_in_use(port: u16) -> bool {
         Err(_) => true,
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_is_port_in_use() {
+        let port = 19842;
+        assert_eq!(is_port_in_use(port), false);
+
+        let _listener = TcpListener::bind(("127.0.0.1", port)).unwrap();
+        assert_eq!(is_port_in_use(port), true);
+
+        drop(_listener);
+    }
+}
