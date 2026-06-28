@@ -168,11 +168,8 @@ pub fn render_service_row(
     format!(
         r#"<div class="nix-preset-card nix-service-card" data-name="{}" style="background: var(--nix-bg-secondary); border: 1px solid var(--nix-border-primary); border-radius: 6px; padding: 16px; display: flex; flex-direction: column; justify-content: space-between; transition: transform 0.2s ease, border-color 0.2s ease, background 0.2s ease, box-shadow 0.2s ease; height: 240px; position: relative;">
             <div>
-                <!-- Header Row 1: Icon on Left, Button Bar on Right -->
-                <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;">
-                    <div style="width: 24px; height: 24px; border-radius: 4px; background: {}; border: 1px solid {}; display: flex; align-items: center; justify-content: center; color: {}; flex-shrink: 0;">
-                        <i class="fa {}" style="font-size: 11px;"></i>
-                    </div>
+                <!-- Header Row 1: Button Bar on Right -->
+                <div style="display: flex; justify-content: flex-end; margin-bottom: 8px;">
                     <div style="display: flex; align-items: center; gap: 4px; flex-shrink: 0;">
                         {}
                         {}
@@ -183,13 +180,18 @@ pub fn render_service_row(
                     </div>
                 </div>
                 
-                <!-- Header Row 2: Flake Name on Left, Status Badge on Right -->
-                <div style="display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; margin-bottom: 10px;">
-                    <div style="display: flex; flex-direction: column; overflow: hidden; min-width: 0; flex: 1;">
-                        <strong style="font-size: 14px; color: var(--nix-text-primary); word-break: break-word; overflow-wrap: break-word;" title="{}">{}</strong>
-                        <span style="font-family: monospace; color: var(--nix-text-secondary); font-size: 10px; margin-top: 2px;">nixpkgs#{}</span>
+                <!-- Header Row 2: Icon next to Flake Name on Left, Status Badge on Right -->
+                <div style="display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 10px;">
+                    <div style="display: flex; align-items: center; gap: 10px; min-width: 0; flex: 1;">
+                        <div style="width: 32px; height: 32px; border-radius: 4px; background: {}; border: 1px solid {}; display: flex; align-items: center; justify-content: center; color: {}; flex-shrink: 0;">
+                            <i class="fa {}" style="font-size: 15px;"></i>
+                        </div>
+                        <div style="display: flex; flex-direction: column; overflow: hidden;">
+                            <strong style="font-size: 14px; color: var(--nix-text-primary); word-break: break-word; overflow-wrap: break-word;" title="{}">{}</strong>
+                            <span style="font-family: monospace; color: var(--nix-text-secondary); font-size: 10px; margin-top: 2px;">nixpkgs#{}</span>
+                        </div>
                     </div>
-                    <div class="nix-service-status-badge" data-service="{}" style="flex-shrink: 0; margin-top: 2px;">
+                    <div class="nix-service-status-badge" data-service="{}" style="flex-shrink: 0;">
                         <span class="status-indicator {}">{}</span>
                     </div>
                 </div>
@@ -215,6 +217,6 @@ pub fn render_service_row(
                 </div>
             </div>
         </div>"#,
-        s.name, cfg.bg, cfg.border, cfg.color, cfg.icon, start_btn, stop_btn, edit_btn, logs_btn, autostart_html, s.name, s.name, s.name, s.name, s.name, status_class, status_label, version_badge, lan_ip_port_html, mapped_drives_html, resources_html
+        s.name, start_btn, stop_btn, edit_btn, logs_btn, autostart_html, s.name, cfg.bg, cfg.border, cfg.color, cfg.icon, s.name, s.name, s.name, s.name, status_class, status_label, version_badge, lan_ip_port_html, mapped_drives_html, resources_html
     )
 }
